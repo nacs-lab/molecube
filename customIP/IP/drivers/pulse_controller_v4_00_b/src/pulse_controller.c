@@ -84,7 +84,7 @@ void PULSE_CONTROLLER_init(void* base_addr, unsigned nDDS, unsigned bResetDDS, i
 	   if(bResetDDS)
 			PULSE_CONTROLLER_dds_reset(base_addr, iDDS);
 
-      PULSE_CONTROLLER_set_dds_div2(base_addr, iDDS, 0);
+      //TR: no div2 for AD9914 PULSE_CONTROLLER_set_dds_div2(base_addr, iDDS, 0);
    }
 
 //   printf("PULSE_CONTROLLER_init... get PMT\r\n");
@@ -101,8 +101,8 @@ void PULSE_CONTROLLER_reinit_DDS(void* base_addr, unsigned nDDS)
    {
       ftw = PULSE_CONTROLLER_get_dds_freq(base_addr, iDDS);
       PULSE_CONTROLLER_dds_reset(base_addr, iDDS);
-      PULSE_CONTROLLER_set_dds_div2(base_addr, iDDS, 0);
-	  PULSE_CONTROLLER_set_dds_freq(base_addr, iDDS, ftw);
+      //TR: no div2 for AD9914 PULSE_CONTROLLER_set_dds_div2(base_addr, iDDS, 0);
+	    PULSE_CONTROLLER_set_dds_freq(base_addr, iDDS, ftw);
    }
 
    PULSE_CONTROLLER_get_PMT(base_addr);
@@ -153,20 +153,18 @@ void PULSE_CONTROLLER_dds_reset(void* base_addr, char i)
    ddsPhase[i] = 0;
 }
 
-//! DDS functions - set whether GHz DDS clock is divided by 2
-void PULSE_CONTROLLER_set_dds_div2(void* base_addr, char i, int b)
-{
-   if(b)
-      PULSE_CONTROLLER_short_pulse(base_addr, 0x10000002 | (i << 4), 0x18000000);
-   else
-      PULSE_CONTROLLER_short_pulse(base_addr, 0x10000002 | (i << 4), 0x58000000);
-}
-
 //! DDS functions - get byte from address on DDS i
 unsigned PULSE_CONTROLLER_get_dds_byte(void* base_addr, char i, unsigned address)
 {
-   PULSE_CONTROLLER_short_pulse(base_addr, 0x10000003 | (i << 4), address << 18);
-   return (PULSE_CONTROLLER_pop_result(base_addr) & 0xff);
+   PULSE_CONTROLLER_short_pulse(base_addr, 0x10000003 | (i << 4) | ((address+1) << 9), 0);
+   return (PULSE_CONTROLLER_pop_result(base_addr) & 0x00ff0000) >> 16;
+}
+
+//! DDS functions - get two bytes from address+1 and adress on DDS i
+unsigned PULSE_CONTROLLER_get_dds_two_bytes(void* base_addr, char i, unsigned address)
+{
+   PULSE_CONTROLLER_short_pulse(base_addr, 0x10000003 | (i << 4) | ((address+1) << 9), 0);
+   return (PULSE_CONTROLLER_pop_result(base_addr) & 0xffff0000) >> 16;
 }
 
 //! toggle init.  reset prior to new sequence

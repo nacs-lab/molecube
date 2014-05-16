@@ -105,6 +105,7 @@ unsigned int PULSE_CONTROLLER_get_dds_freq(void* base_addr, char i);
 unsigned int PULSE_CONTROLLER_get_dds_phase(void* base_addr, char i);
 
 unsigned PULSE_CONTROLLER_get_dds_byte(void* base_addr, char i, unsigned address);
+unsigned PULSE_CONTROLLER_get_dds_two_bytes(void* base_addr, char i, unsigned address);
 
 /*
 Timing-check functions to help figure out if experiment timing is being met.
