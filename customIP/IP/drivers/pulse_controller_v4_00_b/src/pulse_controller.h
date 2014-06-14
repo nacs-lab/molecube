@@ -97,6 +97,8 @@ void PULSER_get_ttl(void* base_addr, unsigned* high_mask, unsigned* low_mask);
 
 //DDS functions
 void PULSER_dds_reset(void* base_addr, char i); 
+void PULSER_dds_reset_sel(void* base_addr, unsigned mask); 
+void PULSER_dds_set_sel(void* base_addr, unsigned mask); 
 void PULSER_set_dds_div2(void* base_addr, char i, int b);
 
 void PULSER_set_dds_freq(void* base_addr, char i, unsigned freq);

@@ -153,6 +153,18 @@ void PULSER_dds_reset(void* base_addr, char i)
    ddsPhase[i] = 0;
 }
 
+//! DDS functions - reset DDS selected by bitmask mask
+void PULSER_dds_reset_sel(void* base_addr, unsigned mask)
+{
+  PULSER_short_pulse(base_addr, 0x10000005, mask);
+}
+
+//! DDS functions - select DDS (high bits in mask).  Remember to unselect (mask = 0)
+void PULSER_dds_set_sel(void* base_addr, unsigned mask)
+{
+  PULSER_short_pulse(base_addr, 0x10000006, mask);
+}
+
 //! DDS functions - get byte from address on DDS i
 unsigned PULSER_get_dds_byte(void* base_addr, char i, unsigned address)
 {
