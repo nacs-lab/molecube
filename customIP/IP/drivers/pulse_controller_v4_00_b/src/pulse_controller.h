@@ -5,6 +5,9 @@
 * Date:              Tue Jul 10 23:45:58 2012 (by Create and Import Peripheral Wizard)
 *****************************************************************************/
 
+/* The name PULSER is due to Chris Langer, who developed the original FPGA 
+ * pulse generator while doing his PhD research at NIST */
+ 
 #ifndef PULSER_H
 #define PULSER_H
 

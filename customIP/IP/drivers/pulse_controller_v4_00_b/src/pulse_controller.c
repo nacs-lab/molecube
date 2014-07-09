@@ -24,10 +24,11 @@ unsigned extra_flags = 0;
 
 void (*idle_func)(void);
 
+#define MAX_NDDS 32
 
-unsigned int ddsFTW[NDDS];
-unsigned short ddsPhase[NDDS];
-unsigned short ddsAmp[NDDS];
+unsigned int ddsFTW[MAX_NDDS];
+unsigned short ddsPhase[MAX_NDDS];
+unsigned short ddsAmp[MAX_NDDS];
 
 #define ENABLE_TIMING_CHECK    (0x08000000)
 
@@ -265,7 +266,7 @@ unsigned PULSER_read_slave_reg(void* base_addr, char n, unsigned offset)
 
 void PULSER_self_test(void* base_addr, int nIO)
 {
-   unsigned ftw [NDDS];
+   unsigned ftw [MAX_NDDS];
    unsigned cycle = 0;
    unsigned nBad = 0;
    char iDDS;
