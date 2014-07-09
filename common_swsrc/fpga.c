@@ -3,7 +3,7 @@
 
 #ifdef LINUX_OS
 
-#include "platform/zynq_linux/linux_file_util.h"
+#include "linux_file_util.h"
 
 /*Hide real GPIO IDs from user.  
  *User accesses inputs GPIO 0...(NGPIO_IN-1)
