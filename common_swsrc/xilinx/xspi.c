@@ -89,7 +89,7 @@
 * 3.01a sdm  04/23/10 Updated the driver to handle new slave mode interrupts
 *		      and the DTR Half Empty interrupt.
 * 3.04a bss  03/21/12 Updated XSpi_CfgInitialize to support XIP Mode
-* 3.05a adk  18/04/13 Updated the code to avoid unused variable 
+* 3.05a adk  18/04/13 Updated the code to avoid unused variable
 *	              warnings when compiling with the -Wextra -Wall flags
 *		      In the file xspi.c. CR:705005.
 * 3.06a adk  07/08/13 Added a dummy read in the CfgInitialize(), if startup
@@ -115,7 +115,7 @@
 /************************** Function Prototypes ******************************/
 
 static void StubStatusHandler(void *CallBackRef, u32 StatusEvent,
-				unsigned int ByteCount);
+                              unsigned int ByteCount);
 
 void XSpi_Abort(XSpi *InstancePtr);
 
@@ -158,120 +158,120 @@ void XSpi_Abort(XSpi *InstancePtr);
 *
 ******************************************************************************/
 int XSpi_CfgInitialize(XSpi *InstancePtr, XSpi_Config *Config,
-			u32 EffectiveAddr)
+                       u32 EffectiveAddr)
 {
-	u8  Buffer[3];
-	u32 ControlReg;
-	
-	Xil_AssertNonvoid(InstancePtr != NULL);
+    u8  Buffer[3];
+    u32 ControlReg;
 
-	/*
-	 * If the device is started, disallow the initialize and return a status
-	 * indicating it is started.  This allows the user to stop the device
-	 * and reinitialize, but prevents a user from inadvertently
-	 * initializing.
-	 */
-	if (InstancePtr->IsStarted == XIL_COMPONENT_IS_STARTED) {
-		return XST_DEVICE_IS_STARTED;
-	}
+    Xil_AssertNonvoid(InstancePtr != NULL);
 
-	/*
-	 * Set some default values.
-	 */
-	InstancePtr->IsStarted = 0;
-	InstancePtr->IsBusy = FALSE;
+    /*
+     * If the device is started, disallow the initialize and return a status
+     * indicating it is started.  This allows the user to stop the device
+     * and reinitialize, but prevents a user from inadvertently
+     * initializing.
+     */
+    if (InstancePtr->IsStarted == XIL_COMPONENT_IS_STARTED) {
+        return XST_DEVICE_IS_STARTED;
+    }
 
-	InstancePtr->StatusHandler = StubStatusHandler;
+    /*
+     * Set some default values.
+     */
+    InstancePtr->IsStarted = 0;
+    InstancePtr->IsBusy = FALSE;
 
-	InstancePtr->SendBufferPtr = NULL;
-	InstancePtr->RecvBufferPtr = NULL;
-	InstancePtr->RequestedBytes = 0;
-	InstancePtr->RemainingBytes = 0;
-	InstancePtr->BaseAddr = EffectiveAddr;
-	InstancePtr->HasFifos = Config->HasFifos;
-	InstancePtr->SlaveOnly = Config->SlaveOnly;
-	InstancePtr->NumSlaveBits = Config->NumSlaveBits;
-	if (Config->DataWidth == 0) {
-		InstancePtr->DataWidth = XSP_DATAWIDTH_BYTE;
-	} else {
-		InstancePtr->DataWidth = Config->DataWidth;
-	}
+    InstancePtr->StatusHandler = StubStatusHandler;
 
-	InstancePtr->SpiMode = Config->SpiMode;
+    InstancePtr->SendBufferPtr = NULL;
+    InstancePtr->RecvBufferPtr = NULL;
+    InstancePtr->RequestedBytes = 0;
+    InstancePtr->RemainingBytes = 0;
+    InstancePtr->BaseAddr = EffectiveAddr;
+    InstancePtr->HasFifos = Config->HasFifos;
+    InstancePtr->SlaveOnly = Config->SlaveOnly;
+    InstancePtr->NumSlaveBits = Config->NumSlaveBits;
+    if (Config->DataWidth == 0) {
+        InstancePtr->DataWidth = XSP_DATAWIDTH_BYTE;
+    } else {
+        InstancePtr->DataWidth = Config->DataWidth;
+    }
 
-	InstancePtr->FlashBaseAddr = Config->AxiFullBaseAddress;
-	InstancePtr->XipMode = Config->XipMode;
+    InstancePtr->SpiMode = Config->SpiMode;
 
-	InstancePtr->IsReady = XIL_COMPONENT_IS_READY;
+    InstancePtr->FlashBaseAddr = Config->AxiFullBaseAddress;
+    InstancePtr->XipMode = Config->XipMode;
 
-	/*
-	 * Create a slave select mask based on the number of bits that can
-	 * be used to deselect all slaves, initialize the value to put into
-	 * the slave select register to this value.
-	 */
-	InstancePtr->SlaveSelectMask = (1 << InstancePtr->NumSlaveBits) - 1;
-	InstancePtr->SlaveSelectReg = InstancePtr->SlaveSelectMask;
+    InstancePtr->IsReady = XIL_COMPONENT_IS_READY;
 
-	/*
-	 * Clear the statistics for this driver.
-	 */
-	InstancePtr->Stats.ModeFaults = 0;
-	InstancePtr->Stats.XmitUnderruns = 0;
-	InstancePtr->Stats.RecvOverruns = 0;
-	InstancePtr->Stats.SlaveModeFaults = 0;
-	InstancePtr->Stats.BytesTransferred = 0;
-	InstancePtr->Stats.NumInterrupts = 0;
-	
-        if(Config->Use_Startup == 1) {
-		/*  
-		 * Perform a dummy read this is used when startup block is
-		 * enabled in the hardware to fix CR #721229.
-		 */
-		ControlReg = XSpi_GetControlReg(InstancePtr);
-		ControlReg |= XSP_CR_TXFIFO_RESET_MASK | XSP_CR_RXFIFO_RESET_MASK |
-				XSP_CR_ENABLE_MASK | XSP_CR_MASTER_MODE_MASK ;
-		XSpi_SetControlReg(InstancePtr, ControlReg);
-		
-		/* 
-		 * Initiate Read command to get the ID. This Read command is for
-		 * Numonyx flash.
-		 *
-		 * NOTE: If user interfaces different flash to the SPI controller 
-		 * this command need to be changed according to target flash Read
-		 * command.
-		 */
-		Buffer[0] = 0x9F;
-		Buffer[1] = 0x00;
-		Buffer[2] = 0x00;
-	
-		/* Write dummy ReadId to the DTR register */
-		XSpi_WriteReg(InstancePtr->BaseAddr, XSP_DTR_OFFSET, Buffer[0]);
-		XSpi_WriteReg(InstancePtr->BaseAddr, XSP_DTR_OFFSET, Buffer[1]);
-		XSpi_WriteReg(InstancePtr->BaseAddr, XSP_DTR_OFFSET, Buffer[2]);
-	
-		/* Master Inhibit enable in the CR */
-		ControlReg = XSpi_GetControlReg(InstancePtr);
-		ControlReg &= ~XSP_CR_TRANS_INHIBIT_MASK;
-		XSpi_SetControlReg(InstancePtr, ControlReg);
-	
-		/* Master Inhibit disable in the CR */
-		ControlReg = XSpi_GetControlReg(InstancePtr);
-		ControlReg |= XSP_CR_TRANS_INHIBIT_MASK;
-		XSpi_SetControlReg(InstancePtr, ControlReg);
-		
-		/* Read the Rx Data Register */
-		XSpi_ReadReg(InstancePtr->BaseAddr, XSP_DRR_OFFSET);
-		XSpi_ReadReg(InstancePtr->BaseAddr, XSP_DRR_OFFSET);
-	}
-	
-	/*
-	 * Reset the SPI device to get it into its initial state. It is expected
-	 * that device configuration will take place after this initialization
-	 * is done, but before the device is started.
-	 */
-	XSpi_Reset(InstancePtr);
+    /*
+     * Create a slave select mask based on the number of bits that can
+     * be used to deselect all slaves, initialize the value to put into
+     * the slave select register to this value.
+     */
+    InstancePtr->SlaveSelectMask = (1 << InstancePtr->NumSlaveBits) - 1;
+    InstancePtr->SlaveSelectReg = InstancePtr->SlaveSelectMask;
 
-	return XST_SUCCESS;
+    /*
+     * Clear the statistics for this driver.
+     */
+    InstancePtr->Stats.ModeFaults = 0;
+    InstancePtr->Stats.XmitUnderruns = 0;
+    InstancePtr->Stats.RecvOverruns = 0;
+    InstancePtr->Stats.SlaveModeFaults = 0;
+    InstancePtr->Stats.BytesTransferred = 0;
+    InstancePtr->Stats.NumInterrupts = 0;
+
+    if(Config->Use_Startup == 1) {
+        /*
+         * Perform a dummy read this is used when startup block is
+         * enabled in the hardware to fix CR #721229.
+         */
+        ControlReg = XSpi_GetControlReg(InstancePtr);
+        ControlReg |= XSP_CR_TXFIFO_RESET_MASK | XSP_CR_RXFIFO_RESET_MASK |
+                      XSP_CR_ENABLE_MASK | XSP_CR_MASTER_MODE_MASK ;
+        XSpi_SetControlReg(InstancePtr, ControlReg);
+
+        /*
+         * Initiate Read command to get the ID. This Read command is for
+         * Numonyx flash.
+         *
+         * NOTE: If user interfaces different flash to the SPI controller
+         * this command need to be changed according to target flash Read
+         * command.
+         */
+        Buffer[0] = 0x9F;
+        Buffer[1] = 0x00;
+        Buffer[2] = 0x00;
+
+        /* Write dummy ReadId to the DTR register */
+        XSpi_WriteReg(InstancePtr->BaseAddr, XSP_DTR_OFFSET, Buffer[0]);
+        XSpi_WriteReg(InstancePtr->BaseAddr, XSP_DTR_OFFSET, Buffer[1]);
+        XSpi_WriteReg(InstancePtr->BaseAddr, XSP_DTR_OFFSET, Buffer[2]);
+
+        /* Master Inhibit enable in the CR */
+        ControlReg = XSpi_GetControlReg(InstancePtr);
+        ControlReg &= ~XSP_CR_TRANS_INHIBIT_MASK;
+        XSpi_SetControlReg(InstancePtr, ControlReg);
+
+        /* Master Inhibit disable in the CR */
+        ControlReg = XSpi_GetControlReg(InstancePtr);
+        ControlReg |= XSP_CR_TRANS_INHIBIT_MASK;
+        XSpi_SetControlReg(InstancePtr, ControlReg);
+
+        /* Read the Rx Data Register */
+        XSpi_ReadReg(InstancePtr->BaseAddr, XSP_DRR_OFFSET);
+        XSpi_ReadReg(InstancePtr->BaseAddr, XSP_DRR_OFFSET);
+    }
+
+    /*
+     * Reset the SPI device to get it into its initial state. It is expected
+     * that device configuration will take place after this initialization
+     * is done, but before the device is started.
+     */
+    XSpi_Reset(InstancePtr);
+
+    return XST_SUCCESS;
 }
 
 /*****************************************************************************/
@@ -295,46 +295,46 @@ int XSpi_CfgInitialize(XSpi *InstancePtr, XSpi_Config *Config,
 ******************************************************************************/
 int XSpi_Start(XSpi *InstancePtr)
 {
-	u32 ControlReg;
+    u32 ControlReg;
 
-	Xil_AssertNonvoid(InstancePtr != NULL);
-	Xil_AssertNonvoid(InstancePtr->IsReady == XIL_COMPONENT_IS_READY);
+    Xil_AssertNonvoid(InstancePtr != NULL);
+    Xil_AssertNonvoid(InstancePtr->IsReady == XIL_COMPONENT_IS_READY);
 
-	/*
-	 * If it is already started, return a status indicating so.
-	 */
-	if (InstancePtr->IsStarted == XIL_COMPONENT_IS_STARTED) {
-		return XST_DEVICE_IS_STARTED;
-	}
+    /*
+     * If it is already started, return a status indicating so.
+     */
+    if (InstancePtr->IsStarted == XIL_COMPONENT_IS_STARTED) {
+        return XST_DEVICE_IS_STARTED;
+    }
 
-	/*
-	 * Enable the interrupts.
-	 */
-	XSpi_IntrEnable(InstancePtr, XSP_INTR_DFT_MASK);
+    /*
+     * Enable the interrupts.
+     */
+    XSpi_IntrEnable(InstancePtr, XSP_INTR_DFT_MASK);
 
-	/*
-	 * Indicate that the device is started before we enable the transmitter
-	 * or receiver or interrupts.
-	 */
-	InstancePtr->IsStarted = XIL_COMPONENT_IS_STARTED;
+    /*
+     * Indicate that the device is started before we enable the transmitter
+     * or receiver or interrupts.
+     */
+    InstancePtr->IsStarted = XIL_COMPONENT_IS_STARTED;
 
-	/*
-	 * Reset the transmit and receive FIFOs if present. There is a critical
-	 * section here since this register is also modified during interrupt
-	 * context. So we wait until after the r/m/w of the control register to
-	 * enable the Global Interrupt Enable.
-	 */
-	ControlReg = XSpi_GetControlReg(InstancePtr);
-	ControlReg |= XSP_CR_TXFIFO_RESET_MASK | XSP_CR_RXFIFO_RESET_MASK |
-			XSP_CR_ENABLE_MASK;
-	XSpi_SetControlReg(InstancePtr, ControlReg);
+    /*
+     * Reset the transmit and receive FIFOs if present. There is a critical
+     * section here since this register is also modified during interrupt
+     * context. So we wait until after the r/m/w of the control register to
+     * enable the Global Interrupt Enable.
+     */
+    ControlReg = XSpi_GetControlReg(InstancePtr);
+    ControlReg |= XSP_CR_TXFIFO_RESET_MASK | XSP_CR_RXFIFO_RESET_MASK |
+                  XSP_CR_ENABLE_MASK;
+    XSpi_SetControlReg(InstancePtr, ControlReg);
 
-	/*
-	 * Enable the Global Interrupt Enable just after we start.
-	 */
-	XSpi_IntrGlobalEnable(InstancePtr);
+    /*
+     * Enable the Global Interrupt Enable just after we start.
+     */
+    XSpi_IntrGlobalEnable(InstancePtr);
 
-	return XST_SUCCESS;
+    return XST_SUCCESS;
 }
 
 /*****************************************************************************/
@@ -373,33 +373,33 @@ int XSpi_Start(XSpi *InstancePtr)
 ******************************************************************************/
 int XSpi_Stop(XSpi *InstancePtr)
 {
-	u32 ControlReg;
+    u32 ControlReg;
 
-	Xil_AssertNonvoid(InstancePtr != NULL);
-	Xil_AssertNonvoid(InstancePtr->IsReady == XIL_COMPONENT_IS_READY);
+    Xil_AssertNonvoid(InstancePtr != NULL);
+    Xil_AssertNonvoid(InstancePtr->IsReady == XIL_COMPONENT_IS_READY);
 
-	/*
-	 * Do not allow the user to stop the device while a transfer is in
-	 * progress.
-	 */
-	if (InstancePtr->IsBusy) {
-		return XST_DEVICE_BUSY;
-	}
+    /*
+     * Do not allow the user to stop the device while a transfer is in
+     * progress.
+     */
+    if (InstancePtr->IsBusy) {
+        return XST_DEVICE_BUSY;
+    }
 
-	/*
-	 * Disable the device. First disable the interrupts since there is
-	 * a critical section here because this register is also modified during
-	 * interrupt context. The device is likely disabled already since there
-	 * is no transfer in progress, but we do it again just to be sure.
-	 */
-	XSpi_IntrGlobalDisable(InstancePtr);
+    /*
+     * Disable the device. First disable the interrupts since there is
+     * a critical section here because this register is also modified during
+     * interrupt context. The device is likely disabled already since there
+     * is no transfer in progress, but we do it again just to be sure.
+     */
+    XSpi_IntrGlobalDisable(InstancePtr);
 
-	ControlReg = XSpi_GetControlReg(InstancePtr);
-	XSpi_SetControlReg(InstancePtr, ControlReg & ~XSP_CR_ENABLE_MASK);
+    ControlReg = XSpi_GetControlReg(InstancePtr);
+    XSpi_SetControlReg(InstancePtr, ControlReg & ~XSP_CR_ENABLE_MASK);
 
-	InstancePtr->IsStarted = 0;
+    InstancePtr->IsStarted = 0;
 
-	return XST_SUCCESS;
+    return XST_SUCCESS;
 }
 
 /*****************************************************************************/
@@ -423,26 +423,26 @@ int XSpi_Stop(XSpi *InstancePtr)
 ******************************************************************************/
 void XSpi_Reset(XSpi *InstancePtr)
 {
-	Xil_AssertVoid(InstancePtr != NULL);
-	Xil_AssertVoid(InstancePtr->IsReady == XIL_COMPONENT_IS_READY);
+    Xil_AssertVoid(InstancePtr != NULL);
+    Xil_AssertVoid(InstancePtr->IsReady == XIL_COMPONENT_IS_READY);
 
-	/*
-	 * Abort any transfer that is in progress.
-	 */
-	XSpi_Abort(InstancePtr);
+    /*
+     * Abort any transfer that is in progress.
+     */
+    XSpi_Abort(InstancePtr);
 
-	/*
-	 * Reset any values that are not reset by the hardware reset such that
-	 * the software state matches the hardware device.
-	 */
-	InstancePtr->IsStarted = 0;
-	InstancePtr->SlaveSelectReg = InstancePtr->SlaveSelectMask;
+    /*
+     * Reset any values that are not reset by the hardware reset such that
+     * the software state matches the hardware device.
+     */
+    InstancePtr->IsStarted = 0;
+    InstancePtr->SlaveSelectReg = InstancePtr->SlaveSelectMask;
 
-	/*
-	 * Reset the device.
-	 */
-	XSpi_WriteReg(InstancePtr->BaseAddr, XSP_SRR_OFFSET,
-			XSP_SRR_RESET_MASK);
+    /*
+     * Reset the device.
+     */
+    XSpi_WriteReg(InstancePtr->BaseAddr, XSP_SRR_OFFSET,
+                  XSP_SRR_RESET_MASK);
 }
 
 /*****************************************************************************/
@@ -527,315 +527,315 @@ void XSpi_Reset(XSpi *InstancePtr)
 *
 ******************************************************************************/
 int XSpi_Transfer(XSpi *InstancePtr, u8 *SendBufPtr,
-		  u8 *RecvBufPtr, unsigned int ByteCount)
+                  u8 *RecvBufPtr, unsigned int ByteCount)
 {
-	u32 ControlReg;
-	u32 GlobalIntrReg;
-	u32 StatusReg;
-	u32 Data = 0;
-	u8  DataWidth;
+    u32 ControlReg;
+    u32 GlobalIntrReg;
+    u32 StatusReg;
+    u32 Data = 0;
+    u8  DataWidth;
 
-	/*
-	 * The RecvBufPtr argument can be NULL.
-	 */
-	Xil_AssertNonvoid(InstancePtr != NULL);
-	Xil_AssertNonvoid(SendBufPtr != NULL);
-	Xil_AssertNonvoid(ByteCount > 0);
-	Xil_AssertNonvoid(InstancePtr->IsReady == XIL_COMPONENT_IS_READY);
+    /*
+     * The RecvBufPtr argument can be NULL.
+     */
+    Xil_AssertNonvoid(InstancePtr != NULL);
+    Xil_AssertNonvoid(SendBufPtr != NULL);
+    Xil_AssertNonvoid(ByteCount > 0);
+    Xil_AssertNonvoid(InstancePtr->IsReady == XIL_COMPONENT_IS_READY);
 
-	if (InstancePtr->IsStarted != XIL_COMPONENT_IS_STARTED) {
-		return XST_DEVICE_IS_STOPPED;
-	}
+    if (InstancePtr->IsStarted != XIL_COMPONENT_IS_STARTED) {
+        return XST_DEVICE_IS_STOPPED;
+    }
 
-	/*
-	 * Make sure there is not a transfer already in progress. No need to
-	 * worry about a critical section here. Even if the Isr changes the bus
-	 * flag just after we read it, a busy error is returned and the caller
-	 * can retry when it gets the status handler callback indicating the
-	 * transfer is done.
-	 */
-	if (InstancePtr->IsBusy) {
-		return XST_DEVICE_BUSY;
-	}
+    /*
+     * Make sure there is not a transfer already in progress. No need to
+     * worry about a critical section here. Even if the Isr changes the bus
+     * flag just after we read it, a busy error is returned and the caller
+     * can retry when it gets the status handler callback indicating the
+     * transfer is done.
+     */
+    if (InstancePtr->IsBusy) {
+        return XST_DEVICE_BUSY;
+    }
 
-	/*
-	 * Save the Global Interrupt Enable Register.
-	 */
-	GlobalIntrReg = XSpi_IsIntrGlobalEnabled(InstancePtr);
+    /*
+     * Save the Global Interrupt Enable Register.
+     */
+    GlobalIntrReg = XSpi_IsIntrGlobalEnabled(InstancePtr);
 
-	/*
-	 * Enter a critical section from here to the end of the function since
-	 * state is modified, an interrupt is enabled, and the control register
-	 * is modified (r/m/w).
-	 */
-	XSpi_IntrGlobalDisable(InstancePtr);
+    /*
+     * Enter a critical section from here to the end of the function since
+     * state is modified, an interrupt is enabled, and the control register
+     * is modified (r/m/w).
+     */
+    XSpi_IntrGlobalDisable(InstancePtr);
 
-	ControlReg = XSpi_GetControlReg(InstancePtr);
+    ControlReg = XSpi_GetControlReg(InstancePtr);
 
-	/*
-	 * If configured as a master, be sure there is a slave select bit set
-	 * in the slave select register. If no slaves have been selected, the
-	 * value of the register will equal the mask.  When the device is in
-	 * loopback mode, however, no slave selects need be set.
-	 */
-	if (ControlReg & XSP_CR_MASTER_MODE_MASK) {
-		if ((ControlReg & XSP_CR_LOOPBACK_MASK) == 0) {
-			if (InstancePtr->SlaveSelectReg ==
-				InstancePtr->SlaveSelectMask) {
-				if (GlobalIntrReg == TRUE) {
-					/* Interrupt Mode of operation */
-					XSpi_IntrGlobalEnable(InstancePtr);
-				}
-				return XST_SPI_NO_SLAVE;
-			}
-		}
-	}
+    /*
+     * If configured as a master, be sure there is a slave select bit set
+     * in the slave select register. If no slaves have been selected, the
+     * value of the register will equal the mask.  When the device is in
+     * loopback mode, however, no slave selects need be set.
+     */
+    if (ControlReg & XSP_CR_MASTER_MODE_MASK) {
+        if ((ControlReg & XSP_CR_LOOPBACK_MASK) == 0) {
+            if (InstancePtr->SlaveSelectReg ==
+                    InstancePtr->SlaveSelectMask) {
+                if (GlobalIntrReg == TRUE) {
+                    /* Interrupt Mode of operation */
+                    XSpi_IntrGlobalEnable(InstancePtr);
+                }
+                return XST_SPI_NO_SLAVE;
+            }
+        }
+    }
 
-	/*
-	 * Set the slave select register to select the device on the SPI before
-	 * starting the transfer of data.
-	 */
-	XSpi_SetSlaveSelectReg(InstancePtr,
-				InstancePtr->SlaveSelectReg);
-	/*
-	 * Set the busy flag, which will be cleared when the transfer
-	 * is completely done.
-	 */
-	InstancePtr->IsBusy = TRUE;
+    /*
+     * Set the slave select register to select the device on the SPI before
+     * starting the transfer of data.
+     */
+    XSpi_SetSlaveSelectReg(InstancePtr,
+                           InstancePtr->SlaveSelectReg);
+    /*
+     * Set the busy flag, which will be cleared when the transfer
+     * is completely done.
+     */
+    InstancePtr->IsBusy = TRUE;
 
-	/*
-	 * Set up buffer pointers.
-	 */
-	InstancePtr->SendBufferPtr = SendBufPtr;
-	InstancePtr->RecvBufferPtr = RecvBufPtr;
+    /*
+     * Set up buffer pointers.
+     */
+    InstancePtr->SendBufferPtr = SendBufPtr;
+    InstancePtr->RecvBufferPtr = RecvBufPtr;
 
-	InstancePtr->RequestedBytes = ByteCount;
-	InstancePtr->RemainingBytes = ByteCount;
+    InstancePtr->RequestedBytes = ByteCount;
+    InstancePtr->RemainingBytes = ByteCount;
 
-	DataWidth = InstancePtr->DataWidth;
+    DataWidth = InstancePtr->DataWidth;
 
-	/*
-	 * Fill the DTR/FIFO with as many bytes as it will take (or as many as
-	 * we have to send). We use the tx full status bit to know if the device
-	 * can take more data. By doing this, the driver does not need to know
-	 * the size of the FIFO or that there even is a FIFO. The downside is
-	 * that the status register must be read each loop iteration.
-	 */
-	StatusReg = XSpi_GetStatusReg(InstancePtr);
+    /*
+     * Fill the DTR/FIFO with as many bytes as it will take (or as many as
+     * we have to send). We use the tx full status bit to know if the device
+     * can take more data. By doing this, the driver does not need to know
+     * the size of the FIFO or that there even is a FIFO. The downside is
+     * that the status register must be read each loop iteration.
+     */
+    StatusReg = XSpi_GetStatusReg(InstancePtr);
 
-	while (((StatusReg & XSP_SR_TX_FULL_MASK) == 0) &&
-		(InstancePtr->RemainingBytes > 0)) {
-		if (DataWidth == XSP_DATAWIDTH_BYTE) {
-			/*
-			 * Data Transfer Width is Byte (8 bit).
-			 */
-			Data = *InstancePtr->SendBufferPtr;
-		} else if (DataWidth == XSP_DATAWIDTH_HALF_WORD) {
-			/*
-			 * Data Transfer Width is Half Word (16 bit).
-			 */
-			Data = *(u16 *)InstancePtr->SendBufferPtr;
-		} else if (DataWidth == XSP_DATAWIDTH_WORD){
-			/*
-			 * Data Transfer Width is Word (32 bit).
-			 */
-			Data = *(u32 *)InstancePtr->SendBufferPtr;
-		}
+    while (((StatusReg & XSP_SR_TX_FULL_MASK) == 0) &&
+            (InstancePtr->RemainingBytes > 0)) {
+        if (DataWidth == XSP_DATAWIDTH_BYTE) {
+            /*
+             * Data Transfer Width is Byte (8 bit).
+             */
+            Data = *InstancePtr->SendBufferPtr;
+        } else if (DataWidth == XSP_DATAWIDTH_HALF_WORD) {
+            /*
+             * Data Transfer Width is Half Word (16 bit).
+             */
+            Data = *(u16 *)InstancePtr->SendBufferPtr;
+        } else if (DataWidth == XSP_DATAWIDTH_WORD) {
+            /*
+             * Data Transfer Width is Word (32 bit).
+             */
+            Data = *(u32 *)InstancePtr->SendBufferPtr;
+        }
 
-		XSpi_WriteReg(InstancePtr->BaseAddr, XSP_DTR_OFFSET, Data);
-		InstancePtr->SendBufferPtr += (DataWidth >> 3);
-		InstancePtr->RemainingBytes -= (DataWidth >> 3);
-		StatusReg = XSpi_GetStatusReg(InstancePtr);
-	}
+        XSpi_WriteReg(InstancePtr->BaseAddr, XSP_DTR_OFFSET, Data);
+        InstancePtr->SendBufferPtr += (DataWidth >> 3);
+        InstancePtr->RemainingBytes -= (DataWidth >> 3);
+        StatusReg = XSpi_GetStatusReg(InstancePtr);
+    }
 
-	/*
-	 * Start the transfer by no longer inhibiting the transmitter and
-	 * enabling the device. For a master, this will in fact start the
-	 * transfer, but for a slave it only prepares the device for a transfer
-	 * that must be initiated by a master.
-	 */
-	ControlReg = XSpi_GetControlReg(InstancePtr);
-	ControlReg &= ~XSP_CR_TRANS_INHIBIT_MASK;
-	XSpi_SetControlReg(InstancePtr, ControlReg);
+    /*
+     * Start the transfer by no longer inhibiting the transmitter and
+     * enabling the device. For a master, this will in fact start the
+     * transfer, but for a slave it only prepares the device for a transfer
+     * that must be initiated by a master.
+     */
+    ControlReg = XSpi_GetControlReg(InstancePtr);
+    ControlReg &= ~XSP_CR_TRANS_INHIBIT_MASK;
+    XSpi_SetControlReg(InstancePtr, ControlReg);
 
-	/*
-	 * If the interrupts are enabled as indicated by Global Interrupt
-	 * Enable Register, then enable the transmit empty interrupt to operate
-	 * in Interrupt mode of operation.
-	 */
-	if (GlobalIntrReg == TRUE) { /* Interrupt Mode of operation */
+    /*
+     * If the interrupts are enabled as indicated by Global Interrupt
+     * Enable Register, then enable the transmit empty interrupt to operate
+     * in Interrupt mode of operation.
+     */
+    if (GlobalIntrReg == TRUE) { /* Interrupt Mode of operation */
 
-		/*
-		 * Enable the transmit empty interrupt, which we use to
-		 * determine progress on the transmission.
-		 */
-		XSpi_IntrEnable(InstancePtr, XSP_INTR_TX_EMPTY_MASK);
+        /*
+         * Enable the transmit empty interrupt, which we use to
+         * determine progress on the transmission.
+         */
+        XSpi_IntrEnable(InstancePtr, XSP_INTR_TX_EMPTY_MASK);
 
-		/*
-		 * End critical section.
-		 */
-		XSpi_IntrGlobalEnable(InstancePtr);
+        /*
+         * End critical section.
+         */
+        XSpi_IntrGlobalEnable(InstancePtr);
 
-	} else { /* Polled mode of operation */
+    } else { /* Polled mode of operation */
 
-		/*
-		 * If interrupts are not enabled, poll the status register to
-		 * Transmit/Receive SPI data.
-		 */
-		while(ByteCount > 0) {
+        /*
+         * If interrupts are not enabled, poll the status register to
+         * Transmit/Receive SPI data.
+         */
+        while(ByteCount > 0) {
 
-			/*
-			 * Wait for the transfer to be done by polling the
-			 * Transmit empty status bit
-			 */
-			do {
-				StatusReg = XSpi_GetStatusReg(InstancePtr);
-			} while ((StatusReg & XSP_SR_TX_EMPTY_MASK) == 0);
+            /*
+             * Wait for the transfer to be done by polling the
+             * Transmit empty status bit
+             */
+            do {
+                StatusReg = XSpi_GetStatusReg(InstancePtr);
+            } while ((StatusReg & XSP_SR_TX_EMPTY_MASK) == 0);
 
-			/*
-			 * A transmit has just completed. Process received data
-			 * and check for more data to transmit. Always inhibit
-			 * the transmitter while the transmit register/FIFO is
-			 * being filled, or make sure it is stopped if we're
-			 * done.
-			 */
-			ControlReg = XSpi_GetControlReg(InstancePtr);
-			XSpi_SetControlReg(InstancePtr, ControlReg |
-						XSP_CR_TRANS_INHIBIT_MASK);
+            /*
+             * A transmit has just completed. Process received data
+             * and check for more data to transmit. Always inhibit
+             * the transmitter while the transmit register/FIFO is
+             * being filled, or make sure it is stopped if we're
+             * done.
+             */
+            ControlReg = XSpi_GetControlReg(InstancePtr);
+            XSpi_SetControlReg(InstancePtr, ControlReg |
+                               XSP_CR_TRANS_INHIBIT_MASK);
 
-			/*
-			 * First get the data received as a result of the
-			 * transmit that just completed. We get all the data
-			 * available by reading the status register to determine
-			 * when the Receive register/FIFO is empty. Always get
-			 * the received data, but only fill the receive
-			 * buffer if it points to something (the upper layer
-			 * software may not care to receive data).
-			 */
-			StatusReg = XSpi_GetStatusReg(InstancePtr);
+            /*
+             * First get the data received as a result of the
+             * transmit that just completed. We get all the data
+             * available by reading the status register to determine
+             * when the Receive register/FIFO is empty. Always get
+             * the received data, but only fill the receive
+             * buffer if it points to something (the upper layer
+             * software may not care to receive data).
+             */
+            StatusReg = XSpi_GetStatusReg(InstancePtr);
 
-			while ((StatusReg & XSP_SR_RX_EMPTY_MASK) == 0) {
+            while ((StatusReg & XSP_SR_RX_EMPTY_MASK) == 0) {
 
-				Data = XSpi_ReadReg(InstancePtr->BaseAddr,
-								XSP_DRR_OFFSET);
-				if (DataWidth == XSP_DATAWIDTH_BYTE) {
-					/*
-					 * Data Transfer Width is Byte (8 bit).
-					 */
-					if(InstancePtr->RecvBufferPtr != NULL) {
-						*InstancePtr->RecvBufferPtr++ =
-							(u8)Data;
-					}
-				} else if (DataWidth ==
-						XSP_DATAWIDTH_HALF_WORD) {
-					/*
-					 * Data Transfer Width is Half Word
-					 * (16 bit).
-					 */
-					if (InstancePtr->RecvBufferPtr != NULL){
-					    *(u16 *)InstancePtr->RecvBufferPtr =
-							(u16)Data;
-						InstancePtr->RecvBufferPtr += 2;
-					}
-				} else if (DataWidth == XSP_DATAWIDTH_WORD) {
-					/*
-					 * Data Transfer Width is Word (32 bit).
-					 */
-					if (InstancePtr->RecvBufferPtr != NULL){
-					    *(u32 *)InstancePtr->RecvBufferPtr =
-							Data;
-						InstancePtr->RecvBufferPtr += 4;
-					}
-				}
-				InstancePtr->Stats.BytesTransferred +=
-						(DataWidth >> 3);
-				ByteCount -= (DataWidth >> 3);
-				StatusReg = XSpi_GetStatusReg(InstancePtr);
-			}
+                Data = XSpi_ReadReg(InstancePtr->BaseAddr,
+                                    XSP_DRR_OFFSET);
+                if (DataWidth == XSP_DATAWIDTH_BYTE) {
+                    /*
+                     * Data Transfer Width is Byte (8 bit).
+                     */
+                    if(InstancePtr->RecvBufferPtr != NULL) {
+                        *InstancePtr->RecvBufferPtr++ =
+                            (u8)Data;
+                    }
+                } else if (DataWidth ==
+                           XSP_DATAWIDTH_HALF_WORD) {
+                    /*
+                     * Data Transfer Width is Half Word
+                     * (16 bit).
+                     */
+                    if (InstancePtr->RecvBufferPtr != NULL) {
+                        *(u16 *)InstancePtr->RecvBufferPtr =
+                            (u16)Data;
+                        InstancePtr->RecvBufferPtr += 2;
+                    }
+                } else if (DataWidth == XSP_DATAWIDTH_WORD) {
+                    /*
+                     * Data Transfer Width is Word (32 bit).
+                     */
+                    if (InstancePtr->RecvBufferPtr != NULL) {
+                        *(u32 *)InstancePtr->RecvBufferPtr =
+                            Data;
+                        InstancePtr->RecvBufferPtr += 4;
+                    }
+                }
+                InstancePtr->Stats.BytesTransferred +=
+                    (DataWidth >> 3);
+                ByteCount -= (DataWidth >> 3);
+                StatusReg = XSpi_GetStatusReg(InstancePtr);
+            }
 
-			if (InstancePtr->RemainingBytes > 0) {
+            if (InstancePtr->RemainingBytes > 0) {
 
-				/*
-				 * Fill the DTR/FIFO with as many bytes as it
-				 * will take (or as many as we have to send).
-				 * We use the Tx full status bit to know if the
-				 * device can take more data.
-				 * By doing this, the driver does not need to
-				 * know the size of the FIFO or that there even
-				 * is a FIFO.
-				 * The downside is that the status must be read
-				 * each loop iteration.
-				 */
-				StatusReg = XSpi_GetStatusReg(InstancePtr);
+                /*
+                 * Fill the DTR/FIFO with as many bytes as it
+                 * will take (or as many as we have to send).
+                 * We use the Tx full status bit to know if the
+                 * device can take more data.
+                 * By doing this, the driver does not need to
+                 * know the size of the FIFO or that there even
+                 * is a FIFO.
+                 * The downside is that the status must be read
+                 * each loop iteration.
+                 */
+                StatusReg = XSpi_GetStatusReg(InstancePtr);
 
-				while(((StatusReg & XSP_SR_TX_FULL_MASK)== 0) &&
-					(InstancePtr->RemainingBytes > 0)) {
-					if (DataWidth == XSP_DATAWIDTH_BYTE) {
-						/*
-						 * Data Transfer Width is Byte
-						 * (8 bit).
-						 */
-						Data = *InstancePtr->
-								SendBufferPtr;
+                while(((StatusReg & XSP_SR_TX_FULL_MASK)== 0) &&
+                        (InstancePtr->RemainingBytes > 0)) {
+                    if (DataWidth == XSP_DATAWIDTH_BYTE) {
+                        /*
+                         * Data Transfer Width is Byte
+                         * (8 bit).
+                         */
+                        Data = *InstancePtr->
+                               SendBufferPtr;
 
-					} else if (DataWidth ==
-						XSP_DATAWIDTH_HALF_WORD) {
+                    } else if (DataWidth ==
+                               XSP_DATAWIDTH_HALF_WORD) {
 
-						/*
-						 * Data Transfer Width is Half
-						 * Word (16 bit).
-			 			 */
-						Data = *(u16 *)InstancePtr->
-								SendBufferPtr;
-					} else if (DataWidth ==
-							XSP_DATAWIDTH_WORD) {
-						/*
-						 * Data Transfer Width is Word
-						 * (32 bit).
-			 			 */
-						Data = *(u32 *)InstancePtr->
-								SendBufferPtr;
-					}
-					XSpi_WriteReg(InstancePtr->BaseAddr,
-							XSP_DTR_OFFSET, Data);
-					InstancePtr->SendBufferPtr +=
-							(DataWidth >> 3);
-					InstancePtr->RemainingBytes -=
-							(DataWidth >> 3);
-					StatusReg = XSpi_GetStatusReg(
-							InstancePtr);
-				}
+                        /*
+                         * Data Transfer Width is Half
+                         * Word (16 bit).
+                         */
+                        Data = *(u16 *)InstancePtr->
+                               SendBufferPtr;
+                    } else if (DataWidth ==
+                               XSP_DATAWIDTH_WORD) {
+                        /*
+                         * Data Transfer Width is Word
+                         * (32 bit).
+                         */
+                        Data = *(u32 *)InstancePtr->
+                               SendBufferPtr;
+                    }
+                    XSpi_WriteReg(InstancePtr->BaseAddr,
+                                  XSP_DTR_OFFSET, Data);
+                    InstancePtr->SendBufferPtr +=
+                        (DataWidth >> 3);
+                    InstancePtr->RemainingBytes -=
+                        (DataWidth >> 3);
+                    StatusReg = XSpi_GetStatusReg(
+                                    InstancePtr);
+                }
 
-				/*
-				 * Start the transfer by not inhibiting the
-				 * transmitter any longer.
-				 */
-				ControlReg = XSpi_GetControlReg(InstancePtr);
-				ControlReg &= ~XSP_CR_TRANS_INHIBIT_MASK;
-				XSpi_SetControlReg(InstancePtr, ControlReg);
-			}
-		}
+                /*
+                 * Start the transfer by not inhibiting the
+                 * transmitter any longer.
+                 */
+                ControlReg = XSpi_GetControlReg(InstancePtr);
+                ControlReg &= ~XSP_CR_TRANS_INHIBIT_MASK;
+                XSpi_SetControlReg(InstancePtr, ControlReg);
+            }
+        }
 
-		/*
-		 * Stop the transfer (hold off automatic sending) by inhibiting
-		 * the transmitter.
-		 */
-		ControlReg = XSpi_GetControlReg(InstancePtr);
-		XSpi_SetControlReg(InstancePtr,
-				    ControlReg | XSP_CR_TRANS_INHIBIT_MASK);
+        /*
+         * Stop the transfer (hold off automatic sending) by inhibiting
+         * the transmitter.
+         */
+        ControlReg = XSpi_GetControlReg(InstancePtr);
+        XSpi_SetControlReg(InstancePtr,
+                           ControlReg | XSP_CR_TRANS_INHIBIT_MASK);
 
-		/*
-		 * Select the slave on the SPI bus when the transfer is
-		 * complete, this is necessary for some SPI devices,
-		 * such as serial EEPROMs work correctly as chip enable
-		 * may be connected to slave select
-		 */
-		XSpi_SetSlaveSelectReg(InstancePtr,
-					InstancePtr->SlaveSelectMask);
-		InstancePtr->IsBusy = FALSE;
-	}
+        /*
+         * Select the slave on the SPI bus when the transfer is
+         * complete, this is necessary for some SPI devices,
+         * such as serial EEPROMs work correctly as chip enable
+         * may be connected to slave select
+         */
+        XSpi_SetSlaveSelectReg(InstancePtr,
+                               InstancePtr->SlaveSelectMask);
+        InstancePtr->IsBusy = FALSE;
+    }
 
-	return XST_SUCCESS;
+    return XST_SUCCESS;
 }
 
 /*****************************************************************************/
@@ -873,51 +873,51 @@ int XSpi_Transfer(XSpi *InstancePtr, u8 *SendBufPtr,
 ******************************************************************************/
 int XSpi_SetSlaveSelect(XSpi *InstancePtr, u32 SlaveMask)
 {
-	int NumAsserted;
-	int Index;
+    int NumAsserted;
+    int Index;
 
-	Xil_AssertNonvoid(InstancePtr != NULL);
-	Xil_AssertNonvoid(InstancePtr->IsReady == XIL_COMPONENT_IS_READY);
+    Xil_AssertNonvoid(InstancePtr != NULL);
+    Xil_AssertNonvoid(InstancePtr->IsReady == XIL_COMPONENT_IS_READY);
 
-	/*
-	 * Do not allow the slave select to change while a transfer is in
-	 * progress.
-	 * No need to worry about a critical section here since even if the Isr
-	 * changes the busy flag just after we read it, the function will return
-	 * busy and the caller can retry when notified that their current
-	 * transfer is done.
-	 */
-	if (InstancePtr->IsBusy) {
-		return XST_DEVICE_BUSY;
-	}
+    /*
+     * Do not allow the slave select to change while a transfer is in
+     * progress.
+     * No need to worry about a critical section here since even if the Isr
+     * changes the busy flag just after we read it, the function will return
+     * busy and the caller can retry when notified that their current
+     * transfer is done.
+     */
+    if (InstancePtr->IsBusy) {
+        return XST_DEVICE_BUSY;
+    }
 
-	/*
-	 * Verify that only one bit in the incoming slave mask is set.
-	 */
-	NumAsserted = 0;
-	for (Index = (InstancePtr->NumSlaveBits - 1); Index >= 0; Index--) {
-		if ((SlaveMask >> Index) & 0x1) {
-			/* this bit is asserted */
-			NumAsserted++;
-		}
-	}
+    /*
+     * Verify that only one bit in the incoming slave mask is set.
+     */
+    NumAsserted = 0;
+    for (Index = (InstancePtr->NumSlaveBits - 1); Index >= 0; Index--) {
+        if ((SlaveMask >> Index) & 0x1) {
+            /* this bit is asserted */
+            NumAsserted++;
+        }
+    }
 
-	/*
-	 * Return an error if more than one slave is selected.
-	 */
-	if (NumAsserted > 1) {
-		return XST_SPI_TOO_MANY_SLAVES;
-	}
+    /*
+     * Return an error if more than one slave is selected.
+     */
+    if (NumAsserted > 1) {
+        return XST_SPI_TOO_MANY_SLAVES;
+    }
 
-	/*
-	 * A single slave is either being selected or the incoming SlaveMask is
-	 * zero, which means the slave is being deselected. Setup the value to
-	 * be  written to the slave select register as the inverse of the slave
-	 * mask.
-	 */
-	InstancePtr->SlaveSelectReg = ~SlaveMask;
+    /*
+     * A single slave is either being selected or the incoming SlaveMask is
+     * zero, which means the slave is being deselected. Setup the value to
+     * be  written to the slave select register as the inverse of the slave
+     * mask.
+     */
+    InstancePtr->SlaveSelectReg = ~SlaveMask;
 
-	return XST_SUCCESS;
+    return XST_SUCCESS;
 }
 
 /*****************************************************************************/
@@ -939,15 +939,15 @@ int XSpi_SetSlaveSelect(XSpi *InstancePtr, u32 SlaveMask)
 ******************************************************************************/
 u32 XSpi_GetSlaveSelect(XSpi *InstancePtr)
 {
-	Xil_AssertNonvoid(InstancePtr != NULL);
-	Xil_AssertNonvoid(InstancePtr->IsReady == XIL_COMPONENT_IS_READY);
+    Xil_AssertNonvoid(InstancePtr != NULL);
+    Xil_AssertNonvoid(InstancePtr->IsReady == XIL_COMPONENT_IS_READY);
 
-	/*
-	 * Return the inverse of the value contained in
-	 * InstancePtr->SlaveSelectReg. This value is set using the API
-	 * XSpi_SetSlaveSelect.
-	 */
-	return ~InstancePtr->SlaveSelectReg;
+    /*
+     * Return the inverse of the value contained in
+     * InstancePtr->SlaveSelectReg. This value is set using the API
+     * XSpi_SetSlaveSelect.
+     */
+    return ~InstancePtr->SlaveSelectReg;
 }
 
 /*****************************************************************************/
@@ -999,14 +999,14 @@ u32 XSpi_GetSlaveSelect(XSpi *InstancePtr)
 *
 ******************************************************************************/
 void XSpi_SetStatusHandler(XSpi *InstancePtr, void *CallBackRef,
-			   XSpi_StatusHandler FuncPtr)
+                           XSpi_StatusHandler FuncPtr)
 {
-	Xil_AssertVoid(InstancePtr != NULL);
-	Xil_AssertVoid(FuncPtr != NULL);
-	Xil_AssertVoid(InstancePtr->IsReady == XIL_COMPONENT_IS_READY);
+    Xil_AssertVoid(InstancePtr != NULL);
+    Xil_AssertVoid(FuncPtr != NULL);
+    Xil_AssertVoid(InstancePtr->IsReady == XIL_COMPONENT_IS_READY);
 
-	InstancePtr->StatusHandler = FuncPtr;
-	InstancePtr->StatusRef = CallBackRef;
+    InstancePtr->StatusHandler = FuncPtr;
+    InstancePtr->StatusRef = CallBackRef;
 }
 
 /*****************************************************************************/
@@ -1026,12 +1026,12 @@ void XSpi_SetStatusHandler(XSpi *InstancePtr, void *CallBackRef,
 *
 ******************************************************************************/
 static void StubStatusHandler(void *CallBackRef, u32 StatusEvent,
-				unsigned int ByteCount)
+                              unsigned int ByteCount)
 {
-	(void )CallBackRef;
-	(void )StatusEvent;
-	(void ) ByteCount;
-	Xil_AssertVoidAlways();
+    (void )CallBackRef;
+    (void )StatusEvent;
+    (void ) ByteCount;
+    Xil_AssertVoidAlways();
 }
 
 /*****************************************************************************/
@@ -1086,248 +1086,248 @@ static void StubStatusHandler(void *CallBackRef, u32 StatusEvent,
 ******************************************************************************/
 void XSpi_InterruptHandler(void *InstancePtr)
 {
-	XSpi *SpiPtr = (XSpi *)InstancePtr;
-	u32 IntrStatus;
-	unsigned int BytesDone;	/* number of bytes done so far */
-	u32 Data = 0;
-	u32 ControlReg;
-	u32 StatusReg;
-	u8  DataWidth;
+    XSpi *SpiPtr = (XSpi *)InstancePtr;
+    u32 IntrStatus;
+    unsigned int BytesDone;	/* number of bytes done so far */
+    u32 Data = 0;
+    u32 ControlReg;
+    u32 StatusReg;
+    u8  DataWidth;
 
-	Xil_AssertVoid(InstancePtr != NULL);
+    Xil_AssertVoid(InstancePtr != NULL);
 
-	/*
-	 * Update the statistics for the number of interrupts.
-	 */
-	SpiPtr->Stats.NumInterrupts++;
+    /*
+     * Update the statistics for the number of interrupts.
+     */
+    SpiPtr->Stats.NumInterrupts++;
 
-	/*
-	 * Get the Interrupt Status. Immediately clear the interrupts in case
-	 * this Isr causes another interrupt to be generated. If we clear at the
-	 * end of the Isr, we may miss this newly generated interrupt. This
-	 * occurs because we transmit from within the Isr, potentially causing
-	 * another TX_EMPTY interrupt.
-	 */
-	IntrStatus = XSpi_IntrGetStatus(SpiPtr);
-	XSpi_IntrClear(SpiPtr, IntrStatus);
+    /*
+     * Get the Interrupt Status. Immediately clear the interrupts in case
+     * this Isr causes another interrupt to be generated. If we clear at the
+     * end of the Isr, we may miss this newly generated interrupt. This
+     * occurs because we transmit from within the Isr, potentially causing
+     * another TX_EMPTY interrupt.
+     */
+    IntrStatus = XSpi_IntrGetStatus(SpiPtr);
+    XSpi_IntrClear(SpiPtr, IntrStatus);
 
-	/*
-	 * Check for mode fault error. We want to check for this error first,
-	 * before checking for progress of a transfer, since this error needs
-	 * to abort any operation in progress.
-	 */
-	if (IntrStatus & XSP_INTR_MODE_FAULT_MASK) {
-		BytesDone = SpiPtr->RequestedBytes - SpiPtr->RemainingBytes;
-		SpiPtr->Stats.ModeFaults++;
+    /*
+     * Check for mode fault error. We want to check for this error first,
+     * before checking for progress of a transfer, since this error needs
+     * to abort any operation in progress.
+     */
+    if (IntrStatus & XSP_INTR_MODE_FAULT_MASK) {
+        BytesDone = SpiPtr->RequestedBytes - SpiPtr->RemainingBytes;
+        SpiPtr->Stats.ModeFaults++;
 
-		/*
-		 * Abort any operation currently in progress. This includes
-		 * clearing the mode fault condition by reading the status
-		 * register.
-		 * Note that the status register should be read after the Abort
-		 * since reading the status register clears the mode fault
-		 * condition and would cause the device to restart any transfer
-		 * that may be in progress.
-		 */
-		XSpi_Abort(SpiPtr);
+        /*
+         * Abort any operation currently in progress. This includes
+         * clearing the mode fault condition by reading the status
+         * register.
+         * Note that the status register should be read after the Abort
+         * since reading the status register clears the mode fault
+         * condition and would cause the device to restart any transfer
+         * that may be in progress.
+         */
+        XSpi_Abort(SpiPtr);
 
-		(void) XSpi_GetStatusReg(SpiPtr);
+        (void) XSpi_GetStatusReg(SpiPtr);
 
-		SpiPtr->StatusHandler(SpiPtr->StatusRef, XST_SPI_MODE_FAULT,
-					BytesDone);
+        SpiPtr->StatusHandler(SpiPtr->StatusRef, XST_SPI_MODE_FAULT,
+                              BytesDone);
 
-		return;		/* Do not continue servicing other interrupts */
-	}
+        return;		/* Do not continue servicing other interrupts */
+    }
 
-	DataWidth = SpiPtr->DataWidth;
-	if ((IntrStatus & XSP_INTR_TX_EMPTY_MASK) ||
-	    (IntrStatus & XSP_INTR_TX_HALF_EMPTY_MASK)) {
+    DataWidth = SpiPtr->DataWidth;
+    if ((IntrStatus & XSP_INTR_TX_EMPTY_MASK) ||
+            (IntrStatus & XSP_INTR_TX_HALF_EMPTY_MASK)) {
 
-		/*
-		 * A transmit has just completed. Process received data and
-		 * check for more data to transmit. Always inhibit the
-		 * transmitter while the Isr re-fills the transmit
-		 * register/FIFO, or make sure it is stopped if we're done.
-		 */
-		ControlReg = XSpi_GetControlReg(SpiPtr);
-		XSpi_SetControlReg(SpiPtr, ControlReg |
-					XSP_CR_TRANS_INHIBIT_MASK);
+        /*
+         * A transmit has just completed. Process received data and
+         * check for more data to transmit. Always inhibit the
+         * transmitter while the Isr re-fills the transmit
+         * register/FIFO, or make sure it is stopped if we're done.
+         */
+        ControlReg = XSpi_GetControlReg(SpiPtr);
+        XSpi_SetControlReg(SpiPtr, ControlReg |
+                           XSP_CR_TRANS_INHIBIT_MASK);
 
-		/*
-		 * First get the data received as a result of the transmit that
-		 * just completed.  We get all the data available by reading the
-		 * status register to determine when the receive register/FIFO
-		 * is empty. Always get the received data, but only fill the
-		 * receive buffer if it points to something (the upper layer
-		 * software may not care to receive data).
-		 */
-		StatusReg = XSpi_GetStatusReg(SpiPtr);
+        /*
+         * First get the data received as a result of the transmit that
+         * just completed.  We get all the data available by reading the
+         * status register to determine when the receive register/FIFO
+         * is empty. Always get the received data, but only fill the
+         * receive buffer if it points to something (the upper layer
+         * software may not care to receive data).
+         */
+        StatusReg = XSpi_GetStatusReg(SpiPtr);
 
-		while ((StatusReg & XSP_SR_RX_EMPTY_MASK) == 0) {
+        while ((StatusReg & XSP_SR_RX_EMPTY_MASK) == 0) {
 
-			Data = XSpi_ReadReg(SpiPtr->BaseAddr, XSP_DRR_OFFSET);
+            Data = XSpi_ReadReg(SpiPtr->BaseAddr, XSP_DRR_OFFSET);
 
-			/*
-			 * Data Transfer Width is Byte (8 bit).
-			 */
-			if (DataWidth == XSP_DATAWIDTH_BYTE) {
-				if (SpiPtr->RecvBufferPtr != NULL) {
-					*SpiPtr->RecvBufferPtr++ = (u8) Data;
-				}
-			} else if (DataWidth == XSP_DATAWIDTH_HALF_WORD) {
-				if (SpiPtr->RecvBufferPtr != NULL) {
-					*(u16 *) SpiPtr->RecvBufferPtr =
-							(u16) Data;
-					SpiPtr->RecvBufferPtr +=2;
-				}
-			} else if (DataWidth == XSP_DATAWIDTH_WORD) {
-				if (SpiPtr->RecvBufferPtr != NULL) {
-					*(u32 *) SpiPtr->RecvBufferPtr =
-							Data;
-					SpiPtr->RecvBufferPtr +=4;
-				}
-			}
+            /*
+             * Data Transfer Width is Byte (8 bit).
+             */
+            if (DataWidth == XSP_DATAWIDTH_BYTE) {
+                if (SpiPtr->RecvBufferPtr != NULL) {
+                    *SpiPtr->RecvBufferPtr++ = (u8) Data;
+                }
+            } else if (DataWidth == XSP_DATAWIDTH_HALF_WORD) {
+                if (SpiPtr->RecvBufferPtr != NULL) {
+                    *(u16 *) SpiPtr->RecvBufferPtr =
+                        (u16) Data;
+                    SpiPtr->RecvBufferPtr +=2;
+                }
+            } else if (DataWidth == XSP_DATAWIDTH_WORD) {
+                if (SpiPtr->RecvBufferPtr != NULL) {
+                    *(u32 *) SpiPtr->RecvBufferPtr =
+                        Data;
+                    SpiPtr->RecvBufferPtr +=4;
+                }
+            }
 
-			SpiPtr->Stats.BytesTransferred += (DataWidth >> 3);
-			StatusReg = XSpi_GetStatusReg(SpiPtr);
-		}
+            SpiPtr->Stats.BytesTransferred += (DataWidth >> 3);
+            StatusReg = XSpi_GetStatusReg(SpiPtr);
+        }
 
-		/*
-		 * See if there is more data to send.
-		 */
-		if (SpiPtr->RemainingBytes > 0) {
-			/*
-			 * Fill the DTR/FIFO with as many bytes as it will take
-			 * (or as many as we have to send). We use the full
-			 * status bit to know if the device can take more data.
-			 * By doing this, the driver does not need to know the
-			 * size of the FIFO or that there even is a FIFO.
-			 * The downside is that the status must be read each
-			 * loop iteration.
-			 */
-			StatusReg = XSpi_GetStatusReg(SpiPtr);
-			while (((StatusReg & XSP_SR_TX_FULL_MASK) == 0) &&
-				(SpiPtr->RemainingBytes > 0)) {
-				if (DataWidth == XSP_DATAWIDTH_BYTE) {
-					/*
-					 * Data Transfer Width is Byte (8 bit).
-					 */
-					Data = *SpiPtr->SendBufferPtr;
+        /*
+         * See if there is more data to send.
+         */
+        if (SpiPtr->RemainingBytes > 0) {
+            /*
+             * Fill the DTR/FIFO with as many bytes as it will take
+             * (or as many as we have to send). We use the full
+             * status bit to know if the device can take more data.
+             * By doing this, the driver does not need to know the
+             * size of the FIFO or that there even is a FIFO.
+             * The downside is that the status must be read each
+             * loop iteration.
+             */
+            StatusReg = XSpi_GetStatusReg(SpiPtr);
+            while (((StatusReg & XSP_SR_TX_FULL_MASK) == 0) &&
+                    (SpiPtr->RemainingBytes > 0)) {
+                if (DataWidth == XSP_DATAWIDTH_BYTE) {
+                    /*
+                     * Data Transfer Width is Byte (8 bit).
+                     */
+                    Data = *SpiPtr->SendBufferPtr;
 
-				} else if (DataWidth ==
-						XSP_DATAWIDTH_HALF_WORD) {
-					/*
-					 * Data Transfer Width is Half Word
-					 * (16 bit).
-					 */
-					Data = *(u16 *) SpiPtr->SendBufferPtr;
-				} else if (DataWidth ==
-						XSP_DATAWIDTH_WORD) {
-					/*
-					 * Data Transfer Width is Word (32 bit).
-					 */
-					Data = *(u32 *) SpiPtr->SendBufferPtr;
-				}
+                } else if (DataWidth ==
+                           XSP_DATAWIDTH_HALF_WORD) {
+                    /*
+                     * Data Transfer Width is Half Word
+                     * (16 bit).
+                     */
+                    Data = *(u16 *) SpiPtr->SendBufferPtr;
+                } else if (DataWidth ==
+                           XSP_DATAWIDTH_WORD) {
+                    /*
+                     * Data Transfer Width is Word (32 bit).
+                     */
+                    Data = *(u32 *) SpiPtr->SendBufferPtr;
+                }
 
-				XSpi_WriteReg(SpiPtr->BaseAddr, XSP_DTR_OFFSET,
-						Data);
-				SpiPtr->SendBufferPtr += (DataWidth >> 3);
-				SpiPtr->RemainingBytes -= (DataWidth >> 3);
-				StatusReg = XSpi_GetStatusReg(SpiPtr);
-			}
+                XSpi_WriteReg(SpiPtr->BaseAddr, XSP_DTR_OFFSET,
+                              Data);
+                SpiPtr->SendBufferPtr += (DataWidth >> 3);
+                SpiPtr->RemainingBytes -= (DataWidth >> 3);
+                StatusReg = XSpi_GetStatusReg(SpiPtr);
+            }
 
-			/*
-			 * Start the transfer by not inhibiting the transmitter
-			 * any longer.
-			 */
-			XSpi_SetControlReg(SpiPtr, ControlReg);
-		} else {
+            /*
+             * Start the transfer by not inhibiting the transmitter
+             * any longer.
+             */
+            XSpi_SetControlReg(SpiPtr, ControlReg);
+        } else {
 
-			/*
-			 * Select the slave on the SPI bus when the transfer is
-			 * complete, this is necessary for some SPI devices,
-			 * such as serial EEPROMs work correctly as chip enable
-			 * may be connected to slave select.
-			 */
-			XSpi_SetSlaveSelectReg(SpiPtr,
-						SpiPtr->SlaveSelectMask);
-			/*
-			 * No more data to send.  Disable the interrupt and
-			 * inform the upper layer software that the transfer is
-			 * done. The interrupt will be re-enabled when another
-			 * transfer is initiated.
-			 */
-			XSpi_IntrDisable(SpiPtr, XSP_INTR_TX_EMPTY_MASK);
+            /*
+             * Select the slave on the SPI bus when the transfer is
+             * complete, this is necessary for some SPI devices,
+             * such as serial EEPROMs work correctly as chip enable
+             * may be connected to slave select.
+             */
+            XSpi_SetSlaveSelectReg(SpiPtr,
+                                   SpiPtr->SlaveSelectMask);
+            /*
+             * No more data to send.  Disable the interrupt and
+             * inform the upper layer software that the transfer is
+             * done. The interrupt will be re-enabled when another
+             * transfer is initiated.
+             */
+            XSpi_IntrDisable(SpiPtr, XSP_INTR_TX_EMPTY_MASK);
 
-			SpiPtr->IsBusy = FALSE;
+            SpiPtr->IsBusy = FALSE;
 
-			SpiPtr->StatusHandler(SpiPtr->StatusRef,
-						XST_SPI_TRANSFER_DONE,
-						SpiPtr->RequestedBytes);
-		}
-	}
+            SpiPtr->StatusHandler(SpiPtr->StatusRef,
+                                  XST_SPI_TRANSFER_DONE,
+                                  SpiPtr->RequestedBytes);
+        }
+    }
 
-	/*
-	 * Check if the device has been addressed as a slave. Report the status
-	 * to the application layer.
-	 */
-	if (IntrStatus & XSP_INTR_SLAVE_MODE_MASK) {
-		SpiPtr->StatusHandler(SpiPtr->StatusRef,
-					XST_SPI_SLAVE_MODE, 0);
-	}
+    /*
+     * Check if the device has been addressed as a slave. Report the status
+     * to the application layer.
+     */
+    if (IntrStatus & XSP_INTR_SLAVE_MODE_MASK) {
+        SpiPtr->StatusHandler(SpiPtr->StatusRef,
+                              XST_SPI_SLAVE_MODE, 0);
+    }
 
-	/*
-	 * Check if the device has received data from the master. Report the
-	 * status to the application layer.
-	 */
-	if (IntrStatus & XSP_INTR_RX_NOT_EMPTY_MASK) {
-		SpiPtr->StatusHandler(SpiPtr->StatusRef,
-					XST_SPI_RECEIVE_NOT_EMPTY, 0);
-	}
+    /*
+     * Check if the device has received data from the master. Report the
+     * status to the application layer.
+     */
+    if (IntrStatus & XSP_INTR_RX_NOT_EMPTY_MASK) {
+        SpiPtr->StatusHandler(SpiPtr->StatusRef,
+                              XST_SPI_RECEIVE_NOT_EMPTY, 0);
+    }
 
-	/*
-	 * Check for slave mode fault. Simply report the error and update the
-	 * statistics.
-	 */
-	if (IntrStatus & XSP_INTR_SLAVE_MODE_FAULT_MASK) {
-		BytesDone = SpiPtr->RequestedBytes - SpiPtr->RemainingBytes;
-		SpiPtr->Stats.SlaveModeFaults++;
-		SpiPtr->StatusHandler(SpiPtr->StatusRef,
-				XST_SPI_SLAVE_MODE_FAULT, BytesDone);
-	}
+    /*
+     * Check for slave mode fault. Simply report the error and update the
+     * statistics.
+     */
+    if (IntrStatus & XSP_INTR_SLAVE_MODE_FAULT_MASK) {
+        BytesDone = SpiPtr->RequestedBytes - SpiPtr->RemainingBytes;
+        SpiPtr->Stats.SlaveModeFaults++;
+        SpiPtr->StatusHandler(SpiPtr->StatusRef,
+                              XST_SPI_SLAVE_MODE_FAULT, BytesDone);
+    }
 
-	/*
-	 * Check for overrun error. Simply report the error and update the
-	 * statistics.
-	 */
-	if (IntrStatus & XSP_INTR_RX_OVERRUN_MASK) {
-		BytesDone = SpiPtr->RequestedBytes - SpiPtr->RemainingBytes;
-		SpiPtr->Stats.RecvOverruns++;
-		SpiPtr->StatusHandler(SpiPtr->StatusRef,
-				XST_SPI_RECEIVE_OVERRUN, BytesDone);
-	}
+    /*
+     * Check for overrun error. Simply report the error and update the
+     * statistics.
+     */
+    if (IntrStatus & XSP_INTR_RX_OVERRUN_MASK) {
+        BytesDone = SpiPtr->RequestedBytes - SpiPtr->RemainingBytes;
+        SpiPtr->Stats.RecvOverruns++;
+        SpiPtr->StatusHandler(SpiPtr->StatusRef,
+                              XST_SPI_RECEIVE_OVERRUN, BytesDone);
+    }
 
-	/*
-	 * Check for underrun error. Simply report the error and update the
-	 * statistics.
-	 */
-	if (IntrStatus & XSP_INTR_TX_UNDERRUN_MASK) {
-		BytesDone = SpiPtr->RequestedBytes - SpiPtr->RemainingBytes;
-		SpiPtr->Stats.XmitUnderruns++;
-		SpiPtr->StatusHandler(SpiPtr->StatusRef,
-				XST_SPI_TRANSMIT_UNDERRUN, BytesDone);
-	}
+    /*
+     * Check for underrun error. Simply report the error and update the
+     * statistics.
+     */
+    if (IntrStatus & XSP_INTR_TX_UNDERRUN_MASK) {
+        BytesDone = SpiPtr->RequestedBytes - SpiPtr->RemainingBytes;
+        SpiPtr->Stats.XmitUnderruns++;
+        SpiPtr->StatusHandler(SpiPtr->StatusRef,
+                              XST_SPI_TRANSMIT_UNDERRUN, BytesDone);
+    }
 
-	/*
-	 * Check for command error. Simply report the error and update the
-	 * statistics.
-	 */
-	if (IntrStatus & XSP_INTR_CMD_ERR_MASK) {
-		BytesDone = SpiPtr->RequestedBytes - SpiPtr->RemainingBytes;
-		SpiPtr->Stats.XmitUnderruns++;
-		SpiPtr->StatusHandler(SpiPtr->StatusRef,
-				XST_SPI_COMMAND_ERROR, BytesDone);
-	}
+    /*
+     * Check for command error. Simply report the error and update the
+     * statistics.
+     */
+    if (IntrStatus & XSP_INTR_CMD_ERR_MASK) {
+        BytesDone = SpiPtr->RequestedBytes - SpiPtr->RemainingBytes;
+        SpiPtr->Stats.XmitUnderruns++;
+        SpiPtr->StatusHandler(SpiPtr->StatusRef,
+                              XST_SPI_COMMAND_ERROR, BytesDone);
+    }
 }
 
 /*****************************************************************************/
@@ -1349,37 +1349,37 @@ void XSpi_InterruptHandler(void *InstancePtr)
 ******************************************************************************/
 void XSpi_Abort(XSpi *InstancePtr)
 {
-	u16 ControlReg;
+    u16 ControlReg;
 
-	/*
-	 * Deselect the slave on the SPI bus to abort a transfer, this must be
-	 * done before the device is disabled such that the signals which are
-	 * driven by the device are changed without the device enabled.
-	 */
-	XSpi_SetSlaveSelectReg(InstancePtr,
-				InstancePtr->SlaveSelectMask);
-	/*
-	 * Abort the operation currently in progress. Clear the mode
-	 * fault condition by reading the status register (done) then
-	 * writing the control register.
-	 */
-	ControlReg = XSpi_GetControlReg(InstancePtr);
+    /*
+     * Deselect the slave on the SPI bus to abort a transfer, this must be
+     * done before the device is disabled such that the signals which are
+     * driven by the device are changed without the device enabled.
+     */
+    XSpi_SetSlaveSelectReg(InstancePtr,
+                           InstancePtr->SlaveSelectMask);
+    /*
+     * Abort the operation currently in progress. Clear the mode
+     * fault condition by reading the status register (done) then
+     * writing the control register.
+     */
+    ControlReg = XSpi_GetControlReg(InstancePtr);
 
-	/*
-	 * Stop any transmit in progress and reset the FIFOs if they exist,
-	 * don't disable the device just inhibit any data from being sent.
-	 */
-	ControlReg |= XSP_CR_TRANS_INHIBIT_MASK;
+    /*
+     * Stop any transmit in progress and reset the FIFOs if they exist,
+     * don't disable the device just inhibit any data from being sent.
+     */
+    ControlReg |= XSP_CR_TRANS_INHIBIT_MASK;
 
-	if (InstancePtr->HasFifos) {
-		ControlReg |= (XSP_CR_TXFIFO_RESET_MASK |
-				XSP_CR_RXFIFO_RESET_MASK);
-	}
+    if (InstancePtr->HasFifos) {
+        ControlReg |= (XSP_CR_TXFIFO_RESET_MASK |
+                       XSP_CR_RXFIFO_RESET_MASK);
+    }
 
-	XSpi_SetControlReg(InstancePtr, ControlReg);
+    XSpi_SetControlReg(InstancePtr, ControlReg);
 
-	InstancePtr->RemainingBytes = 0;
-	InstancePtr->RequestedBytes = 0;
-	InstancePtr->IsBusy = FALSE;
+    InstancePtr->RemainingBytes = 0;
+    InstancePtr->RequestedBytes = 0;
+    InstancePtr->IsBusy = FALSE;
 }
 

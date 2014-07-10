@@ -279,7 +279,7 @@
 *		      Modified such that C_FIFO_EXIST will be updated based
 *		      on C_FIFO_DEPTH for compatability of the driver with
 *		      Axi Spi.
-* 3.05a adk  18/04/13 Updated the code to avoid unused variable 
+* 3.05a adk  18/04/13 Updated the code to avoid unused variable
 *			 warnings when compiling with the -Wextra -Wall flags
 *			 In the file xspi.c. CR:705005.
 * 3.06a adk  07/08/13 Added a dummy read in the CfgInitialize(), if startup
@@ -368,36 +368,36 @@ extern "C" {
 *
 *******************************************************************************/
 typedef void (*XSpi_StatusHandler) (void *CallBackRef, u32 StatusEvent,
-					unsigned int ByteCount);
+                                    unsigned int ByteCount);
 
 /**
  * XSpi statistics
  */
 typedef struct {
-	u32 ModeFaults;		/**< Number of mode fault errors */
-	u32 XmitUnderruns;	/**< Number of transmit underruns */
-	u32 RecvOverruns;	/**< Number of receive overruns */
-	u32 SlaveModeFaults;	/**< Num of selects as slave while disabled */
-	u32 BytesTransferred;	/**< Number of bytes transferred */
-	u32 NumInterrupts;	/**< Number of transmit/receive interrupts */
+    u32 ModeFaults;		/**< Number of mode fault errors */
+    u32 XmitUnderruns;	/**< Number of transmit underruns */
+    u32 RecvOverruns;	/**< Number of receive overruns */
+    u32 SlaveModeFaults;	/**< Num of selects as slave while disabled */
+    u32 BytesTransferred;	/**< Number of bytes transferred */
+    u32 NumInterrupts;	/**< Number of transmit/receive interrupts */
 } XSpi_Stats;
 
 /**
  * This typedef contains configuration information for the device.
  */
 typedef struct {
-	u16 DeviceId;		/**< Unique ID  of device */
-	u32 BaseAddress;	/**< Base address of the device */
-	int HasFifos;		/**< Does device have FIFOs? */
-	u32 SlaveOnly;		/**< Is the device slave only? */
-	u8 NumSlaveBits;	/**< Num of slave select bits on the device */
-	u8 DataWidth;		/**< Data transfer Width */
-	u8 SpiMode;		/**< Standard/Dual/Quad mode */
-	u8 AxiInterface;	/**< AXI-Lite/AXI Full Interface */
-	u32 AxiFullBaseAddress;	/**< AXI Full Interface Base address of
+    u16 DeviceId;		/**< Unique ID  of device */
+    u32 BaseAddress;	/**< Base address of the device */
+    int HasFifos;		/**< Does device have FIFOs? */
+    u32 SlaveOnly;		/**< Is the device slave only? */
+    u8 NumSlaveBits;	/**< Num of slave select bits on the device */
+    u8 DataWidth;		/**< Data transfer Width */
+    u8 SpiMode;		/**< Standard/Dual/Quad mode */
+    u8 AxiInterface;	/**< AXI-Lite/AXI Full Interface */
+    u32 AxiFullBaseAddress;	/**< AXI Full Interface Base address of
 					the device */
-	u8 XipMode;             /**< 0 if Non-XIP, 1 if XIP Mode */
-	u8 Use_Startup;		/**< 1 if Starup block is used in h/w */
+    u8 XipMode;             /**< 0 if Non-XIP, 1 if XIP Mode */
+    u8 Use_Startup;		/**< 1 if Starup block is used in h/w */
 } XSpi_Config;
 
 /**
@@ -406,28 +406,28 @@ typedef struct {
  * to a variable of this type is then passed to the driver API functions.
  */
 typedef struct {
-	XSpi_Stats Stats;	/**< Statistics */
-	u32 BaseAddr;		/**< Base address of device (IPIF) */
-	int IsReady;		/**< Device is initialized and ready */
-	int IsStarted;		/**< Device has been started */
-	int HasFifos;		/**< Device is configured with FIFOs or not */
-	u32 SlaveOnly;		/**< Device is configured to be slave only */
-	u8 NumSlaveBits;	/**< Number of slave selects for this device */
-	u8 DataWidth;		/**< Data Transfer Width 8 or 16 or 32 */
-	u8 SpiMode;		/**< Standard/Dual/Quad mode */
-	u32 SlaveSelectMask;	/**< Mask that matches the number of SS bits */
-	u32 SlaveSelectReg;	/**< Slave select register */
+    XSpi_Stats Stats;	/**< Statistics */
+    u32 BaseAddr;		/**< Base address of device (IPIF) */
+    int IsReady;		/**< Device is initialized and ready */
+    int IsStarted;		/**< Device has been started */
+    int HasFifos;		/**< Device is configured with FIFOs or not */
+    u32 SlaveOnly;		/**< Device is configured to be slave only */
+    u8 NumSlaveBits;	/**< Number of slave selects for this device */
+    u8 DataWidth;		/**< Data Transfer Width 8 or 16 or 32 */
+    u8 SpiMode;		/**< Standard/Dual/Quad mode */
+    u32 SlaveSelectMask;	/**< Mask that matches the number of SS bits */
+    u32 SlaveSelectReg;	/**< Slave select register */
 
-	u8 *SendBufferPtr;	/**< Buffer to send  */
-	u8 *RecvBufferPtr;	/**< Buffer to receive */
-	unsigned int RequestedBytes; /**< Total bytes to transfer (state) */
-	unsigned int RemainingBytes; /**< Bytes left to transfer (state) */
-	int IsBusy;		/**< A transfer is in progress (state) */
+    u8 *SendBufferPtr;	/**< Buffer to send  */
+    u8 *RecvBufferPtr;	/**< Buffer to receive */
+    unsigned int RequestedBytes; /**< Total bytes to transfer (state) */
+    unsigned int RemainingBytes; /**< Bytes left to transfer (state) */
+    int IsBusy;		/**< A transfer is in progress (state) */
 
-	XSpi_StatusHandler StatusHandler; /**< Status Handler */
-	void *StatusRef;	/**< Callback reference for status handler */
-	u32 FlashBaseAddr;    	/**< Used in XIP Mode */
-	u8 XipMode;             /**< 0 if Non-XIP, 1 if XIP Mode */
+    XSpi_StatusHandler StatusHandler; /**< Status Handler */
+    void *StatusRef;	/**< Callback reference for status handler */
+    u32 FlashBaseAddr;    	/**< Used in XIP Mode */
+    u8 XipMode;             /**< 0 if Non-XIP, 1 if XIP Mode */
 } XSpi;
 
 /***************** Macros (Inline Functions) Definitions *********************/
@@ -798,7 +798,7 @@ XSpi_Config *XSpi_LookupConfig(u16 DeviceId);
  * Functions, in xspi.c
  */
 int XSpi_CfgInitialize(XSpi *InstancePtr, XSpi_Config * Config,
-		       u32 EffectiveAddr);
+                       u32 EffectiveAddr);
 
 int XSpi_Start(XSpi *InstancePtr);
 int XSpi_Stop(XSpi *InstancePtr);
@@ -809,10 +809,10 @@ int XSpi_SetSlaveSelect(XSpi *InstancePtr, u32 SlaveMask);
 u32 XSpi_GetSlaveSelect(XSpi *InstancePtr);
 
 int XSpi_Transfer(XSpi *InstancePtr, u8 *SendBufPtr, u8 *RecvBufPtr,
-		  unsigned int ByteCount);
+                  unsigned int ByteCount);
 
 void XSpi_SetStatusHandler(XSpi *InstancePtr, void *CallBackRef,
-			   XSpi_StatusHandler FuncPtr);
+                           XSpi_StatusHandler FuncPtr);
 void XSpi_InterruptHandler(void *InstancePtr);
 
 

@@ -230,16 +230,16 @@ extern "C" {
  * seperate address space.
  */
 #ifndef Xil_Out32
- #define Xil_Out8(addr, data) *((volatile unsigned char*)(addr)) = data
- #define Xil_In8(addr) *((volatile unsigned char*)(addr))
+#define Xil_Out8(addr, data) *((volatile unsigned char*)(addr)) = data
+#define Xil_In8(addr) *((volatile unsigned char*)(addr))
 #endif
- 
+
 #ifndef Xil_Out16
- #define Xil_Out16(addr, data) *((volatile unsigned short*)(addr)) = data
- #define Xil_In16(addr) *((volatile unsigned short*)(addr))
- 
- #define Xil_Out32(addr, data) *((volatile unsigned *)(addr)) = data
- #define Xil_In32(addr) *((volatile unsigned*)(addr))
+#define Xil_Out16(addr, data) *((volatile unsigned short*)(addr)) = data
+#define Xil_In16(addr) *((volatile unsigned short*)(addr))
+
+#define Xil_Out32(addr, data) *((volatile unsigned *)(addr)) = data
+#define Xil_In32(addr) *((volatile unsigned*)(addr))
 #endif
 
 u16 Xil_In16BE(u32 Addr);

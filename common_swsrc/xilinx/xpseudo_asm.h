@@ -56,9 +56,9 @@
 ******************************************************************************/
 #include "xreg_cortexa9.h"
 #ifdef __GNUC__
- #include "xpseudo_asm_gcc.h"
+#include "xpseudo_asm_gcc.h"
 #elif defined (__ICCARM__)
- #include "xpseudo_asm_iccarm.h"
+#include "xpseudo_asm_iccarm.h"
 #else
- #include "xpseudo_asm_rvct.h"
+#include "xpseudo_asm_rvct.h"
 #endif

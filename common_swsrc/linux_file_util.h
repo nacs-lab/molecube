@@ -1,7 +1,7 @@
 
 /* Generic functions to write values to and read them from file.
  * Calls to these functions can manipulate file-mapped devices in Linux. */
- 
+
 #ifdef __cplusplus
 extern "C"
 {

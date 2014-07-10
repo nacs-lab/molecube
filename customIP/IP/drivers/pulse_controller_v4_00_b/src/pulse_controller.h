@@ -5,9 +5,9 @@
 * Date:              Tue Jul 10 23:45:58 2012 (by Create and Import Peripheral Wizard)
 *****************************************************************************/
 
-/* The name PULSER is due to Chris Langer, who developed the original FPGA 
+/* The name PULSER is due to Chris Langer, who developed the original FPGA
  * pulse generator while doing his PhD research at NIST */
- 
+
 #ifndef PULSER_H
 #define PULSER_H
 
@@ -74,7 +74,7 @@ unsigned PULSER_pop_result(void* base_addr);
 unsigned PULSER_get_write_status(void* base_addr);
 unsigned PULSER_get_read_status(void* base_addr);
 
-//! get/set stored previous PMT counter value.  
+//! get/set stored previous PMT counter value.
 //! The hardware counter increments unformly and is never reset
 unsigned PULSER_get_last_PMT();
 void PULSER_set_last_PMT(unsigned);
@@ -99,9 +99,9 @@ void PULSER_set_ttl(void* base_addr, unsigned high_mask, unsigned low_mask);
 void PULSER_get_ttl(void* base_addr, unsigned* high_mask, unsigned* low_mask);
 
 //DDS functions
-void PULSER_dds_reset(void* base_addr, char i); 
-void PULSER_dds_reset_sel(void* base_addr, unsigned mask); 
-void PULSER_dds_set_sel(void* base_addr, unsigned mask); 
+void PULSER_dds_reset(void* base_addr, char i);
+void PULSER_dds_reset_sel(void* base_addr, unsigned mask);
+void PULSER_dds_set_sel(void* base_addr, unsigned mask);
 void PULSER_set_dds_div2(void* base_addr, char i, int b);
 
 void PULSER_set_dds_freq(void* base_addr, char i, unsigned freq);

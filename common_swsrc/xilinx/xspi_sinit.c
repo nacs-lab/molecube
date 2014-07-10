@@ -100,21 +100,21 @@ extern XSpi_Config XSpi_ConfigTable[];
 ******************************************************************************/
 XSpi_Config *XSpi_LookupConfig(u16 DeviceId)
 {
-	XSpi_Config *CfgPtr = NULL;
-	u32 Index;
+    XSpi_Config *CfgPtr = NULL;
+    u32 Index;
 
-	for (Index = 0; Index < XPAR_XSPI_NUM_INSTANCES; Index++) {
-		if (XSpi_ConfigTable[Index].DeviceId == DeviceId) {
-			CfgPtr = &XSpi_ConfigTable[Index];
-			break;
-		}
-	}
+    for (Index = 0; Index < XPAR_XSPI_NUM_INSTANCES; Index++) {
+        if (XSpi_ConfigTable[Index].DeviceId == DeviceId) {
+            CfgPtr = &XSpi_ConfigTable[Index];
+            break;
+        }
+    }
 #ifdef LINUX_OS
-  //remap physical address to virtual one
-  CfgPtr->BaseAddress = remap_device_addr((void*)(CfgPtr->BaseAddress));
+    //remap physical address to virtual one
+    CfgPtr->BaseAddress = remap_device_addr((void*)(CfgPtr->BaseAddress));
 #endif
 
-	return CfgPtr;
+    return CfgPtr;
 }
 
 /*****************************************************************************/
@@ -148,20 +148,20 @@ XSpi_Config *XSpi_LookupConfig(u16 DeviceId)
 ******************************************************************************/
 int XSpi_Initialize(XSpi *InstancePtr, u16 DeviceId)
 {
-	XSpi_Config *ConfigPtr;	/* Pointer to Configuration ROM data */
+    XSpi_Config *ConfigPtr;	/* Pointer to Configuration ROM data */
 
-	Xil_AssertNonvoid(InstancePtr != NULL);
+    Xil_AssertNonvoid(InstancePtr != NULL);
 
-	/*
-	 * Lookup the device configuration in the temporary CROM table. Use this
-	 * configuration info down below when initializing this component.
-	 */
-	ConfigPtr = XSpi_LookupConfig(DeviceId);
-	if (ConfigPtr == NULL) {
-		return XST_DEVICE_NOT_FOUND;
-	}
+    /*
+     * Lookup the device configuration in the temporary CROM table. Use this
+     * configuration info down below when initializing this component.
+     */
+    ConfigPtr = XSpi_LookupConfig(DeviceId);
+    if (ConfigPtr == NULL) {
+        return XST_DEVICE_NOT_FOUND;
+    }
 
-	return XSpi_CfgInitialize(InstancePtr, ConfigPtr,
-				  ConfigPtr->BaseAddress);
+    return XSpi_CfgInitialize(InstancePtr, ConfigPtr,
+                              ConfigPtr->BaseAddress);
 
 }

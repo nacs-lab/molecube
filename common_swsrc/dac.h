@@ -2,11 +2,11 @@
 #define DAC_H_
 
 #if defined(ALUMINIZER_SIM)
-   #define XPAR_OPB_SPI_0_BASEADDR (0)
-   #define XST_SUCCESS (0)
-   #define XPAR_SPI_0_DEVICE_ID (0)
-   #define XPAR_SPI_1_DEVICE_ID (1)
-   #define XPAR_SPI_2_DEVICE_ID (2)
+#define XPAR_OPB_SPI_0_BASEADDR (0)
+#define XST_SUCCESS (0)
+#define XPAR_SPI_0_DEVICE_ID (0)
+#define XPAR_SPI_1_DEVICE_ID (1)
+#define XPAR_SPI_2_DEVICE_ID (2)
 typedef unsigned XStatus;
 typedef unsigned Xuint32;
 typedef unsigned short u16;
@@ -14,8 +14,8 @@ typedef unsigned int u32;
 
 
 #else
-   #include <xparameters.h>
-   #include <xstatus.h>
+#include <xparameters.h>
+#include <xstatus.h>
 #endif
 
 #include "spi_util.h"

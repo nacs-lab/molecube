@@ -15,12 +15,11 @@ typedef XSpi* spi_p;
 
 #else
 
-struct spi_struct
-{
-  int fd;
-  int bits;
-  int speed;
-  int delay;
+struct spi_struct {
+    int fd;
+    int bits;
+    int speed;
+    int delay;
 };
 
 typedef spi_struct* spi_p;

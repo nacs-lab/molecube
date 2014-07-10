@@ -99,16 +99,16 @@
 ******************************************************************************/
 void XSpi_GetStats(XSpi *InstancePtr, XSpi_Stats *StatsPtr)
 {
-	Xil_AssertVoid(InstancePtr != NULL);
-	Xil_AssertVoid(StatsPtr != NULL);
-	Xil_AssertVoid(InstancePtr->IsReady == XIL_COMPONENT_IS_READY);
+    Xil_AssertVoid(InstancePtr != NULL);
+    Xil_AssertVoid(StatsPtr != NULL);
+    Xil_AssertVoid(InstancePtr->IsReady == XIL_COMPONENT_IS_READY);
 
-	StatsPtr->ModeFaults = InstancePtr->Stats.ModeFaults;
-	StatsPtr->XmitUnderruns = InstancePtr->Stats.XmitUnderruns;
-	StatsPtr->RecvOverruns =  InstancePtr->Stats.RecvOverruns;
-	StatsPtr->SlaveModeFaults = InstancePtr->Stats.SlaveModeFaults;
-	StatsPtr->BytesTransferred = InstancePtr->Stats.BytesTransferred;
-	StatsPtr->NumInterrupts = InstancePtr->Stats.NumInterrupts;
+    StatsPtr->ModeFaults = InstancePtr->Stats.ModeFaults;
+    StatsPtr->XmitUnderruns = InstancePtr->Stats.XmitUnderruns;
+    StatsPtr->RecvOverruns =  InstancePtr->Stats.RecvOverruns;
+    StatsPtr->SlaveModeFaults = InstancePtr->Stats.SlaveModeFaults;
+    StatsPtr->BytesTransferred = InstancePtr->Stats.BytesTransferred;
+    StatsPtr->NumInterrupts = InstancePtr->Stats.NumInterrupts;
 }
 
 /*****************************************************************************/
@@ -125,14 +125,14 @@ void XSpi_GetStats(XSpi *InstancePtr, XSpi_Stats *StatsPtr)
 ******************************************************************************/
 void XSpi_ClearStats(XSpi *InstancePtr)
 {
-	Xil_AssertVoid(InstancePtr != NULL);
-	Xil_AssertVoid(InstancePtr->IsReady == XIL_COMPONENT_IS_READY);
+    Xil_AssertVoid(InstancePtr != NULL);
+    Xil_AssertVoid(InstancePtr->IsReady == XIL_COMPONENT_IS_READY);
 
-	InstancePtr->Stats.ModeFaults = 0;
-	InstancePtr->Stats.XmitUnderruns = 0;
-	InstancePtr->Stats.RecvOverruns = 0;
-	InstancePtr->Stats.SlaveModeFaults = 0;
-	InstancePtr->Stats.BytesTransferred = 0;
-	InstancePtr->Stats.NumInterrupts = 0;
+    InstancePtr->Stats.ModeFaults = 0;
+    InstancePtr->Stats.XmitUnderruns = 0;
+    InstancePtr->Stats.RecvOverruns = 0;
+    InstancePtr->Stats.SlaveModeFaults = 0;
+    InstancePtr->Stats.BytesTransferred = 0;
+    InstancePtr->Stats.NumInterrupts = 0;
 
 }

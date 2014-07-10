@@ -20,7 +20,7 @@ extern FILE* gLog;
 #ifdef CONFIG_AL
 
 #ifndef PLATFORM_ZYNQ
-//For 1H116 lab add 12 to switch label in GUI to obtain left-shift value of pulse.  
+//For 1H116 lab add 12 to switch label in GUI to obtain left-shift value of pulse.
 // #define TTL_GUI_N  (1 << (GUI_N+12))
 // GUI_N is the label on the Switch panel GUI
 #define N_SHIFT_SWITCHES 12
@@ -57,47 +57,46 @@ extern FILE* gLog;
 
 inline const char* TTL_name(unsigned ttl)
 {
-  switch (ttl)
-  {
-  case TTL_NOTHING:
-    return "  Nothing   ";
-  case TTL_START_EXP:
-    return "Start exp   ";
-  case TTL_SHUTTER:
-    return "  Shutter   ";
-  case TTL_RAMAN_90:
-    return " Raman 90   ";
-  case TTL_RAMAN_CO:
-    return " Raman Co   ";
-  case TTL_REPUMP:
-    return "   Repump   ";
-  case TTL_3P1_PI:
-    return "3P1    pi (hi)";
-  case TTL_3P1_V:
-    return "3P1     V (hi)";
-  case TTL_3P1_SIGMA:
-    return "3P1 sigma (hi)";
-  case TTL_3P1_PI | TTL_3P1_LO:
-    return "3P1    pi (lo)";
-  case TTL_3P1_V | TTL_3P1_LO:
-    return "3P1     V (lo)";
-  case TTL_3P1_SIGMA | TTL_3P1_LO:
-    return "3P1 sigma (lo)";
-  case TTL_3P0:
-    return "3P0         ";
-  case TTL_RF_HEAT:
-    return "RF Heat     ";
-  case TTL_DETECT:
-    return " Detect    ";
-  case TTL_PRECOOL:
-    return "Precool    ";
-  case TTL_ABLATION_TRIG:
-    return "Ablation   ";
-  case TTL_266_TRIG:
-    return "266nm pulse";
-  default:
-    return "  unknown   ";
-  }
+    switch (ttl) {
+    case TTL_NOTHING:
+        return "  Nothing   ";
+    case TTL_START_EXP:
+        return "Start exp   ";
+    case TTL_SHUTTER:
+        return "  Shutter   ";
+    case TTL_RAMAN_90:
+        return " Raman 90   ";
+    case TTL_RAMAN_CO:
+        return " Raman Co   ";
+    case TTL_REPUMP:
+        return "   Repump   ";
+    case TTL_3P1_PI:
+        return "3P1    pi (hi)";
+    case TTL_3P1_V:
+        return "3P1     V (hi)";
+    case TTL_3P1_SIGMA:
+        return "3P1 sigma (hi)";
+    case TTL_3P1_PI | TTL_3P1_LO:
+        return "3P1    pi (lo)";
+    case TTL_3P1_V | TTL_3P1_LO:
+        return "3P1     V (lo)";
+    case TTL_3P1_SIGMA | TTL_3P1_LO:
+        return "3P1 sigma (lo)";
+    case TTL_3P0:
+        return "3P0         ";
+    case TTL_RF_HEAT:
+        return "RF Heat     ";
+    case TTL_DETECT:
+        return " Detect    ";
+    case TTL_PRECOOL:
+        return "Precool    ";
+    case TTL_ABLATION_TRIG:
+        return "Ablation   ";
+    case TTL_266_TRIG:
+        return "266nm pulse";
+    default:
+        return "  unknown   ";
+    }
 }
 
 #endif
@@ -115,14 +114,18 @@ inline const char* TTL_name(unsigned ttl)
 
 inline const char* TTL_name(unsigned ttl)
 {
-  switch (ttl)
-  {
-    case TTL_NOTHING: return "  Nothing";
-    case TTL_START_EXP: return "Start exp";
-    case TTL_DETECT_MON: return " Detect_M";
-    case TTL_PRECOOL_MON: return "Precool_M";
-    default: return "  unknown";
-  }
+    switch (ttl) {
+    case TTL_NOTHING:
+        return "  Nothing";
+    case TTL_START_EXP:
+        return "Start exp";
+    case TTL_DETECT_MON:
+        return " Detect_M";
+    case TTL_PRECOOL_MON:
+        return "Precool_M";
+    default:
+        return "  unknown";
+    }
 }
 
 #endif
@@ -145,22 +148,33 @@ inline const char* TTL_name(unsigned ttl)
 
 inline const char* TTL_name(unsigned ttl)
 {
-  switch (ttl)
-  {
-    case TTL_NOTHING: return "  Nothing";
-    case TTL_START_EXP: return "Start exp";
-    case TTL_RF_SWITCH_1: return "RFswitch1";
-    case TTL_INT_HOLD_1: return " IntHold1";
-    case TTL_DATA_SYNC: return " DataSync";
-    case TTL_RF_SWITCH_2: return "RFswitch2";
-    case TTL_INT_HOLD_2: return " IntHold2";
-    case TTL_RESET_ADC: return " ResetADC";
-    case TTL_SAMPLE: return "   Sample";
-    case TTL_SHUTTER: return "  Shutter";
-    case TTL_INT_HOLD_ALL: return "  IntHold";
+    switch (ttl) {
+    case TTL_NOTHING:
+        return "  Nothing";
+    case TTL_START_EXP:
+        return "Start exp";
+    case TTL_RF_SWITCH_1:
+        return "RFswitch1";
+    case TTL_INT_HOLD_1:
+        return " IntHold1";
+    case TTL_DATA_SYNC:
+        return " DataSync";
+    case TTL_RF_SWITCH_2:
+        return "RFswitch2";
+    case TTL_INT_HOLD_2:
+        return " IntHold2";
+    case TTL_RESET_ADC:
+        return " ResetADC";
+    case TTL_SAMPLE:
+        return "   Sample";
+    case TTL_SHUTTER:
+        return "  Shutter";
+    case TTL_INT_HOLD_ALL:
+        return "  IntHold";
 
-    default: return "  unknown";
-  }
+    default:
+        return "  unknown";
+    }
 }
 
 #endif
@@ -170,10 +184,10 @@ inline const char* TTL_name(unsigned ttl)
 #define TTL_START_EXP   (1 << 12)
 inline const char* TTL_name(unsigned ttl)
 {
-  switch (ttl)
-  {
-    default: return "  unknown";
-  }
+    switch (ttl) {
+    default:
+        return "  unknown";
+    }
 }
 #endif
 
@@ -182,45 +196,44 @@ inline const char* TTL_name(unsigned ttl)
 #define TTL_START_EXP   (1 << 12)
 inline const char* TTL_name(unsigned ttl)
 {
-  switch (ttl)
-  {
-    default: return "  unknown";
-  }
+    switch (ttl) {
+    default:
+        return "  unknown";
+    }
 }
 
 #endif
 
 inline unsigned int us2TW(double t)
 {
-  return static_cast<unsigned int>(t * 100);
+    return static_cast<unsigned int>(t * 100);
 }
 
 inline unsigned int ms2TW(double t)
 {
-  return us2TW(t * 1e3);
+    return us2TW(t * 1e3);
 }
 
 inline void print_pulse_info(unsigned t, unsigned ttl, const char* info = 0)
 {
 
-  if (info)
-    fprintf(gLog, "%12s %36s t = %8.2f us TTL=%08X (%s)\n", TTL_name(ttl), "",
-        0.01 * (double) t, ttl, info);
-  else
-    fprintf(gLog, "%12s %36s t = %8.2f us TTL=%08X\n", TTL_name(ttl), "",
-        0.01 * (double) t, ttl);
+    if (info)
+        fprintf(gLog, "%12s %36s t = %8.2f us TTL=%08X (%s)\n", TTL_name(ttl), "",
+                0.01 * (double) t, ttl, info);
+    else
+        fprintf(gLog, "%12s %36s t = %8.2f us TTL=%08X\n", TTL_name(ttl), "",
+                0.01 * (double) t, ttl);
 }
 
 //make an RF pulse of specified frequency and duration
 inline void TTL_pulse(unsigned t, unsigned ttl = 0)
 {
-  if (t > 4)
-  {
-    PULSER_pulse(pulser, t, 0, ttl);
+    if (t > 4) {
+        PULSER_pulse(pulser, t, 0, ttl);
 
-    if (bDebugPulses)
-      print_pulse_info(t, ttl);
-  }
+        if (bDebugPulses)
+            print_pulse_info(t, ttl);
+    }
 }
 
 #endif /*TTL_PULSE_H_*/

@@ -118,97 +118,96 @@ static int LoopbackTest(XSpi *InstancePtr);
 ******************************************************************************/
 int XSpi_SelfTest(XSpi *InstancePtr)
 {
-	int Result;
-	u32 Register;
+    int Result;
+    u32 Register;
 
-	Xil_AssertNonvoid(InstancePtr != NULL);
-	Xil_AssertNonvoid(InstancePtr->IsReady == XIL_COMPONENT_IS_READY);
+    Xil_AssertNonvoid(InstancePtr != NULL);
+    Xil_AssertNonvoid(InstancePtr->IsReady == XIL_COMPONENT_IS_READY);
 
 
-	/* Return Success if XIP Mode */
-	if((InstancePtr->XipMode) == 1) {
-		return XST_SUCCESS;
-	}
+    /* Return Success if XIP Mode */
+    if((InstancePtr->XipMode) == 1) {
+        return XST_SUCCESS;
+    }
 
-	/*
-	 * Reset the SPI device to leave it in a known good state.
-	 */
-	XSpi_Reset(InstancePtr);
+    /*
+     * Reset the SPI device to leave it in a known good state.
+     */
+    XSpi_Reset(InstancePtr);
 
-	if(InstancePtr->XipMode)
-	{
-		Register = XSpi_GetControlReg(InstancePtr);
-		if (Register != XSP_CR_RESET_STATE) {
-			return XST_REGISTER_ERROR;
-		}
+    if(InstancePtr->XipMode) {
+        Register = XSpi_GetControlReg(InstancePtr);
+        if (Register != XSP_CR_RESET_STATE) {
+            return XST_REGISTER_ERROR;
+        }
 
-		Register = XSpi_GetStatusReg(InstancePtr);
-		if ((Register & XSP_SR_RESET_STATE) != XSP_SR_RESET_STATE) {
-			return XST_REGISTER_ERROR;
-		}
-	}
-
+        Register = XSpi_GetStatusReg(InstancePtr);
+        if ((Register & XSP_SR_RESET_STATE) != XSP_SR_RESET_STATE) {
+            return XST_REGISTER_ERROR;
+        }
+    }
 
 
 
-	/*
-	 * All the SPI registers should be in their default state right now.
-	 */
-	Register = XSpi_GetControlReg(InstancePtr);
-	if (Register != XSP_CR_RESET_STATE) {
-		return XST_REGISTER_ERROR;
-	}
 
-	Register = XSpi_GetStatusReg(InstancePtr);
-	if ((Register & XSP_SR_RESET_STATE) != XSP_SR_RESET_STATE) {
-		return XST_REGISTER_ERROR;
-	}
+    /*
+     * All the SPI registers should be in their default state right now.
+     */
+    Register = XSpi_GetControlReg(InstancePtr);
+    if (Register != XSP_CR_RESET_STATE) {
+        return XST_REGISTER_ERROR;
+    }
 
-	/*
-	 * Each supported slave select bit should be set to 1.
-	 */
-	Register = XSpi_GetSlaveSelectReg(InstancePtr);
-	if (Register != InstancePtr->SlaveSelectMask) {
-		return XST_REGISTER_ERROR;
-	}
+    Register = XSpi_GetStatusReg(InstancePtr);
+    if ((Register & XSP_SR_RESET_STATE) != XSP_SR_RESET_STATE) {
+        return XST_REGISTER_ERROR;
+    }
 
-	/*
-	 * If configured with FIFOs, the occupancy values should be 0.
-	 */
-	if (InstancePtr->HasFifos) {
-		Register = XSpi_ReadReg(InstancePtr->BaseAddr,
-					 XSP_TFO_OFFSET);
-		if (Register != 0) {
-			return XST_REGISTER_ERROR;
-		}
-		Register = XSpi_ReadReg(InstancePtr->BaseAddr,
-					 XSP_RFO_OFFSET);
-		if (Register != 0) {
-			return XST_REGISTER_ERROR;
-		}
-	}
+    /*
+     * Each supported slave select bit should be set to 1.
+     */
+    Register = XSpi_GetSlaveSelectReg(InstancePtr);
+    if (Register != InstancePtr->SlaveSelectMask) {
+        return XST_REGISTER_ERROR;
+    }
 
-	/*
-	 * Run loopback test only in case of standard SPI mode.
-	 */
-	if (InstancePtr->SpiMode != XSP_STANDARD_MODE) {
-		return XST_SUCCESS;
-	}
+    /*
+     * If configured with FIFOs, the occupancy values should be 0.
+     */
+    if (InstancePtr->HasFifos) {
+        Register = XSpi_ReadReg(InstancePtr->BaseAddr,
+                                XSP_TFO_OFFSET);
+        if (Register != 0) {
+            return XST_REGISTER_ERROR;
+        }
+        Register = XSpi_ReadReg(InstancePtr->BaseAddr,
+                                XSP_RFO_OFFSET);
+        if (Register != 0) {
+            return XST_REGISTER_ERROR;
+        }
+    }
 
-	/*
-	 * Run an internal loopback test on the SPI.
-	 */
-	Result = LoopbackTest(InstancePtr);
-	if (Result != XST_SUCCESS) {
-		return Result;
-	}
+    /*
+     * Run loopback test only in case of standard SPI mode.
+     */
+    if (InstancePtr->SpiMode != XSP_STANDARD_MODE) {
+        return XST_SUCCESS;
+    }
 
-	/*
-	 * Reset the SPI device to leave it in a known good state.
-	 */
-	XSpi_Reset(InstancePtr);
+    /*
+     * Run an internal loopback test on the SPI.
+     */
+    Result = LoopbackTest(InstancePtr);
+    if (Result != XST_SUCCESS) {
+        return Result;
+    }
 
-	return XST_SUCCESS;
+    /*
+     * Reset the SPI device to leave it in a known good state.
+     */
+    XSpi_Reset(InstancePtr);
+
+    return XST_SUCCESS;
 }
 
 /*****************************************************************************/
@@ -234,133 +233,133 @@ int XSpi_SelfTest(XSpi *InstancePtr)
 ******************************************************************************/
 static int LoopbackTest(XSpi *InstancePtr)
 {
-	u32 StatusReg;
-	u32 ControlReg;
-	u32 Index;
-	u32 Data;
-	u32 RxData;
-	u32 NumSent = 0;
-	u32 NumRecvd = 0;
-	u8  DataWidth;
+    u32 StatusReg;
+    u32 ControlReg;
+    u32 Index;
+    u32 Data;
+    u32 RxData;
+    u32 NumSent = 0;
+    u32 NumRecvd = 0;
+    u8  DataWidth;
 
-	/*
-	 * Cannot run as a slave-only because we need to be master in order to
-	 * initiate a transfer. Still return success, though.
-	 */
-	if (InstancePtr->SlaveOnly) {
-		return XST_SUCCESS;
-	}
+    /*
+     * Cannot run as a slave-only because we need to be master in order to
+     * initiate a transfer. Still return success, though.
+     */
+    if (InstancePtr->SlaveOnly) {
+        return XST_SUCCESS;
+    }
 
-	/*
-	 * Setup the control register to enable master mode and the loopback so
-	 * that data can be sent and received.
-	 */
-	ControlReg = XSpi_GetControlReg(InstancePtr);
-	XSpi_SetControlReg(InstancePtr, ControlReg |
-			    XSP_CR_LOOPBACK_MASK | XSP_CR_MASTER_MODE_MASK);
-	/*
-	 * We do not need interrupts for this loopback test.
-	 */
-	XSpi_IntrGlobalDisable(InstancePtr);
+    /*
+     * Setup the control register to enable master mode and the loopback so
+     * that data can be sent and received.
+     */
+    ControlReg = XSpi_GetControlReg(InstancePtr);
+    XSpi_SetControlReg(InstancePtr, ControlReg |
+                       XSP_CR_LOOPBACK_MASK | XSP_CR_MASTER_MODE_MASK);
+    /*
+     * We do not need interrupts for this loopback test.
+     */
+    XSpi_IntrGlobalDisable(InstancePtr);
 
-	DataWidth = InstancePtr->DataWidth;
-	/*
-	 * Send data up to the maximum size of the transmit register, which is
-	 * one byte without FIFOs.  We send data 4 times just to exercise the
-	 * device through more than one iteration.
-	 */
-	for (Index = 0; Index < 4; Index++) {
-		Data = 0;
+    DataWidth = InstancePtr->DataWidth;
+    /*
+     * Send data up to the maximum size of the transmit register, which is
+     * one byte without FIFOs.  We send data 4 times just to exercise the
+     * device through more than one iteration.
+     */
+    for (Index = 0; Index < 4; Index++) {
+        Data = 0;
 
-		/*
-		 * Fill the transmit register.
-		 */
-		StatusReg = XSpi_GetStatusReg(InstancePtr);
-		while ((StatusReg & XSP_SR_TX_FULL_MASK) == 0) {
-			if (DataWidth == XSP_DATAWIDTH_BYTE) {
-				/*
-				 * Data Transfer Width is Byte (8 bit).
-				 */
-				Data = 0;
-			} else if (DataWidth == XSP_DATAWIDTH_HALF_WORD) {
-				/*
-				 * Data Transfer Width is Half Word (16 bit).
-				 */
-				Data = XSP_HALF_WORD_TESTBYTE;
-			} else if (DataWidth == XSP_DATAWIDTH_WORD){
-				/*
-				 * Data Transfer Width is Word (32 bit).
-				 */
-				Data = XSP_WORD_TESTBYTE;
-			}
+        /*
+         * Fill the transmit register.
+         */
+        StatusReg = XSpi_GetStatusReg(InstancePtr);
+        while ((StatusReg & XSP_SR_TX_FULL_MASK) == 0) {
+            if (DataWidth == XSP_DATAWIDTH_BYTE) {
+                /*
+                 * Data Transfer Width is Byte (8 bit).
+                 */
+                Data = 0;
+            } else if (DataWidth == XSP_DATAWIDTH_HALF_WORD) {
+                /*
+                 * Data Transfer Width is Half Word (16 bit).
+                 */
+                Data = XSP_HALF_WORD_TESTBYTE;
+            } else if (DataWidth == XSP_DATAWIDTH_WORD) {
+                /*
+                 * Data Transfer Width is Word (32 bit).
+                 */
+                Data = XSP_WORD_TESTBYTE;
+            }
 
-			XSpi_WriteReg(InstancePtr->BaseAddr, XSP_DTR_OFFSET,
-					Data + Index);
-			NumSent += (DataWidth >> 3);
-			StatusReg = XSpi_GetStatusReg(InstancePtr);
-		}
+            XSpi_WriteReg(InstancePtr->BaseAddr, XSP_DTR_OFFSET,
+                          Data + Index);
+            NumSent += (DataWidth >> 3);
+            StatusReg = XSpi_GetStatusReg(InstancePtr);
+        }
 
-		/*
-		 * Start the transfer by not inhibiting the transmitter and
-		 * enabling the device.
-		 */
-		ControlReg = XSpi_GetControlReg(InstancePtr) &
-						 (~XSP_CR_TRANS_INHIBIT_MASK);
-		XSpi_SetControlReg(InstancePtr, ControlReg |
-				    XSP_CR_ENABLE_MASK);
+        /*
+         * Start the transfer by not inhibiting the transmitter and
+         * enabling the device.
+         */
+        ControlReg = XSpi_GetControlReg(InstancePtr) &
+                     (~XSP_CR_TRANS_INHIBIT_MASK);
+        XSpi_SetControlReg(InstancePtr, ControlReg |
+                           XSP_CR_ENABLE_MASK);
 
-		/*
-		 * Wait for the transfer to be done by polling the transmit
-		 * empty status bit.
-		 */
-		do {
-			StatusReg = XSpi_GetStatusReg(InstancePtr);
-		} while ((StatusReg & XSP_SR_TX_EMPTY_MASK) == 0);
+        /*
+         * Wait for the transfer to be done by polling the transmit
+         * empty status bit.
+         */
+        do {
+            StatusReg = XSpi_GetStatusReg(InstancePtr);
+        } while ((StatusReg & XSP_SR_TX_EMPTY_MASK) == 0);
 
-		/*
-		 * Receive and verify the data just transmitted.
-		 */
-		while ((StatusReg & XSP_SR_RX_EMPTY_MASK) == 0) {
+        /*
+         * Receive and verify the data just transmitted.
+         */
+        while ((StatusReg & XSP_SR_RX_EMPTY_MASK) == 0) {
 
-			RxData = XSpi_ReadReg(InstancePtr->BaseAddr,
-						XSP_DRR_OFFSET);
+            RxData = XSpi_ReadReg(InstancePtr->BaseAddr,
+                                  XSP_DRR_OFFSET);
 
-			if (DataWidth == XSP_DATAWIDTH_BYTE) {
-				if((u8)RxData != Index) {
-					return XST_LOOPBACK_ERROR;
-				}
-			} else if (DataWidth ==
-					XSP_DATAWIDTH_HALF_WORD) {
-				if((u16)RxData != (u16)(Index +
-						   XSP_HALF_WORD_TESTBYTE)) {
-					return XST_LOOPBACK_ERROR;
-				}
-			} else if (DataWidth == XSP_DATAWIDTH_WORD) {
-				if(RxData != (u32)(Index + XSP_WORD_TESTBYTE)) {
-					return XST_LOOPBACK_ERROR;
-				}
-			}
+            if (DataWidth == XSP_DATAWIDTH_BYTE) {
+                if((u8)RxData != Index) {
+                    return XST_LOOPBACK_ERROR;
+                }
+            } else if (DataWidth ==
+                       XSP_DATAWIDTH_HALF_WORD) {
+                if((u16)RxData != (u16)(Index +
+                                        XSP_HALF_WORD_TESTBYTE)) {
+                    return XST_LOOPBACK_ERROR;
+                }
+            } else if (DataWidth == XSP_DATAWIDTH_WORD) {
+                if(RxData != (u32)(Index + XSP_WORD_TESTBYTE)) {
+                    return XST_LOOPBACK_ERROR;
+                }
+            }
 
-			NumRecvd += (DataWidth >> 3);
-			StatusReg = XSpi_GetStatusReg(InstancePtr);
-		}
+            NumRecvd += (DataWidth >> 3);
+            StatusReg = XSpi_GetStatusReg(InstancePtr);
+        }
 
-		/*
-		 * Stop the transfer (hold off automatic sending) by inhibiting
-		 * the transmitter and disabling the device.
-		 */
-		ControlReg |= XSP_CR_TRANS_INHIBIT_MASK;
-		XSpi_SetControlReg(InstancePtr ,
-				    ControlReg & ~ XSP_CR_ENABLE_MASK);
-	}
+        /*
+         * Stop the transfer (hold off automatic sending) by inhibiting
+         * the transmitter and disabling the device.
+         */
+        ControlReg |= XSP_CR_TRANS_INHIBIT_MASK;
+        XSpi_SetControlReg(InstancePtr ,
+                           ControlReg & ~ XSP_CR_ENABLE_MASK);
+    }
 
-	/*
-	 * One final check to make sure the total number of bytes sent equals
-	 * the total number of bytes received.
-	 */
-	if (NumSent != NumRecvd) {
-		return XST_LOOPBACK_ERROR;
-	}
+    /*
+     * One final check to make sure the total number of bytes sent equals
+     * the total number of bytes received.
+     */
+    if (NumSent != NumRecvd) {
+        return XST_LOOPBACK_ERROR;
+    }
 
-	return XST_SUCCESS;
+    return XST_SUCCESS;
 }

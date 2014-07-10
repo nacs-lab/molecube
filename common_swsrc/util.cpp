@@ -1,12 +1,12 @@
 double restrict(double v, double bottom, double top)
 {
-	if(v > top)
-		v = top;
+    if(v > top)
+        v = top;
 
-	if(v < bottom)
-		v = bottom;
+    if(v < bottom)
+        v = bottom;
 
-	return v;
+    return v;
 }
 
 
@@ -29,7 +29,7 @@ void set_priority(int prio)
 
 int get_priority()
 {
-	return 1;
+    return 1;
 }
 
 
@@ -48,46 +48,46 @@ void yield_execution()
 
 void disable_interrupts()
 {
-	//PIT = programmable interval timer
-	//The Xilinx kernel uses this to schedule switches between threads.
-	//see xtime_l.h, timer_int_handler.c, ppc_hw.c
-	XTime_PITDisableInterrupt();
+    //PIT = programmable interval timer
+    //The Xilinx kernel uses this to schedule switches between threads.
+    //see xtime_l.h, timer_int_handler.c, ppc_hw.c
+    XTime_PITDisableInterrupt();
 }
 
 void enable_interrupts()
 {
-	XTime_PITEnableInterrupt();
+    XTime_PITEnableInterrupt();
 }
 
 //0 = highest priority, 1 = DEFAULT_THREAD_PRIO
 void set_priority(int prio)
 {
-	pthread_t this_thread;
-	sched_param sp;
+    pthread_t this_thread;
+    sched_param sp;
 
-	this_thread = pthread_self();
-	sp.sched_priority = prio;
-	pthread_setschedparam(this_thread, 0, &sp);
+    this_thread = pthread_self();
+    sp.sched_priority = prio;
+    pthread_setschedparam(this_thread, 0, &sp);
 }
 
 int get_priority()
 {
-	pthread_t this_thread;
-	sched_param sp;
+    pthread_t this_thread;
+    sched_param sp;
 
-	int policy = 0; //not sure what this paramter does
+    int policy = 0; //not sure what this paramter does
 
-	this_thread = pthread_self();
-	pthread_getschedparam(this_thread, &policy, &sp);
+    this_thread = pthread_self();
+    pthread_getschedparam(this_thread, &policy, &sp);
 
-	return sp.sched_priority;
+    return sp.sched_priority;
 }
 
 #include <sys/process.h>
 
 void yield_execution()
 {
-	yield();
+    yield();
 }
 
 #endif //PLATFORM_ZYNQ

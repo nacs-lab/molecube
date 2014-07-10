@@ -92,10 +92,9 @@ typedef unsigned short u16;
 typedef unsigned long u32;
 
 #define __XUINT64__
-typedef struct
-{
-	u32 Upper;
-	u32 Lower;
+typedef struct {
+    u32 Upper;
+    u32 Lower;
 } Xuint64;
 
 /*****************************************************************************/

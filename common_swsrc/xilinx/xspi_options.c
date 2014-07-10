@@ -86,16 +86,16 @@
  * expansion of the options.
  */
 typedef struct {
-	u32 Option;
-	u32 Mask;
+    u32 Option;
+    u32 Mask;
 } OptionsMap;
 
 static OptionsMap OptionsTable[] = {
-	{XSP_LOOPBACK_OPTION, XSP_CR_LOOPBACK_MASK},
-	{XSP_CLK_ACTIVE_LOW_OPTION, XSP_CR_CLK_POLARITY_MASK},
-	{XSP_CLK_PHASE_1_OPTION, XSP_CR_CLK_PHASE_MASK},
-	{XSP_MASTER_OPTION, XSP_CR_MASTER_MODE_MASK},
-	{XSP_MANUAL_SSELECT_OPTION, XSP_CR_MANUAL_SS_MASK}
+    {XSP_LOOPBACK_OPTION, XSP_CR_LOOPBACK_MASK},
+    {XSP_CLK_ACTIVE_LOW_OPTION, XSP_CR_CLK_POLARITY_MASK},
+    {XSP_CLK_PHASE_1_OPTION, XSP_CR_CLK_PHASE_MASK},
+    {XSP_MASTER_OPTION, XSP_CR_MASTER_MODE_MASK},
+    {XSP_MANUAL_SSELECT_OPTION, XSP_CR_MANUAL_SS_MASK}
 };
 
 #define XSP_NUM_OPTIONS		(sizeof(OptionsTable) / sizeof(OptionsMap))
@@ -132,58 +132,57 @@ static OptionsMap OptionsTable[] = {
 ******************************************************************************/
 int XSpi_SetOptions(XSpi *InstancePtr, u32 Options)
 {
-	u32 ControlReg;
-	u32 Index;
+    u32 ControlReg;
+    u32 Index;
 
-	Xil_AssertNonvoid(InstancePtr != NULL);
-	Xil_AssertNonvoid(InstancePtr->IsReady == XIL_COMPONENT_IS_READY);
+    Xil_AssertNonvoid(InstancePtr != NULL);
+    Xil_AssertNonvoid(InstancePtr->IsReady == XIL_COMPONENT_IS_READY);
 
-	/*
-	 * Do not allow the slave select to change while a transfer is in
-	 * progress.
-	 * No need to worry about a critical section here since even if the Isr
-	 * changes the busy flag just after we read it, the function will return
-	 * busy and the caller can retry when notified that their current
-	 * transfer is done.
-	 */
-	if (InstancePtr->IsBusy) {
-		return XST_DEVICE_BUSY;
-	}
-	/*
-	 * Do not allow master option to be set if the device is slave only.
-	 */
-	if ((Options & XSP_MASTER_OPTION) && (InstancePtr->SlaveOnly)) {
-		return XST_SPI_SLAVE_ONLY;
-	}
+    /*
+     * Do not allow the slave select to change while a transfer is in
+     * progress.
+     * No need to worry about a critical section here since even if the Isr
+     * changes the busy flag just after we read it, the function will return
+     * busy and the caller can retry when notified that their current
+     * transfer is done.
+     */
+    if (InstancePtr->IsBusy) {
+        return XST_DEVICE_BUSY;
+    }
+    /*
+     * Do not allow master option to be set if the device is slave only.
+     */
+    if ((Options & XSP_MASTER_OPTION) && (InstancePtr->SlaveOnly)) {
+        return XST_SPI_SLAVE_ONLY;
+    }
 
-	ControlReg = XSpi_GetControlReg(InstancePtr);
+    ControlReg = XSpi_GetControlReg(InstancePtr);
 
-	/*
-	 * Loop through the options table, turning the option on or off
-	 * depending on whether the bit is set in the incoming options flag.
-	 */
-	for (Index = 0; Index < XSP_NUM_OPTIONS; Index++) {
-		if (Options & OptionsTable[Index].Option) {
-			/*
-			 *Turn it ON.
-			 */
-			ControlReg |= OptionsTable[Index].Mask;
-		}
-		else {
-			/*
-			 *Turn it OFF.
-			 */
-			ControlReg &= ~OptionsTable[Index].Mask;
-		}
-	}
+    /*
+     * Loop through the options table, turning the option on or off
+     * depending on whether the bit is set in the incoming options flag.
+     */
+    for (Index = 0; Index < XSP_NUM_OPTIONS; Index++) {
+        if (Options & OptionsTable[Index].Option) {
+            /*
+             *Turn it ON.
+             */
+            ControlReg |= OptionsTable[Index].Mask;
+        } else {
+            /*
+             *Turn it OFF.
+             */
+            ControlReg &= ~OptionsTable[Index].Mask;
+        }
+    }
 
-	/*
-	 * Now write the control register. Leave it to the upper layers
-	 * to restart the device.
-	 */
-	XSpi_SetControlReg(InstancePtr, ControlReg);
+    /*
+     * Now write the control register. Leave it to the upper layers
+     * to restart the device.
+     */
+    XSpi_SetControlReg(InstancePtr, ControlReg);
 
-	return XST_SUCCESS;
+    return XST_SUCCESS;
 }
 
 /*****************************************************************************/
@@ -206,27 +205,27 @@ int XSpi_SetOptions(XSpi *InstancePtr, u32 Options)
 ******************************************************************************/
 u32 XSpi_GetOptions(XSpi *InstancePtr)
 {
-	u32 OptionsFlag = 0;
-	u32 ControlReg;
-	u32 Index;
+    u32 OptionsFlag = 0;
+    u32 ControlReg;
+    u32 Index;
 
-	Xil_AssertNonvoid(InstancePtr != NULL);
-	Xil_AssertNonvoid(InstancePtr->IsReady == XIL_COMPONENT_IS_READY);
+    Xil_AssertNonvoid(InstancePtr != NULL);
+    Xil_AssertNonvoid(InstancePtr->IsReady == XIL_COMPONENT_IS_READY);
 
-	/*
-	 * Get the control register to determine which options are currently
-	 * set.
-	 */
-	ControlReg = XSpi_GetControlReg(InstancePtr);
+    /*
+     * Get the control register to determine which options are currently
+     * set.
+     */
+    ControlReg = XSpi_GetControlReg(InstancePtr);
 
-	/*
-	 * Loop through the options table to determine which options are set.
-	 */
-	for (Index = 0; Index < XSP_NUM_OPTIONS; Index++) {
-		if (ControlReg & OptionsTable[Index].Mask) {
-			OptionsFlag |= OptionsTable[Index].Option;
-		}
-	}
+    /*
+     * Loop through the options table to determine which options are set.
+     */
+    for (Index = 0; Index < XSP_NUM_OPTIONS; Index++) {
+        if (ControlReg & OptionsTable[Index].Mask) {
+            OptionsFlag |= OptionsTable[Index].Option;
+        }
+    }
 
-	return OptionsFlag;
+    return OptionsFlag;
 }

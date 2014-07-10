@@ -18,9 +18,9 @@ double get_amp_AD9914(void* base_addr, char i); //get amp in % (0...100)
 double get_phase_AD9914(void* base_addr, char i); //get phase in deg (0...360)
 
 bool test_AD9914(void* base_addr, char i);
-void test_dds_addr(void* base_addr, char i, unsigned low_addr, unsigned high_addr, 
+void test_dds_addr(void* base_addr, char i, unsigned low_addr, unsigned high_addr,
                    unsigned ntest, FILE* f=0);
-                   
+
 void print_AD9914_registers(void* base_addr, char i, FILE* f);
 //void set_dds_byte_AD9914(void* base_addr, char i, unsigned addr, unsigned data);
 void set_dds_four_bytes(void* base_addr, char i, unsigned addr, unsigned data);

@@ -355,7 +355,7 @@ extern "C" {
 #define XSP_DUAL_MODE		1
 #define XSP_QUAD_MODE		2
 
- /*@}*/
+/*@}*/
 /**************************** Type Definitions *******************************/
 
 /***************** Macros (Inline Functions) Definitions *********************/

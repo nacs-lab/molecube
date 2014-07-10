@@ -112,10 +112,9 @@ typedef double		Xfloat64;	/**< 64-bit double precision FP */
 typedef unsigned long	Xboolean;	/**< boolean (XTRUE or XFALSE) */
 
 #if !defined __XUINT64__
-typedef struct
-{
-	Xuint32 Upper;
-	Xuint32 Lower;
+typedef struct {
+    Xuint32 Upper;
+    Xuint32 Lower;
 } Xuint64;
 #endif
 

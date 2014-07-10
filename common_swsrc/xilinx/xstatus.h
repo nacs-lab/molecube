@@ -238,25 +238,25 @@ extern "C" {
 #define XST_IIC_SELFTEST_FAILED         1076	/* self test failed            */
 #define XST_IIC_BUS_BUSY                1077	/* bus found busy              */
 #define XST_IIC_GENERAL_CALL_ADDRESS    1078	/* mastersend attempted with   */
-					     /* general call address        */
+/* general call address        */
 #define XST_IIC_STAND_REG_RESET_ERROR   1079	/* A non parameterizable reg   */
-					     /* value after reset not valid */
+/* value after reset not valid */
 #define XST_IIC_TX_FIFO_REG_RESET_ERROR 1080	/* Tx fifo included in design  */
-					     /* value after reset not valid */
+/* value after reset not valid */
 #define XST_IIC_RX_FIFO_REG_RESET_ERROR 1081	/* Rx fifo included in design  */
-					     /* value after reset not valid */
+/* value after reset not valid */
 #define XST_IIC_TBA_REG_RESET_ERROR     1082	/* 10 bit addr incl in design  */
-					     /* value after reset not valid */
+/* value after reset not valid */
 #define XST_IIC_CR_READBACK_ERROR       1083	/* Read of the control register */
-					     /* didn't return value written */
+/* didn't return value written */
 #define XST_IIC_DTR_READBACK_ERROR      1084	/* Read of the data Tx reg     */
-					     /* didn't return value written */
+/* didn't return value written */
 #define XST_IIC_DRR_READBACK_ERROR      1085	/* Read of the data Receive reg */
-					     /* didn't return value written */
+/* didn't return value written */
 #define XST_IIC_ADR_READBACK_ERROR      1086	/* Read of the data Tx reg     */
-					     /* didn't return value written */
+/* didn't return value written */
 #define XST_IIC_TBA_READBACK_ERROR      1087	/* Read of the 10 bit addr reg */
-					     /* didn't return written value */
+/* didn't return written value */
 #define XST_IIC_NOT_SLAVE               1088	/* The device isn't a slave    */
 
 /*********************** ATMC statuses 1101 - 1125 ***************************/
