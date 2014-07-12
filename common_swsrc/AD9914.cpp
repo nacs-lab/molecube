@@ -144,8 +144,8 @@ void print_AD9914_registers(void* base_addr, char i, FILE* f)
         unsigned u0 = PULSER_get_dds_two_bytes(base_addr, i, addr);
         unsigned u2 = PULSER_get_dds_two_bytes(base_addr, i, addr+2);
 
-        fprintf(f, "AD9914 board=%i addr=0x%02X...%02X = %02X %02X %02X %02X\n",
-                (unsigned)i, addr, addr+3, u0 & 0xFF, u0 >> 8, u2 & 0xFF, u2 >> 8);
+        fprintf(f, "AD9914 board=%i addr=0x%02X...%02X = %04X%04X\n",
+                (unsigned)i, addr+3, addr, u2 & 0xFFFF, u0 & 0xFFFF);
     }
 
     fprintf(f, "*********************\n");
@@ -224,22 +224,26 @@ void init_AD9914(void* base_addr, char i)
     PULSER_dds_reset(pulser, i);
 
     //calibrate internal timing.  required at power-up
-    //PULSER_set_dds_two_bytes(pulser, i, 0x0E, 0x0105);
-    //usleep(1000U);
-    //PULSER_set_dds_two_bytes(pulser, i, 0x0E, 0x0005);
+    PULSER_set_dds_two_bytes(pulser, i, 0x0E, 0x0105);
+    usleep(1000U);
+    //finish cal. disble sync_out
+    PULSER_set_dds_two_bytes(pulser, i, 0x0E, 0x0405);
 
     //enable programmable modulus and profile 0, enable SYNC_CLK output
     //set_dds_two_bytes(pulser, i, 0x05, 0x8D0B);
 
+    
     //disable programmable modulus, enable profile 0, enable SYNC_CLK output
-    PULSER_set_dds_two_bytes(pulser, i, 0x05, 0x8009);
+    //PULSER_set_dds_two_bytes(pulser, i, 0x05, 0x8009);
 
+    //disable ramp & programmable modulus, enable profile 0, disable SYNC_CLK output
+    PULSER_set_dds_two_bytes(pulser, i, 0x05, 0x8001);
 
     //disable programmable modulus and enable profile 0
     //set_dds_byte_AD9914(pulser, i, 0x06, 0x80);
 
     //enable amplitude control (OSK)
-    PULSER_set_dds_two_bytes(pulser, i, 0x0, 0x0108);
+    PULSER_set_dds_two_bytes(pulser, i, 0x0, 0x0008);
 
     printf("Initialized AD9914 board=%i\n", unsigned(i));
 }

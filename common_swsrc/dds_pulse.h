@@ -136,8 +136,9 @@ inline const char* DDS_name(unsigned iDDS)
 
 #define PHASE_0      (0)
 #define PHASE_90     (1 << 14)
-#define PHASE_180    (1 << 15)
+#define PHASE_180    (PHASE_90 << 1)
 #define PHASE_270    (PHASE_90 + PHASE_180)
+#define PHASE_360    (PHASE_90 << 2)
 
 unsigned FTW2Hz(unsigned ftw, double fClock);
 double FTW2HzD(unsigned ftw, double fClock);
@@ -257,7 +258,7 @@ inline void DDS_set_phase(unsigned iDDS, unsigned phase)
 
     if (bDebugPulses) {
         fprintf(gLog, "%7s DDS(%2u) p   = %9.3f deg. %12s t = %8.2f us\n",
-                DDS_name(iDDS), iDDS, (phase * 360.0 / 65536), "", (double)0.3);
+                DDS_name(iDDS), iDDS, (phase * 360.0 / PHASE_360), "", (double)0.3);
     }
 }
 
