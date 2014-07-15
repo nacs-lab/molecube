@@ -524,19 +524,29 @@ int PULSER_check_all_dds(void* base_addr)
 
 int PULSER_check_dds(void* base_addr, char i)
 {
-    return (ddsFTW[i] == PULSER_get_dds_freq(base_addr, i)) && (ddsPhase[i] == PULSER_get_dds_phase(base_addr, i));
+    return (ddsFTW[i] == PULSER_get_dds_freq(base_addr, i)) && 
+           (ddsPhase[i] == PULSER_get_dds_phase(base_addr, i)) &&
+           (ddsAmp[i] == PULSER_get_dds_amp(base_addr, i));
 }
 
 unsigned PULSER_get_dds_freq(void* base_addr, char i)
 {
-    PULSER_short_pulse(base_addr, 0x10005000 | (i << 4), 0);
-    return PULSER_pop_result(base_addr);
+    //PULSER_short_pulse(base_addr, 0x1000000E | (i << 4) | (0x2D << 9), 0);
+    //return PULSER_pop_result(base_addr);
+    unsigned u0 = PULSER_get_dds_two_bytes(base_addr, i, 0x2C);
+    unsigned u2 = PULSER_get_dds_two_bytes(base_addr, i, 0x2E);
+    
+    return u0 | (u2 << 16);
 }
 
 unsigned PULSER_get_dds_phase(void* base_addr, char i)
 {
-    PULSER_short_pulse(base_addr, 0x10006000 | (i << 4), 0);
-    return PULSER_pop_result(base_addr) & 0x3fff;
+    return PULSER_get_dds_two_bytes(base_addr, i, 0x30);
+}
+
+unsigned PULSER_get_dds_amp(void* base_addr, char i)
+{
+    return PULSER_get_dds_two_bytes(base_addr, i, 0x32);
 }
 
 void PULSER_config_PMT_correlation(void* base_addr, unsigned removeFromQueue, unsigned clkDiv)

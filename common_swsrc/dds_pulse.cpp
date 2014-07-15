@@ -1,6 +1,7 @@
 #include "ttl_pulse.h"
 #include "dds_pulse.h"
 
+
 unsigned FTW2Hz(unsigned ftw, double fClock)
 {
     return (unsigned)floor(ftw * fClock * pow(2., -32) + 0.5);

@@ -11,6 +11,7 @@
 
 extern bool bDebugPulses;
 extern FILE* gLog;
+extern unsigned g_tSequence; //accumulated sequence duration in PULSER units
 
 #define TIME_UNIT    (1e-8)
 
@@ -51,16 +52,8 @@ inline unsigned int ms2TW(double t)
     return us2TW(t * 1e3);
 }
 
-inline void print_pulse_info(unsigned t, unsigned ttl, const char* info = 0)
-{
-
-    if (info)
-        fprintf(gLog, "%12s %36s t = %8.2f us TTL=%08X (%s)\n", TTL_name(ttl), "",
-                0.01 * (double) t, ttl, info);
-    else
-        fprintf(gLog, "%12s %36s t = %8.2f us TTL=%08X\n", TTL_name(ttl), "",
-                0.01 * (double) t, ttl);
-}
+void print_timing_info(FILE* fLog, unsigned t0, unsigned dt, char last='\n');
+void print_pulse_info(unsigned t, unsigned ttl, const char* info = 0);
 
 //make an RF pulse of specified frequency and duration
 inline void TTL_pulse(unsigned t, unsigned ttl = 0)
@@ -70,6 +63,8 @@ inline void TTL_pulse(unsigned t, unsigned ttl = 0)
 
         if (bDebugPulses)
             print_pulse_info(t, ttl);
+            
+        g_tSequence += t;
     }
 }
 

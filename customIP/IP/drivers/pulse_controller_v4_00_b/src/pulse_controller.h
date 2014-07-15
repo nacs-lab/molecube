@@ -14,9 +14,14 @@
 #include "pulse_controller_io.h"
 
 //time resolution of pulse controller in ns, us, and 1/us
-#define DT_ns     (10)
-#define DT_us     (0.01)
-#define DT_per_us (100)
+#define PULSER_DT_ns     (10)
+#define PULSER_DT_us     (0.01)
+#define PULSER_DT_per_us (100)
+
+#define PULSER_ENABLE_CLK_DURATION 5
+#define PULSER_DDS_SET_FTW_DURATION 30
+#define PULSER_DDS_SET_PTW_DURATION 30
+#define PULSER_DDS_SET_ATW_DURATION 30
 
 //minimum pulse durations in units of the time resolution
 #define T_TTL_MIN (5)
@@ -102,18 +107,18 @@ void PULSER_get_ttl(void* base_addr, unsigned* high_mask, unsigned* low_mask);
 void PULSER_dds_reset(void* base_addr, char i);
 void PULSER_dds_reset_sel(void* base_addr, unsigned mask);
 void PULSER_dds_set_sel(void* base_addr, unsigned mask);
-void PULSER_set_dds_div2(void* base_addr, char i, int b);
 
 void PULSER_set_dds_freq(void* base_addr, char i, unsigned freq);
 void PULSER_set_dds_phase(void* base_addr, char i, unsigned short phase);
 void PULSER_set_dds_amp(void* base_addr, char i, unsigned short amp);
 
-//Shift phase.  Works only if DDS phase has been set via PULSER_set_dds_phase.
+//shift phase.  Works only if DDS phase has been set via PULSER_set_dds_phase.
 //Setting phase via PULSER_set_dds_two_bytes will break this.
 void PULSER_shift_dds_phase(void* base_addr, char i, unsigned short phase);
 
 unsigned int PULSER_get_dds_freq(void* base_addr, char i);
 unsigned int PULSER_get_dds_phase(void* base_addr, char i);
+unsigned PULSER_get_dds_amp(void* base_addr, char i);
 
 void PULSER_set_dds_two_bytes(void* base_addr, char i, unsigned addr, unsigned data);
 

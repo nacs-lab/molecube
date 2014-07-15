@@ -92,16 +92,23 @@ void test_dds_addr(void* base_addr, char i, unsigned low_addr,
 
 void print_AD9914_registers(void* base_addr, char i, FILE* f)
 {
-    fprintf(f, "*********************\n");
+    bool bNonZeroOnly = true;
+    
+    fprintf(f, "*******************************\n");
+    if(bNonZeroOnly)
+        fprintf(f, "***only show non-zero values***\n");
+        
     for(unsigned addr=0; (addr+3)<=0x7F; addr+=4) {
         unsigned u0 = PULSER_get_dds_two_bytes(base_addr, i, addr);
         unsigned u2 = PULSER_get_dds_two_bytes(base_addr, i, addr+2);
-
-        fprintf(f, "AD9914 board=%i addr=0x%02X...%02X = %04X%04X\n",
-                (unsigned)i, addr+3, addr, u2 & 0xFFFF, u0 & 0xFFFF);
+        unsigned u =  ((u2 & 0xFFFF) << 16 ) | (u0 & 0xFFFF);
+        
+        if( (bNonZeroOnly && u) || !bNonZeroOnly)
+            fprintf(f, "AD9914 board=%i addr=0x%02X...%02X = %08X\n",
+                    (unsigned)i, addr+3, addr, u);
     }
 
-    fprintf(f, "*********************\n");
+    fprintf(f, "*******************************\n");
     fflush(f);
 }
 

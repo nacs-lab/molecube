@@ -87,6 +87,8 @@ inline void DDS_off(unsigned iDDS)
         fprintf(gLog, "%7s DDS(%2u) off %30s t = %8.2f us\n",
                 DDS_name(iDDS), iDDS, "", (double)0.5);
     }
+    
+    g_tSequence += PULSER_DDS_SET_FTW_DURATION;
 }
 
 //set FTW=frequency tuning word
@@ -95,9 +97,12 @@ inline void DDS_set_ftw(unsigned iDDS, unsigned ftw, FILE* fLog)
     PULSER_set_dds_freq(pulser, iDDS, ftw);
 
     if (fLog) {
-        fprintf(fLog, "%7s DDS(%2u) f   = %9u Hz (ftw=%08X) t = %8.2f us\n",
-                DDS_name(iDDS), iDDS, FTW2Hz(ftw, dds_clk(iDDS)), ftw, (double)0.3);
+        fprintf(fLog, "%7s DDS(%2u) f   = %13.3f Hz    ",
+                DDS_name(iDDS), iDDS, FTW2HzD(ftw, dds_clk(iDDS)), ftw);
+        print_timing_info(fLog, g_tSequence, PULSER_DDS_SET_FTW_DURATION);
     }
+    
+    g_tSequence += PULSER_DDS_SET_FTW_DURATION;
 }
 
 inline void DDS_set_ftw(unsigned iDDS, unsigned ftw)
@@ -122,7 +127,7 @@ inline unsigned DDS_get_ftw(unsigned iDDS)
 
 inline double DDS_get_freqHz(unsigned iDDS) //get freq in Hz
 {
-    return FTW2HzD(DDS_get_ftw(iDDS), dds_clk(iDDS));
+    return FTW2HzD(DDS_get_ftw(iDDS), AD9914_CLK);
 }
 
 //set PTW=phase tuning word
@@ -131,9 +136,11 @@ inline void DDS_set_ptw(unsigned iDDS, unsigned ptw, FILE* fLog)
     PULSER_set_dds_phase(pulser, iDDS, ptw);
 
     if (fLog) {
-        fprintf(fLog, "%7s DDS(%2u) p   = %9.3f deg. %12s t = %8.2f us\n",
-                DDS_name(iDDS), iDDS, (ptw * 360.0 / PHASE_360), "", (double)0.3);
+        fprintf(fLog, "%7s DDS(%2u) p   = %9.3f deg. %4s ",
+                DDS_name(iDDS), iDDS, (ptw * 360.0 / PHASE_360), "");
+        print_timing_info(fLog, g_tSequence, PULSER_DDS_SET_PTW_DURATION);
     }
+    g_tSequence += PULSER_DDS_SET_PTW_DURATION;
 }
 
 inline void DDS_shift_ptw(unsigned iDDS, unsigned ptw, FILE* fLog)
@@ -141,9 +148,11 @@ inline void DDS_shift_ptw(unsigned iDDS, unsigned ptw, FILE* fLog)
     PULSER_shift_dds_phase(pulser, iDDS, ptw);
 
     if (fLog) {
-        fprintf(fLog, "%7s DDS(%2u) p  += %9.3f deg. %12s t = %8.2f us\n",
-                DDS_name(iDDS), iDDS, (ptw * 360.0 / PHASE_360), "", (double)0.3);
+        fprintf(fLog, "%7s DDS(%2u) p  += %9.3f deg. %4s ",
+                DDS_name(iDDS), iDDS, (ptw * 360.0 / PHASE_360), "");
+        print_timing_info(fLog, g_tSequence, PULSER_DDS_SET_PTW_DURATION);
     }
+    g_tSequence += PULSER_DDS_SET_PTW_DURATION;
 }
 
 inline void DDS_set_ptw(unsigned iDDS, unsigned ptw)
@@ -178,9 +187,13 @@ inline void DDS_set_atw(unsigned iDDS, unsigned atw, FILE* fLog)
     PULSER_set_dds_amp(pulser, iDDS, atw);
 
     if (fLog) {
-        fprintf(fLog, "%7s DDS(%2u) A   = %9.6f / 1  %12s t = %8.2f us\n",
-                DDS_name(iDDS), iDDS, atw / 4095.0, "", (double)0.3);
+        fprintf(fLog, "%7s DDS(%2u) A   = %9.6f / 1  %4s ",
+                DDS_name(iDDS), iDDS, atw / 4095.0, "");
+                
+        print_timing_info(fLog, g_tSequence, PULSER_DDS_SET_ATW_DURATION);
     }
+    
+    g_tSequence += PULSER_DDS_SET_ATW_DURATION;
 }
 
 inline void DDS_set_atw(unsigned iDDS, unsigned atw)
@@ -216,6 +229,8 @@ inline void DDS_pulse(unsigned iDDS, unsigned ftwOn, unsigned ftwOff,
 
         if (bDebugPulses)
             print_pulse_info(iDDS, ftwOn, ftwOff, t, ttl);
+            
+        g_tSequence += t;
     }
 }
 
@@ -231,6 +246,8 @@ inline void DDS_pulse(unsigned iDDS, unsigned ftwOn, unsigned ftwOff,
 
         if (bDebugPulses)
             print_pulse_info(iDDS, ftwOn, ftwOff, aOn, aOff, t, ttl);
+            
+        g_tSequence += t;
     }
 }
 
@@ -245,6 +262,8 @@ inline void DDS_long_pulse(unsigned iDDS, unsigned ftwOn, unsigned ftwOff,
 
         if (bDebugPulses)
             print_pulse_info(iDDS, ftwOn, ftwOff, t, ttl, "LONG");
+            
+        g_tSequence += t;
     }
 }
 
@@ -262,6 +281,8 @@ inline void DDS_long_pulse(unsigned iDDS, unsigned ftwOn, unsigned ftwOff,
 
         if (bDebugPulses)
             print_pulse_info(iDDS, ftwOn, ftwOff, t, ttl, "LONG");
+            
+        g_tSequence += t;
     }
 }
 
