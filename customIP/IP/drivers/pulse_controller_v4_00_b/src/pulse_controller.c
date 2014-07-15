@@ -477,7 +477,7 @@ void PULSER_set_dds_two_bytes(void* base_addr, char i, unsigned addr, unsigned d
 {
 //	printf("AD9914 board=%i set byte [0x%02X] = 0x%02X\n", addr, data);
 
-    unsigned dds_addr = (addr+1) & 0x3F; //put addr in bits 14...9 (maps to DDS opcode_reg[14:9] )?
+    unsigned dds_addr = (addr+1) & 0x7F; //put addr in bits 15...9 (maps to DDS opcode_reg[14:9] )?
     unsigned dds_data = data & 0xFFFF; // put data in bits 15...0 (maps to DDS operand_reg[15:0] )?
     PULSER_short_pulse(base_addr, 0x10000002 | (i << 4) | (dds_addr << 9), dds_data); // takes 0.3 us
 }
@@ -489,18 +489,23 @@ void PULSER_set_dds_freq(void* base_addr, char i, unsigned ftw)
     ddsFTW[i] = ftw;
 }
 
-void PULSER_set_dds_amp(void* base_addr, char i, unsigned A)
+void PULSER_set_dds_amp(void* base_addr, char i, unsigned short A)
 {
-    PULSER_set_dds_two_bytes(base_addr, i, 0x32, A & 0x0FFF);
+    PULSER_set_dds_two_bytes(base_addr, i, 0x32, A);
 
     ddsAmp[i] = A;
 }
 
 void PULSER_set_dds_phase(void* base_addr, char i, unsigned short phase)
 {
-    PULSER_short_pulse(base_addr, 0x10001000 | (i << 4), phase);
+    PULSER_set_dds_two_bytes(base_addr, i, 0x30, phase);
 
     ddsPhase[i] = phase;
+}
+
+void PULSER_shift_dds_phase(void* base_addr, char i, unsigned short phase)
+{
+  PULSER_set_dds_phase(base_addr, i, phase + ddsPhase[i]);
 }
 
 int PULSER_check_all_dds(void* base_addr)

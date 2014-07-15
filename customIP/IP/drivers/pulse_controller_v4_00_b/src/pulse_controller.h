@@ -106,7 +106,11 @@ void PULSER_set_dds_div2(void* base_addr, char i, int b);
 
 void PULSER_set_dds_freq(void* base_addr, char i, unsigned freq);
 void PULSER_set_dds_phase(void* base_addr, char i, unsigned short phase);
-void PULSER_set_dds_amp(void* base_addr, char i, unsigned amp);
+void PULSER_set_dds_amp(void* base_addr, char i, unsigned short amp);
+
+//Shift phase.  Works only if DDS phase has been set via PULSER_set_dds_phase.
+//Setting phase via PULSER_set_dds_two_bytes will break this.
+void PULSER_shift_dds_phase(void* base_addr, char i, unsigned short phase);
 
 unsigned int PULSER_get_dds_freq(void* base_addr, char i);
 unsigned int PULSER_get_dds_phase(void* base_addr, char i);

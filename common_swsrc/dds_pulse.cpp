@@ -38,7 +38,8 @@ int MHz2FTWI(double f)
 
 double dds_clk(int iDDS)
 {
-    return iDDS < NDDS ? 1e9 : AD9914_CLK;
+    //return iDDS < NDDS ? 1e9 : AD9914_CLK;
+    return AD9914_CLK;
 }
 
 void print_pulse_info(unsigned iDDS, unsigned ftwOn, unsigned ftwOff, unsigned t, unsigned ttl, const char* info)

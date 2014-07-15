@@ -1,3 +1,15 @@
+/* dds_pulse.h
+ * Define small interface functions to DDS hardware.  
+ * set/get phase, amplitude, frequency
+ * Physical or device units can be used.
+ * Most functions are inline for speed and programming confenience.
+ * Include some customization info for DDS names, which are printed
+ * in the log file.
+ * 
+ * Also define DDS pulse functions, which turn the DDS on & off to
+ * generate a pulse.
+ */
+ 
 #ifndef DDS_PULSE_H_
 #define DDS_PULSE_H_
 
@@ -8,6 +20,8 @@
 
 #ifdef WIN32
 #define _USE_MATH_DEFINES 1
+#define scalb _scalb
+#define snprintf _snprintf
 #endif
 
 #include <math.h>
@@ -15,11 +29,6 @@
 
 //#include "common.h"
 #include "AD9914.h"
-
-#ifdef WIN32
-#define scalb _scalb
-#define snprintf _snprintf
-#endif
 
 #ifdef CONFIG_BB
 inline const char* DDS_name(unsigned iDDS)
@@ -43,7 +52,7 @@ inline const char* DDS_name(unsigned iDDS)
   #include "custom/ttl_SHB.h"
 #endif
 
-#define DDS_NONE     	(100)
+#define DDS_NONE     (100)
 
 #define PHASE_0      (0)
 #define PHASE_90     (1 << 14)
@@ -66,12 +75,13 @@ void print_pulse_info(unsigned iDDS, unsigned ftwOn, unsigned ftwOff,
                       unsigned aOn, unsigned aOff, unsigned t, unsigned ttl,
                       const char* info = 0);
 
+//Get clock freq. for iDDS.  
+//Ueful when the DDS do not all have the same clock.
 double dds_clk(int iDDS);
 
 inline void DDS_off(unsigned iDDS)
 {
     PULSER_set_dds_freq(pulser, iDDS, 0);
-
 
     if (bDebugPulses) {
         fprintf(gLog, "%7s DDS(%2u) off %30s t = %8.2f us\n",
@@ -79,13 +89,14 @@ inline void DDS_off(unsigned iDDS)
     }
 }
 
+//set FTW=frequency tuning word
 inline void DDS_set_ftw(unsigned iDDS, unsigned ftw, FILE* fLog)
 {
     PULSER_set_dds_freq(pulser, iDDS, ftw);
 
     if (fLog) {
         fprintf(fLog, "%7s DDS(%2u) f   = %9u Hz (ftw=%08X) t = %8.2f us\n",
-                DDS_name(iDDS), iDDS, FTW2Hz(ftw, AD9914_CLK), ftw, (double)0.3);
+                DDS_name(iDDS), iDDS, FTW2Hz(ftw, dds_clk(iDDS)), ftw, (double)0.3);
     }
 }
 
@@ -96,38 +107,41 @@ inline void DDS_set_ftw(unsigned iDDS, unsigned ftw)
 
 inline void DDS_set_freqHz(unsigned iDDS, unsigned Hz)
 {
-    DDS_set_ftw(iDDS, Hz2FTW(Hz, AD9914_CLK));
+    DDS_set_ftw(iDDS, Hz2FTW(Hz, dds_clk(iDDS)));
 }
 
 inline void DDS_set_freqHz(unsigned iDDS, unsigned Hz, FILE* fLog)
 {
-    DDS_set_ftw(iDDS, Hz2FTW(Hz, AD9914_CLK), fLog);
+    DDS_set_ftw(iDDS, Hz2FTW(Hz, dds_clk(iDDS)), fLog);
 }
 
 inline unsigned DDS_get_ftw(unsigned iDDS)
 {
-    unsigned u0 = PULSER_get_dds_two_bytes(pulser, iDDS, 0x2C);
-    unsigned u1 = PULSER_get_dds_two_bytes(pulser, iDDS, 0x2E);
-
-    //unsigned u0 = PULSER_get_dds_two_bytes(base_addr, i, 0x10);
-    //unsigned u1 = PULSER_get_dds_two_bytes(base_addr, i, 0x12);
-
-    unsigned ftw = u0 | (u1 << 16);
-    return ftw;
+    return PULSER_get_dds_freq(pulser, iDDS);
 }
 
 inline double DDS_get_freqHz(unsigned iDDS) //get freq in Hz
 {
-    return FTW2HzD(DDS_get_ftw(iDDS), AD9914_CLK);
+    return FTW2HzD(DDS_get_ftw(iDDS), dds_clk(iDDS));
 }
 
 //set PTW=phase tuning word
 inline void DDS_set_ptw(unsigned iDDS, unsigned ptw, FILE* fLog)
 {
-    PULSER_set_dds_two_bytes(pulser, iDDS, 0x30, ptw & 0xFFFF);
+    PULSER_set_dds_phase(pulser, iDDS, ptw);
 
     if (fLog) {
         fprintf(fLog, "%7s DDS(%2u) p   = %9.3f deg. %12s t = %8.2f us\n",
+                DDS_name(iDDS), iDDS, (ptw * 360.0 / PHASE_360), "", (double)0.3);
+    }
+}
+
+inline void DDS_shift_ptw(unsigned iDDS, unsigned ptw, FILE* fLog)
+{
+    PULSER_shift_dds_phase(pulser, iDDS, ptw);
+
+    if (fLog) {
+        fprintf(fLog, "%7s DDS(%2u) p  += %9.3f deg. %12s t = %8.2f us\n",
                 DDS_name(iDDS), iDDS, (ptw * 360.0 / PHASE_360), "", (double)0.3);
     }
 }
@@ -137,11 +151,15 @@ inline void DDS_set_ptw(unsigned iDDS, unsigned ptw)
     DDS_set_ptw(iDDS, ptw, bDebugPulses ? gLog : 0);
 }
 
-inline void DDS_set_phase_deg(unsigned iDDS, double phase, FILE* fLog)
+inline void DDS_shift_ptw(unsigned iDDS, unsigned ptw)
 {
-  DDS_set_ptw(iDDS, (int)(PHASE_360*phase/360.0 + 0.5), fLog);
+    DDS_shift_ptw(iDDS, ptw, bDebugPulses ? gLog : 0);
 }
 
+inline void DDS_set_phase_deg(unsigned iDDS, double phase, FILE* fLog)
+{
+    DDS_set_ptw(iDDS, (int)(PHASE_360*phase/360.0 + 0.5), fLog);
+}
 
 inline unsigned DDS_get_ptw(unsigned iDDS)
 {
@@ -157,7 +175,7 @@ inline double DDS_get_phase_deg(unsigned iDDS)
 //set ATW=amplitude tuning word
 inline void DDS_set_atw(unsigned iDDS, unsigned atw, FILE* fLog)
 {
-    PULSER_set_dds_two_bytes(pulser, iDDS, 0x32, atw & 0x0FFF);
+    PULSER_set_dds_amp(pulser, iDDS, atw);
 
     if (fLog) {
         fprintf(fLog, "%7s DDS(%2u) A   = %9.6f / 1  %12s t = %8.2f us\n",
