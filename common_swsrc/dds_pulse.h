@@ -32,105 +32,16 @@ inline const char* DDS_name(unsigned iDDS)
 #endif
 
 #ifdef CONFIG_AL
-#define DDS_PRECOOL     (0)
-#define DDS_3P1x2    	(1)
-#define DDS_3P0     	(2)
-#define DDS_DETECT      (3)
-#define DDS_3P0_BR      (4)
-#define DDS_HEAT     	(5)
-#define DDS_HEAT_AM    	(5)
-#define DDS_RAMAN    	(6)
-#define DDS_RF          (7)
-
-inline const char* DDS_name(unsigned iDDS)
-{
-    switch (iDDS) {
-    case DDS_PRECOOL:
-        return "  Precool";
-    case DDS_3P1x2:
-        return "  3P1 x 2";
-    case DDS_DETECT:
-        return "   Detect";
-    case DDS_RF:
-        return "    HF RF";
-    case DDS_RAMAN:
-        return "    Raman";
-    case DDS_3P0:
-        return "  3P0    ";
-    case DDS_3P0_BR:
-        return "  3P0(BR)";
-    default:
-        return "  unknown";
-
-    }
-}
-
+  #include "custom/ttl_Al.h"
 #endif
 
 #ifdef CONFIG_HG
-
-#define DDS_DOPPLER_B1  	(5)
-#define DDS_DOPPLER_B2 		(6)
-#define DDS_DOPPLER_B3		(7)
-
-inline const char* DDS_name(unsigned iDDS)
-{
-    switch (iDDS) {
-    case DDS_DOPPLER_B1:
-        return "  Doppler B1";
-    case DDS_DOPPLER_B2:
-        return "  Doppler B2";
-    case DDS_DOPPLER_B3:
-        return "  Doppler B3";
-    default:
-        return "  unknown";
-    }
-}
-
+  #include "custom/ttl_Hg.h"
 #endif
-
 
 #ifdef CONFIG_SHB
-#define DDS_BURNER      (0)
-#define DDS_CAVITY      (1)
-#define DDS_RF       	(2)
-#define DDS_BURNER2     (3)
-#define DDS_3P0_BR      (4)
-#define DDS_HEAT     	(5)
-#define DDS_RAMAN    	(6)
-#define DDS_3P0         (7)
-
-inline const char* DDS_name(unsigned iDDS)
-{
-    switch (iDDS) {
-    case  DDS_BURNER:
-        return "  Burner";
-    case  DDS_CAVITY:
-        return "  Cavity";
-    case DDS_BURNER2:
-        return " Burner2";
-    default:
-        return "  unknown";
-
-    }
-}
-
+  #include "custom/ttl_SHB.h"
 #endif
-
-#ifdef CONFIG_LMS
-inline const char* DDS_name(unsigned iDDS)
-{
-    switch (iDDS) {
-    case 0:
-        return "   DDS0";
-    case 1:
-        return "   DDS1";
-    default:
-        return "unknown";
-    }
-}
-#endif
-
 
 #define DDS_NONE     	(100)
 
