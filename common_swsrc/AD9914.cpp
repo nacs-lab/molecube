@@ -23,53 +23,6 @@ void set_freq_AD9914PM(void* base_addr, char i, unsigned ftw,
     set_dds_four_bytes(base_addr, i, 0x2C, ftw);
 }
 
-void set_phase_AD9914(void* base_addr, char i, unsigned ptw, FILE* f)
-{
-    if(f)
-        fprintf(f, "AD9914 board=%i set phase %6d / 65535\n", (unsigned)i, ptw);
-
-    PULSER_set_dds_two_bytes(base_addr, i, 0x30, ptw & 0xFFFF);
-}
-
-//set amplitude (12 bits, 0...4095)
-void set_amp_AD9914(void* base_addr, char i, unsigned A, FILE* f)
-{
-    if(f)
-        fprintf(f, "AD9914 board=%i set amplitude %5d / 4095\n", (unsigned)i, A);
-
-    PULSER_set_dds_two_bytes(base_addr, i, 0x32, A & 0x0FFF);
-}
-
-double get_freq_AD9914(void* base_addr, char i) //get freq in Hz
-{
-    unsigned u0 = PULSER_get_dds_two_bytes(base_addr, i, 0x2C);
-    unsigned u1 = PULSER_get_dds_two_bytes(base_addr, i, 0x2E);
-
-    unsigned ftw = u0 | (u1 << 16);
-    return FTW2HzD(ftw, AD9914_CLK);
-}
-
-unsigned get_ftw_AD9914(void* base_addr, char i) //get freq. tuning word (FTW)
-{
-    unsigned u0 = PULSER_get_dds_two_bytes(base_addr, i, 0x2C);
-    unsigned u1 = PULSER_get_dds_two_bytes(base_addr, i, 0x2E);
-
-    unsigned ftw = u0 | (u1 << 16);
-    return ftw;
-}
-
-double get_amp_AD9914(void* base_addr, char i) //get amp in % (0...100)
-{
-    unsigned u0 = PULSER_get_dds_two_bytes(base_addr, i, 0x32);
-    return u0/40.95;
-}
-
-double get_phase_AD9914(void* base_addr, char i) //get phase in deg (0...360)
-{
-    unsigned u0 = PULSER_get_dds_two_bytes(base_addr, i, 0x30);
-    return u0*360.0/65536.0;
-}
-
 
 bool test_val_AD9914(void* base_addr, char i, unsigned addr, unsigned val)
 {
@@ -140,7 +93,7 @@ void test_dds_addr(void* base_addr, char i, unsigned low_addr,
 void print_AD9914_registers(void* base_addr, char i, FILE* f)
 {
     fprintf(f, "*********************\n");
-    for(unsigned addr=0; (addr+3)<=0x3F; addr+=4) {
+    for(unsigned addr=0; (addr+3)<=0x7F; addr+=4) {
         unsigned u0 = PULSER_get_dds_two_bytes(base_addr, i, addr);
         unsigned u2 = PULSER_get_dds_two_bytes(base_addr, i, addr+2);
 
@@ -160,13 +113,6 @@ void set_dds_four_bytes(void* base_addr, char i, unsigned addr, unsigned data)
 
     unsigned dds_addr = (addr & 0x3F) << 9; //put addr in bits 14...9 (maps to DDS opcode_reg[14:9] )?
     PULSER_short_pulse(base_addr, 0x1000000F | (i << 4) | (dds_addr << 9), data); // takes 0.3 us
-}
-
-void set_freq_AD9914(void* base_addr, char i, double Hz, FILE* f)
-{
-    //convert Hz to FTW
-    unsigned ftw = Hz2FTW(Hz, AD9914_CLK);
-    PULSER_set_dds_freq(base_addr, i, ftw);
 }
 
 /*
@@ -195,21 +141,6 @@ void set_freq_AD9914(void* base_addr, char i, double Hz, bool bPrintInfo)
   PULSER_set_dds_freq(base_addr, i, ftw);
 }
 */
-void set_ftw_AD9914(void* base_addr, char i, unsigned ftw, FILE* f)
-{
-
-    PULSER_set_dds_two_bytes(base_addr, i, 0x10, ftw & 0xFFFF);
-    PULSER_set_dds_two_bytes(base_addr, i, 0x12, (ftw >> 16) & 0xFFFF);
-
-    PULSER_set_dds_two_bytes(base_addr, i, 0x2C, ftw & 0xFFFF);
-    PULSER_set_dds_two_bytes(base_addr, i, 0x2E, (ftw >> 16) & 0xFFFF);
-
-    if(f) {
-        double Hz = FTW2HzD(ftw, AD9914_CLK);
-        fprintf(f, "AD9914 board=%i set frequency %9d Hz  FTW=0x%08X\n",
-                (unsigned)i, (unsigned)Hz, ftw);
-    }
-}
 
 unsigned gcd(unsigned x, unsigned y)
 {
@@ -237,13 +168,29 @@ void init_AD9914(void* base_addr, char i)
     //PULSER_set_dds_two_bytes(pulser, i, 0x05, 0x8009);
 
     //disable ramp & programmable modulus, enable profile 0, disable SYNC_CLK output
-    PULSER_set_dds_two_bytes(pulser, i, 0x05, 0x8001);
+    //PULSER_set_dds_two_bytes(pulser, i, 0x05, 0x8001);
+
+    //disable SYNC_CLK output
+    PULSER_set_dds_two_bytes(pulser, i, 0x04, 0x0100);
+    
+    //enable ramp, enable programmable modulus, disable profile mode
+    //PULSER_set_dds_two_bytes(pulser, i, 0x06, 0x0009);
+
+    //disable ramp, disable programmable modulus, enable profile mode
+    PULSER_set_dds_two_bytes(pulser, i, 0x06, 0x0080);
+
 
     //disable programmable modulus and enable profile 0
     //set_dds_byte_AD9914(pulser, i, 0x06, 0x80);
 
     //enable amplitude control (OSK)
-    PULSER_set_dds_two_bytes(pulser, i, 0x0, 0x0008);
+    PULSER_set_dds_two_bytes(pulser, i, 0x0, 0x0108);
 
+    //zero-out all other memory
+    for(unsigned addr=0x10; addr<=0x6a; addr+=2)
+    {
+      PULSER_set_dds_two_bytes(pulser, i, addr, 0x0);
+    }
+    
     printf("Initialized AD9914 board=%i\n", unsigned(i));
 }
