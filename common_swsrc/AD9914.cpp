@@ -157,47 +157,77 @@ unsigned gcd(unsigned x, unsigned y)
     return gcd(y,x%y); // recursive call by using arithmetic rules
 }
 
-void init_AD9914(void* base_addr, char i)
+//Initialize the DDS.
+//  bForce = true: always init
+//           false: init only if not previopusly initialized
+// return true if init was performed
+
+bool init_AD9914(void* base_addr, char i, bool bForce, FILE* f)
 {
-    PULSER_dds_reset(pulser, i);
-
-    //calibrate internal timing.  required at power-up
-    PULSER_set_dds_two_bytes(pulser, i, 0x0E, 0x0105);
-    usleep(1000U);
-    //finish cal. disble sync_out
-    PULSER_set_dds_two_bytes(pulser, i, 0x0E, 0x0405);
-
-    //enable programmable modulus and profile 0, enable SYNC_CLK output
-    //set_dds_two_bytes(pulser, i, 0x05, 0x8D0B);
-
+    bool bInit = bForce; //init needed?
+    const unsigned magic_bytes = 0xDEADBEEF;
     
-    //disable programmable modulus, enable profile 0, enable SYNC_CLK output
-    //PULSER_set_dds_two_bytes(pulser, i, 0x05, 0x8009);
-
-    //disable ramp & programmable modulus, enable profile 0, disable SYNC_CLK output
-    //PULSER_set_dds_two_bytes(pulser, i, 0x05, 0x8001);
-
-    //disable SYNC_CLK output
-    PULSER_set_dds_two_bytes(pulser, i, 0x04, 0x0100);
-    
-    //enable ramp, enable programmable modulus, disable profile mode
-    //PULSER_set_dds_two_bytes(pulser, i, 0x06, 0x0009);
-
-    //disable ramp, disable programmable modulus, enable profile mode
-    PULSER_set_dds_two_bytes(pulser, i, 0x06, 0x0080);
-
-
-    //disable programmable modulus and enable profile 0
-    //set_dds_byte_AD9914(pulser, i, 0x06, 0x80);
-
-    //enable amplitude control (OSK)
-    PULSER_set_dds_two_bytes(pulser, i, 0x0, 0x0108);
-
-    //zero-out all other memory
-    for(unsigned addr=0x10; addr<=0x6a; addr+=2)
-    {
-      PULSER_set_dds_two_bytes(pulser, i, addr, 0x0);
+    if(!bForce) {
+      
+      //Check if magic bytes have been set (profile 7, FTW) which is otherwise
+      //not used.  If already set, the board has been initialized and doesn't
+      //need another init.  This avoids reboot-induced glitches.
+      
+      unsigned u0 = PULSER_get_dds_four_bytes(pulser, i, 0x64);
+      bInit = (u0 != magic_bytes);
+      
+      fprintf(f, "AD9914 board=%i  FTW7 = %08X\n", unsigned(i), u0);
+      if(bInit)
+        fprintf(f, "Initialization required\n");
+      else
+        fprintf(f, "No initialization required\n");
     }
     
-    printf("Initialized AD9914 board=%i\n", unsigned(i));
+    if(bInit) {
+      PULSER_dds_reset(pulser, i);
+
+      //calibrate internal timing.  required at power-up
+      PULSER_set_dds_two_bytes(pulser, i, 0x0E, 0x0105);
+      usleep(1000U);
+      //finish cal. disble sync_out
+      PULSER_set_dds_two_bytes(pulser, i, 0x0E, 0x0405);
+
+      //enable programmable modulus and profile 0, enable SYNC_CLK output
+      //set_dds_two_bytes(pulser, i, 0x05, 0x8D0B);
+
+      
+      //disable programmable modulus, enable profile 0, enable SYNC_CLK output
+      //PULSER_set_dds_two_bytes(pulser, i, 0x05, 0x8009);
+
+      //disable ramp & programmable modulus, enable profile 0, disable SYNC_CLK output
+      //PULSER_set_dds_two_bytes(pulser, i, 0x05, 0x8001);
+
+      //disable SYNC_CLK output
+      PULSER_set_dds_two_bytes(pulser, i, 0x04, 0x0100);
+      
+      //enable ramp, enable programmable modulus, disable profile mode
+      //PULSER_set_dds_two_bytes(pulser, i, 0x06, 0x0009);
+
+      //disable ramp, disable programmable modulus, enable profile mode
+      PULSER_set_dds_two_bytes(pulser, i, 0x06, 0x0080);
+
+
+      //disable programmable modulus and enable profile 0
+      //set_dds_byte_AD9914(pulser, i, 0x06, 0x80);
+
+      //enable amplitude control (OSK)
+      PULSER_set_dds_two_bytes(pulser, i, 0x0, 0x0108);
+
+      //zero-out all other memory
+      for(unsigned addr=0x10; addr<=0x6a; addr+=2)
+      {
+        PULSER_set_dds_two_bytes(pulser, i, addr, 0x0);
+      }
+      
+      PULSER_set_dds_four_bytes(pulser, i, 0x64, magic_bytes);
+      
+      fprintf(f, "Initialized AD9914 board=%i\n", unsigned(i));
+    }
+    
+    return bInit;
 }

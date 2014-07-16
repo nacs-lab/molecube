@@ -170,11 +170,18 @@ unsigned PULSER_get_dds_byte(void* base_addr, char i, unsigned address)
     return (PULSER_pop_result(base_addr) >> 8) & 0x000000ff;
 }
 
-//! DDS functions - get two bytes from address+1 and adress on DDS i
+//! DDS functions - get two bytes from address+1 ... adress on DDS i
 unsigned PULSER_get_dds_two_bytes(void* base_addr, char i, unsigned address)
 {
     PULSER_short_pulse(base_addr, 0x10000003 | (i << 4) | ((address+1) << 9), 0);
     return PULSER_pop_result(base_addr) & 0x0000ffff;
+}
+
+//! DDS functions - get four bytes from address+3 ... adress on DDS i
+unsigned PULSER_get_dds_four_bytes(void* base_addr, char i, unsigned address)
+{
+    PULSER_short_pulse(base_addr, 0x1000000E | (i << 4) | ((address+1) << 9), 0);
+    return PULSER_pop_result(base_addr);
 }
 
 //! toggle init.  reset prior to new sequence
@@ -479,7 +486,14 @@ void PULSER_set_dds_two_bytes(void* base_addr, char i, unsigned addr, unsigned d
 
     unsigned dds_addr = (addr+1) & 0x7F; //put addr in bits 15...9 (maps to DDS opcode_reg[14:9] )?
     unsigned dds_data = data & 0xFFFF; // put data in bits 15...0 (maps to DDS operand_reg[15:0] )?
-    PULSER_short_pulse(base_addr, 0x10000002 | (i << 4) | (dds_addr << 9), dds_data); // takes 0.3 us
+    PULSER_short_pulse(base_addr, 0x10000002 | (i << 4) | (dds_addr << 9), dds_data);
+}
+
+//! set bytes addr+3 ... addr
+void PULSER_set_dds_four_bytes(void* base_addr, char i, unsigned addr, unsigned data)
+{
+    unsigned dds_addr = (addr+1) & 0x7F; //put addr in bits 15...9 (maps to DDS opcode_reg[14:9] )?
+    PULSER_short_pulse(base_addr, 0x1000000F | (i << 4) | (dds_addr << 9), data); 
 }
 
 void PULSER_set_dds_freq(void* base_addr, char i, unsigned ftw)

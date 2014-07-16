@@ -120,16 +120,23 @@ unsigned int PULSER_get_dds_freq(void* base_addr, char i);
 unsigned int PULSER_get_dds_phase(void* base_addr, char i);
 unsigned PULSER_get_dds_amp(void* base_addr, char i);
 
+//! DDS functions - set bytes addr+1 ... addr
 void PULSER_set_dds_two_bytes(void* base_addr, char i, unsigned addr, unsigned data);
+
+//! DDS functions - set bytes addr+3 ... addr
+void PULSER_set_dds_four_bytes(void* base_addr, char i, unsigned addr, unsigned data);
 
 unsigned PULSER_get_dds_byte(void* base_addr, char i, unsigned address);
 unsigned PULSER_get_dds_two_bytes(void* base_addr, char i, unsigned address);
 
+//! DDS functions - get four bytes from address+3 ... adress on DDS i
+unsigned PULSER_get_dds_four_bytes(void* base_addr, char i, unsigned address);
+
 /*
 Timing-check functions to help figure out if experiment timing is being met.
-Timing failure will occur, if the pulse buffer underflows.
+Timing failure will occur if the pulse buffer underflows.
 
-While timing_check is enabled, all pulses that are sent to the PULSE_CONTROLLER
+While timing_check flag is enabled, all pulses that are sent to the PULSER
 are considered time-critical.  If a pulse finishes, and there is not another pulse
 waiting in the buffer, a timing error is stored in one of the status registers.
 This can be detected by calling PULSER_timing_ok (returns false if

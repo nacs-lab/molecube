@@ -1,13 +1,9 @@
 #ifndef AD9914_H
 #define AD9914_H
 
-//pulse controller cycles needed to upate the DDS frequency
-//this will be reduced in the new HW
-#define T_MIN_SET_FREQ_AD9914 (50)
-
 #include <stdio.h>
 
-void init_AD9914(void* base_addr, char i);
+bool init_AD9914(void* base_addr, char i, bool bForce, FILE* f);
 
 void set_freq_AD9914PM(void* base_addr, char i, unsigned ftw, unsigned A, unsigned B, FILE* f=0);
 
