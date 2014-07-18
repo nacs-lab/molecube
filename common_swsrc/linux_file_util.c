@@ -44,6 +44,10 @@ int write_str_to_file(const char* fname, const char* val)
     return -1;
 }
 
+// Record status string in file.
+// Keep the file open, and for each status update, lock it exclusively,
+// then rewrite and unlock it.  Readers should acquire a lock,
+// to prevent reading of partially written or empty files.
 void setStatus(const char* str)
 {
   static FILE* f = 0;
