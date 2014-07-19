@@ -17,6 +17,7 @@
 #include "ttl_pulse.h"
 #include "fpga.h"
 #include <float.h>
+#include "verbosity.h"
 
 #ifdef WIN32
 #define _USE_MATH_DEFINES 1
@@ -79,11 +80,11 @@ void print_pulse_info(unsigned iDDS, unsigned ftwOn, unsigned ftwOff,
 //Ueful when the DDS do not all have the same clock.
 double dds_clk(int iDDS);
 
-inline void DDS_off(unsigned iDDS)
+inline void DDS_off(unsigned iDDS, verbosity* v=0)
 {
     PULSER_set_dds_freq(pulser, iDDS, 0);
 
-    if (bDebugPulses) {
+    if (v) {
         fprintf(gLog, "%7s DDS(%2u) off %30s t = %8.2f us\n",
                 DDS_name(iDDS), iDDS, "", (double)0.5);
     }
@@ -92,32 +93,22 @@ inline void DDS_off(unsigned iDDS)
 }
 
 //set FTW=frequency tuning word
-inline void DDS_set_ftw(unsigned iDDS, unsigned ftw, FILE* fLog)
+inline void DDS_set_ftw(unsigned iDDS, unsigned ftw, verbosity* v=0)
 {
     PULSER_set_dds_freq(pulser, iDDS, ftw);
 
-    if (fLog) {
-        fprintf(fLog, "%7s DDS(%2u) f   = %13.3f Hz    ",
+    if (v){
+        v->printf("%7s DDS(%2u) f   = %13.3f Hz    ",
                 DDS_name(iDDS), iDDS, FTW2HzD(ftw, dds_clk(iDDS)), ftw);
-        print_timing_info(fLog, g_tSequence, PULSER_DDS_SET_FTW_DURATION);
+        print_timing_info(v, g_tSequence, PULSER_DDS_SET_FTW_DURATION);
     }
     
     g_tSequence += PULSER_DDS_SET_FTW_DURATION;
 }
 
-inline void DDS_set_ftw(unsigned iDDS, unsigned ftw)
+inline void DDS_set_freqHz(unsigned iDDS, unsigned Hz, verbosity* v=0)
 {
-    DDS_set_ftw(iDDS, ftw, bDebugPulses ? gLog : 0);
-}
-
-inline void DDS_set_freqHz(unsigned iDDS, unsigned Hz)
-{
-    DDS_set_ftw(iDDS, Hz2FTW(Hz, dds_clk(iDDS)));
-}
-
-inline void DDS_set_freqHz(unsigned iDDS, unsigned Hz, FILE* fLog)
-{
-    DDS_set_ftw(iDDS, Hz2FTW(Hz, dds_clk(iDDS)), fLog);
+    DDS_set_ftw(iDDS, Hz2FTW(Hz, dds_clk(iDDS)), v);
 }
 
 inline unsigned DDS_get_ftw(unsigned iDDS)
@@ -131,43 +122,33 @@ inline double DDS_get_freqHz(unsigned iDDS) //get freq in Hz
 }
 
 //set PTW=phase tuning word
-inline void DDS_set_ptw(unsigned iDDS, unsigned ptw, FILE* fLog)
+inline void DDS_set_ptw(unsigned iDDS, unsigned ptw, verbosity* v=0)
 {
     PULSER_set_dds_phase(pulser, iDDS, ptw);
 
-    if (fLog) {
-        fprintf(fLog, "%7s DDS(%2u) p   = %9.3f deg. %4s ",
-                DDS_name(iDDS), iDDS, (ptw * 360.0 / PHASE_360), "");
-        print_timing_info(fLog, g_tSequence, PULSER_DDS_SET_PTW_DURATION);
+    if (v){
+        v->printf("%7s DDS(%2u) p   = %9.3f deg. %4s ",
+                  DDS_name(iDDS), iDDS, (ptw * 360.0 / PHASE_360), "");
+        print_timing_info(v, g_tSequence, PULSER_DDS_SET_PTW_DURATION);
     }
     g_tSequence += PULSER_DDS_SET_PTW_DURATION;
 }
 
-inline void DDS_shift_ptw(unsigned iDDS, unsigned ptw, FILE* fLog)
+inline void DDS_shift_ptw(unsigned iDDS, unsigned ptw, verbosity* v=0)
 {
     PULSER_shift_dds_phase(pulser, iDDS, ptw);
 
-    if (fLog) {
-        fprintf(fLog, "%7s DDS(%2u) p  += %9.3f deg. %4s ",
+    if (v){
+        v->printf("%7s DDS(%2u) p  += %9.3f deg. %4s ",
                 DDS_name(iDDS), iDDS, (ptw * 360.0 / PHASE_360), "");
-        print_timing_info(fLog, g_tSequence, PULSER_DDS_SET_PTW_DURATION);
+        print_timing_info(v, g_tSequence, PULSER_DDS_SET_PTW_DURATION);
     }
     g_tSequence += PULSER_DDS_SET_PTW_DURATION;
 }
 
-inline void DDS_set_ptw(unsigned iDDS, unsigned ptw)
+inline void DDS_set_phase_deg(unsigned iDDS, double phase, verbosity* v=0)
 {
-    DDS_set_ptw(iDDS, ptw, bDebugPulses ? gLog : 0);
-}
-
-inline void DDS_shift_ptw(unsigned iDDS, unsigned ptw)
-{
-    DDS_shift_ptw(iDDS, ptw, bDebugPulses ? gLog : 0);
-}
-
-inline void DDS_set_phase_deg(unsigned iDDS, double phase, FILE* fLog)
-{
-    DDS_set_ptw(iDDS, (int)(PHASE_360*phase/360.0 + 0.5), fLog);
+    DDS_set_ptw(iDDS, (int)(PHASE_360*phase/360.0 + 0.5), v);
 }
 
 inline unsigned DDS_get_ptw(unsigned iDDS)
@@ -182,28 +163,23 @@ inline double DDS_get_phase_deg(unsigned iDDS)
 }
 
 //set ATW=amplitude tuning word
-inline void DDS_set_atw(unsigned iDDS, unsigned atw, FILE* fLog)
+inline void DDS_set_atw(unsigned iDDS, unsigned atw, verbosity* v=0)
 {
     PULSER_set_dds_amp(pulser, iDDS, atw);
 
-    if (fLog) {
-        fprintf(fLog, "%7s DDS(%2u) A   = %9.6f / 1  %4s ",
+    if (v){
+        v->printf("%7s DDS(%2u) A   = %9.6f / 1  %4s ",
                 DDS_name(iDDS), iDDS, atw / 4095.0, "");
                 
-        print_timing_info(fLog, g_tSequence, PULSER_DDS_SET_ATW_DURATION);
+        print_timing_info(v, g_tSequence, PULSER_DDS_SET_ATW_DURATION);
     }
     
     g_tSequence += PULSER_DDS_SET_ATW_DURATION;
 }
 
-inline void DDS_set_atw(unsigned iDDS, unsigned atw)
+inline void DDS_set_amp(unsigned iDDS, double A, verbosity* v=0)
 {
-    DDS_set_atw(iDDS, atw, bDebugPulses ? gLog : 0);
-}
-
-inline void DDS_set_amp(unsigned iDDS, double A, FILE* fLog)
-{
-  DDS_set_atw(iDDS, (unsigned)(A*4095.0 + 0.5), fLog);
+  DDS_set_atw(iDDS, (unsigned)(A*4095.0 + 0.5), v);
 }
 
 inline unsigned DDS_get_atw(unsigned iDDS)
