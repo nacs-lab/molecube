@@ -165,7 +165,7 @@ unsigned gcd(unsigned x, unsigned y)
 bool init_AD9914(void* base_addr, char i, bool bForce, FILE* f)
 {
     bool bInit = bForce; //init needed?
-    const unsigned magic_bytes = 0xDEADBEEF;
+    const unsigned magic_bytes = 0xF00F0000;
     
     if(!bForce) {
       
