@@ -24,11 +24,9 @@ unsigned extra_flags = 0;
 
 void (*idle_func)(void);
 
-#define MAX_NDDS 32
-
-unsigned int ddsFTW[MAX_NDDS];
-unsigned short ddsPhase[MAX_NDDS];
-unsigned short ddsAmp[MAX_NDDS];
+unsigned int ddsFTW[PULSER_MAX_NDDS];
+unsigned short ddsPhase[PULSER_MAX_NDDS];
+unsigned short ddsAmp[PULSER_MAX_NDDS];
 
 #define ENABLE_TIMING_CHECK    (0x08000000)
 
@@ -140,6 +138,20 @@ void PULSER_get_ttl(void* base_addr, unsigned* high_mask, unsigned* low_mask)
 void PULSER_enable_clock_out(void* base_addr, unsigned divider)
 {
     PULSER_short_pulse(base_addr, 0x50000000, divider & 0xFF);
+}
+
+//! If DDS i is present return non-zero, otherwise 0.
+int PULSER_dds_exists(void* base_addr, char i)
+{
+  unsigned addr = 0x68;
+  //Check whether it's possible to set phase of profile 7 to 0 and 1
+  PULSER_set_dds_two_bytes(base_addr, i, addr, 0);
+  unsigned u0 = PULSER_get_dds_two_bytes(base_addr, i, addr);
+  
+  PULSER_set_dds_two_bytes(base_addr, i, addr, 1);
+  unsigned u1 = PULSER_get_dds_two_bytes(base_addr, i, addr);
+  
+  return (u0 == 0) && (u1 == 1);
 }
 
 //! DDS functions - reset DDS i
@@ -270,7 +282,7 @@ unsigned PULSER_read_slave_reg(void* base_addr, char n, unsigned offset)
 
 void PULSER_self_test(void* base_addr, int nIO)
 {
-    unsigned ftw [MAX_NDDS];
+    unsigned ftw [PULSER_MAX_NDDS];
     unsigned cycle = 0;
     unsigned nBad = 0;
     char iDDS;

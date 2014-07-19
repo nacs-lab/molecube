@@ -23,9 +23,12 @@
 #define PULSER_DDS_SET_PTW_DURATION 30
 #define PULSER_DDS_SET_ATW_DURATION 30
 
+//maximum number of DDS available
+#define PULSER_MAX_NDDS 32
+
 //minimum pulse durations in units of the time resolution
-#define T_TTL_MIN (5)
-#define T_DDS_MIN (50)
+#define PULSER_T_TTL_MIN (5)
+#define PULSER_T_DDS_MIN (30)
 
 extern unsigned PULSER_vacancy;
 
@@ -51,6 +54,9 @@ int PULSER_test_dds(void* base_addr, char nDDS);
 
 //re-initialize all DDS, keeping current frequencies
 void PULSER_reinit_DDS(void* base_addr, unsigned nDDS);
+
+//! If DDS i is present return non-zero, otherwise 0.
+int PULSER_dds_exists(void* base_addr, char i);
 
 int PULSER_check_dds(void* base_addr, char i);
 int PULSER_check_all_dds(void* base_addr);
