@@ -26,7 +26,7 @@ CXXFLAGS = -Werror -std=c++11 -O3 -g -DPLATFORM_ZYNQ -DLINUX_OS $(INC)
 
 MC: CXXFLAGS += -DCONFIG_BB -DNSPI=2 -DNDDS=22 -DAD9914_CLK=3.5e9 -DNAD9914=8 -DN_SHIFT_SWITCHES=0
 
-LIBS := -Wl,--start-group,-L$(FPGALIB),-lgcc,-lc,-lstdc++,-lrt,-lpthread,-lfcgi,-lfcgi++,--end-group
+LIBS := -Wl,--start-group,-L$(FPGALIB),-lgcc,-lc,-lstdc++,-lsupc++,-lrt,-lpthread,-lcgicc,-lfcgi,-lfcgi++,--end-group
 
 
 # All of the sources participating in the build are defined here

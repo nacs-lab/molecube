@@ -20,6 +20,7 @@ void init_system();
 #include <cassert>
 #include <iostream>
 #include <fstream>
+#include <map>
 
 #include "fpga.h"
 #include "timing.h"
@@ -33,6 +34,111 @@ void init_system();
 #include <fcgi/fcgio.h>
 #include <fcgi/fcgi_config.h> 
 
+using namespace cgicc;
+
+#include "fcgi/fcgio.h"
+
+#include "cgicc/CgiInput.h"
+
+// TR: Linker failed when FCgiIO was in a separate header (undefined ref to vtable), 
+//     so I'm pasting it here.  Removed pointers to stderr and stdout streams.
+//      This came from cgicc/contrib/FCgiIO.h , .cpp 
+
+// ============================================================
+// Class FCgiIO
+// ============================================================
+
+/*! \class FCgiIO FCgiIO.h FCgiIO.h
+ * \brief Class that implements input and output through a FastCGI request.
+ *
+ * This class provides access to the input byte-stream and environment
+ * variable interfaces of a FastCGI request.  It is fully compatible with the
+ * Cgicc input API.
+ *
+ * It also provides access to the request's output and error streams, using a
+ * similar interface.
+ */
+class CGICC_API FCgiIO : public cgicc::CgiInput
+{
+public:
+  
+  // ============================================================
+  
+  /*! \name Constructor and Destructor */
+  //@{
+  
+  /*!
+   * \brief Constructor
+   *
+   * Create a new FCgiIO object
+   */
+  FCgiIO(FCGX_Request& request) :
+     fRequest(request)
+  {
+    // Parse environment
+    for(char **e = fRequest.envp; *e != NULL; ++e) {
+      std::string s(*e);
+      std::string::size_type i = s.find('=');
+      if(i == std::string::npos)
+        throw std::runtime_error("Illegally formed environment");
+      fEnv[s.substr(0, i)] = s.substr(i + 1);
+    }
+  }
+
+  /*!
+   * \brief Copy constructor
+   *
+   */
+  FCgiIO(const FCgiIO& io) :
+     CgiInput(io),
+     fRequest(io.fRequest)
+  {
+  }
+  /*!
+   * \brief Destructor
+   *
+   * Delete this FCgiIO object
+   */
+  virtual ~FCgiIO() {}
+  //@}
+  
+  // ============================================================
+  
+  /*! \name Data Sources */
+  //@{
+  
+  /*!
+   * \brief Read data from the request's input stream.
+   *
+   * \param data The target buffer
+   * \param length The number of characters to read
+   * \return The number of characters read
+   */
+  size_t read(char *data, size_t length)
+  {
+    return FCGX_GetStr(data, length, fRequest.in);
+  }
+  
+  /*!
+   * \brief Query the value of an environment variable stored in the request.
+   *
+   * \param varName The name of an environment variable
+   * \return The value of the requested environment variable, or an empty
+   * string if not found.
+   */
+  virtual std::string getenv(const char *varName)
+  {
+    return fEnv[varName];
+  }
+  //@}
+  
+  
+protected:
+  FCGX_Request& 			fRequest;
+  std::map<std::string, std::string> 	fEnv;
+};
+
+    
 using namespace std;
 
 
@@ -142,7 +248,7 @@ int main(int argc, char *argv[])
     
     time_t srandT = time(0);
     srand(srandT + nAccept);
-    fprintf(gLog, "Random seed = %u.  2 random numbers: %u, %u\n", srandT, rand(), rand());
+    fprintf(gLog, "Random seed = %u.  2 random numbers: %u, %u\n", (unsigned)srandT, rand(), rand());
     
     // run startup sequence
     string fnameStartup = cla.GetStringAfter("-s", "");
@@ -177,36 +283,28 @@ int main(int argc, char *argv[])
     while (FCGX_Accept_r(&request) == 0) {
         setProgramStatus(0, "Processing request");
         fprintf(gLog, "================ Accept FastCGI request %d ================\n", nAccept);
-        
+       
         // Replace stdio streambufs.
         // Note that the default bufsize (0) will cause the use of iostream
         // methods that require positioning (such as peek(), seek(),
         // unget() and putback()) to fail (in favour of more efficient IO).
-        fcgi_streambuf cin_fcgi_streambuf(request.in);
+   //     fcgi_streambuf cin_fcgi_streambuf(request.in);
         fcgi_streambuf cout_fcgi_streambuf(request.out);
         fcgi_streambuf cerr_fcgi_streambuf(request.err);
 
-        cin.rdbuf(&cin_fcgi_streambuf);
+     //   cin.rdbuf(&cin_fcgi_streambuf);
         cout.rdbuf(&cout_fcgi_streambuf);
         cerr.rdbuf(&cerr_fcgi_streambuf);
 
+
+        FCgiIO IO(request);
+        Cgicc cgi(&IO);
+
         gvSTDOUT = verbosity(&cout, gLog);
-
+        
         try {
-            string strarg;
-            getline(cin, strarg);
-
-            if(strarg.length()) {
-                fprintf(gLog, "Parsing HTTP request: %s\n", strarg.c_str());
-                fflush(gLog);
-
-                if(!parseQuery(strarg))
-                    if(!parseSeqURL(strarg))
-                      if(!parseSeqMultiPart(cin, strarg))
-                         fprintf(gLog, "Couldn't process HTTP request\n");
-            } else {
-                fprintf(gLog, "Missing HTTP request string.\n");
-            }
+          if(!parseQueryCGI(cgi))
+            fprintf(gLog, "Couldn't understand HTTP request.\n");
         } catch (runtime_error e) {
             gvSTDOUT.printf("Oh noes! \n   %s\n", e.what());
             cout << getQuote("/usr/local/quotes.frt", "%%");

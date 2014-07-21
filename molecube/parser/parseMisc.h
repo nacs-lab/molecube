@@ -4,7 +4,9 @@
 #include <string>
 #include <vector>
 
-//thrown when the tokewn does not exist
+#include <cgicc/Cgicc.h>
+
+//thrown when the token does not exist
 class noSuchToken {
 public:
     noSuchToken(const std::string& token) : token(token) {}
@@ -15,7 +17,7 @@ public:
 void printPlainResponseHeader();
 void printJSONResponseHeader();
 
-bool parseQuery(std::string& doc);
+bool parseQueryCGI(cgicc::Cgicc& cgi);
 bool parseTTL(std::string& ttl);
 
 unsigned getUnsignedParam(const std::string& seq, const std::string& name,
@@ -32,6 +34,20 @@ bool getCheckboxParam(const std::string& seq, const std::string& name,
 
 std::string getStringParam(const std::string& seq, const std::string& name,
                            const std::string& defaultVal, const std::string& sep);
+
+template<class C> const C& getParamCGI(cgicc::Cgicc& cgi, const std::string& name, 
+                                       C defaultVal);
+                             
+bool getCheckboxParamCGI(cgicc::Cgicc& cgi, const std::string& name, 
+                         bool defaultVal);
+
+
+unsigned getUnsignedParamCGI(cgicc::Cgicc& cgi, const std::string& name, 
+                             unsigned defaultVal);
+
+
+std::string getStringParamCGI(cgicc::Cgicc& cgi, const std::string& name, 
+                              const std::string& defaultVal);
 
 //lock file.  Set the lock when performing PULSER operations that
 //should not be interrupted by other PULSER operations.

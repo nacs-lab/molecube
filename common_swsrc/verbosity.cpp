@@ -13,6 +13,7 @@ int verbosity::printf(const char* format, ...)
         va_start(vl, format);
         ret = vfprintf(f, format, vl);
         va_end(vl);
+        fflush(f);
     }
 
     if(pos) {

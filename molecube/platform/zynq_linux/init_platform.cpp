@@ -46,13 +46,12 @@ void* get_pulse_controller_phys_addr()
 
     if(addr == 0) {
         if(FILE* f = popen(cmd, "r")) {
-            fgets(ret, 200, f);
-            char* p = strstr(ret, "pulse-controller");
-            if(p)
-                sscanf(p, "pulse-controller@%p", &addr);
-            else
-
-                fclose(f);
+            if(fgets(ret, 200, f)) {
+                char* p = strstr(ret, "pulse-controller");
+                if(p)
+                    sscanf(p, "pulse-controller@%p", &addr);
+            }
+            fclose(f);
         }
     }
 

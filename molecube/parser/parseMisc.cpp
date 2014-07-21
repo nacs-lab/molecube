@@ -7,10 +7,13 @@
 
 #include "common.h"
 #include "parseMisc.h"
+#include "parseTxtSeq.h"
+
 #include "saveloadmap.h"
 #include "AD9914.h"
 #include "util.h"
 #include "dds_pulse.h"
+#include <string_func.h>
 
 extern "C"
 {
@@ -97,6 +100,18 @@ bool parseParams(txtmap_t& params, const std::string& doc, const std::string& pa
         params[doc.substr(pos1+1, pos2-pos1-1)] = val;
 
         pos1 = pos3;
+    }
+
+    return true;
+}
+
+bool parseParamsCGI(txtmap_t& params, cgicc::Cgicc& cgi)
+{
+    cgicc::const_form_iterator i = cgi.getElements().begin();
+    
+    while(i != cgi.getElements().end()) {
+        params[i->getName()] = i->getValue();
+        i++;
     }
 
     return true;
@@ -214,83 +229,103 @@ template<class V> void stream_vect_to_JSON_array(ostream& os, const V& v)
   os << "]";
 }
   
-  
-  
-bool parseQuery(std::string& doc)
+bool parseQueryCGI(cgicc::Cgicc& cgi)
 {
-    if(doc.find("command=getTTL") == 0) {
-        printJSONResponseHeader();
-        unsigned lo, hi;
-        PULSER_get_ttl(pulser, &hi, &lo);
-
-        char buff[64];
-        sprintf(buff, "{\"lo\":%u, \"hi\":%u}", lo, hi);
-        cout << buff;
-
-        fprintf(gLog, "%s\n", buff);
-        return true;
-    }
+    cgicc::form_iterator cmd = cgi.getElement("command");
+    cgicc::form_iterator page = cgi.getElement("page");
     
-    if(doc.find("command=getActiveDDS") == 0) {
-      fprintf(gLog, "getActiveDDS\n");
-      printJSONResponseHeader();
-      stream_vect_to_JSON_array(cout, active_dds);
-      return true;
-    }
-    
-    if(doc.find("command=setParams") == 0) {
-        printPlainResponseHeader();
-        string page=getStringParam(doc, "&page=", "", "&");
-        removeNonAlphaNum(page);
+    if(cmd != cgi.getElements().end()) 
+    {
+        gvSTDOUT.printf("Command = %s\n", (**cmd).c_str());
+        
+        if((**cmd) == "getTTL")
+        {
+            printJSONResponseHeader();
+            unsigned lo, hi;
+            PULSER_get_ttl(pulser, &hi, &lo);
 
-        if(page.length()) {
-            txtmap_t params;
-            string fname = "/home/www/userdata/params_" + page;
+            char buff[64];
+            sprintf(buff, "{\"lo\":%u, \"hi\":%u}", lo, hi);
+            cout << buff;
 
-            //load existing params
-            loadMap(params, fname);
-
-            if(parseParams(params, doc, page)) {
-                //save
-                saveMap(params, fname);
-                return true;
-            }
-        } else
-            return false;
-    }
-
-    if(doc.find("command=getParams") == 0) {
-        printPlainResponseHeader();
-        string page=getStringParam(doc, "&page=", "", "&");
-        removeNonAlphaNum(page);
-        if(page.length()) {
-            txtmap_t params;
-            loadMap(params, "/home/www/userdata/params_" + page);
-            getDeviceParams(page, params);
-            //dumpMap(params, gLog); fflush(gLog);
-            dumpMapHTML(params, cout);
+            fprintf(gLog, "%s\n", buff);
             return true;
-        } else
-            return false;
-    }
+        }            
+        
+        if((**cmd) == "getActiveDDS") 
+        {
+            printJSONResponseHeader();
+            stream_vect_to_JSON_array(cout, active_dds);
+            return true;
+        }
 
-    if(doc.find("command=setDeviceParams") == 0) {
-        printPlainResponseHeader();
+        if((**cmd) == "setParams" &&  page != cgi.getElements().end() ) 
+        {
+            printPlainResponseHeader();
+            string sPage = **page;
+            removeNonAlphaNum(sPage);
 
-        string page=getStringParam(doc, "&page=", "", "&");
-        removeNonAlphaNum(page);
+            if(sPage.length()) {
+                txtmap_t params;
+                string fname = "/home/www/userdata/params_" + sPage;
 
-        if(page.length()) {
-            txtmap_t params;
-            if(parseParams(params, doc, page)) {
-                setDeviceParams(page, params);
+                //load existing params
+                loadMap(params, fname);
+
+                if(parseParamsCGI(params, cgi)) {
+                    //save
+                    saveMap(params, fname);
+                    return true;
+                }
+            } else
+                return false;
+        }
+            
+        if((**cmd) == "getParams" &&  page != cgi.getElements().end() ) 
+        {
+            printPlainResponseHeader();
+            string sPage = **page;
+            removeNonAlphaNum(sPage);
+            if(sPage.length()) {
+                txtmap_t params;
+                loadMap(params, "/home/www/userdata/params_" + sPage);
+                getDeviceParams(sPage, params);
+                //dumpMap(params, gLog); fflush(gLog);
+                dumpMapHTML(params, cout);
                 return true;
+            } else
+                return false;
+        }
+        
+        if((**cmd) == "setDeviceParams" &&  page != cgi.getElements().end() ) 
+        {
+            printPlainResponseHeader();
+
+            string sPage = **page;
+            removeNonAlphaNum(sPage);
+
+            if(sPage.length()) {
+                txtmap_t params;
+                if(parseParamsCGI(params, cgi)) {
+                    setDeviceParams(sPage, params);
+                    return true;
+                }
+            } else
+                return false;
+        }
+        
+        if((**cmd) == "runseq")
+        {
+            parseSeqCGI(cgi);
+            return true;
             }
-        } else
-            return false;
+    }
+    else
+    {
+        gvSTDOUT.printf("No Command\n");
+        return false;
     }
 
-    return false;
 }
 
 unsigned getUnsignedParam(const std::string& seq, const std::string& name,
@@ -329,7 +364,7 @@ double getDoubleParam(const std::string& seq, const std::string& name,
     size_t pos = seq.find(name);
 
     if(pos != string::npos) {
-        unsigned val;
+        double val;
 
         //this may not be working.  glibc bug?
         if(sscanf(seq.substr(pos).c_str()+name.length(), "%lf", &val))
@@ -369,3 +404,35 @@ std::string getStringParam(const std::string& seq, const std::string& token,
     return defaultVal;
 }
 
+bool getCheckboxParamCGI(cgicc::Cgicc& cgi, const std::string& name, 
+                         bool defaultVal)
+{
+    cgicc::form_iterator i = cgi.getElement(name);
+    
+    if(i != cgi.getElements().end())
+        return i->getValue() == "on";
+    else
+        return defaultVal;
+}
+
+unsigned getUnsignedParamCGI(cgicc::Cgicc& cgi, const std::string& name, 
+                             unsigned defaultVal)
+{
+    cgicc::form_iterator i = cgi.getElement(name);
+    
+    if(i != cgi.getElements().end())
+        return i->getIntegerValue(0);
+    else
+        return defaultVal;
+}
+
+std::string getStringParamCGI(cgicc::Cgicc& cgi, const std::string& name, 
+                              const std::string& defaultVal)
+{
+    cgicc::form_iterator i = cgi.getElement(name);
+    
+    if(i != cgi.getElements().end())
+        return i->getValue();
+    else
+        return defaultVal;
+}

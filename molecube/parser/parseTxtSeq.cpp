@@ -25,7 +25,6 @@
 #include "string_func.h"
 
 #include "parseMisc.h"
-#include "parseMultiPart.h"
 #include "saveloadmap.h"
 #include "parseTxtSeq.h"
 #include "verbosity.h"
@@ -459,6 +458,38 @@ bool parseSeqURL(std::string& seq)
     return true;
 }
 
+//parse pulse sequence via CGICC
+bool parseSeqCGI(cgicc::Cgicc& cgi)
+{
+    unsigned reps = getUnsignedParamCGI(cgi, "reps", 1);
+    bool bDebugPulses = getCheckboxParamCGI(cgi, "debugPulses", false);
+    bool bForever = getCheckboxParamCGI(cgi, "forever", false);
+      
+    //look for seqtext field
+    string seqTxt = getStringParamCGI(cgi, "seqtext", "");
+    if(seqTxt.length()==0) //if missing, look for attached file (multi-part)
+    {
+      fprintf(gLog, "no seqtext parameter in form, looking for seqtext file\n");
+      fprintf(gLog, "%d files attached\n", cgi.getFiles().size());
+
+      cgicc::file_iterator i =  cgi.getFile("seqtext");
+      if(i != cgi.getFiles().end())
+        seqTxt = i->getData();
+      else
+        return false;
+    }
+    
+    parseSeqTxt(reps, seqTxt, bForever, bDebugPulses);
+    
+    return true;
+}
+
+// 7/21/2014: no longer using this code
+// keeping it in case CGICC causes trouble
+/*
+
+#include "parseMultiPart.h"
+ 
 bool parseSeqMultiPart(std::istream& is, const std::string& line1)
 {
     txtmap_t m;
@@ -473,6 +504,7 @@ bool parseSeqMultiPart(std::istream& is, const std::string& line1)
     
     return true;
 }
+*/
 
 void badLine(unsigned lineNum, string& line)
 {
@@ -579,7 +611,7 @@ bool parseSeqTxt(unsigned reps, const std::string& seqTxt,
     }
     finishTTL();
 
-    gvSTDOUT.printf("Parsed sequence of %d pulse commands.\n", pulses.size());
+    gvSTDOUT.printf("Parsed sequence into %d pulse commands.\n", pulses.size());
     
     if(bForever)
       fprintf(gLog, "Start continuous run.\n");
@@ -716,7 +748,7 @@ std::string getQuote(const char* fname, const char* delim)
                         s.resize(pos2-pos1, ' ');
 
                         if(s.size()) {
-                            fread(&(s[0]), 1, s.size(), f);
+                            size_t unused = fread(&(s[0]), 1, s.size(), f);
                         }
                     }
                 }
