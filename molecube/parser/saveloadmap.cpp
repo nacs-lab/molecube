@@ -201,7 +201,7 @@ string url_decode(string &SRC)
 // convert html to text or visa-versa
 // dir=1 is html to text
 // dir=-1 is text to html
-// libcurl has standard functions for this and might be a better choice
+// libcgicc has standard functions for this and might be a better choice
 void html2txt(std::string& seq, int dir)
 {
   //see: http://www.w3schools.com/tags/ref_urlencode.asp

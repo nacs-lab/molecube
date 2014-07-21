@@ -30,8 +30,8 @@ void init_system();
 #include <verbosity.h>
 #include <CmdLineArgs.h>
 
-#include "fcgio.h"
-#include "fcgi_config.h" 
+#include <fcgi/fcgio.h>
+#include <fcgi/fcgi_config.h> 
 
 using namespace std;
 
