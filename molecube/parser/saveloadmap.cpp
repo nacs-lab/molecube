@@ -8,7 +8,9 @@
  *
  * */
 
+#include <sstream>
 #include <iostream>
+#include <iomanip>
 
 #include "saveloadmap.h"
 
@@ -100,8 +102,8 @@ void dumpMapHTML(const txtmap_t& m, ostream& os)
             string name = i->first;
             string value = i->second;
 
-      html2txt(name, -1);
-      html2txt(value, -1);
+            html2txt(name, -1);
+            html2txt(value, -1);
 
             if(notFirst)
                 os << "&";
@@ -148,41 +150,66 @@ void replaceAllR(std::string& str, const std::string& from, const std::string& t
     while(replace(str, to, from, 0)) {}
 }
 
+//url_encode is copied from stackexchange: 
+// http://stackoverflow.com/questions/154536/encode-decode-urls-in-c
+string url_encode(const string &value) 
+{
+    ostringstream escaped;
+    escaped.fill('0'); //pad numbers w/ 0 to reach width
+    escaped << hex; //numbers will be in hex format
+
+    for (string::const_iterator i = value.begin(), n = value.end(); i != n; ++i) {
+        string::value_type c = (*i);
+
+        // Keep alphanumeric and other accepted characters intact
+        if (isalnum(c) || c == '-' || c == '_' || c == '.' || c == '~') {
+            escaped << c;
+            continue;
+        }
+
+        // Any other characters are percent-encoded
+        escaped << '%' << setw(2) << int((unsigned char) c);
+    }
+
+    return escaped.str();
+}
+
+//url_decode is copied from stackexchange: 
+// http://stackoverflow.com/questions/154536/encode-decode-urls-in-c
+string url_decode(string &SRC) 
+{
+    string ret;
+    char ch;
+    int i, ii;
+    for (i=0; i<SRC.length(); i++) {
+        if (int(SRC[i])=='+') {
+            ret += ' ';
+        } else {
+            if (int(SRC[i])=='%') {
+                sscanf(SRC.substr(i+1,2).c_str(), "%x", &ii);
+                ch=static_cast<char>(ii);
+                ret+=ch;
+                i=i+2;
+            } else {
+                ret+=SRC[i];
+            }
+        }
+    }
+    return (ret);
+}
+
 // convert html to text or visa-versa
 // dir=1 is html to text
 // dir=-1 is text to html
 // libcurl has standard functions for this and might be a better choice
 void html2txt(std::string& seq, int dir)
 {
-    //see: http://www.w3schools.com/tags/ref_urlencode.asp
+  //see: http://www.w3schools.com/tags/ref_urlencode.asp
   
-    //avoid double replacement
-    if(dir == -1) {
-      replaceAll(seq, "%25", "%", dir);
-      replaceAll(seq, "%2B", "+", dir);
-      replaceAll(seq,   "+", " ", dir);
-    }
-      
-    //This is an incomplete translation.  Feel free to add more.
-    replaceAll(seq, "%0D", "\r", dir);
-    replaceAll(seq, "%0A", "\n", dir);
-    replaceAll(seq, "%23", "#", dir);
-    replaceAll(seq, "%26", "&", dir);
-    replaceAll(seq, "%28", "(", dir);
-    replaceAll(seq, "%29", ")", dir);
-    replaceAll(seq, "%2A", "*", dir);
-    replaceAll(seq, "%2C", ",", dir);
-    replaceAll(seq, "%2D", "-", dir);
-    replaceAll(seq, "%2E", ".", dir);
-    replaceAll(seq, "%2F", "/", dir);
-    replaceAll(seq, "%3D", "=", dir);
-    
-    //avoid double replacement
-    if(dir == 1) {
-      replaceAll(seq,   "+", " ", dir);
-      replaceAll(seq, "%2B", "+", dir);
-      replaceAll(seq, "%25", "%", dir);
-    }
+    if(dir == 1)
+      seq = url_decode(seq);
+    else
+      seq = url_encode(seq);
 }
 
 
