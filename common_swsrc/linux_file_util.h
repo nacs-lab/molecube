@@ -11,8 +11,9 @@ int write_int_to_file(const char* fname, int val);
 int get_int_from_file(const char* fname, int* val);
 int write_str_to_file(const char* fname, const char* val);
 
-//set status line for web interface
-void setStatus(const char* str);
+//set status line for web interface in /tmp/progname.status
+//progname is only needed at 1st call.  Later, supply 0.
+void setProgramStatus(const char* progname, const char* str);
 
 #ifdef __cplusplus
 }

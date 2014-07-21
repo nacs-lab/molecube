@@ -48,12 +48,20 @@ int write_str_to_file(const char* fname, const char* val)
 // Keep the file open, and for each status update, lock it exclusively,
 // then rewrite and unlock it.  Readers should acquire a lock,
 // to prevent reading of partially written or empty files.
-void setStatus(const char* str)
+void setProgramStatus(const char* progname, const char* str)
 {
   static FILE* f = 0;
   
-  if( f == 0)
-    f = fopen("/tmp/aluminizer.status", "w");
+  if( f == 0) {
+    char buff[256];
+    
+    if(progname)
+      snprintf(buff, 256, "/tmp/%s.status", progname);
+    else
+      snprintf(buff, 256, "/tmp/unnamedprog.status");
+      
+    f = fopen(buff, "w");
+  }
     
   if(f)
   {
