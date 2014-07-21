@@ -718,12 +718,9 @@ bool findNextDelim(FILE* f, const char* delim)
 std::string getQuote(const char* fname, const char* delim)
 {
     static time_t tLastQuote = time(0);
-
     time_t tNow = time(0);
-
-    if(tNow > tLastQuote + 60) {
-        
-
+    
+    if(tNow > tLastQuote + 30) { //no wasting time in the lab
         if(rand() % 2) {
             tLastQuote = tNow;
             string s;
@@ -731,10 +728,11 @@ std::string getQuote(const char* fname, const char* delim)
             FILE* f = fopen(fname, "r");
 
             if(f) {
+                fprintf(gLog, "Retrieving quote\n", fname);
+                fflush(gLog);
                 //get file length
                 fseek(f, 0, SEEK_END);
                 size_t len = ftell(f);
-
                 size_t pos = rand() % len; // RAND_MAX >> len;
 
                 fseek(f, pos, SEEK_SET);

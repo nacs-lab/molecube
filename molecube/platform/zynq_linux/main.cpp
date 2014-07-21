@@ -307,7 +307,7 @@ int main(int argc, char *argv[])
             fprintf(gLog, "Couldn't understand HTTP request.\n");
         } catch (runtime_error e) {
             gvSTDOUT.printf("Oh noes! \n   %s\n", e.what());
-            cout << getQuote("/usr/local/quotes.frt", "%%");
+            gvSTDOUT.printf("%s", getQuote("/usr/local/quotes.frt", "%%").c_str());
         }
 
         fprintf(gLog, "================ Finish FastCGI request %d ================\n\n", nAccept++);
