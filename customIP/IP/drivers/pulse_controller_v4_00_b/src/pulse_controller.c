@@ -246,7 +246,7 @@ int  PULSER_timing_ok(void* base_addr)
 unsigned
 PULSER_is_finished(void* base_addr)
 {
-    PULSER_read_sr(base_addr, 2) & 0x4;
+    return PULSER_read_sr(base_addr, 2) & 0x4;
 }
 
 //! wait for the current pulse sequence to finish
