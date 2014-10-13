@@ -67,7 +67,7 @@ void loadMap(txtmap_t& m, const std::string& fname)
         fprintf(gLog, "failed to open parameters file: %s\n", fname.c_str());
     else
         fprintf(gLog, "opened parameters file: %s\n", fname.c_str());
-        
+
     //loop through the file
     while (is.good() && !is.eof()) {
         string sLine("");
@@ -114,10 +114,10 @@ void dumpMapHTML(const txtmap_t& m, ostream& os)
     }
 }
 
-void dumpMap(const txtmap_t& m, FILE* f)
+void
+dumpMap(const txtmap_t &m, FILE *f)
 {
-    bool notFirst = false;
-    for (txtmap_t::const_iterator i = m.begin(); i != m.end(); i++) {
+    for (txtmap_t::const_iterator i = m.begin();i != m.end();i++) {
         fprintf(f, "%s = %s\n", i->first.c_str(), i->second.c_str());
     }
 }
@@ -150,9 +150,9 @@ void replaceAllR(std::string& str, const std::string& from, const std::string& t
     while(replace(str, to, from, 0)) {}
 }
 
-//url_encode is copied from stackexchange: 
+//url_encode is copied from stackexchange:
 // http://stackoverflow.com/questions/154536/encode-decode-urls-in-c
-string url_encode(const string &value) 
+string url_encode(const string &value)
 {
     ostringstream escaped;
     escaped.fill('0'); //pad numbers w/ 0 to reach width
@@ -174,44 +174,43 @@ string url_encode(const string &value)
     return escaped.str();
 }
 
-//url_decode is copied from stackexchange: 
+// url_decode is copied from stackexchange:
 // http://stackoverflow.com/questions/154536/encode-decode-urls-in-c
-string url_decode(string &SRC) 
+string
+url_decode(string &SRC)
 {
     string ret;
     char ch;
-    int i, ii;
-    for (i=0; i<SRC.length(); i++) {
-        if (int(SRC[i])=='+') {
+    for (unsigned i = 0;i < SRC.length();i++) {
+        if (SRC[i] == '+') {
             ret += ' ';
         } else {
-            if (int(SRC[i])=='%') {
-                sscanf(SRC.substr(i+1,2).c_str(), "%x", &ii);
-                ch=static_cast<char>(ii);
-                ret+=ch;
-                i=i+2;
+            if (SRC[i] == '%') {
+                int ii;
+                sscanf(SRC.substr(i + 1, 2).c_str(), "%x", &ii);
+                ch = static_cast<char>(ii);
+                ret += ch;
+                i = i + 2;
             } else {
-                ret+=SRC[i];
+                ret += SRC[i];
             }
         }
     }
-    return (ret);
+    return ret;
 }
 
 // convert html to text or visa-versa
 // dir=1 is html to text
 // dir=-1 is text to html
 // libcgicc has standard functions for this and might be a better choice
-void html2txt(std::string& seq, int dir)
+void
+html2txt(std::string &seq, int dir)
 {
-  //see: http://www.w3schools.com/tags/ref_urlencode.asp
-  
-    if(dir == 1)
-      seq = url_decode(seq);
-    else
-      seq = url_encode(seq);
+    //see: http://www.w3schools.com/tags/ref_urlencode.asp
+
+    if (dir == 1) {
+        seq = url_decode(seq);
+    } else {
+        seq = url_encode(seq);
+    }
 }
-
-
-
-

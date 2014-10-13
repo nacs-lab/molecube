@@ -214,7 +214,9 @@ bool get_channel_and_operand(std::string& arg1, istream& s,
     return false;
 }
 
-template <class C> C* parse_pulse(vector<pulse_cmd*> p, unsigned t, std::string& arg1, istream& s)
+template <class C>
+C*
+parse_pulse(vector<pulse_cmd*> p, unsigned t, std::string& arg1, istream& s)
 {
     int channel = -1;
     double operand = 0;
@@ -230,43 +232,54 @@ template <class C> C* parse_pulse(vector<pulse_cmd*> p, unsigned t, std::string&
     return pulse;
 }
 
-template set_freq_cmd*    parse_pulse(vector<pulse_cmd*> p, unsigned t, std::string& arg1, istream& s);
-template set_amp_cmd*     parse_pulse(vector<pulse_cmd*> p, unsigned t, std::string& arg1, istream& s);
-template set_phase_cmd*   parse_pulse(vector<pulse_cmd*> p, unsigned t, std::string& arg1, istream& s);
-template shift_phase_cmd* parse_pulse(vector<pulse_cmd*> p, unsigned t, std::string& arg1, istream& s);
+template set_freq_cmd *parse_pulse(vector<pulse_cmd*> p, unsigned t,
+                                   std::string &arg1, istream &s);
+template set_amp_cmd *parse_pulse(vector<pulse_cmd*> p, unsigned t,
+                                  std::string &arg1, istream &s);
+template set_phase_cmd *parse_pulse(vector<pulse_cmd*> p, unsigned t,
+                                    std::string &arg1, istream &s);
+template shift_phase_cmd *parse_pulse(vector<pulse_cmd*> p, unsigned t,
+                                      std::string &arg1, istream &s);
 
 
 //setup "current" TTL, now that the end time is known
-void makeCurrTTL(unsigned tEnd)
+void
+makeCurrTTL(unsigned tEnd)
 {
-    if(hasTTL) {
-        if(tEnd < tCurr+PULSER_T_TTL_MIN) {
-            gvSTDOUT.printf("TTL pulse too short at tEnd = %.2f us.\n", tEnd*PULSER_DT_us);
+    if (hasTTL) {
+        if (tEnd < tCurr + PULSER_T_TTL_MIN) {
+            gvSTDOUT.printf("TTL pulse too short at tEnd = %.2f us.\n",
+                            tEnd * PULSER_DT_us);
             gvSTDOUT.printf("Previous t = %.2f us.  Earliest is %.2f us.\n",
-                            tCurr*PULSER_DT_us, (PULSER_T_TTL_MIN+tCurr)*PULSER_DT_us);
+                            tCurr * PULSER_DT_us,
+                            (PULSER_T_TTL_MIN + tCurr) * PULSER_DT_us);
 
-            throw runtime_error("The pulse at t = " + to_string(tEnd*PULSER_DT_us) + " us is too early.  What's the big hurry?");
+            throw runtime_error("The pulse at t = " +
+                                to_string(tEnd * PULSER_DT_us) +
+                                " us is too early.  What's the big hurry?");
         }
 
-        pulses.push_back(new ttl_pulse_cmd(tEnd-tCurr, nextTTL));
+        pulses.push_back(new ttl_pulse_cmd(tEnd - tCurr, nextTTL));
         currTTL = nextTTL;
     }
 }
 
-void setTTL(unsigned t, unsigned channel, unsigned value)
+void
+setTTL(unsigned t, unsigned channel, unsigned value)
 {
     makeCurrTTL(t);
 
-    if(value)
+    if (value) {
         nextTTL |= 1 << channel;
-    else
+    } else {
         nextTTL &= ~(1 << channel);
-
+    }
     tCurr = t;
     hasTTL = true;
 }
 
-void setTTLall(unsigned t, unsigned value)
+void
+setTTLall(unsigned t, unsigned value)
 {
     makeCurrTTL(t);
 
@@ -275,10 +288,10 @@ void setTTLall(unsigned t, unsigned value)
     hasTTL = true;
 }
 
-void finishTTL()
+void
+finishTTL()
 {
-    if(hasTTL)
-    {
+    if (hasTTL) {
         //disable timing check prior to last pulse
         pulses.push_back(new disable_timing_check_cmd());
         pulses.push_back(new ttl_pulse_cmd(PULSER_T_TTL_MIN, nextTTL));
@@ -288,17 +301,19 @@ void finishTTL()
 }
 
 // eat stream up to character == to.  put prior chars into strPrior
-bool eatStreamTo(istream& is, char to, string& strPrior)
+bool
+eatStreamTo(istream &is, char to, string &strPrior)
 {
-    while(!is.eof()) {
+    while (!is.eof()) {
         char c;
         is.get(c);
 
-        if(!is.eof()) {
+        if (!is.eof()) {
             strPrior.push_back(c);
 
-            if(c == to)
+            if (c == to) {
                 return true;
+            }
         }
     }
 
@@ -388,17 +403,22 @@ bool parseTTL(unsigned t, std::string& arg1, istream& s)
     return false;
 }
 
-bool parseClockOut(unsigned t, std::string& arg1, istream& s)
+bool
+parseClockOut(unsigned t, std::string &arg1, istream &s)
 {
-    unsigned divider = 0;
+    (void)s;
+    int divider = 0;
 
-    if(arg1.find("off") == 0)
+    if (arg1.find("off") == 0) {
         divider = 255;
-    else
+    } else {
         divider = atoi(arg1.c_str()) - 1;
+    }
 
-    if(divider < 0 || divider > 255) {
-        gvSTDOUT.printf("Error at t = %6.3f us.  CLOCK_OUT accepts parameter off or 1 ... 255\n", t*PULSER_DT_us);
+    if (divider < 0 || divider > 255) {
+        gvSTDOUT.printf("Error at t = %6.3f us.  "
+                        "CLOCK_OUT accepts parameter off or 1 ... 255\n",
+                        t * PULSER_DT_us);
         throw runtime_error("There was a very bad parameter.");
     }
 
@@ -534,7 +554,6 @@ parseSeqTxt(unsigned reps, const std::string& seqTxt, bool bForever,
     }
 
     unsigned nTimingErrors = 0;
-    double tTotal = 0;
 
     clock_t tClock0 = clock();
 
@@ -718,40 +737,44 @@ parseSeqTxt(unsigned reps, const std::string& seqTxt, bool bForever,
 
 //advance file to end of next delimeter
 //return false if EOF
-bool findNextDelim(FILE* f, const char* delim)
+bool
+findNextDelim(FILE* f, const char* delim)
 {
     int nMatch = 0;
     int delimLen = strlen(delim);
 
-    while(!feof(f)) {
+    while (!feof(f)) {
         int c = fgetc(f);
 
-        if(c == delim[nMatch]) {
+        if (c == delim[nMatch]) {
             nMatch++;
-            if(nMatch == delimLen)
+            if (nMatch == delimLen) {
                 return true;
-        } else
+            }
+        } else {
             nMatch = 0;
+        }
     }
-
     return false;
 }
 
 // something fun
-std::string getQuote(const char* fname, const char* delim)
+std::string
+getQuote(const char *fname, const char *delim)
 {
     static time_t tLastQuote = time(0);
     time_t tNow = time(0);
 
-    if(tNow > tLastQuote + 30) { //no wasting time in the lab
-        if(rand() % 2) {
+    if (tNow > tLastQuote + 30) {
+        //no wasting time in the lab
+        if (rand() % 2) {
             tLastQuote = tNow;
             string s;
 
-            FILE* f = fopen(fname, "r");
+            FILE *f = fopen(fname, "r");
 
-            if(f) {
-                fprintf(gLog, "Retrieving quote\n", fname);
+            if (f) {
+                fprintf(gLog, "Retrieving quote %s\n", fname);
                 fflush(gLog);
                 //get file length
                 fseek(f, 0, SEEK_END);
@@ -759,24 +782,26 @@ std::string getQuote(const char* fname, const char* delim)
                 size_t pos = rand() % len; // RAND_MAX >> len;
 
                 fseek(f, pos, SEEK_SET);
-                if(findNextDelim(f, delim)) {
+                if (findNextDelim(f, delim)) {
                     size_t pos1 = ftell(f);
-                    if(findNextDelim(f, delim)) {
+                    if (findNextDelim(f, delim)) {
                         size_t pos2 = ftell(f);
                         pos2 -= strlen(delim);
 
                         fseek(f, pos1, SEEK_SET);
                         s.resize(pos2-pos1, ' ');
 
-                        if(s.size()) {
+                        if (s.size()) {
                             size_t unused = fread(&(s[0]), 1, s.size(), f);
                         }
                     }
                 }
+                fclose(f);
             }
 
-            return "\n\n===\n"+s+"\n===\n";
+            return "\n\n===\n" + s + "\n===\n";
         }
-    } else
+    } else {
         return "";
+    }
 }

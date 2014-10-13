@@ -1,9 +1,10 @@
-double restrict(double v, double bottom, double top)
+double
+restrict(double v, double bottom, double top)
 {
-    if(v > top)
+    if (v > top)
         v = top;
 
-    if(v < bottom)
+    if (v < bottom)
         v = bottom;
 
     return v;
@@ -23,17 +24,21 @@ void enable_interrupts()
 }
 
 //0 = highest priority, 1 = DEFAULT_THREAD_PRIO
-void set_priority(int prio)
+void
+set_priority(int prio)
 {
+    (void)prio;
 }
 
-int get_priority()
+int
+get_priority()
 {
     return 1;
 }
 
 
-void yield_execution()
+void
+yield_execution()
 {
 }
 
