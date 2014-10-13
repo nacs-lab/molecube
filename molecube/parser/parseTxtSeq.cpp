@@ -57,7 +57,7 @@ public:
     static verbosity* v;
 };
 
-verbosity* pulse_cmd::v = 0;
+verbosity *pulse_cmd::v = 0;
 
 //parsed pulse commands are stored in this vector for later playback
 vector<pulse_cmd*> pulses;
@@ -137,7 +137,9 @@ class set_amp_cmd : public dds_cmd {
 public:
     virtual ~set_amp_cmd() {}
     set_amp_cmd(unsigned dds, unsigned atw) : dds_cmd(dds, atw) {}
-    set_amp_cmd(unsigned dds, double A) : dds_cmd(dds, 0x0FFF & (int)(A*4095 + 0.5) ) {}
+    set_amp_cmd(unsigned dds, double A) :
+        dds_cmd(dds, 0x0FFF & (int)(A * 4095 + 0.5))
+    {}
 
     virtual void makePulse() {
         DDS_set_atw(dds, operand, v);
@@ -157,9 +159,14 @@ public:
 
 class shift_phase_cmd : public dds_cmd {
 public:
-    virtual ~shift_phase_cmd() {}
-    shift_phase_cmd(unsigned dds, unsigned ptw) : dds_cmd(dds, ptw) {}
-    shift_phase_cmd(unsigned dds, double phi) : dds_cmd(dds, 0xFFFF & (int)(phi*65536/360.0 + 0.5) ) {}
+    virtual ~shift_phase_cmd()
+    {}
+    shift_phase_cmd(unsigned dds, unsigned ptw) :
+        dds_cmd(dds, ptw)
+    {}
+    shift_phase_cmd(unsigned dds, double phi) :
+        dds_cmd(dds, 0xFFFF & (int)(phi * 65536 / 360.0 + 0.5))
+    {}
 
     virtual void makePulse() {
         DDS_shift_ptw(dds, operand, v);
