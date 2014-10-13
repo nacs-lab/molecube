@@ -41,7 +41,7 @@ unsigned nextTTL = 0;
 unsigned currTTL = 0;
 unsigned g_lineNum = 0;
 
-extern bool g_stop_curr_seq; 
+extern bool g_stop_curr_seq;
 
 //make sure any TTLs that were spec'd previously are still active
 // tNewPulse = spec'd time for new pulse
@@ -53,7 +53,7 @@ class pulse_cmd {
 public:
     virtual ~pulse_cmd() {}
     virtual void makePulse() = 0;
-    
+
     static verbosity* v;
 };
 
@@ -67,12 +67,12 @@ vector<pulse_cmd*> pulses;
 class disable_timing_check_cmd  : public pulse_cmd {
 public:
     virtual ~disable_timing_check_cmd() {}
-    
+
     virtual void makePulse() {
-      PULSER_disable_timing_check(pulser);
+        PULSER_disable_timing_check(pulser);
     }
 };
-  
+
 class ttl_pulse_cmd : public pulse_cmd {
 public:
     virtual ~ttl_pulse_cmd() {}
@@ -84,7 +84,7 @@ public:
     }
 
     virtual void makePulse() {
-        TTL_pulse(t, ttl, v); 
+        TTL_pulse(t, ttl, v);
     }
 
     unsigned t, ttl;
@@ -97,24 +97,25 @@ public:
     }
 
     virtual void makePulse() {
-        if(v) v->printf("clock output divider = %u\n", divider);
+        if (v)
+            v->printf("clock output divider = %u\n", divider);
         PULSER_enable_clock_out(pulser, divider);
         g_tSequence += DURATION;
     }
 
     unsigned divider;
-    
+
     static const unsigned DURATION = 5;
 };
 
 class dds_cmd : public pulse_cmd {
 public:
     virtual ~dds_cmd() {}
-    dds_cmd(unsigned dds, unsigned operand) : dds(dds), operand(operand) 
+    dds_cmd(unsigned dds, unsigned operand) : dds(dds), operand(operand)
     {
-      if(dds > NDDS-1)
-        throw runtime_error("Line " + to_string(g_lineNum) + 
-                            ", Invalid DDS: " + to_string(dds));
+        if(dds > NDDS-1)
+            throw runtime_error("Line " + to_string(g_lineNum) +
+                                ", Invalid DDS: " + to_string(dds));
     }
 
     unsigned dds, operand;
@@ -178,7 +179,7 @@ public:
 
         //enable amplitude control (OSK)
         PULSER_set_dds_two_bytes(pulser, dds, 0x0, 0x0108);
-        
+
         g_tSequence += DURATION;
     }
 
@@ -288,7 +289,7 @@ bool eatStreamTo(istream& is, char to, string& strPrior)
 
         if(!is.eof()) {
             strPrior.push_back(c);
-            
+
             if(c == to)
                 return true;
         }
@@ -312,13 +313,13 @@ void dealWithCurrentTTL(unsigned tNewPulse, unsigned tMinPulse)
             return; // nothing to do.
 
         if(tNewPulse < tMin) {
-            gvSTDOUT.printf("ERROR: Pulse too short at t = %.2f us. \n", 
+            gvSTDOUT.printf("ERROR: Pulse too short at t = %.2f us. \n",
                             tNewPulse*PULSER_DT_us);
             gvSTDOUT.printf("Previous t = %.2f us.  Earliest is t = %.2f us.\n",
                             tCurr*PULSER_DT_us, tMin*PULSER_DT_us);
 
-            throw runtime_error("The pulse at t = " + 
-                                to_string(tNewPulse*PULSER_DT_us) + 
+            throw runtime_error("The pulse at t = " +
+                                to_string(tNewPulse*PULSER_DT_us) +
                                 " us is too early.  What's the big hurry?");
         } else {
             pulses.push_back(new ttl_pulse_cmd(tNewPulse-tCurr-tMinPulse, nextTTL));
@@ -327,8 +328,8 @@ void dealWithCurrentTTL(unsigned tNewPulse, unsigned tMinPulse)
         }
     }
     else
-      throw runtime_error("Must run a TTL pulse prior to pulse at t = " + 
-                          to_string(tNewPulse*PULSER_DT_us));
+        throw runtime_error("Must run a TTL pulse prior to pulse at t = " +
+                            to_string(tNewPulse*PULSER_DT_us));
 }
 
 
@@ -404,29 +405,29 @@ bool parseClockOut(unsigned t, std::string& arg1, istream& s)
 
 bool parseCommand(unsigned t, std::string& cmd, std::string& arg1, istream& s)
 {
-    if(pulse_cmd::v)
-        pulse_cmd::v->printf("t = %8u x 10ns,  command = %10s,  arg1 = %4s\n", t, 
+    if (pulse_cmd::v)
+        pulse_cmd::v->printf("t = %8u x 10ns,  command = %10s,  arg1 = %4s\n", t,
                              cmd.c_str(), arg1.c_str());
 
-    if(cmd.find("TTL") != string::npos)
+    if (cmd.find("TTL") != string::npos)
         return parseTTL(t, arg1, s);
 
-    if(cmd.find("freq") != string::npos)
+    if (cmd.find("freq") != string::npos)
         return 0 != parse_pulse<set_freq_cmd>(pulses, t, arg1, s);
 
-    if(cmd.find("amp") != string::npos)
+    if (cmd.find("amp") != string::npos)
         return 0 != parse_pulse<set_amp_cmd>(pulses, t, arg1, s);
 
-    if(cmd.find("phase") != string::npos)
+    if (cmd.find("phase") != string::npos)
         return 0 != parse_pulse<set_phase_cmd>(pulses, t, arg1, s);
 
-    if(cmd.find("shiftp") != string::npos)
+    if (cmd.find("shiftp") != string::npos)
         return 0 != parse_pulse<shift_phase_cmd>(pulses, t, arg1, s);
 
-    if(cmd.find("reset") != string::npos)
+    if (cmd.find("reset") != string::npos)
         return parseReset(t, arg1, s);
 
-    if(cmd.find("CLOCK_OUT") != string::npos)
+    if (cmd.find("CLOCK_OUT") != string::npos)
         return parseClockOut(t, arg1, s);
 
     return false;
@@ -438,7 +439,7 @@ bool parseSeqURL(std::string& seq)
     unsigned reps = getUnsignedParam(seq, "reps=", 1);
     bool bDebugPulses = getCheckboxParam(seq, "debugPulses=", false);
     bool bForever = getCheckboxParam(seq, "forever=", false);
-    
+
     size_t start_pos = seq.find("seqtext=");
     size_t L = string("seqtext=").length();
 
@@ -448,13 +449,13 @@ bool parseSeqURL(std::string& seq)
 
     size_t end_pos = seq.find("&", start_pos+L);
     if(end_pos == string::npos)
-      end_pos = seq.length();
-      
-    string seqTxt = seq.substr(start_pos+L, end_pos-start_pos-L); 
+        end_pos = seq.length();
+
+    string seqTxt = seq.substr(start_pos+L, end_pos-start_pos-L);
     html2txt(seqTxt, 1); //this is a slow function
 
     parseSeqTxt(reps, seqTxt, bForever, bDebugPulses);
-    
+
     return true;
 }
 
@@ -464,23 +465,24 @@ bool parseSeqCGI(cgicc::Cgicc& cgi)
     unsigned reps = getUnsignedParamCGI(cgi, "reps", 1);
     bool bDebugPulses = getCheckboxParamCGI(cgi, "debugPulses", false);
     bool bForever = getCheckboxParamCGI(cgi, "forever", false);
-      
+
     //look for seqtext field
     string seqTxt = getStringParamCGI(cgi, "seqtext", "");
-    if(seqTxt.length()==0) //if missing, look for attached file (multi-part)
-    {
-      fprintf(gLog, "no seqtext parameter in form, looking for seqtext file\n");
-      fprintf(gLog, "%d files attached\n", cgi.getFiles().size());
+    if (seqTxt.length() == 0) {
+        //if missing, look for attached file (multi-part)
+        fprintf(gLog, "no seqtext parameter in form, looking for seqtext file\n");
+        fprintf(gLog, "%d files attached\n", cgi.getFiles().size());
 
-      cgicc::file_iterator i =  cgi.getFile("seqtext");
-      if(i != cgi.getFiles().end())
-        seqTxt = i->getData();
-      else
-        return false;
+        cgicc::file_iterator i =  cgi.getFile("seqtext");
+        if (i != cgi.getFiles().end()) {
+            seqTxt = i->getData();
+        } else {
+            return false;
+        }
     }
-    
+
     parseSeqTxt(reps, seqTxt, bForever, bDebugPulses);
-    
+
     return true;
 }
 
@@ -488,39 +490,40 @@ bool parseSeqCGI(cgicc::Cgicc& cgi)
 // keeping it in case CGICC causes trouble
 /*
 
-#include "parseMultiPart.h"
- 
-bool parseSeqMultiPart(std::istream& is, const std::string& line1)
-{
-    txtmap_t m;
-    if(!parseMultiPart(is, line1, m))
-      return false;
+  #include "parseMultiPart.h"
 
-    unsigned reps = atoi(m["reps"].c_str());
-    bool bDebugPulses = (string::npos != m["debugPulses"].find("on"));
-    bool bForever = (string::npos != m["forever"].find("on"));
-    
-    parseSeqTxt(reps, m["sequence.txt"], bForever, bDebugPulses);
-    
-    return true;
-}
+  bool parseSeqMultiPart(std::istream& is, const std::string& line1)
+  {
+  txtmap_t m;
+  if(!parseMultiPart(is, line1, m))
+  return false;
+
+  unsigned reps = atoi(m["reps"].c_str());
+  bool bDebugPulses = (string::npos != m["debugPulses"].find("on"));
+  bool bForever = (string::npos != m["forever"].find("on"));
+
+  parseSeqTxt(reps, m["sequence.txt"], bForever, bDebugPulses);
+
+  return true;
+  }
 */
 
 void badLine(unsigned lineNum, string& line)
 {
-   throw runtime_error("invalid line: " + to_string(lineNum) + 
-                      "\n>>> " + line);
+    throw runtime_error("invalid line: " + to_string(lineNum) +
+                        "\n>>> " + line);
 }
 
 //parse text-encoded pulse sequence
-bool parseSeqTxt(unsigned reps, const std::string& seqTxt,
-                 bool bForever, bool bDebugPulses)
+bool
+parseSeqTxt(unsigned reps, const std::string& seqTxt, bool bForever,
+            bool bDebugPulses)
 {
     printPlainResponseHeader();
-    
-    if(bDebugPulses) {
-      fprintf(gLog, "Parsing pulse sequence:%s\n", seqTxt.c_str()); 
-      fflush(gLog);
+
+    if (bDebugPulses) {
+        fprintf(gLog, "Parsing pulse sequence:%s\n", seqTxt.c_str());
+        fflush(gLog);
     }
 
     unsigned nTimingErrors = 0;
@@ -538,12 +541,12 @@ bool parseSeqTxt(unsigned reps, const std::string& seqTxt,
 
     g_lineNum = 0;
     double tSoFar = 0;
-    
+
     while(!ss0.eof()) {
         //read line
         string line;
         getline(ss0, line);
-        
+
         g_lineNum++;
 
         //ignore everything after '#' comment symbol
@@ -552,126 +555,137 @@ bool parseSeqTxt(unsigned reps, const std::string& seqTxt,
             line = line.substr(0, posC);
 
         //ignore blank lines
-        if(line.length() == 0) 
-          continue;
-        
+        if (line.length() == 0)
+            continue;
+
         // otherwise parse the line
         stringstream ssL(line);
 
-        while(!ssL.eof()) {
+        while (!ssL.eof()) {
             double t = 0; //timing spec from sequence
             double dt = 0;
             string strPrior;
-            
+
             //valid lines will start with "dt = "
             //or "T = "
-  
-            if(!eatStreamTo(ssL, '=', strPrior)) // ignore
-              break; 
 
-            if(strPrior.find("dt") != string::npos)
-              ssL >> dt;
-            else {
-              if(strPrior.find("t") != string::npos)
-                ssL >> t;
-              else // invalid line
-                badLine(g_lineNum, line);
+            if (!eatStreamTo(ssL, '=', strPrior)) // ignore
+                break;
+
+            if (strPrior.find("dt") != string::npos) {
+                ssL >> dt;
+            } else {
+                if (strPrior.find("t") != string::npos) {
+                    ssL >> t;
+                } else {
+                    // invalid line
+                    badLine(g_lineNum, line);
+                }
             }
-            
+
             //next comes the time unit, then a comma
             string timeunit;
             getline(ssL, timeunit, ',');
 
-            if(ssL.eof())
-              badLine(g_lineNum, line);
+            if (ssL.eof())
+                badLine(g_lineNum, line);
 
             //then comes the command name, followed by '(arg1)'
             string cmd;
             getline(ssL, cmd, '(');
-            if(ssL.eof())
-              badLine(g_lineNum, line);
+            if (ssL.eof())
+                badLine(g_lineNum, line);
 
             string arg1;
             getline(ssL, arg1, ')');
-            if(ssL.eof())
-              badLine(g_lineNum, line);
-            
-            if(t > dt) {
-              if(parseCommand(floor(t*PULSER_DT_per_us+0.5), cmd, arg1, ssL))
-                tSoFar = t;
-              else
+            if (ssL.eof())
                 badLine(g_lineNum, line);
+
+            if (t > dt) {
+                if (parseCommand(floor(t * PULSER_DT_per_us + 0.5),
+                                 cmd, arg1, ssL)) {
+                    tSoFar = t;
+                } else {
+                    badLine(g_lineNum, line);
+                }
             } else {
-              if(parseCommand(floor(tSoFar*PULSER_DT_per_us+0.5), cmd, arg1, ssL))
-                tSoFar += dt;
-              else
-                badLine(g_lineNum, line);
+                if (parseCommand(floor(tSoFar * PULSER_DT_per_us + 0.5),
+                                 cmd, arg1, ssL)) {
+                    tSoFar += dt;
+                } else {
+                    badLine(g_lineNum, line);
+                }
             }
         }
     }
     finishTTL();
 
     gvSTDOUT.printf("Parsed sequence into %d pulse commands.\n", pulses.size());
-    
-    if(bForever)
-      fprintf(gLog, "Start continuous run.\n");
-    else
-      fprintf(gLog, "Run %d sequences.\n", reps);
+
+    if (bForever) {
+        fprintf(gLog, "Start continuous run.\n");
+    } else {
+        fprintf(gLog, "Run %d sequences.\n", reps);
+    }
 
     unsigned iRep;
-    
+
     pulse_cmd::v = bDebugPulses ? &gvSTDOUT : 0;
-          
+
     clock_t tClock1 = clock();
-    
+
     //now run the pulses
     g_tSequence = 0;
-    
+
     //update status string every 500 ms
-    unsigned updateStatusModulo = 500000000 / (tCurr*PULSER_DT_ns);
-    
-    for(iRep=0; iRep<reps || bForever; iRep++) {
+    unsigned updateStatusModulo = 500000000 / (tCurr * PULSER_DT_ns);
+
+    for (iRep = 0;iRep < reps || bForever;iRep++) {
         char buff[64];
-          
-        if(iRep % updateStatusModulo == 0)
+
+        if (iRep % updateStatusModulo == 0) {
+            if (bForever) {
+                snprintf(buff, 64, "Running sequence %d", iRep);
+            } else {
+                snprintf(buff, 64, "Running sequence %d / %d", iRep, reps);
+            }
+        }
+
         {
-          if(bForever)
-            snprintf(buff, 64, "Running sequence %d", iRep);
-          else
-            snprintf(buff, 64, "Running sequence %d/%d", iRep, reps);
+            //new scope to automatically release file lock at scope
+            // exit or exception
+            flocker fl(g_fPulserLock);
+
+            setProgramStatus(0, buff);
+
+            //hold the sequnce until pulse buffer is full or
+            //PULSER_wait_for_finished is called
+            PULSER_set_hold(pulser);
+
+            PULSER_toggle_init(pulser);
+            PULSER_enable_timing_check(pulser);
+
+            for (pulse_cmd *p : pulses) {
+                p->makePulse();
+            }
+
+            //wait for pulses finished.
+            //gcc -02 and -O3 crashes here
+            // (compiler bug? or volatile keyword is needed somewhere)
+            PULSER_wait_for_finished(pulser);
+
+            if (!PULSER_timing_ok(pulser)) {
+                PULSER_clear_timing_check(pulser);
+                nTimingErrors++;
+            }
         }
-                  
-        { //new scope to automatically release file lock at scope exit or exception
-          flocker fl(g_fPulserLock);
-        
-          setProgramStatus(0, buff);
-          
-          //hold the sequnce until pulse buffer is full or
-          //PULSER_wait_for_finished is called
-          PULSER_set_hold(pulser); 
-          
-          PULSER_toggle_init(pulser);
-          PULSER_enable_timing_check(pulser);
-          
-          for(pulse_cmd* p : pulses) p->makePulse();
-                
-          //wait for pulses finished.
-          //gcc -02 and -O3 crashes here (compiler bug? or volatile keyword is needed somewhere)
-          PULSER_wait_for_finished(pulser);
-          
-          if(!PULSER_timing_ok(pulser)) {
-              PULSER_clear_timing_check(pulser);
-              nTimingErrors++;
-          }
+
+        if (g_stop_curr_seq) {
+            gvSTDOUT.printf("Received stop pulse sequences signal.\n");
+            g_stop_curr_seq = false;
+            break;
         }
-        
-        if(g_stop_curr_seq)
-        {
-          gvSTDOUT.printf("Received stop pulse sequences signal.\n");
-          g_stop_curr_seq=false;
-          break;
-        }
-        
+
         //only log debug info for 1st sequence
         pulse_cmd::v = 0;
     }
@@ -679,8 +693,8 @@ bool parseSeqTxt(unsigned reps, const std::string& seqTxt,
     clock_t tClock2 = clock();
 
     gvSTDOUT.printf("Finished %d/%d pulse sequences.\n", iRep, reps);
-    
-    if(nTimingErrors == 0) {
+
+    if (nTimingErrors == 0) {
         gvSTDOUT.printf("Timing OK\n");
     } else {
         gvSTDOUT.printf("Warning: %d timing failures.\n", nTimingErrors);
@@ -719,7 +733,7 @@ std::string getQuote(const char* fname, const char* delim)
 {
     static time_t tLastQuote = time(0);
     time_t tNow = time(0);
-    
+
     if(tNow > tLastQuote + 30) { //no wasting time in the lab
         if(rand() % 2) {
             tLastQuote = tNow;

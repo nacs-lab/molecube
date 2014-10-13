@@ -243,18 +243,21 @@ int  PULSER_timing_ok(void* base_addr)
 }
 
 //! return whether current pulse sequence is finished
-unsigned PULSER_is_finished(void* base_addr)
+unsigned
+PULSER_is_finished(void* base_addr)
 {
     PULSER_read_sr(base_addr, 2) & 0x4;
 }
 
 //! wait for the current pulse sequence to finish
-void PULSER_wait_for_finished(void* base_addr)
+void
+PULSER_wait_for_finished(void* base_addr)
 {
     PULSER_release_hold(base_addr);
 
-    while(!PULSER_is_finished(base_addr))
+    while (!PULSER_is_finished(base_addr)) {
         sleep(0);
+    }
 }
 
 //! get status register from write FIFO

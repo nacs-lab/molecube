@@ -1,15 +1,15 @@
 /* dds_pulse.h
- * Define small interface functions to DDS hardware.  
+ * Define small interface functions to DDS hardware.
  * set/get phase, amplitude, frequency
  * Physical or device units can be used.
  * Most functions are inline for speed and programming confenience.
  * Include some customization info for DDS names, which are printed
  * in the log file.
- * 
+ *
  * Also define DDS pulse functions, which turn the DDS on & off to
  * generate a pulse.
  */
- 
+
 #ifndef DDS_PULSE_H_
 #define DDS_PULSE_H_
 
@@ -42,15 +42,15 @@ inline const char* DDS_name(unsigned iDDS)
 #endif
 
 #ifdef CONFIG_AL
-  #include "custom/ttl_Al.h"
+#include "custom/ttl_Al.h"
 #endif
 
 #ifdef CONFIG_HG
-  #include "custom/ttl_Hg.h"
+#include "custom/ttl_Hg.h"
 #endif
 
 #ifdef CONFIG_SHB
-  #include "custom/ttl_SHB.h"
+#include "custom/ttl_SHB.h"
 #endif
 
 #define DDS_NONE     (100)
@@ -76,7 +76,7 @@ void print_pulse_info(unsigned iDDS, unsigned ftwOn, unsigned ftwOff,
                       unsigned aOn, unsigned aOff, unsigned t, unsigned ttl,
                       const char* info = 0);
 
-//Get clock freq. for iDDS.  
+//Get clock freq. for iDDS.
 //Ueful when the DDS do not all have the same clock.
 double dds_clk(int iDDS);
 
@@ -88,7 +88,7 @@ inline void DDS_off(unsigned iDDS, verbosity* v=0)
         fprintf(gLog, "%7s DDS(%2u) off %30s t = %8.2f us\n",
                 DDS_name(iDDS), iDDS, "", (double)0.5);
     }
-    
+
     g_tSequence += PULSER_DDS_SET_FTW_DURATION;
 }
 
@@ -99,10 +99,10 @@ inline void DDS_set_ftw(unsigned iDDS, unsigned ftw, verbosity* v=0)
 
     if (v){
         v->printf("%7s DDS(%2u) f   = %13.3f Hz    ",
-                DDS_name(iDDS), iDDS, FTW2HzD(ftw, dds_clk(iDDS)), ftw);
+                  DDS_name(iDDS), iDDS, FTW2HzD(ftw, dds_clk(iDDS)), ftw);
         print_timing_info(v, g_tSequence, PULSER_DDS_SET_FTW_DURATION);
     }
-    
+
     g_tSequence += PULSER_DDS_SET_FTW_DURATION;
 }
 
@@ -134,13 +134,14 @@ inline void DDS_set_ptw(unsigned iDDS, unsigned ptw, verbosity* v=0)
     g_tSequence += PULSER_DDS_SET_PTW_DURATION;
 }
 
-inline void DDS_shift_ptw(unsigned iDDS, unsigned ptw, verbosity* v=0)
+inline void
+DDS_shift_ptw(unsigned iDDS, unsigned ptw, verbosity* v=0)
 {
     PULSER_shift_dds_phase(pulser, iDDS, ptw);
 
     if (v){
         v->printf("%7s DDS(%2u) p  += %9.3f deg. %4s ",
-                DDS_name(iDDS), iDDS, (ptw * 360.0 / PHASE_360), "");
+                  DDS_name(iDDS), iDDS, (ptw * 360.0 / PHASE_360), "");
         print_timing_info(v, g_tSequence, PULSER_DDS_SET_PTW_DURATION);
     }
     g_tSequence += PULSER_DDS_SET_PTW_DURATION;
@@ -153,13 +154,13 @@ inline void DDS_set_phase_deg(unsigned iDDS, double phase, verbosity* v=0)
 
 inline unsigned DDS_get_ptw(unsigned iDDS)
 {
-  return PULSER_get_dds_two_bytes(pulser, iDDS, 0x30);
+    return PULSER_get_dds_two_bytes(pulser, iDDS, 0x30);
 }
 
 inline double DDS_get_phase_deg(unsigned iDDS)
 {
-  unsigned u0 = DDS_get_ptw(iDDS);
-  return u0*360.0/65536.0;
+    unsigned u0 = DDS_get_ptw(iDDS);
+    return u0*360.0/65536.0;
 }
 
 //set ATW=amplitude tuning word
@@ -169,28 +170,28 @@ inline void DDS_set_atw(unsigned iDDS, unsigned atw, verbosity* v=0)
 
     if (v){
         v->printf("%7s DDS(%2u) A   = %9.6f / 1  %4s ",
-                DDS_name(iDDS), iDDS, atw / 4095.0, "");
-                
+                  DDS_name(iDDS), iDDS, atw / 4095.0, "");
+
         print_timing_info(v, g_tSequence, PULSER_DDS_SET_ATW_DURATION);
     }
-    
+
     g_tSequence += PULSER_DDS_SET_ATW_DURATION;
 }
 
 inline void DDS_set_amp(unsigned iDDS, double A, verbosity* v=0)
 {
-  DDS_set_atw(iDDS, (unsigned)(A*4095.0 + 0.5), v);
+    DDS_set_atw(iDDS, (unsigned)(A*4095.0 + 0.5), v);
 }
 
 inline unsigned DDS_get_atw(unsigned iDDS)
 {
-  return PULSER_get_dds_two_bytes(pulser, iDDS, 0x32);
+    return PULSER_get_dds_two_bytes(pulser, iDDS, 0x32);
 }
 
 inline double DDS_get_amp(unsigned iDDS)
 {
-  unsigned u0 = DDS_get_atw(iDDS);
-  return u0/4095.0;
+    unsigned u0 = DDS_get_atw(iDDS);
+    return u0/4095.0;
 }
 
 
@@ -205,7 +206,7 @@ inline void DDS_pulse(unsigned iDDS, unsigned ftwOn, unsigned ftwOff,
 
         if (bDebugPulses)
             print_pulse_info(iDDS, ftwOn, ftwOff, t, ttl);
-            
+
         g_tSequence += t;
     }
 }
@@ -222,7 +223,7 @@ inline void DDS_pulse(unsigned iDDS, unsigned ftwOn, unsigned ftwOff,
 
         if (bDebugPulses)
             print_pulse_info(iDDS, ftwOn, ftwOff, aOn, aOff, t, ttl);
-            
+
         g_tSequence += t;
     }
 }
@@ -238,7 +239,7 @@ inline void DDS_long_pulse(unsigned iDDS, unsigned ftwOn, unsigned ftwOff,
 
         if (bDebugPulses)
             print_pulse_info(iDDS, ftwOn, ftwOff, t, ttl, "LONG");
-            
+
         g_tSequence += t;
     }
 }
@@ -257,7 +258,7 @@ inline void DDS_long_pulse(unsigned iDDS, unsigned ftwOn, unsigned ftwOff,
 
         if (bDebugPulses)
             print_pulse_info(iDDS, ftwOn, ftwOff, t, ttl, "LONG");
-            
+
         g_tSequence += t;
     }
 }
