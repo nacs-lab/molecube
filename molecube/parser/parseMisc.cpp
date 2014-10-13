@@ -73,30 +73,31 @@ size_t requireToken(std::string& doc, const std::string& token)
 }
 
 //parse params in doc
-bool parseParams(txtmap_t& params, const std::string& doc, const std::string& page)
+bool
+parseParams(txtmap_t& params, const std::string& doc, const std::string&)
 {
     size_t pos = doc.find("&page=") + 5;
 
-    if(pos == string::npos)
+    if (pos == string::npos)
         return false;
 
     size_t pos1 = doc.find("&", pos);
 
     //add new ones
-    while(pos1 != string::npos && pos1 < doc.length()) {
-        size_t pos2 = doc.find("=", pos1+1);
+    while (pos1 != string::npos && pos1 < doc.length()) {
+        size_t pos2 = doc.find("=", pos1 + 1);
 
-        if(pos2 == string::npos)
+        if (pos2 == string::npos)
             break;
 
-        size_t pos3 = doc.find("&", pos2+1);
+        size_t pos3 = doc.find("&", pos2 + 1);
 
         if(pos3 == string::npos)
             pos3 = doc.length();
 
-        string val = doc.substr(pos2+1, pos3-pos2-1);
+        string val = doc.substr(pos2 + 1, pos3 - pos2 - 1);
         html2txt(val, 1);
-        params[doc.substr(pos1+1, pos2-pos1-1)] = val;
+        params[doc.substr(pos1 + 1, pos2 - pos1 - 1)] = val;
 
         pos1 = pos3;
     }
@@ -228,7 +229,8 @@ template<class V> void stream_vect_to_JSON_array(ostream& os, const V& v)
     os << "]";
 }
 
-bool parseQueryCGI(cgicc::Cgicc& cgi)
+bool
+parseQueryCGI(cgicc::Cgicc& cgi)
 {
     cgicc::form_iterator cmd = cgi.getElement("command");
     cgicc::form_iterator page = cgi.getElement("page");
@@ -314,6 +316,7 @@ bool parseQueryCGI(cgicc::Cgicc& cgi)
             parseSeqCGI(cgi);
             return true;
         }
+        return false;
     } else {
         gvSTDOUT.printf("No Command\n");
         return false;
@@ -379,33 +382,36 @@ bool getCheckboxParam(const std::string& seq, const std::string& name,
     return defaultVal;
 }
 
-std::string getStringParam(const std::string& seq, const std::string& token,
-                           const std::string& defaultVal, const std::string& sep)
+std::string
+getStringParam(const std::string &seq, const std::string &token,
+               const std::string &defaultVal, const std::string&)
 {
     size_t pos = seq.find(token);
-    if(pos != string::npos) {
+    if (pos != string::npos) {
         pos += token.length();
         std::string val;
 
         size_t pos2 = seq.substr(pos).find("&");
-        if(pos2 != string::npos)
+        if (pos2 != string::npos) {
             return seq.substr(pos).substr(0, pos2);
-        else
+        } else {
             return seq.substr(pos);
+        }
     }
-
     return defaultVal;
 }
 
-bool getCheckboxParamCGI(cgicc::Cgicc& cgi, const std::string& name,
-                         bool defaultVal)
+bool
+getCheckboxParamCGI(cgicc::Cgicc& cgi, const std::string& name,
+                    bool defaultVal)
 {
     cgicc::form_iterator i = cgi.getElement(name);
 
-    if(i != cgi.getElements().end())
+    if (i != cgi.getElements().end()) {
         return i->getValue() == "on";
-    else
+    } else {
         return defaultVal;
+    }
 }
 
 unsigned getUnsignedParamCGI(cgicc::Cgicc& cgi, const std::string& name,

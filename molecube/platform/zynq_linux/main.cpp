@@ -303,8 +303,9 @@ int main(int argc, char *argv[])
         gvSTDOUT = verbosity(&cout, gLog);
 
         try {
-            if(!parseQueryCGI(cgi))
+            if (!parseQueryCGI(cgi)) {
                 fprintf(gLog, "Couldn't understand HTTP request.\n");
+            }
         } catch (runtime_error e) {
             gvSTDOUT.printf("Oh noes! \n   %s\n", e.what());
             gvSTDOUT.printf("%s", getQuote("/usr/local/quotes.frt", "%%").c_str());

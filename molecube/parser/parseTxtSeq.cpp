@@ -404,9 +404,8 @@ bool parseTTL(unsigned t, std::string& arg1, istream& s)
 }
 
 bool
-parseClockOut(unsigned t, std::string &arg1, istream &s)
+parseClockOut(unsigned t, std::string &arg1, istream&)
 {
-    (void)s;
     int divider = 0;
 
     if (arg1.find("off") == 0) {

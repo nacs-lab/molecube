@@ -25,9 +25,8 @@ void enable_interrupts()
 
 //0 = highest priority, 1 = DEFAULT_THREAD_PRIO
 void
-set_priority(int prio)
+set_priority(int)
 {
-    (void)prio;
 }
 
 int
