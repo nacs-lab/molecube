@@ -15,8 +15,7 @@
 #include "dds_pulse.h"
 #include <string_func.h>
 
-extern "C"
-{
+extern "C" {
 #include "pulse_controller.h"
 }
 
@@ -27,12 +26,12 @@ std::vector<unsigned> active_dds; // all DDS that are available
 //flocker acquires exclusive file lock at creation and releases the lock at destruction
 flocker::flocker(FILE* f) : fd(fileno(f))
 {
-  flock(fd, LOCK_EX);
+    flock(fd, LOCK_EX);
 }
 
 flocker::~flocker()
 {
-  flock(fd, LOCK_UN);
+    flock(fd, LOCK_UN);
 }
 
 
@@ -108,7 +107,7 @@ bool parseParams(txtmap_t& params, const std::string& doc, const std::string& pa
 bool parseParamsCGI(txtmap_t& params, cgicc::Cgicc& cgi)
 {
     cgicc::const_form_iterator i = cgi.getElements().begin();
-    
+
     while(i != cgi.getElements().end()) {
         params[i->getName()] = i->getValue();
         i++;
@@ -120,13 +119,13 @@ bool parseParamsCGI(txtmap_t& params, cgicc::Cgicc& cgi)
 void getDeviceParams(const std::string& page, txtmap_t& params)
 {
     flocker fl(g_fPulserLock);
-  
+
     if(page == "dds") {
         char key[32];
         char val[32];
 
 
-        
+
         for(unsigned iDDS=0; iDDS<NDDS; iDDS++) {
             double f = 1e-6*DDS_get_freqHz(iDDS);
             snprintf(key, 32, "freq%d", iDDS);
@@ -149,7 +148,7 @@ void getDeviceParams(const std::string& page, txtmap_t& params)
 void setDeviceParams(const std::string& page, const txtmap_t& params)
 {
     flocker fl(g_fPulserLock);
-    
+
     if(page == "dds") {
 //    dumpMap(params, gLog);
 
@@ -217,29 +216,27 @@ void setDeviceParams(const std::string& page, const txtmap_t& params)
 
 template<class V> void stream_vect_to_JSON_array(ostream& os, const V& v)
 {
-  os << "[";
-  
-  for(unsigned i=0; i<v.size(); i++) {
-    if( i > 0 )
-      os << ", ";
-      
-    os << v[i];
-  }
-  
-  os << "]";
+    os << "[";
+
+    for(unsigned i=0; i<v.size(); i++) {
+        if( i > 0 )
+            os << ", ";
+
+        os << v[i];
+    }
+
+    os << "]";
 }
-  
+
 bool parseQueryCGI(cgicc::Cgicc& cgi)
 {
     cgicc::form_iterator cmd = cgi.getElement("command");
     cgicc::form_iterator page = cgi.getElement("page");
-    
-    if(cmd != cgi.getElements().end()) 
-    {
+
+    if (cmd != cgi.getElements().end()) {
         gvSTDOUT.printf("Command = %s\n", (**cmd).c_str());
-        
-        if((**cmd) == "getTTL")
-        {
+
+        if ((**cmd) == "getTTL") {
             printJSONResponseHeader();
             unsigned lo, hi;
             PULSER_get_ttl(pulser, &hi, &lo);
@@ -250,55 +247,53 @@ bool parseQueryCGI(cgicc::Cgicc& cgi)
 
             fprintf(gLog, "%s\n", buff);
             return true;
-        }            
-        
-        if((**cmd) == "getActiveDDS") 
-        {
+        }
+
+        if ((**cmd) == "getActiveDDS") {
             printJSONResponseHeader();
             stream_vect_to_JSON_array(cout, active_dds);
             return true;
         }
 
-        if((**cmd) == "setParams" &&  page != cgi.getElements().end() ) 
-        {
+        if ((**cmd) == "setParams" &&  page != cgi.getElements().end()) {
             printPlainResponseHeader();
             string sPage = **page;
             removeNonAlphaNum(sPage);
 
-            if(sPage.length()) {
+            if (sPage.length()) {
                 txtmap_t params;
                 string fname = "/home/www/userdata/params_" + sPage;
 
                 //load existing params
                 loadMap(params, fname);
 
-                if(parseParamsCGI(params, cgi)) {
+                if (parseParamsCGI(params, cgi)) {
                     //save
                     saveMap(params, fname);
                     return true;
                 }
-            } else
+            } else {
                 return false;
+            }
         }
-            
-        if((**cmd) == "getParams" &&  page != cgi.getElements().end() ) 
-        {
+
+        if ((**cmd) == "getParams" &&  page != cgi.getElements().end() ) {
             printPlainResponseHeader();
             string sPage = **page;
             removeNonAlphaNum(sPage);
-            if(sPage.length()) {
+            if (sPage.length()) {
                 txtmap_t params;
                 loadMap(params, "/home/www/userdata/params_" + sPage);
                 getDeviceParams(sPage, params);
                 //dumpMap(params, gLog); fflush(gLog);
                 dumpMapHTML(params, cout);
                 return true;
-            } else
+            } else {
                 return false;
+            }
         }
-        
-        if((**cmd) == "setDeviceParams" &&  page != cgi.getElements().end() ) 
-        {
+
+        if ((**cmd) == "setDeviceParams" &&  page != cgi.getElements().end()) {
             printPlainResponseHeader();
 
             string sPage = **page;
@@ -310,18 +305,16 @@ bool parseQueryCGI(cgicc::Cgicc& cgi)
                     setDeviceParams(sPage, params);
                     return true;
                 }
-            } else
+            } else {
                 return false;
+            }
         }
-        
-        if((**cmd) == "runseq")
-        {
+
+        if ((**cmd) == "runseq") {
             parseSeqCGI(cgi);
             return true;
-            }
-    }
-    else
-    {
+        }
+    } else {
         gvSTDOUT.printf("No Command\n");
         return false;
     }
@@ -404,33 +397,33 @@ std::string getStringParam(const std::string& seq, const std::string& token,
     return defaultVal;
 }
 
-bool getCheckboxParamCGI(cgicc::Cgicc& cgi, const std::string& name, 
+bool getCheckboxParamCGI(cgicc::Cgicc& cgi, const std::string& name,
                          bool defaultVal)
 {
     cgicc::form_iterator i = cgi.getElement(name);
-    
+
     if(i != cgi.getElements().end())
         return i->getValue() == "on";
     else
         return defaultVal;
 }
 
-unsigned getUnsignedParamCGI(cgicc::Cgicc& cgi, const std::string& name, 
+unsigned getUnsignedParamCGI(cgicc::Cgicc& cgi, const std::string& name,
                              unsigned defaultVal)
 {
     cgicc::form_iterator i = cgi.getElement(name);
-    
+
     if(i != cgi.getElements().end())
         return i->getIntegerValue(0);
     else
         return defaultVal;
 }
 
-std::string getStringParamCGI(cgicc::Cgicc& cgi, const std::string& name, 
+std::string getStringParamCGI(cgicc::Cgicc& cgi, const std::string& name,
                               const std::string& defaultVal)
 {
     cgicc::form_iterator i = cgi.getElement(name);
-    
+
     if(i != cgi.getElements().end())
         return i->getValue();
     else
