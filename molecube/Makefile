@@ -9,6 +9,7 @@ FPGAINC = $(ROOT)/../include
 
 CXX := arm-xilinx-linux-gnueabi-g++
 CC := arm-xilinx-linux-gnueabi-gcc
+SIZE := arm-xilinx-linux-gnueabi-size
 RM := rm -rf
 
 INC = -I$(ROOT)/include \
@@ -56,7 +57,7 @@ molecube SHB barebones: $(OBJS)
 	@echo
 	@echo "**************" Determining Size of ELF File "**************"
 	@echo
-	arm-xilinx-linux-gnueabi-size $@
+	$(SIZE) $@
 
 clean:
 	-$(RM) $(OBJS) planAhead*
