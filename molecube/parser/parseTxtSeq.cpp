@@ -637,20 +637,22 @@ parseSeqTxt(unsigned reps, const std::string& seqTxt, bool bForever,
 
     unsigned iRep;
 
+    // Debug on slows down the sequence by a LOOOT.
     pulse_cmd::v = bDebugPulses ? &gvSTDOUT : 0;
 
     clock_t tClock1 = clock();
 
-    //now run the pulses
+    // now run the pulses
     g_tSequence = 0;
 
-    //update status string every 500 ms
+    // update status string every 500 ms
     unsigned updateStatusModulo = 500000000 / (tCurr * PULSER_DT_ns);
 
     for (iRep = 0;iRep < reps || bForever;iRep++) {
         char buff[64];
 
-        if (iRep % updateStatusModulo == 0) {
+        // updateStatusModulo can be 0 if the sequence is longer than 0.5s.
+        if (!updateStatusModulo || iRep % updateStatusModulo == 0) {
             if (bForever) {
                 snprintf(buff, 64, "Running sequence %d", iRep);
             } else {
@@ -659,14 +661,14 @@ parseSeqTxt(unsigned reps, const std::string& seqTxt, bool bForever,
         }
 
         {
-            //new scope to automatically release file lock at scope
+            // new scope to automatically release file lock at scope
             // exit or exception
             flocker fl(g_fPulserLock);
 
             setProgramStatus(0, buff);
 
-            //hold the sequnce until pulse buffer is full or
-            //PULSER_wait_for_finished is called
+            // hold the sequnce until pulse buffer is full or
+            // PULSER_wait_for_finished is called
             PULSER_set_hold(pulser);
 
             PULSER_toggle_init(pulser);
