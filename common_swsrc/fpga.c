@@ -35,14 +35,14 @@ int gpio_set_dir(int channel, int dir)
 {
     char buff[100];
     sprintf(buff, "/sys/class/gpio/gpio%d/direction", channel);
-    write_str_to_file(buff, dir == 0 ? "in" : "out");
+    return write_str_to_file(buff, dir == 0 ? "in" : "out");
 }
 
 int gpio_set_pin(int channel, int val)
 {
     char buff[100];
     sprintf(buff, "/sys/class/gpio/gpio%d/value", channel);
-    write_int_to_file(buff, val);
+    return write_int_to_file(buff, val);
 }
 
 int gpio_get_pin(int channel)

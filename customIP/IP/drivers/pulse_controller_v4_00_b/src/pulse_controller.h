@@ -40,10 +40,6 @@ extern unsigned PULSER_vacancy;
 #define PULSER_N_PMT_BINS				      (16)
 #define PULSER_N_PMT_BITS				      (8)
 
-//! Unsafe because FIFO PULSER_vacancy is not checked before write.
-//! Only call if you *know* there's space on the write FIFO.
-inline void PULSER_unsafe_pulse(void* base_addr, const unsigned control, const unsigned operand);
-
 //! Set function to be called while waiting for FPGA
 void PULSER_set_idle_function(void (*new_idle_func)(void));
 

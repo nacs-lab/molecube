@@ -26,7 +26,7 @@ void SetDAC_AD5532(spi_p spi, unsigned channel, unsigned dacWord)
 
     tx |= (dacWord & 0x3FFF) << 8;
 
-//	printf("DAC<%u> = %08X (tx = %08X)\n", channel, dacWord, tx);
+    // printf("DAC<%u> = %08X (tx = %08X)\n", channel, dacWord, tx);
     SPI_Transmit(spi, &tx, &rc, 3);
 }
 
@@ -47,7 +47,8 @@ void SetDAC_AD5535(spi_p spi, unsigned channel, unsigned dacWord)
     tx = (channel & 0x1F) << 27;     //address bits
     tx |= (dacWord & 0x3FFF) << 13;  // 14-bit DAC word
 
-//	printf("AD5535 DAC<%u> = %08X (tx = %08X)  SPI addr=%08X\n", channel, dacWord, tx, (unsigned)(spi->BaseAddr));
+    // printf("AD5535 DAC<%u> = %08X (tx = %08X)  SPI addr=%08X\n", channel,
+    //        dacWord, tx, (unsigned)(spi->BaseAddr));
 
     SPI_Transmit(spi, &tx, &rc, 3);
 }
@@ -244,7 +245,7 @@ void startConversion_AD7689(spi_p spi)
 }
 
 //get ADC conversion result and configure for next conversion
-unsigned short getResult_AD7689(spi_p spi, unsigned next_channel)
+unsigned short getResult_AD7689(spi_p spi, unsigned)
 {
     /*
        u16 tx0 = 0xF1C4 | (next_channel << 9);

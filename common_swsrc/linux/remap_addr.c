@@ -15,6 +15,7 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <string.h>
+#include <unistd.h>
 
 extern unsigned gDebugLevel; //control printf debugging
 extern FILE *gLog;
@@ -24,7 +25,7 @@ extern FILE *gLog;
 
 //remap physical address to virtual one
 void*
-remap_device_addr(void* phys_addr)
+remap_device_addr(void *phys_addr)
 {
     void *mapped_base = 0;
     void *mapped_dev_base;

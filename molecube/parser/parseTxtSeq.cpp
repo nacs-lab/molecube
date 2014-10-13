@@ -216,16 +216,17 @@ bool get_channel_and_operand(std::string& arg1, istream& s,
 
 template <class C>
 C*
-parse_pulse(vector<pulse_cmd*> p, unsigned t, std::string& arg1, istream& s)
+parse_pulse(vector<pulse_cmd*>, unsigned t, std::string& arg1, istream& s)
 {
     int channel = -1;
     double operand = 0;
 
     C* pulse = 0;
 
-    if(get_channel_and_operand(arg1, s, &channel, &operand)) {
+    if (get_channel_and_operand(arg1, s, &channel, &operand)) {
         dealWithCurrentTTL(t, C::DURATION);
-        pulses.push_back(pulse = new C(channel, operand));
+        pulse = new C(channel, operand);
+        pulses.push_back(pulse);
         tCurr = t;
     }
 
@@ -791,7 +792,8 @@ getQuote(const char *fname, const char *delim)
                         s.resize(pos2-pos1, ' ');
 
                         if (s.size()) {
-                            size_t unused = fread(&(s[0]), 1, s.size(), f);
+                            size_t __attribute__((unused)) unused =
+                                fread(&(s[0]), 1, s.size(), f);
                         }
                     }
                 }
@@ -800,7 +802,6 @@ getQuote(const char *fname, const char *delim)
 
             return "\n\n===\n" + s + "\n===\n";
         }
-    } else {
-        return "";
     }
+    return "";
 }

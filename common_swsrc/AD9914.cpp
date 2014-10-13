@@ -11,9 +11,9 @@
 void set_freq_AD9914PM(void* base_addr, char i, unsigned ftw,
                        unsigned a, unsigned b, FILE* f)
 {
-    if(f) {
-        fprintf(f, "AD9914 board=%i set frequency FTW=0x%08X  A=0x%08X  B=0x%08X\n",
-                (unsigned)i, ftw, a, b);
+    if (f) {
+        fprintf(f, "AD9914 board=%i set frequency FTW=0x%08X  A=0x%08X  "
+                "B=0x%08X\n", (unsigned)i, ftw, a, b);
         fflush(f);
     }
 
@@ -36,22 +36,23 @@ bool test_AD9914(void* base_addr, char i)
     unsigned addr = 0x34; //FTW for profile 1, shouldn't affect the signal
     bool pass = true;
 
-    for(unsigned bit=0; bit<16; bit++) {
+    for (unsigned bit = 0;bit<16; bit++) {
         unsigned val = 1 << bit;
 
-        if(!test_val_AD9914(base_addr, i, addr, val)) {
+        if (!test_val_AD9914(base_addr, i, addr, val)) {
             pass = false;
-            fprintf(gLog, "Error on DDS %2d at bit %2d (addr = 0x%02X)\n", (int)i, bit, addr);
+            fprintf(gLog, "Error on DDS %2d at bit %2d (addr = 0x%02X)\n",
+                    (int)i, bit, addr);
         }
     }
 
     PULSER_set_dds_two_bytes(base_addr, i, addr, 0);
 
-    if(pass)
+    if (pass) {
         fprintf(gLog, "DDS %d passed digital I/O test.\n", (int)i);
-    else
+    } else {
         fprintf(gLog, "DDS %d failed digital I/O test.\n", (int)i);
-
+    }
     return pass;
 }
 
@@ -93,16 +94,16 @@ void test_dds_addr(void* base_addr, char i, unsigned low_addr,
 void print_AD9914_registers(void* base_addr, char i, FILE* f)
 {
     bool bNonZeroOnly = true;
-    
+
     fprintf(f, "*******************************\n");
-    if(bNonZeroOnly)
+    if (bNonZeroOnly)
         fprintf(f, "***only show non-zero values***\n");
-        
-    for(unsigned addr=0; (addr+3)<=0x7F; addr+=4) {
+
+    for (unsigned addr = 0;(addr+3)<=0x7F; addr+=4) {
         unsigned u0 = PULSER_get_dds_two_bytes(base_addr, i, addr);
         unsigned u2 = PULSER_get_dds_two_bytes(base_addr, i, addr+2);
         unsigned u =  ((u2 & 0xFFFF) << 16 ) | (u0 & 0xFFFF);
-        
+
         if( (bNonZeroOnly && u) || !bNonZeroOnly)
             fprintf(f, "AD9914 board=%i addr=0x%02X...%02X = %08X\n",
                     (unsigned)i, addr+3, addr, u);
@@ -114,40 +115,41 @@ void print_AD9914_registers(void* base_addr, char i, FILE* f)
 
 
 
-void set_dds_four_bytes(void* base_addr, char i, unsigned addr, unsigned data)
+void
+set_dds_four_bytes(void* base_addr, char i, unsigned addr, unsigned data)
 {
-//	printf("AD9914 board=%i set byte [0x%02X] = 0x%02X\n", addr, data);
+    // printf("AD9914 board=%i set byte [0x%02X] = 0x%02X\n", addr, data);
 
-    unsigned dds_addr = (addr & 0x3F) << 9; //put addr in bits 14...9 (maps to DDS opcode_reg[14:9] )?
-    PULSER_short_pulse(base_addr, 0x1000000F | (i << 4) | (dds_addr << 9), data); // takes 0.3 us
+    //put addr in bits 14...9 (maps to DDS opcode_reg[14:9] )?
+    unsigned dds_addr = (addr & 0x3F) << 9;
+    PULSER_short_pulse(base_addr, 0x1000000F | (i << 4) |
+                       (dds_addr << 9), data); // takes 0.3 us
 }
 
-/*
-void set_freq_AD9914(void* base_addr, char i, double Hz, bool bPrintInfo)
-{
-    //convert Hz to FTW, a, and b
-    unsigned ftw = static_cast<unsigned int>(floor(0.5 + (Hz * pow(2., 32.) / AD9914_CLK)));
-    unsigned b = static_cast<unsigned int>(pow(2., 32.) - 1.);
-    unsigned a = static_cast<unsigned int>(floor((Hz * pow(2., 32.) / AD9914_CLK - static_cast<double>(ftw)) * static_cast<double>(b) + 0.5));
+// void set_freq_AD9914(void* base_addr, char i, double Hz, bool bPrintInfo)
+// {
+//     //convert Hz to FTW, a, and b
+//     unsigned ftw = static_cast<unsigned int>(floor(0.5 + (Hz * pow(2., 32.) / AD9914_CLK)));
+//     unsigned b = static_cast<unsigned int>(pow(2., 32.) - 1.);
+//     unsigned a = static_cast<unsigned int>(floor((Hz * pow(2., 32.) / AD9914_CLK - static_cast<double>(ftw)) * static_cast<double>(b) + 0.5));
 
-    //convert Hz to FTW
-    //unsigned ftw = Hz2FTW(Hz, ad9914_clk_MHz);
+//     // convert Hz to FTW
+//     // unsigned ftw = Hz2FTW(Hz, ad9914_clk_MHz);
 
-    unsigned n = gcd(a, b);
-    a /= n;
-    b /= n;
+//     unsigned n = gcd(a, b);
+//     a /= n;
+//     b /= n;
 
-	if(bPrintInfo)
-	{
-	    printf("AD9914 board=%i set frequency %9d Hz  FTW=0x%08X  A=0x%08X  B=0x%08X\n", (unsigned)i, (unsigned)Hz, ftw, a, b);
-	    fflush(stdout);
-	}
+//     if (bPrintInfo) {
+//         printf("AD9914 board=%i set frequency %9d Hz  FTW=0x%08X  "
+//                "A=0x%08X  B=0x%08X\n", (unsigned)i, (unsigned)Hz, ftw, a, b);
+//         fflush(stdout);
+//     }
 
-  //set_freq_AD9914PM(base_addr, i, ftw, a, b);
+//     //set_freq_AD9914PM(base_addr, i, ftw, a, b);
 
-  PULSER_set_dds_freq(base_addr, i, ftw);
-}
-*/
+//     PULSER_set_dds_freq(base_addr, i, ftw);
+// }
 
 unsigned gcd(unsigned x, unsigned y)
 {
@@ -162,72 +164,72 @@ unsigned gcd(unsigned x, unsigned y)
 //           false: init only if not previopusly initialized
 // return true if init was performed
 
-bool init_AD9914(void* base_addr, char i, bool bForce, FILE* f)
+bool init_AD9914(void*, char i, bool bForce, FILE* f)
 {
     bool bInit = bForce; //init needed?
     const unsigned magic_bytes = 0xF00F0000;
-    
+
     if(!bForce) {
-      
-      //Check if magic bytes have been set (profile 7, FTW) which is otherwise
-      //not used.  If already set, the board has been initialized and doesn't
-      //need another init.  This avoids reboot-induced glitches.
-      
-      unsigned u0 = PULSER_get_dds_four_bytes(pulser, i, 0x64);
-      bInit = (u0 != magic_bytes);
-      
-      fprintf(f, "AD9914 board=%i  FTW7 = %08X\n", unsigned(i), u0);
-      if(bInit)
-        fprintf(f, "Initialization required\n");
-      else
-        fprintf(f, "No initialization required\n");
+
+        //Check if magic bytes have been set (profile 7, FTW) which is otherwise
+        //not used.  If already set, the board has been initialized and doesn't
+        //need another init.  This avoids reboot-induced glitches.
+
+        unsigned u0 = PULSER_get_dds_four_bytes(pulser, i, 0x64);
+        bInit = (u0 != magic_bytes);
+
+        fprintf(f, "AD9914 board=%i  FTW7 = %08X\n", unsigned(i), u0);
+        if(bInit)
+            fprintf(f, "Initialization required\n");
+        else
+            fprintf(f, "No initialization required\n");
     }
-    
-    if(bInit) {
-      PULSER_dds_reset(pulser, i);
 
-      //calibrate internal timing.  required at power-up
-      PULSER_set_dds_two_bytes(pulser, i, 0x0E, 0x0105);
-      usleep(1000U);
-      //finish cal. disble sync_out
-      PULSER_set_dds_two_bytes(pulser, i, 0x0E, 0x0405);
+    if (bInit) {
+        PULSER_dds_reset(pulser, i);
 
-      //enable programmable modulus and profile 0, enable SYNC_CLK output
-      //set_dds_two_bytes(pulser, i, 0x05, 0x8D0B);
+        //calibrate internal timing.  required at power-up
+        PULSER_set_dds_two_bytes(pulser, i, 0x0E, 0x0105);
+        usleep(1000U);
+        //finish cal. disble sync_out
+        PULSER_set_dds_two_bytes(pulser, i, 0x0E, 0x0405);
 
-      
-      //disable programmable modulus, enable profile 0, enable SYNC_CLK output
-      //PULSER_set_dds_two_bytes(pulser, i, 0x05, 0x8009);
-
-      //disable ramp & programmable modulus, enable profile 0, disable SYNC_CLK output
-      //PULSER_set_dds_two_bytes(pulser, i, 0x05, 0x8001);
-
-      //disable SYNC_CLK output
-      PULSER_set_dds_two_bytes(pulser, i, 0x04, 0x0100);
-      
-      //enable ramp, enable programmable modulus, disable profile mode
-      //PULSER_set_dds_two_bytes(pulser, i, 0x06, 0x0009);
-
-      //disable ramp, disable programmable modulus, enable profile mode
-      PULSER_set_dds_two_bytes(pulser, i, 0x06, 0x0080);
+        //enable programmable modulus and profile 0, enable SYNC_CLK output
+        //set_dds_two_bytes(pulser, i, 0x05, 0x8D0B);
 
 
-      //disable programmable modulus and enable profile 0
-      //set_dds_byte_AD9914(pulser, i, 0x06, 0x80);
+        //disable programmable modulus, enable profile 0, enable SYNC_CLK output
+        //PULSER_set_dds_two_bytes(pulser, i, 0x05, 0x8009);
 
-      //enable amplitude control (OSK)
-      PULSER_set_dds_two_bytes(pulser, i, 0x0, 0x0108);
+        //disable ramp & programmable modulus, enable profile 0, disable SYNC_CLK output
+        //PULSER_set_dds_two_bytes(pulser, i, 0x05, 0x8001);
 
-      //zero-out all other memory
-      for(unsigned addr=0x10; addr<=0x6a; addr+=2)
-      {
-        PULSER_set_dds_two_bytes(pulser, i, addr, 0x0);
-      }
-      
-      PULSER_set_dds_four_bytes(pulser, i, 0x64, magic_bytes);
-      
-      fprintf(f, "Initialized AD9914 board=%i\n", unsigned(i));
+        //disable SYNC_CLK output
+        PULSER_set_dds_two_bytes(pulser, i, 0x04, 0x0100);
+
+        //enable ramp, enable programmable modulus, disable profile mode
+        //PULSER_set_dds_two_bytes(pulser, i, 0x06, 0x0009);
+
+        //disable ramp, disable programmable modulus, enable profile mode
+        PULSER_set_dds_two_bytes(pulser, i, 0x06, 0x0080);
+
+
+        //disable programmable modulus and enable profile 0
+        //set_dds_byte_AD9914(pulser, i, 0x06, 0x80);
+
+        //enable amplitude control (OSK)
+        PULSER_set_dds_two_bytes(pulser, i, 0x0, 0x0108);
+
+        //zero-out all other memory
+        for(unsigned addr=0x10; addr<=0x6a; addr+=2)
+        {
+            PULSER_set_dds_two_bytes(pulser, i, addr, 0x0);
+        }
+
+        PULSER_set_dds_four_bytes(pulser, i, 0x64, magic_bytes);
+
+        fprintf(f, "Initialized AD9914 board=%i\n", unsigned(i));
     }
-    
+
     return bInit;
 }

@@ -63,6 +63,7 @@
 
 #include "xparameters.h"
 #include "xspi.h"
+#include <stdint.h>
 
 #include "remap_addr.h"
 /************************** Constant Definitions *****************************/
@@ -111,7 +112,8 @@ XSpi_Config *XSpi_LookupConfig(u16 DeviceId)
     }
 #ifdef LINUX_OS
     //remap physical address to virtual one
-    CfgPtr->BaseAddress = remap_device_addr((void*)(CfgPtr->BaseAddress));
+    CfgPtr->BaseAddress =
+        (intptr_t)remap_device_addr((void*)(CfgPtr->BaseAddress));
 #endif
 
     return CfgPtr;

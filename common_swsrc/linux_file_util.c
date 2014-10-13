@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <sys/file.h>
+#include <unistd.h>
 
 /* Generic functions to write values to and read them from file.
  * Calls to these functions can manipulate file-mapped devices in Linux. */
