@@ -7,8 +7,8 @@ DRIVERS = ../customIP/IP/drivers/pulse_controller_v4_00_b/src
 FPGALIB = $(ROOT)/../lib
 FPGAINC = $(ROOT)/../include
 
-CXX = arm-xilinx-linux-gnueabi-g++
-CC = arm-xilinx-linux-gnueabi-gcc
+CXX := arm-xilinx-linux-gnueabi-g++
+CC := arm-xilinx-linux-gnueabi-gcc
 RM := rm -rf
 
 INC = -I$(ROOT)/include \
@@ -20,7 +20,7 @@ INC = -I$(ROOT)/include \
       -I$(ROOT)/platform/zynq_linux/xilinx \
       -I$(DRIVERS) \
       -I$(FPGAINC)
-      
+
 CFLAGS   = -O1 -g -DPLATFORM_ZYNQ -DLINUX_OS $(INC)
 CXXFLAGS = -Werror -std=c++11 -O3 -g -DPLATFORM_ZYNQ -DLINUX_OS $(INC)
 
@@ -57,7 +57,6 @@ molecube SHB barebones: $(OBJS)
 	@echo "**************" Determining Size of ELF File "**************"
 	@echo
 	arm-xilinx-linux-gnueabi-size $@
-		
+
 clean:
 	-$(RM) $(OBJS) planAhead*
-	

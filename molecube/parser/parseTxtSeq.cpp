@@ -676,8 +676,8 @@ parseSeqTxt(unsigned reps, const std::string& seqTxt, bool bForever,
                 p->makePulse();
             }
 
-            //wait for pulses finished.
-            //gcc -02 and -O3 crashes here
+            // wait for pulses finished.
+            // gcc -02 and -O3 crashes here
             // (compiler bug? or volatile keyword is needed somewhere)
             PULSER_wait_for_finished(pulser);
 
