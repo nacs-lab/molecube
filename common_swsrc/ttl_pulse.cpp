@@ -14,9 +14,9 @@ void print_pulse_info(verbosity* v, unsigned t, unsigned ttl, const char* info)
 {
 
     v->printf("%12s          TTL = %08X %4s ", TTL_name(ttl), ttl, "");
-    
+
     print_timing_info(v, g_tSequence, t, info ? ' ' : '\n');
-    
+
     if (info)
       v->printf("(%s)\n");
 }

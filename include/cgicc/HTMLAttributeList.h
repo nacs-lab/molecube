@@ -47,41 +47,41 @@ namespace cgicc {
   // ============================================================
   // Class HTMLAttributeList
   // ============================================================
-  
+
 #ifdef WIN32
   template class CGICC_API std::vector<HTMLAttribute>;
 #endif
-  
+
   /*! \class HTMLAttributeList HTMLAttributeList.h cgicc/HTMLAttributeList.h
    * \brief An expandable list of HTMLAttribute objects
-   * 
+   *
    * An HTMLAttributeList represents any number of HTMLAttribute objects
    * which may be embedded in an HTMLElement.  To add HTMLAttribute objects
-   * to an HTMLAttributeList, use the set() methods or functions.  
-   * For example, 
-   * \code 
-   * cgicc::HTMLAttributeList list = cgicc::set("HEIGHT", "100").set("WIDTH", "100"); 
-   * \endcode 
-   * generates an HTMLAttributeList with two elements.  
-   * \see HTMLAttribute 
-   * \see HTMLElement 
+   * to an HTMLAttributeList, use the set() methods or functions.
+   * For example,
+   * \code
+   * cgicc::HTMLAttributeList list = cgicc::set("HEIGHT", "100").set("WIDTH", "100");
+   * \endcode
+   * generates an HTMLAttributeList with two elements.
+   * \see HTMLAttribute
+   * \see HTMLElement
    */
-  class CGICC_API HTMLAttributeList 
+  class CGICC_API HTMLAttributeList
   {
   public:
-    
+
     // ============================================================
-    
+
     /*! \name Constructors and Destructor */
     //@{
-    
+
     /*!
-     * \brief Create an empty HTMLAttributeList. 
+     * \brief Create an empty HTMLAttributeList.
      *
      * HTMLAttributeLists are most often created with the set functions
      */
     HTMLAttributeList();
-    
+
     /*!
      * \brief Create a new HTMLAttributeList, specifying the first element.
      *
@@ -89,7 +89,7 @@ namespace cgicc {
      * \param head The first element of the list
      */
     HTMLAttributeList(const HTMLAttribute& head);
-    
+
     /*!
      * \brief Copy constructor.
      *
@@ -97,21 +97,21 @@ namespace cgicc {
      * \param list The HTMLAttributeList to copy.
      */
     HTMLAttributeList(const HTMLAttributeList& list);
-    
+
     /*!
-     * \brief Destructor 
+     * \brief Destructor
      *
      * Delete this HTMLAttributeList object
      */
     ~HTMLAttributeList();
     //@}
-    
-    
+
+
     // ============================================================
-    
+
     /*! \name Overloaded Operators */
     //@{
-    
+
     /*!
      * \brief Assign one HTMLAttributeList to another.
      *
@@ -121,25 +121,25 @@ namespace cgicc {
     HTMLAttributeList&
     operator= (const HTMLAttributeList &list);
     //@}
-    
-    
+
+
     // ============================================================
-    
-    /*! \name List Management 
+
+    /*! \name List Management
      * Add attributes to the list
      */
     //@{
-    
-    /*! 
+
+    /*!
      * \brief Add an atomic HTMLAttribute to this list
      *
      * \c isindex is an example of an atomic attribute.
      * \param name The name of the HTMLAttribute to set.
      * \return A reference to \c this
      */
-    HTMLAttributeList& 
+    HTMLAttributeList&
     set(const std::string& name);
-    
+
     /*!
      * \brief Add a HTMLAttribute to this list
      *
@@ -148,32 +148,32 @@ namespace cgicc {
      * \param value The value of the HTMLAttribute to set.
      * \return A reference to \c this
      */
-    HTMLAttributeList& 
-    set(const std::string& name, 
+    HTMLAttributeList&
+    set(const std::string& name,
 	const std::string& value);
     //@}
-    
+
     /*! \name Utility Methods */
     //@{
-    
-    /*! 
+
+    /*!
      * \brief Render this HTMLAttributeList to an ostream
      *
      * This is used for output
      * \param out The ostream to which to write
      */
-    void 
+    void
     render(std::ostream& out) 				const;
     //@}
-    
+
   private:
     std::vector<HTMLAttribute> fAttributes;
   };
-  
+
   // ============================================================
   // List manipulators
   // ============================================================
-  
+
   /*!
    * \brief Create a new HTMLAttributeList, and set an HTMLAttribute.
    *
@@ -185,10 +185,10 @@ namespace cgicc {
    * \param name The name of the HTMLAttribute to set.
    * \return A reference to the list.
    */
-  inline HTMLAttributeList 
+  inline HTMLAttributeList
   set(const std::string& name)
   { return HTMLAttributeList(HTMLAttribute(name)); }
-  
+
   /*!
    * \brief Create a new HTMLAttributeList, and set an HTMLAttribute.
    *
@@ -201,11 +201,11 @@ namespace cgicc {
    * \param value The value of the HTMLAttribute to set.
    * \return A reference to the list.
    */
-  inline HTMLAttributeList 
-  set(const std::string& name, 
+  inline HTMLAttributeList
+  set(const std::string& name,
       const std::string& value)
   { return HTMLAttributeList(HTMLAttribute(name, value)); }
-  
+
 } // namespace cgicc
 
 #endif /* ! _HTMLATTRIBUTES_H_ */

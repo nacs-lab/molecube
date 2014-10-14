@@ -30,7 +30,7 @@
 
 /*! \file HTMLDoctype.h
  * \brief Class which specifies the DTD of the HTML 4 document
- * 
+ *
  */
 
 #include <string>
@@ -38,11 +38,11 @@
 #include "MStreamable.h"
 
 namespace cgicc {
-  
+
   // ============================================================
   // Class HTMLDoctype
   // ============================================================
-  
+
   /*! \class HTMLDoctype HTMLDoctype.h cgicc/HTMLDoctype.h
    * \brief Specifies the DTD of the HTML 4 document
    *
@@ -50,13 +50,13 @@ namespace cgicc {
    * \code
    * out << cgicc::HTMLDoctype();
    * \endcode
-   * For more information, see \c http://www.w3.org/MarkUp/ and 
+   * For more information, see \c http://www.w3.org/MarkUp/ and
    * \c http://www.w3.org/TR/REC-html40/
    */
-  class CGICC_API HTMLDoctype : public MStreamable 
+  class CGICC_API HTMLDoctype : public MStreamable
   {
   public:
-    
+
     /*! The DTD used by this document. */
     enum EDocumentType {
       /*! The HTML 4.0 strict DTD (the default) */
@@ -66,27 +66,27 @@ namespace cgicc {
       /*! The HTML 4.0 Frameset DTD */
       eFrames
     };
-    
-    
+
+
     /*!
      * \brief Constructor.
      * \param type The version of the HTML 4.0 DTD used by this document.
      */
     HTMLDoctype(EDocumentType type = eStrict);
-    
+
     /*!
-     * \brief Destructor 
+     * \brief Destructor
      *
      */
     virtual ~HTMLDoctype();
-    
-    virtual void 
+
+    virtual void
     render(std::ostream& out) 			const;
-    
+
   private:
     EDocumentType fType;
   };
-  
+
 } // namespace cgicc
 
 #endif /* ! _HTMLDOCTYPE_H_ */

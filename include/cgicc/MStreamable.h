@@ -18,7 +18,7 @@
  *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this library; if not, write to the Free Software
- *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA 
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
  */
 
 #ifndef _MSTREAMABLE_H_
@@ -30,7 +30,7 @@
 
 /*! \file MStreamable.h
  * \brief Abstract base class for all streamable objects.
- * 
+ *
  * A streamable object is an object that can be written to an \c
  * ostream using the \c << operator.
  */
@@ -44,18 +44,18 @@ namespace cgicc {
   class MStreamable;
 
   /*!
-   * Prototype for overloading streaming operator 
+   * Prototype for overloading streaming operator
    * \param out The ostream to which to write
    * \param obj The MStreamable object to write
    * \return A reference to \c out
    */
-  CGICC_API std::ostream& 
+  CGICC_API std::ostream&
   operator<<(std::ostream& out, const MStreamable& obj);
-  
+
   // ============================================================
   // Class MStreamable
   // ============================================================
-  
+
   /*! \class MStreamable MStreamable.h cgicc/MStreamable.h
    * \brief Mix-in streamable interface.
    *
@@ -63,29 +63,29 @@ namespace cgicc {
    * the \c << operator.
    * Written in the spirit of a Java interface.
    */
-  class CGICC_API MStreamable 
+  class CGICC_API MStreamable
   {
-    
-    friend CGICC_API std::ostream& 
+
+    friend CGICC_API std::ostream&
     operator<<(std::ostream& out, const MStreamable& obj);
-    
+
   public:
-    /*! 
-     * \brief Empty constructor 
-     *
-     */
-    inline MStreamable() 
-    {}
-    
-    /*! 
-     * \brief Empty destructor 
-     *
-     */
-    inline virtual ~MStreamable() 
-    {}
-    
     /*!
-     * \brief Write this object to a stream.  
+     * \brief Empty constructor
+     *
+     */
+    inline MStreamable()
+    {}
+
+    /*!
+     * \brief Empty destructor
+     *
+     */
+    inline virtual ~MStreamable()
+    {}
+
+    /*!
+     * \brief Write this object to a stream.
      *
      * Subclasses must implement this function.
      * \param out The ostream to which to write.
@@ -93,7 +93,7 @@ namespace cgicc {
     virtual void
     render(std::ostream& out) 				const = 0;
   };
-  
+
 } // namespace cgicc
 
 #endif /* ! _MSTREAMABLE_H_ */

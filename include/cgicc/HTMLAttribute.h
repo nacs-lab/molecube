@@ -18,7 +18,7 @@
  *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this library; if not, write to the Free Software
- *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA 
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
  */
 
 #ifndef _HTMLATTRIBUTE_H_
@@ -45,11 +45,11 @@
 #include "MStreamable.h"
 
 namespace cgicc {
-  
+
   // ============================================================
   // Class HTMLAttribute
   // ============================================================
-  
+
   /*! \class HTMLAttribute HTMLAttribute.h cgicc/HTMLAttribute.h
    * \brief Class representing a name or a single name/value pair
    *
@@ -68,22 +68,22 @@ namespace cgicc {
    * \endcode
    * \sa HTMLAttributeList
    */
-  class CGICC_API HTMLAttribute : public MStreamable 
+  class CGICC_API HTMLAttribute : public MStreamable
   {
   public:
-    
+
     // ============================================================
-    
+
     /*! \name Constructors and Destructor */
     //@{
-    
+
     /*!
-     * \brief Create an empty HTMLAttribute. 
+     * \brief Create an empty HTMLAttribute.
      *
      * The name and value are set to an empty string.
      */
     HTMLAttribute();
-    
+
     /*!
      * \brief Create an HTMLAttribute with the given name.
      *
@@ -91,7 +91,7 @@ namespace cgicc {
      * \param name The name of the attribute.
      */
     HTMLAttribute(const std::string& name);
-    
+
     /*!
      * \brief Create an HTMLAttribute with the given name and value.
      *
@@ -99,9 +99,9 @@ namespace cgicc {
      * \param name The attribute's name, for example \c href
      * \param value The attributes's alue, for exampe \c foo.html
      */
-    HTMLAttribute(const std::string& name, 
+    HTMLAttribute(const std::string& name,
 		  const std::string& value);
-    
+
     /*!
      * \brief Copy constructor.
      *
@@ -109,20 +109,20 @@ namespace cgicc {
      * \param attribute The HTMLAttribute to copy.
      */
     HTMLAttribute(const HTMLAttribute& attribute);
-    
+
     /*!
-     * \brief Destructor 
+     * \brief Destructor
      *
      * Delete this HTMLAttribute object
      */
     virtual ~HTMLAttribute();
     //@}
-    
+
     // ============================================================
-    
+
     /*! \name Overloaded Operators */
     //@{
-    
+
     /*!
      * \brief Compare two HTMLAttributes for equality.
      *
@@ -130,9 +130,9 @@ namespace cgicc {
      * \param att The HTMLAttribute to compare to this one.
      * \return \c true if the two HTMLAttributes are equal, \c false otherwise.
      */
-    bool 
+    bool
     operator== (const HTMLAttribute& att) 		const;
-    
+
     /*!
      * \brief Compare two HTMLAttributes for inequality.
      *
@@ -140,17 +140,17 @@ namespace cgicc {
      * \param att The HTMLAttribute to compare to this one.
      * \return \c false if the two HTMLAttributes are equal, \c true otherwise.
      */
-    inline bool 
+    inline bool
     operator!= (const HTMLAttribute& att) 		const
     { return ! operator==(att); }
-    
+
 #ifdef WIN32
     /* Dummy operator for MSVC++ */
     inline bool
     operator< (const HTMLAttribute& att) const
     { return false; }
 #endif
-    
+
     /*!
      * \brief Assign one HTMLAttribute to another.
      *
@@ -158,27 +158,27 @@ namespace cgicc {
      * \param att The HTMLAttribute to copy.
      * \return A reference to this.
      */
-    HTMLAttribute& 
+    HTMLAttribute&
     operator= (const HTMLAttribute& att);
-    //@}  
-    
+    //@}
+
     // ============================================================
-    
-    /*! \name Accessor Methods 
+
+    /*! \name Accessor Methods
      * Information on the attribute
      */
     //@{
-    
+
     /*!
      * \brief Get the name of this HTMLAttribute.
      *
      * For example, \c HREF
      * \return The attribute's name.
      */
-    inline std::string 
+    inline std::string
     getName() 						const
     { return fName; }
-    
+
     /*!
      * \brief Get the value of this HTMLAttribute.
      *
@@ -189,49 +189,49 @@ namespace cgicc {
     getValue() 						const
     { return fValue; }
     //@}
-  
+
     // ============================================================
-    
-    /*! \name Mutator Methods 
+
+    /*! \name Mutator Methods
      * Set properties of the attribute
      */
     //@{
-    
+
     /*!
      * \brief Set the name of this HTMLAttribute.
      *
      * Use this method if the name wasn't specified in the constructor
      * \param name The new name of the attribute.
      */
-    inline void 
+    inline void
     setName(const std::string& name)
     { fName = name; }
-    
+
     /*!
      * \brief Set the value of this HTMLAttribute.
      *
      * Use this method if the value wasn't specified in the constructor
      * \param value The new value of the attribute.
      */
-    inline void 
+    inline void
     setValue(const std::string& value)
     { fValue = value; }
     //@}
-    
+
     /*!
      * \brief Render this attribute to an ostream
      *
      * This is used for output purposes
      * \param out The ostream to which to write
      */
-    virtual void 
+    virtual void
     render(std::ostream& out) 				const;
-    
+
   private:
     std::string fName;
     std::string fValue;
   };
-  
+
 } // namespace cgicc
 
 #endif /* ! _HTMLATTRIBUTE_H_ */

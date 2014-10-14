@@ -1,4 +1,4 @@
-/* 
+/*
  * fcgi_stdio.h --
  *
  *      FastCGI-stdio compatibility package

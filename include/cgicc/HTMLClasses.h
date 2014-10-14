@@ -18,7 +18,7 @@
  *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this library; if not, write to the Free Software
- *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA 
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
  */
 
 #ifndef _HTMLCLASSES_H_
@@ -82,10 +82,10 @@ namespace cgicc {
   // ============================================================
   // Class comment - needs special render function
   // ============================================================
-  
+
   class nullTag
   { public: inline static const char* getName() { return 0; } };
-  
+
   /*! \class comment HTMLClasses.h cgicc/HTMLClasses.h
    * \brief An HTML comment
    */
@@ -101,7 +101,7 @@ namespace cgicc {
 	out << "<!-- " << getData() << " -->";
     }
   };
-  
+
   BOOLEAN_ELEMENT (html,       "html");       // HTML document
   BOOLEAN_ELEMENT (head,       "head");       // document head
   BOOLEAN_ELEMENT (title,      "title");      // document title
@@ -117,9 +117,9 @@ namespace cgicc {
   BOOLEAN_ELEMENT (h5,         "h5");         // level 5 heading
   BOOLEAN_ELEMENT (h6,         "h6");         // level 6 heading
   BOOLEAN_ELEMENT (address,    "address");    // contact information
-  
+
   // text markup
-  
+
   BOOLEAN_ELEMENT (em,         "em");         // emphasis
   BOOLEAN_ELEMENT (strong,     "strong");     // stronger emphasis
   BOOLEAN_ELEMENT (cite,       "cite");       // citation/reference
@@ -140,18 +140,18 @@ namespace cgicc {
   BOOLEAN_ELEMENT (ins,        "ins");        // inserted text
   BOOLEAN_ELEMENT (del,        "del");        // deleted text
   BOOLEAN_ELEMENT (bdo,        "bdo");        // overriding direction
-  
+
   // lists
-  
+
   BOOLEAN_ELEMENT (ul,         "ul");         // unordered list
   BOOLEAN_ELEMENT (ol,         "ol");         // ordered list
-  BOOLEAN_ELEMENT (li,         "li");         // list item 
-  BOOLEAN_ELEMENT (dl,         "dl");         // definition list         
+  BOOLEAN_ELEMENT (li,         "li");         // list item
+  BOOLEAN_ELEMENT (dl,         "dl");         // definition list
   BOOLEAN_ELEMENT (dt,         "dt");         // term to be defined
   BOOLEAN_ELEMENT (dd,         "dd");         // definition of term
-  
+
   // tables
-  
+
   BOOLEAN_ELEMENT (table,      "table");      // table element
   BOOLEAN_ELEMENT (caption,    "caption");    // table caption
   BOOLEAN_ELEMENT (thead,      "thead");      // table head section
@@ -162,39 +162,39 @@ namespace cgicc {
   BOOLEAN_ELEMENT (tr,         "tr");         // table row
   BOOLEAN_ELEMENT (th,         "th");         // table header cell
   BOOLEAN_ELEMENT (td,         "td");         // table data cell
-  
+
   // links
-  
+
   BOOLEAN_ELEMENT (a,          "a");          // anchor
   ATOMIC_ELEMENT  (link,       "link");       // document link
   ATOMIC_ELEMENT  (base,       "base");       // path information
-  
+
   // objects
-  
+
   ATOMIC_ELEMENT  (img,        "img");        // inline image
   BOOLEAN_ELEMENT (object,     "object");     // generic object
   ATOMIC_ELEMENT  (param,      "param");      // object parameters
   BOOLEAN_ELEMENT (map,        "map");        // client image map
   ATOMIC_ELEMENT  (area,       "area");       // image map region
   ATOMIC_ELEMENT  (hr,         "hr");         // horizontal rule
-  
+
   // fonts - preferably use stylesheets
-  
+
   BOOLEAN_ELEMENT (tt,         "tt");         // monospaced text
   BOOLEAN_ELEMENT (i,          "i");          // italic text style
   BOOLEAN_ELEMENT (b,          "b");          // bold text style
   BOOLEAN_ELEMENT (big,        "big");        // large font
   BOOLEAN_ELEMENT (small,      "small");      // small font
-  
+
   // frames - not part of the strict DTD
-  
+
   BOOLEAN_ELEMENT (frameset,   "frameset");   // frame layout
   ATOMIC_ELEMENT  (frame,      "frame");      // frame contents
   BOOLEAN_ELEMENT (noframes,   "noframes");   // alternative text
   BOOLEAN_ELEMENT (iframe,     "iframe");     // inline frame
-  
+
   // forms
-  
+
   BOOLEAN_ELEMENT (form,       "form");       // form element
   ATOMIC_ELEMENT  (input,      "input");      // generic input
   BOOLEAN_ELEMENT (button,     "button");     // special button
@@ -205,9 +205,9 @@ namespace cgicc {
   BOOLEAN_ELEMENT (label,      "label");      // input label
   BOOLEAN_ELEMENT (fieldset,   "fieldset");   // grouping input fields
   BOOLEAN_ELEMENT (legend,     "legend");     // caption for field set
-  
+
   // scripts
-  
+
   BOOLEAN_ELEMENT (script,     "script");     // script element
   BOOLEAN_ELEMENT (noscript,   "noscript");   // alternative text
 

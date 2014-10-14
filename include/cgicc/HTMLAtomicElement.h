@@ -18,7 +18,7 @@
  *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this library; if not, write to the Free Software
- *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA 
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
  */
 
 #ifndef _HTMLATOMICELEMENT_H_
@@ -38,11 +38,11 @@ namespace cgicc {
   // ============================================================
   // Template for concrete atomic HTML element classes
   // ============================================================
-  
+
   /*! \class HTMLAtomicElement HTMLAtomicElement.h cgicc/HTMLAtomicElement.h
    * \brief Template for concrete atomic HTMLElement subclasses
    *
-   * An atomic HTML element is an element in which the opening and closing 
+   * An atomic HTML element is an element in which the opening and closing
    * tags are combined.  For example, in the HTML code
    \verbatim
    <meta link="made" href="mailto:sbooth@gnu.org" />
@@ -53,23 +53,23 @@ namespace cgicc {
    * \sa HTMLBooleanElement
    */
   template<class Tag>
-  class HTMLAtomicElement : public HTMLElement 
+  class HTMLAtomicElement : public HTMLElement
   {
   public:
-    
+
     // ============================================================
-    
+
     /*! \name Constructors and Destructor */
     //@{
-    
+
     /*!
-     * \brief Create a new empty atomic element. 
+     * \brief Create a new empty atomic element.
      *
      */
     HTMLAtomicElement()
       : HTMLElement(0, 0, 0, eAtomic)
     {}
-    
+
     /*!
      * \brief Create a new element, specifying the HTMLAttributes.
      *
@@ -78,37 +78,37 @@ namespace cgicc {
     HTMLAtomicElement(const HTMLAttributeList& attributes)
       : HTMLElement(&attributes, 0, 0, eAtomic)
     {}
-    
-    
+
+
     /*!
-     * \brief Destructor 
+     * \brief Destructor
      *
      */
     virtual ~HTMLAtomicElement()
     {}
     //@}
-    
-    /*! 
+
+    /*!
      * \brief Clone this element
      *
      * \return A newly-allocated copy of this element
      */
-    virtual inline HTMLElement* 
+    virtual inline HTMLElement*
     clone() 					const
     { return new HTMLAtomicElement<Tag>(*this); }
-    
-    
+
+
     /*!
-     * \brief Get the name of this element.  
+     * \brief Get the name of this element.
      *
      * For example, \c meta.
      * \return The name of this element
      */
-    virtual inline const char* 
+    virtual inline const char*
     getName() 					const
     { return Tag::getName(); }
   };
-  
+
 } // namespace cgicc
 
 #endif /* ! _HTMLATOMICELEMENT_H_ */

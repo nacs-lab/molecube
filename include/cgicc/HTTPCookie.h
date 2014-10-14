@@ -18,7 +18,7 @@
  *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this library; if not, write to the Free Software
- *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA 
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
  */
 
 #ifndef _HTTPCOOKIE_H_
@@ -38,7 +38,7 @@
 #include "CgiDefs.h"
 
 namespace cgicc {
-  
+
   // ============================================================
   // Class HTTPCookie
   // ============================================================
@@ -55,20 +55,20 @@ namespace cgicc {
    *  out << HTTPHTMLHeader().setCookie(HTTPCookie("count","1"));
    * \endcode
    */
-  class CGICC_API HTTPCookie : public MStreamable 
+  class CGICC_API HTTPCookie : public MStreamable
   {
   public:
-    
+
     /*! \name Constructors and Destructor */
     //@{
-    
+
     /*!
      * \brief Default Constructor
      *
-     * Create a new, empty HTTPCookie. 
+     * Create a new, empty HTTPCookie.
      */
     HTTPCookie();
-    
+
     /*!
      * \brief Create a new HTTPCookie
      *
@@ -76,33 +76,33 @@ namespace cgicc {
      * \param name The name of the cookie.
      * \param value The value of the cookie.
      */
-    HTTPCookie(const std::string& name, 
+    HTTPCookie(const std::string& name,
 	       const std::string& value);
-    
+
     /*!
      * \brief Create a new fully-spefified HTTPCookie
      *
-     * 
+     *
      * \param name The name of the cookie.
      * \param value The value of the cookie.
      * \param comment Any comment associated with the cookie.
      * \param domain The domain for which this cookie is valid- an empty string
      * will use the hostname of the server which generated the cookie response.
-     * If specified, the domain <em>must</em> start with a period('.'). 
+     * If specified, the domain <em>must</em> start with a period('.').
      * \param maxAge A number of seconds defining the lifetime of this cookie.
      * A value of \c 0 indicates the cookie expires immediately.
-     * \param path The subset of URLS in a domain for which the cookie is 
+     * \param path The subset of URLS in a domain for which the cookie is
      * valid, for example \c /
      * @param secure Specifies whether this is a secure cookie.
      */
-    HTTPCookie(const std::string& name, 
-	       const std::string& value, 
-	       const std::string& comment, 
-	       const std::string& domain, 
-	       unsigned long maxAge, 
+    HTTPCookie(const std::string& name,
+	       const std::string& value,
+	       const std::string& comment,
+	       const std::string& domain,
+	       unsigned long maxAge,
 	       const std::string& path,
 	       bool secure);
-    
+
     /*!
      * \brief Copy constructor
      *
@@ -111,20 +111,20 @@ namespace cgicc {
      * \param cookie The HTTPCookie to copy.
      */
     HTTPCookie(const HTTPCookie& cookie);
-    
+
     /*!
-     * \brief Destructor 
+     * \brief Destructor
      *
      * Delete this HTTPCookie
      */
     virtual ~HTTPCookie();
     //@}
-    
+
     // ============================================================
-    
+
     /*! \name Overloaded Operators */
     //@{
-    
+
     /*!
      * \brief Compare two HTTPCookies for equality.
      *
@@ -133,9 +133,9 @@ namespace cgicc {
      * \param cookie The HTTPCookie to compare to this one
      * \return true if the two HTTPCookies are equal, false otherwise.
      */
-    bool 
+    bool
     operator== (const HTTPCookie& cookie) 	const;
-    
+
     /*!
      * \brief Compare two HTTPCookies for inequality.
      *
@@ -144,28 +144,28 @@ namespace cgicc {
      * \param cookie The HTTPCookie to compare to this one
      * \return false if the two HTTPCookies are equal, true otherwise.
      */
-    inline bool 
+    inline bool
     operator != (const HTTPCookie& cookie) 	const
     { return ! operator==(cookie); }
-    
+
 #ifdef WIN32
     /* Dummy operator for MSVC++ */
-    inline bool 
+    inline bool
     operator< (const HTTPCookie& cookie) 	const
     { return false; }
 #endif
     //@}
-    
+
     // ============================================================
-    
+
     /*! \name Accessor Methods */
     //@{
-    
+
 	/*!
      * \brief Mark this cookie as secure or unsecure.
      *
      */
-    inline void 
+    inline void
     remove()
     { fRemoved = true; }
 
@@ -174,7 +174,7 @@ namespace cgicc {
     *
      * \param removed Set removed status
      */
-    inline void 
+    inline void
     setRemoved(bool removed)
     { fRemoved = removed; }
  /*!
@@ -182,53 +182,53 @@ namespace cgicc {
      *
      * \return True if this cookie is removed, false if not.
      */
-    inline bool 
+    inline bool
     isRemoved()					const
     { return fRemoved; }
      /*!
-     * \brief Create a new partially-spefified HTTPCookie for deletion 
+     * \brief Create a new partially-spefified HTTPCookie for deletion
      *
-     * 
+     *
      * \param name The name of the cookie.
      * \param domain The domain for which this cookie is valid- an empty string
      * will use the hostname of the server which generated the cookie response.
-     * If specified, the domain <em>must</em> start with a period('.'). 
-     * \param path The subset of URLS in a domain for which the cookie is 
+     * If specified, the domain <em>must</em> start with a period('.').
+     * \param path The subset of URLS in a domain for which the cookie is
      * valid, for example \c /
      * @param secure Specifies whether this is a secure cookie.
      */
-    HTTPCookie(const std::string& name, 
-	       const std::string& domain, 
+    HTTPCookie(const std::string& name,
+	       const std::string& domain,
 	       const std::string& path,
 	       bool secure);
-	
+
     /*!
      * \brief Get the name of this cookie.
      *
      * \return The name of this cookie.
      */
-    inline std::string 
+    inline std::string
     getName() 					const
     { return fName; }
-    
+
     /*!
      * \brief Get the value of this cookie.
      *
      * \return The value of this cookie.
      */
-    inline std::string 
+    inline std::string
     getValue() 					const
     { return fValue; }
-    
+
     /*!
      * \brief Get the comment of this cookie.
      *
      * \return The comment of this cookie.
      */
-    inline std::string 
+    inline std::string
     getComment() 				const
     { return fComment; }
-    
+
     /*!
      * \brief Get the domain for which this cookie is valid.
      *
@@ -236,10 +236,10 @@ namespace cgicc {
      * generated the cookie response.
      * \return The domain of this cookie, or "" if none.
      */
-    inline std::string 
+    inline std::string
     getDomain() 				const
     { return fDomain; }
-    
+
     /*!
      * \brief Get the lifetime of this cookie, in seconds.
      *
@@ -248,60 +248,60 @@ namespace cgicc {
     inline unsigned long
     getMaxAge() 				const
     { return fMaxAge; }
-    
+
     /*!
      * \brief Get the path of this cookie.
      *
-     * This is the subset of URLS in a domain for which the cookie is 
+     * This is the subset of URLS in a domain for which the cookie is
      * valid, for example \c /
      * \return The path of this cookie, or "" if none.
      */
-    inline std::string 
+    inline std::string
     getPath() 					const
     { return fPath; }
-    
+
     /*!
      * \brief Determine if this is a secure cookie.
      *
      * \return True if this cookie is secure, false if not.
      */
-    inline bool 
+    inline bool
     isSecure() 					const
     { return fSecure; }
     //@}
-    
+
     // ============================================================
-    
+
     /*! \name Mutator Methods */
     //@{
-    
+
     /*!
      * \brief Set the name of this cookie.
      *
      * \param name The name of this cookie.
      */
-    inline void 
+    inline void
     setName(const std::string& name)
     { fName = name; }
-    
+
     /*!
      * \brief Set the value of this cookie.
      *
      * \param value The value of this cookie.
      */
-    inline void 
+    inline void
     setValue(const std::string& value)
     { fValue = value; }
-    
+
     /*!
      * \brief Set the comment of this cookie.
      *
      * \param comment The comment of this cookie.
      */
-    inline void 
+    inline void
     setComment(const std::string& comment)
     { fComment = comment; }
-    
+
     /*!
      * \brief Set the domain of this cookie.
      *
@@ -310,49 +310,49 @@ namespace cgicc {
      * <em>must</em> start with a period('.').
      * \param domain The domain of this cookie.
      */
-    inline void 
+    inline void
     setDomain(const std::string& domain)
     { fDomain = domain; }
-    
+
     /*!
      * \brief Set the lifetime of this cookie, in seconds.
      *
      * A value of \c 0 indicated the cookie expires immediately
-     * \param maxAge The lifetime of this cookie, in seconds. 
+     * \param maxAge The lifetime of this cookie, in seconds.
      */
-    inline void 
+    inline void
     setMaxAge(unsigned long maxAge)
     { fMaxAge = maxAge; }
-    
+
     /*!
      * \brief Set the path of this cookie.
      *
-     * This is the subset of URLS in a domain for which the cookie is 
+     * This is the subset of URLS in a domain for which the cookie is
      * valid, for example \c /
      * \param path The path of this cookie.
      */
-    inline void 
+    inline void
     setPath(const std::string& path)
     { fPath = path; }
-    
+
     /*!
      * \brief Mark this cookie as secure or unsecure.
      *
      * \param secure Whether this is a secure cookie.
      */
-    inline void 
+    inline void
     setSecure(bool secure)
     { fSecure = secure; }
-    //@}    
-    
+    //@}
+
     // ============================================================
-    
+
     /*! \name Inherited Methods */
     //@{
-    virtual void 
+    virtual void
     render(std::ostream& out) 			const;
     //@}
-    
+
   private:
     std::string 	fName;
     std::string 	fValue;
@@ -363,7 +363,7 @@ namespace cgicc {
     bool 		fSecure;
 	bool		fRemoved;
   };
-  
+
 } // namespace cgicc
 
 #endif /* ! _HTTPCOOKIE_H_ */

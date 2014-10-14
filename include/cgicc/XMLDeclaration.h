@@ -19,7 +19,7 @@
  *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this library; if not, write to the Free Software
- *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA 
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
  */
 #ifndef XMLDECLARATION_H
 #define XMLDECLARATION_H
@@ -34,7 +34,7 @@
 #include <string>
 
 namespace cgicc{
-/*! \class XMLDeclaration XMLDeclaration.h cgicc/XMLDeclaration.h 
+/*! \class XMLDeclaration XMLDeclaration.h cgicc/XMLDeclaration.h
    * \brief Class that abstracts a XMLDeclaration
    *
    * This class add the XMLDeclaration feature
@@ -42,11 +42,11 @@ namespace cgicc{
 class XMLDeclaration : public XMLPI {
 	public:
 		// ============================================================
-    
+
     /*! \name Constructor and Destructor */
     //@{
-    
-    /*! 
+
+    /*!
      * \brief Constructor
      *
      * Create a new XMLDeclaration.h object
@@ -54,7 +54,7 @@ class XMLDeclaration : public XMLPI {
      */
 	XMLDeclaration(std::string version = "1.0") : XMLPI("xml") { set("version", version); }
 	/*!
-     * \brief Destructor 
+     * \brief Destructor
      *
      * Delete this XMLDeclaration object
      */

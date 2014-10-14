@@ -18,7 +18,7 @@
  *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this library; if not, write to the Free Software
- *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA 
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
  */
 
 #ifndef _HTTPHTMLHEADER_H_
@@ -30,7 +30,7 @@
 
 /*! \file HTTPHTMLHeader.h
  * \brief Shortcut to HTTPContentHeader for \c text/html
- * 
+ *
  */
 
 #include "HTTPContentHeader.h"
@@ -44,27 +44,27 @@ namespace cgicc {
    * \brief Shortcut to HTTPContentHeader for \c text/html
    *
    */
-  class CGICC_API HTTPHTMLHeader : public HTTPContentHeader 
+  class CGICC_API HTTPHTMLHeader : public HTTPContentHeader
   {
   public:
-    
+
     /*! \name Constructor and Destructor */
     //@{
-    
+
     /*!
-     * \brief Create a new \c text/html header 
+     * \brief Create a new \c text/html header
      *
      */
     HTTPHTMLHeader();
-    
+
     /*!
-     * \brief Destructor 
+     * \brief Destructor
      *
      */
     virtual ~HTTPHTMLHeader();
     //@}
   };
-  
+
 } // namespace cgicc
 
 #endif /* ! _HTTPHTMLHEADER_H_ */

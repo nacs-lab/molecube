@@ -50,41 +50,41 @@
 #include "CgiEnvironment.h"
 
 namespace cgicc {
-  
+
 #ifdef WIN32
   template class CGICC_API std::vector<FormEntry>;
   template class CGICC_API std::vector<FormFile>;
 #endif
-  
+
   class MultipartHeader;
-  
+
   // ============================================================
   // Iterator typedefs
   // ============================================================
-  
+
   //! A vector of FormEntry objects
   typedef std::vector<FormEntry>::iterator 	form_iterator;
   //! A vector of \c const FormEntry objects
   typedef std::vector<FormEntry>::const_iterator const_form_iterator;
-  
+
   //! A vector of FormFile objects
   typedef std::vector<FormFile>::iterator 	file_iterator;
   //! A vector of \c const FormFile objects
   typedef std::vector<FormFile>::const_iterator const_file_iterator;
-  
+
   // ============================================================
   // Class Cgicc
   // ============================================================
-  
+
   /*! \class Cgicc Cgicc.h cgicc/Cgicc.h
    * \brief The main class of the GNU %cgicc library
    *
-   * Cgicc is used to retrieve information on specific HTML form elements 
+   * Cgicc is used to retrieve information on specific HTML form elements
    * (such as checkboxes, radio buttons, and text fields), on uploaded files,
    * and to save, restore, and retrieve information on the CGI
    * environment.
    *
-   * Normally, you will instantiate an object of this type in 
+   * Normally, you will instantiate an object of this type in
    * \c main():
    * \code
    * int
@@ -102,23 +102,23 @@ namespace cgicc {
    */
   class CGICC_API Cgicc {
   public:
-    
+
     // ============================================================
-    
+
     /*! \name Constructors and Destructor */
     //@{
-    
-    /*! 
-     * \brief Constructor 
+
+    /*!
+     * \brief Constructor
      *
-     * If you are using %cgicc with FastCGI, you will need to pass 
+     * If you are using %cgicc with FastCGI, you will need to pass
      * a \c CgiInput subclass that %cgicc will use to read input.  If
      * \c input is omitted, standard input and environment
      * variables will be used.
      * \param input A CgiInput object to use for reading input
      */
     Cgicc(CgiInput *input = 0);
-    
+
     /*!
      * \brief Copy constructor.
      *
@@ -130,19 +130,19 @@ namespace cgicc {
       : fEnvironment(cgi.fEnvironment)
     { operator=(cgi); }
 
-    /*! 
-     * \brief Destructor 
+    /*!
+     * \brief Destructor
      *
      * Delete this Cgicc object
      */
     ~Cgicc();
     //@}
-    
+
     // ============================================================
-    
+
     /*! \name Overloaded Operators */
     //@{
-    
+
     /*!
      * \brief Compare two Cgiccs for equality.
      *
@@ -150,10 +150,10 @@ namespace cgicc {
      * \param cgi The Cgicc to compare to this one.
      * \return \c true if the two Cgiccs are equal, \c false otherwise.
      */
-    inline bool 
+    inline bool
     operator== (const Cgicc& cgi) 		const
     { return this->fEnvironment == cgi.fEnvironment; }
-    
+
     /*!
      * \brief Compare two Cgiccs for inequality.
      *
@@ -164,41 +164,41 @@ namespace cgicc {
     inline bool
     operator!= (const Cgicc& cgi) 		const
     { return ! operator==(cgi); }
-    
+
 #ifdef WIN32
     /* Dummy operator for MSVC++ */
     inline bool
     operator< (const Cgicc& cgi) 		const
     { return false; }
 #endif
-    
+
     /*!
-     * \brief Assign one Cgicc to another.  
+     * \brief Assign one Cgicc to another.
      *
      * Sets the environment in this Cgicc to that of \c cgi.
      * \param cgi The Cgicc to copy.
      * \return A reference to this.
      */
-    Cgicc& 
+    Cgicc&
     operator= (const Cgicc& cgi);
     //@}
 
     // ============================================================
-    
-    /*! \name Library Information 
+
+    /*! \name Library Information
      * Information on this installation of %cgicc
      */
     //@{
-    
+
     /*!
      * \brief Get the date on which this library was compiled.
-     * 
+     *
      * This is a string of the form <TT>mmm dd yyyy</TT>.
      * \return The compile date
      */
     const char*
     getCompileDate() 					const;
-    
+
     /*!
      * \brief Get the time at which this library was compiled.
      *
@@ -207,7 +207,7 @@ namespace cgicc {
      */
     const char*
     getCompileTime() 					const;
-    
+
     /*!
      * \brief Get the version number of cgicc.
      *
@@ -216,8 +216,8 @@ namespace cgicc {
      */
     const char*
     getVersion() 					const;
-    
-    /*! 
+
+    /*!
      * \brief Get the platform for which Cgicc was configured.
      *
      * The host is a string of the form \c processor-manufacturer-os
@@ -226,30 +226,30 @@ namespace cgicc {
     const char*
     getHost() 						const;
     //@}
-    
+
     // ============================================================
-    
-    /*! \name Form Element Access 
+
+    /*! \name Form Element Access
      * Information on submitted form elements
      */
     //@{
-    
+
     /*!
      * \brief Query whether a checkbox is checked.
      *
      * \param elementName The name of the element to query
      * \return \c true if the desired checkbox was checked, \c false if not
      */
-    bool 
+    bool
     queryCheckbox(const std::string& elementName) 	const;
-    
+
     /*!
      * \brief Find a radio button in a radio group, or a selected list item.
      *
      * \param name The name of the radio button or list item to find.
      * \return An iterator referring to the desired element, if found.
      */
-    inline form_iterator 
+    inline form_iterator
     operator[] (const std::string& name)
     { return getElement(name); }
 
@@ -261,35 +261,35 @@ namespace cgicc {
      */
     std::string
     operator() (const std::string& name) 		const;
-    
+
     /*!
      * \brief Find a radio button in a radio group, or a selected list item.
      *
      * \param name The name of the radio button or list item to find.
      * \return An iterator referring to the desired element, if found.
      */
-    inline const_form_iterator 
+    inline const_form_iterator
     operator[] (const std::string& name) 		const
     { return getElement(name); }
-    
+
     /*!
      * \brief Find a radio button in a radio group, or a selected list item.
      *
      * \param name The name of the radio button or list item to find.
      * \return An iterator referring to the desired element, if found.
      */
-    form_iterator 
+    form_iterator
     getElement(const std::string& name);
-    
+
     /*!
      * \brief Find a radio button in a radio group, or a selected list item.
      *
      * \param name The name of the radio button or list item to find.
      * \return A const_iterator referring to the desired element, if found.
      */
-    const_form_iterator 
+    const_form_iterator
     getElement(const std::string& name) 		const;
-    
+
     /*!
      * \brief Find multiple checkboxes in a group or selected items in a list.
      *
@@ -297,28 +297,28 @@ namespace cgicc {
      * \param result A vector to hold the result.
      * \return \c true if any elements were found, \c false if not.
      */
-    bool 
+    bool
     getElement(const std::string& name,
 	       std::vector<FormEntry>& result) 		const;
-    
+
     /*!
      * \brief Find a radio button in a radio group, or a selected list item.
      *
      * \param value The value of the radio button or list item to find.
      * \return An iterator referring to the desired element, if found.
      */
-    form_iterator 
+    form_iterator
     getElementByValue(const std::string& value);
-    
+
     /*!
      * \brief Find a radio button in a radio group, or a selected list item.
      *
      * \param value The value of the radio button or list item to find.
      * \return A const_iterator referring to the desired element, if found.
      */
-    const_form_iterator 
+    const_form_iterator
     getElementByValue(const std::string& value) 	const;
-    
+
     /*!
      * \brief Find multiple checkboxes in a group or selected items in a list.
      *
@@ -326,19 +326,19 @@ namespace cgicc {
      * \param result A vector to hold the result.
      * \return true if any elements were found, false if not.
      */
-    bool 
+    bool
     getElementByValue(const std::string& value,
 		      std::vector<FormEntry>& result) 	const;
-    
+
     /*!
      * \brief Get all the submitted form entries, excluding files.
      *
      * \return A vector containing all the submitted elements.
      */
-    inline const std::vector<FormEntry>& 
+    inline const std::vector<FormEntry>&
     operator* () 					const
     { return fFormData; }
-    
+
     /*!
      * \brief Get all the submitted form elements, excluding files.
      *
@@ -348,30 +348,30 @@ namespace cgicc {
     getElements() 					const
     { return fFormData; }
     //@}
-    
+
     // ============================================================
-    
+
     /*! \name Uploaded File Access */
     //@{
-    
+
     /*!
      * \brief Find an uploaded file.
      *
      * \param name The name of the file.
      * \return An iterator referring to the desired file, if found.
      */
-    file_iterator 
+    file_iterator
     getFile(const std::string& name);
-    
+
     /*!
      * \brief Find an uploaded file.
      *
      * \param name The name of the file.
      * \return An iterator referring to the desired file, if found.
      */
-    const_file_iterator 
+    const_file_iterator
     getFile(const std::string& name) 			const;
-    
+
     /*!
      * Get all uploaded files.
      * \return A vector containing all the uploaded files.
@@ -380,12 +380,12 @@ namespace cgicc {
     getFiles() 						const
     { return fFormFiles; }
     //@}
-    
+
     // ============================================================
-    
+
     /*! \name Environment Access */
     //@{
-    
+
     /*!
      * Get the current runtime environment.
      * \return The current CGI environment.
@@ -394,59 +394,59 @@ namespace cgicc {
     getEnvironment() 					const
     { return fEnvironment;}
     //@}
-    
+
     // ============================================================
-    
+
     /*! \name Save and Restore */
     //@{
-    
+
     /*!
      * \brief Save the current CGI environment to a file.
      *
      * This is useful for debugging CGI applications.
      * \param filename The name of the file to which to save.
      */
-    void 
+    void
     save(const std::string& filename) 			const;
-    
+
     /*!
      * \brief Restore from a previously-saved CGI environment.
      *
      * This is useful for debugging CGI applications.
      * \param filename The name of the file from which to restore.
      */
-    void 
+    void
     restore(const std::string& filename);
     //@}
-    
+
   private:
     CgiEnvironment 		fEnvironment;
     std::vector<FormEntry> 	fFormData;
     std::vector<FormFile> 	fFormFiles;
 
     // Convert query string into a list of FormEntries
-    void 
+    void
     parseFormInput(const std::string& data, const std::string& content_type = "application/x-www-form-urlencoded");
-    
+
     // Parse a multipart/form-data header
     MultipartHeader
     parseHeader(const std::string& data);
-    
+
     // Parse a (name=value) form entry
-    void 
+    void
     parsePair(const std::string& data);
-    
+
     // Parse a MIME entry for ENCTYPE=""
     void
     parseMIME(const std::string& data);
-    
+
     // Find elements in the list of entries
-    bool 
-    findEntries(const std::string& param, 
+    bool
+    findEntries(const std::string& param,
 		bool byName,
 		std::vector<FormEntry>& result) 	const;
   };
-  
+
 } // namespace cgicc
 
 #endif /* ! _CGICC_H_ */

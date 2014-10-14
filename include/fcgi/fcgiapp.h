@@ -233,7 +233,7 @@ DLLAPI void FCGX_Finish_r(FCGX_Request *request);
  *
  * FCGX_Free --
  *
- *      Free the memory and, if close is true, 
+ *      Free the memory and, if close is true,
  *	    IPC FD associated with the request (multi-thread safe).
  *
  *----------------------------------------------------------------------
@@ -585,7 +585,7 @@ DLLAPI void FCGX_ClearError(FCGX_Stream *stream);
  *
  * FCGX_CreateWriter --
  *
- *      Create a FCGX_Stream (used by cgi-fcgi).  This shouldn't 
+ *      Create a FCGX_Stream (used by cgi-fcgi).  This shouldn't
  *      be needed by a FastCGI applictaion.
  *
  *----------------------------------------------------------------------
@@ -601,7 +601,7 @@ DLLAPI FCGX_Stream *FCGX_CreateWriter(
  *
  * FCGX_FreeStream --
  *
- *      Free a FCGX_Stream (used by cgi-fcgi).  This shouldn't 
+ *      Free a FCGX_Stream (used by cgi-fcgi).  This shouldn't
  *      be needed by a FastCGI applictaion.
  *
  *----------------------------------------------------------------------

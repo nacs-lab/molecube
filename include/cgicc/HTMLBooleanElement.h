@@ -18,7 +18,7 @@
  *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this library; if not, write to the Free Software
- *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA 
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
  */
 
 #ifndef _HTMLBOOLEANELEMENT_H_
@@ -38,7 +38,7 @@ namespace cgicc {
   // ============================================================
   // Template for concrete boolean HTML element classes
   // ============================================================
-  
+
   /*! \class HTMLBooleanElement HTMLBooleanElement.h cgicc/HTMLBooleanElement.h
    * \brief Template for concrete boolean HTMLElement subclasses
    *
@@ -59,23 +59,23 @@ namespace cgicc {
    * \sa HTMLAtomicElement
    */
   template<class Tag>
-  class HTMLBooleanElement : public HTMLElement 
+  class HTMLBooleanElement : public HTMLElement
   {
   public:
-    
+
     // ============================================================
-    
+
     /*! \name Constructors and Destructor */
     //@{
-    
-    /*! 
-     * \brief Create a new empty boolean element. 
+
+    /*!
+     * \brief Create a new empty boolean element.
      *
      */
     HTMLBooleanElement()
       : HTMLElement(0, 0, 0, eBoolean)
     {}
-    
+
     /*!
      * \brief Create a new element, specifying the enclosed text.
      * \param text The text within the element.
@@ -83,7 +83,7 @@ namespace cgicc {
     HTMLBooleanElement(const std::string& text)
       : HTMLElement(0, 0, &text, eBoolean)
     {}
-    
+
     /*!
      * \brief Create a new element, specifying the HTMLAttribute objects.
      * \param attributes The HTMLAttributes contained within the element.
@@ -91,7 +91,7 @@ namespace cgicc {
     HTMLBooleanElement(const HTMLAttributeList& attributes)
       : HTMLElement(&attributes, 0, 0, eBoolean)
     {}
-    
+
     /*!
      * \brief Create a new element, specifying an embedded HTMLElement.
      * \param embedded The HTMLElement embedded inside the element.
@@ -99,49 +99,49 @@ namespace cgicc {
     HTMLBooleanElement(const HTMLElement& embedded)
       : HTMLElement(0, &embedded, 0, eBoolean)
     {}
-    
+
     /*!
-     * \brief Create a new element, specifying the enclosed text and 
+     * \brief Create a new element, specifying the enclosed text and
      * HTMLAttribute objects.
      * \param attributes The HTMLAttributes contained within the element.
      * \param text The text within the element.
      */
-    HTMLBooleanElement(const std::string& text, 
+    HTMLBooleanElement(const std::string& text,
 		       const HTMLAttributeList& attributes)
       : HTMLElement(&attributes, 0, &text, eBoolean)
     {}
-    
+
     /*!
-     * \brief Create a new element, specifying the HTMLAttributes and embedded 
+     * \brief Create a new element, specifying the HTMLAttributes and embedded
      * HTMLElement.
      * \param attributes The HTMLAttributes contained within the element.
      * \param embed The HTMLElement embedded inside the element.
      */
-    HTMLBooleanElement(const HTMLAttributeList& attributes, 
+    HTMLBooleanElement(const HTMLAttributeList& attributes,
 		       const HTMLElement& embed)
       : HTMLElement(&attributes, &embed, 0, eBoolean)
     {}
-    
-    /*! 
-     * \brief Destructor 
+
+    /*!
+     * \brief Destructor
      *
      */
     virtual ~HTMLBooleanElement()
     {}
     //@}
-    
+
     // ============================================================
-    
+
     /*!
-     * \brief Clone this element 
+     * \brief Clone this element
      * \return A newly-allocated copy of this element
-     */  
-    virtual inline HTMLElement* 
+     */
+    virtual inline HTMLElement*
     clone() 					const
     { return new HTMLBooleanElement<Tag>(*this); }
-    
+
     // ============================================================
-    
+
     /*!
      * \brief Get the name of this element.  For example, "strong"
      * \return The name of this element
@@ -149,45 +149,45 @@ namespace cgicc {
     virtual inline const char*
     getName() 					const
     { return Tag::getName(); }
-    
+
     // ============================================================
-    
+
     /*! \name State Management */
     //@{
-    
+
     /*!
      * \brief Swap the state of this boolean element
      *
      * A state of \c true indicates the element is currently open
      */
-    virtual inline void 
+    virtual inline void
     swapState() 					const
     { sState = ! sState; }
-    
-    /*! 
-     * \brief Get the state of this boolean element 
+
+    /*!
+     * \brief Get the state of this boolean element
      * \return \c true if this element is open, \c false otherwise
      */
-    virtual inline bool 
-    getState() 					const 
+    virtual inline bool
+    getState() 					const
     { return sState; }
-    
-    /*! 
+
+    /*!
      * \brief Reset the state of this boolean element to closed
      *
      */
-    static inline void 
+    static inline void
     reset()
     { sState = false; }
     //@}
-    
+
   private:
     static bool sState;
   };
-  
+
   template<class Tag>
   bool cgicc::HTMLBooleanElement<Tag>::sState = false;
-  
+
 } // namespace cgicc
 
 #endif /* ! _HTMLBOOLEANELEMENT_H_ */

@@ -43,7 +43,7 @@
 
 
 namespace cgicc {
-  
+
   /*!
    * \brief Compare two strings for equality, ignoring case.
    *
@@ -53,9 +53,9 @@ namespace cgicc {
    * \return \c true if the strings are equal, \c false if they are not
    */
   CGICC_API bool
-  stringsAreEqual(const std::string& s1, 
+  stringsAreEqual(const std::string& s1,
 		  const std::string& s2);
-  
+
   /*!
    * \brief Compare two strings for equality, ignoring case.
    *
@@ -66,15 +66,15 @@ namespace cgicc {
    * \return \c true if the strings are equal, \c false if they are not
    */
   CGICC_API bool
-  stringsAreEqual(const std::string& ss1, 
+  stringsAreEqual(const std::string& ss1,
 		  const std::string& ss2,
 		  size_t n);
-  
+
   /*!
-   * \brief Convert encoded characters in form data to normal ASCII. 
+   * \brief Convert encoded characters in form data to normal ASCII.
    *
    * For example, "%21" is converted to '!' and '+' is converted to a space.
-   * Normally, this is called internally to decode the query string or post 
+   * Normally, this is called internally to decode the query string or post
    * data.
    * \param src The src string containing the encoded characters
 
@@ -92,7 +92,7 @@ namespace cgicc {
    */
   CGICC_API std::string
   form_urlencode(const std::string& src);
-  
+
 
   /*!
    * \brief Convert an ASCII character to its hexadecimal equivalent.
@@ -109,7 +109,7 @@ namespace cgicc {
    */
   CGICC_API std::string
   charToHex(char c);
-  
+
   /*!
    * \brief Convert a hex-encoded character to its ASCII equivalent.
    *
@@ -127,7 +127,7 @@ namespace cgicc {
   CGICC_API char
   hexToChar(char first,
 	    char second);
-  
+
   /*!
    * \brief Extract a substring contained within two separators.
    *
@@ -144,10 +144,10 @@ namespace cgicc {
    * \return The substring between the separators.
    */
   std::string
-  extractBetween(const std::string& data, 
-		 const std::string& separator1, 
+  extractBetween(const std::string& data,
+		 const std::string& separator1,
 		 const std::string& separator2);
-  
+
   /*!
    * \brief Extract a substring contained between a separator.
    *
@@ -157,10 +157,10 @@ namespace cgicc {
    * \return The substring between the separator.
    */
   inline std::string
-  extractBetween(const std::string& datas, 
+  extractBetween(const std::string& datas,
 		 const std::string& separators)
   { return extractBetween(datas, separators, separators); }
-  
+
   /*!
    * \brief Write a string to an ostream.
    *
@@ -168,10 +168,10 @@ namespace cgicc {
    * \param out The ostream to which to write.
    * \param s The string to write.
    */
-  void 
-  writeString(std::ostream& out, 
+  void
+  writeString(std::ostream& out,
 	      const std::string& s);
-  
+
   /*!
    * \brief Write a long to an ostream.
    *
@@ -179,10 +179,10 @@ namespace cgicc {
    * \param out The ostream to which to write.
    * \param l The long to write.
    */
-  void 
-  writeLong(std::ostream& out, 
+  void
+  writeLong(std::ostream& out,
 	    unsigned long l);
-  
+
   /*!
    * \brief Read a string from an istream.
    *
@@ -192,7 +192,7 @@ namespace cgicc {
    */
   std::string
   readString(std::istream& in);
-  
+
   /*!
    * \brief Read a long from an istream.
    *
@@ -202,7 +202,7 @@ namespace cgicc {
    */
   unsigned long
   readLong(std::istream& in);
-  
+
 } // namespace cgicc
 
 #endif /* ! _CGIUTILS_H_ */

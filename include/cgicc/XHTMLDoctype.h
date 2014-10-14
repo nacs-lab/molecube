@@ -19,7 +19,7 @@
  *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this library; if not, write to the Free Software
- *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA 
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
  */
 #ifndef XXHTMLDoctype_H
 #define XXHTMLDoctype_H
@@ -36,7 +36,7 @@
 
 namespace cgicc {
 
-/*! \class XHTMLDoctype XHTMLDoctype.h cgicc/XHTMLDoctype.h 
+/*! \class XHTMLDoctype XHTMLDoctype.h cgicc/XHTMLDoctype.h
    * \brief Class that abstracts a XHTML Doc Type
    *
    * This class add the XHTML Doc Type feature
@@ -49,11 +49,11 @@ class CGICC_API XHTMLDoctype : public MStreamable {
 		eFrames
 	};
 	// ============================================================
-    
+
     /*! \name Constructor and Destructor */
     //@{
-    
-    /*! 
+
+    /*!
      * \brief Constructor
      *
      * Create a new XHTMLDoctype.h object
@@ -61,16 +61,16 @@ class CGICC_API XHTMLDoctype : public MStreamable {
      */
 	XHTMLDoctype(EDocumentType type = eStrict);
 	/*!
-     * \brief Destructor 
+     * \brief Destructor
      *
      * Delete this XHTMLDoctype.h object
      */
 	virtual ~XHTMLDoctype();
-	
+
 	//@}
-	
+
 	virtual void render(std::ostream& out) const;
-	
+
 	private:
 	EDocumentType fType;
 };

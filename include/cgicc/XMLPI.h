@@ -19,12 +19,12 @@
  *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this library; if not, write to the Free Software
- *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA 
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
  */
 #ifndef XMLPI_H
 #define XMLPI_H
 /*! \file XMLPI.h
- * \brief Class that abstracts a XMLPI 
+ * \brief Class that abstracts a XMLPI
  *
  * This class add the XML Declaration feature
  */
@@ -36,7 +36,7 @@
 #include "HTMLAttributeList.h"
 
 namespace cgicc {
-/*! \class XMLPI XMLPI.h cgicc/XMLPI.h 
+/*! \class XMLPI XMLPI.h cgicc/XMLPI.h
    * \brief Class that abstracts a XMLPI
    *
    * This class add the XMLPI feature
@@ -44,27 +44,27 @@ namespace cgicc {
 class XMLPI : public MStreamable {
 	public:
 	// ============================================================
-    
+
     /*! \name Constructor and Destructor */
     //@{
-    
-    /*! 
+
+    /*!
 	* \brief Constructor
           *
 	* Create a new XMLPI.h object
 	* \param input The name of the XMLPI
 	*/
 	XMLPI(std::string name);
-	
+
 	/*!
-	* \brief Destructor 
+	* \brief Destructor
 	*
 	* Delete this XMLPI object
 	*/
 	virtual ~XMLPI();
 	//@}
-	
-	
+
+
 	XMLPI& operator= (const XMLPI& element);
 	inline std::string getName() const { return fName; }
 	inline const HTMLAttributeList* getAttributes() const { return fAttributes; }
@@ -72,7 +72,7 @@ class XMLPI : public MStreamable {
 	XMLPI& set(const std::string& name);
 	XMLPI& set(const std::string& name, const std::string& value);
 	virtual void render(std::ostream& out) const;
-	
+
 	private:
 	HTMLAttributeList* fAttributes;
 	std::string fName;

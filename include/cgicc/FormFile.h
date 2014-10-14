@@ -18,7 +18,7 @@
  *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this library; if not, write to the Free Software
- *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA 
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
  */
 
 #ifndef _FORMFILE_H_
@@ -43,11 +43,11 @@
 #include "CgiDefs.h"
 
 namespace cgicc {
-  
+
   // ============================================================
   // Class FormFile
   // ============================================================
-  
+
   /*! \class FormFile FormFile.h cgicc/FormFile.h
    * \brief Class representing a file submitted via an HTML form.
    *
@@ -56,7 +56,7 @@ namespace cgicc {
    * in your CGI application, remember to set the ENCTYPE of the form to
    * \c multipart/form-data.
    * \verbatim
-   <form method="post" action="http://change_this_path/cgi-bin/upload.cgi" 
+   <form method="post" action="http://change_this_path/cgi-bin/upload.cgi"
    enctype="multipart/form-data">
    \endverbatim
    * \sa FormEntry
@@ -64,21 +64,21 @@ namespace cgicc {
   class CGICC_API FormFile
   {
   public:
-    
+
     // ============================================================
-    
+
     /*! \name Constructors and Destructor */
     //@{
-    
+
     /*!
      * \brief Default constructor
      *
-     * Shouldn't be used. 
+     * Shouldn't be used.
      */
     inline
     FormFile()
     {}
-    
+
     /*!
      * \brief Create a new FormFile.
      *
@@ -88,11 +88,11 @@ namespace cgicc {
      * \param dataType The MIME content type of the data, if specified, or 0.
      * \param data The file data.
      */
-    FormFile(const std::string& name, 
-	     const std::string& filename, 
-	     const std::string& dataType, 
+    FormFile(const std::string& name,
+	     const std::string& filename,
+	     const std::string& dataType,
 	     const std::string& data);
-    
+
     /*!
      * \brief Copy constructor.
      *
@@ -102,9 +102,9 @@ namespace cgicc {
     inline
     FormFile(const FormFile& file)
     { operator=(file); }
-    
-    /*! 
-     * \brief Destructor 
+
+    /*!
+     * \brief Destructor
      *
      * Delete this FormFile object
      */
@@ -112,12 +112,12 @@ namespace cgicc {
     ~FormFile()
     {}
     //@}
-    
+
     // ============================================================
-    
+
     /*! \name Overloaded Operators */
     //@{
-    
+
     /*!
      * \brief Compare two FormFiles for equality.
      *
@@ -125,9 +125,9 @@ namespace cgicc {
      * @param file The FormFile to compare to this one.
      * @return \c true if the two FormFiles are equal, \c false otherwise.
      */
-    bool 
+    bool
     operator== (const FormFile& file) 			const;
-    
+
     /*!
      * \brief Compare two FormFiles for inequality.
      *
@@ -135,17 +135,17 @@ namespace cgicc {
      * \param file The FormFile to compare to this one.
      * \return \c false if the two FormFiles are equal, \c true otherwise.
      */
-    inline bool 
+    inline bool
     operator!= (const FormFile& file) 			const
     { return ! operator==(file); }
-    
+
 #ifdef WIN32
     /* Dummy operator for MSVC++ */
     inline bool
     operator< (const FormFile& file) 			const
     { return false; }
 #endif
-    
+
     /*!
      * \brief Assign one FormFile to another.
      *
@@ -153,26 +153,26 @@ namespace cgicc {
      * \param file The FormFile to copy.
      * \return A reference to this.
      */
-    FormFile& 
+    FormFile&
     operator= (const FormFile& file);
     //@}
-    
+
     // ============================================================
-    
-    /*! \name Accessor Methods 
+
+    /*! \name Accessor Methods
      * Information on the uploaded file
      */
     //@{
-    
+
     /*!
      * \brief Write this file data to the specified stream.
      *
      * This is useful for saving uploaded data to disk
      * \param out The ostream to which to write.
      */
-    void 
+    void
     writeToStream(std::ostream& out) 			const;
-    
+
     /*!
      * \brief Get the name of the form element.
      *
@@ -183,7 +183,7 @@ namespace cgicc {
     inline std::string
     getName() 						const
     { return fName; }
-    
+
     /*!
      * \brief Get the basename of the file on the remote machine.
      *
@@ -193,27 +193,27 @@ namespace cgicc {
     inline std::string
     getFilename() 					const
     { return fFilename; }
-    
+
     /*!
      * \brief Get the MIME type of the file data.
      *
      * This will be of the form \c text/plain or \c image/jpeg
-     * \return The MIME type of the file data.  
+     * \return The MIME type of the file data.
      */
-    inline std::string 
+    inline std::string
     getDataType() 					const
     { return fDataType; }
-    
+
     /*!
-     * \brief Get the file data.  
+     * \brief Get the file data.
      *
      * This returns the raw file data as a string
      * \return The file data.
      */
-    inline std::string 
+    inline std::string
     getData() 					const
     { return fData; }
-    
+
     /*!
      * \brief Get the length of the file data
      *
@@ -224,14 +224,14 @@ namespace cgicc {
     getDataLength() 				const
     { return fData.length(); }
     //@}
-    
+
   private:
     std::string 	fName;
     std::string 	fFilename;
     std::string 	fDataType;
     std::string 	fData;
   };
-  
+
 } // namespace cgicc
 
 #endif /* ! _FORMFILE_H_ */

@@ -18,7 +18,7 @@
  *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this library; if not, write to the Free Software
- *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA 
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
  */
 
 #ifndef _HTMLELEMENT_H_
@@ -30,7 +30,7 @@
 
 /*! \file HTMLElement.h
  * \brief Class dealing with HTML elements
- * 
+ *
  * For example, \c a, \c img, \c html, and \c body, are all HTML elements.
  */
 
@@ -43,11 +43,11 @@
 namespace cgicc {
 
   class HTMLElementList;
-  
+
   // ============================================================
   // Class HTMLElement
   // ============================================================
-  
+
   /*! \class HTMLElement HTMLElement.h cgicc/HTMLElement.h
    * \brief Class representing an HTML element.
    *
@@ -57,12 +57,12 @@ namespace cgicc {
    * This class is an abstract base class that defines the interface
    * for all HTMLElement subclasses.
    */
-  class CGICC_API HTMLElement : public MStreamable 
+  class CGICC_API HTMLElement : public MStreamable
   {
   public:
-    
-    /*! 
-     * \brief Possible types of HTMLElements 
+
+    /*!
+     * \brief Possible types of HTMLElements
      *
      * An HTMLElement is either atomic, meaning it has no corresponding
      * closing tag (elements such as \c hr and \c br are atomic) or
@@ -74,12 +74,12 @@ namespace cgicc {
       /*! Boolean element, such as \c strong */
       eBoolean
     };
-    
+
     // ============================================================
-    
+
     /*! \name Constructors and Destructor */
     //@{
-    
+
     /*!
      * \brief Copy constructor.
      *
@@ -87,20 +87,20 @@ namespace cgicc {
      * \param element The HTMLElement to copy.
      */
     HTMLElement(const HTMLElement& element);
-    
+
     /*!
-     * \brief Destructor 
+     * \brief Destructor
      *
      * Delete this HTMLElement object
      */
     virtual ~HTMLElement();
     //@}
-    
+
     // ============================================================
-    
+
     /*! \name Overloaded Operators */
     //@{
-    
+
     /*!
      * \brief Compare two HTMLElements for equality.
      *
@@ -108,9 +108,9 @@ namespace cgicc {
      * \param element The HTMLElement to compare to this one.
      * \return \c true if the two HTMLElements are equal, \c false otherwise.
      */
-    bool 
+    bool
     operator== (const HTMLElement& element) 		const;
-    
+
     /*!
      * \brief Compare two HTMLElements for inequality.
      *
@@ -118,19 +118,19 @@ namespace cgicc {
      * \param element The HTMLElement to compare to this one.
      * \return \c false if the two HTMLElements are equal, \c true otherwise.
      */
-    inline bool 
+    inline bool
     operator!= (const HTMLElement& element) 		const
     { return ! operator==(element); }
-    
+
 #ifdef WIN32
     /* Dummy operator for MSVC++ */
     inline bool
     operator< (const HTMLElement& element)		const
     { return false; }
 #endif
-    
+
     /*!
-     * \brief Assignment operator 
+     * \brief Assignment operator
      *
      * Sets the name and internal state of this element to those of \c element
      * \param element The HTMLElement to copy
@@ -139,14 +139,14 @@ namespace cgicc {
     HTMLElement&
     operator= (const HTMLElement& element);
     //@}
-    
+
     // ============================================================
-    
-    /*! \name Accessor Methods 
+
+    /*! \name Accessor Methods
      * Information on the element
      */
     //@{
-    
+
     /*!
      * \brief Get the name of this element.
      *
@@ -155,7 +155,7 @@ namespace cgicc {
      */
     virtual const char*
     getName() 					const = 0;
-    
+
     /*!
      * \brief Get the data contained in this element, if any.
      *
@@ -165,9 +165,9 @@ namespace cgicc {
     inline std::string
     getData()  					const
     { return fData; }
-    
+
     /*!
-     * \brief Get the type of this element 
+     * \brief Get the type of this element
      *
      * Most HTMLElements are boolean
      * \return The type of this element
@@ -176,14 +176,14 @@ namespace cgicc {
     getType() 					const
     { return fType; }
     //@}
-    
+
     // ============================================================
-    
-    /*! \name Mutator Methods 
+
+    /*! \name Mutator Methods
      * Set properties of the element
      */
     //@{
-    
+
     /*!
      * \brief Set the data contained in this element.
      *
@@ -194,25 +194,25 @@ namespace cgicc {
     setData(const std::string& data)
     { fData = data; }
     //@}
-    
+
     // ============================================================
-    
+
     /*!
-     * \brief Clone this HTMLElement 
+     * \brief Clone this HTMLElement
      *
      * This performs a deep copy of the element
      * \return A pointer to a newly-allocated copy of \c this.
      */
     virtual HTMLElement*
     clone() 					const = 0;
-    
+
     // ============================================================
-    
-    /*! \name Embedded HTMLElement Management 
+
+    /*! \name Embedded HTMLElement Management
      * Manage elements embedded in this one
      */
     //@{
-    
+
     /*!
      * \brief Get the HTMLElementList embedded in this element, if any.
      *
@@ -222,7 +222,7 @@ namespace cgicc {
     inline const HTMLElementList*
     getEmbedded() 				const
     { return fEmbedded; }
-    
+
     /*!
      * \brief Set the HTMLElementList associated with this element.
      *
@@ -230,21 +230,21 @@ namespace cgicc {
      * \param embedded The HTMLElementList containing the HTMLElements
      * embedded in this element.
      */
-    void 
+    void
     setEmbedded(const HTMLElementList& embedded);
-    
+
     /*!
-     * \brief Add an embedded HTMLElement in this one 
+     * \brief Add an embedded HTMLElement in this one
      *
-     * 
+     *
      * \param element A reference to an HTMLElement to embed in this one
      * \return A reference to \c this
      */
     HTMLElement&
     add(const HTMLElement& element);
-    
+
     /*!
-     * \brief Add an embedded HTMLElement in this one 
+     * \brief Add an embedded HTMLElement in this one
      *
      * This element takes ownership of \c element, which should not be deleted.
      * \param element A pointer to an HTMLElement to embed.
@@ -253,14 +253,14 @@ namespace cgicc {
     HTMLElement&
     add(HTMLElement *element);
     //@}
-    
+
     // ============================================================
-    
-    /*! \name HTMLAttribute Management 
+
+    /*! \name HTMLAttribute Management
      * Manage attributes embedded in this element
      */
     //@{
-    
+
     /*!
      * \brief Get the attributes associated with this element.
      *
@@ -270,29 +270,29 @@ namespace cgicc {
     inline const HTMLAttributeList*
     getAttributes() 				const
     { return fAttributes; }
-    
+
     /*!
      * \brief Set the attributes associated with this element.
      *
      * This is usually called by subclass constructors
-     * \param attributes The HTMLAttributeList containing the HTMLAttributes 
+     * \param attributes The HTMLAttributeList containing the HTMLAttributes
      * belonging to this element.
      */
-    void 
+    void
     setAttributes(const HTMLAttributeList& attributes);
-    
+
     /*!
-     * \brief Set an HTMLAttribute on this HTMLElement 
+     * \brief Set an HTMLAttribute on this HTMLElement
      *
-     * 
+     *
      * \param name The name of the HTMLAttribute to set
      * \return A reference to \c this
      */
     HTMLElement&
     set(const std::string& name);
-    
+
     /*!
-     * \brief Set an HTMLAttribute on this HTMLElement 
+     * \brief Set an HTMLAttribute on this HTMLElement
      *
      *
      * \param name The name of the HTMLAttribute
@@ -303,45 +303,45 @@ namespace cgicc {
     set(const std::string& name,
 	const std::string& value);
     //@}
-    
+
     // ============================================================
-    
-    /*! \name Boolean element methods 
+
+    /*! \name Boolean element methods
      * Methods specific to boolean elements
      */
     //@{
-    
-    /*! 
-     * \brief Swap the state of the boolean element 
+
+    /*!
+     * \brief Swap the state of the boolean element
      *
      * A state of \c true means the element is active
      */
-    virtual void 
+    virtual void
     swapState() 				const
     {}
-    
+
     /*!
-     * \brief Get the state of this boolean element 
+     * \brief Get the state of this boolean element
      *
-     * 
+     *
      * \return \c true if the element is active, \c false otherwise
      */
-    virtual bool 
+    virtual bool
     getState() 					const
     { return false; }
     //@}
-    
+
     /*!
      * \brief Render this HTMLElement to an ostream
      *
      * This is used for output
      * \param out The ostream to which to write
      */
-    virtual void 
+    virtual void
     render(std::ostream& out) 			const;
-    
+
   protected:
-    
+
     /*!
      * \brief Subclass constructor
      *
@@ -356,7 +356,7 @@ namespace cgicc {
 		const HTMLElement *embedded,
 		const std::string *data,
 		EElementType type);
-    
+
     /*!
      * \brief For subclasses only
      *
@@ -366,17 +366,17 @@ namespace cgicc {
     inline bool
     dataSpecified() 				const
     { return fDataSpecified; }
-    
+
   private:
     HTMLElement() {}
-    
+
     HTMLAttributeList 	*fAttributes;
     HTMLElementList 	*fEmbedded;
     std::string 	fData;
     EElementType 	fType;
     bool 		fDataSpecified;
   };
-  
+
 } // namespace cgicc
 
 #endif /* ! _HTMLELEMENT_H_ */

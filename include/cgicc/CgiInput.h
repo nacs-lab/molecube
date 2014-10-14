@@ -18,7 +18,7 @@
  *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this library; if not, write to the Free Software
- *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA 
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
  */
 
 #ifndef _CGIINPUT_H_
@@ -44,12 +44,12 @@ namespace cgicc {
   // ============================================================
   // Class CgiInput
   // ============================================================
-  
-  /*! \class CgiInput CgiInput.h cgicc/CgiInput.h 
+
+  /*! \class CgiInput CgiInput.h cgicc/CgiInput.h
    * \brief Class that abstracts a data source
    *
    * The \c CgiInput class is an abstraction for all input data to the
-   * CGI application. This allows input data to come from something other than 
+   * CGI application. This allows input data to come from something other than
    * standard input (cin).  This is useful, in fact necessary, when using
    * %cgicc with FastCgi.
    * Library users wishing to exploit this functionality should create a
@@ -58,13 +58,13 @@ namespace cgicc {
   class CGICC_API CgiInput
   {
   public:
-    
+
     // ============================================================
-    
+
     /*! \name Constructor and Destructor */
     //@{
-    
-    /*! 
+
+    /*!
      * \brief Constructor
      *
      * Create a new CgiInput object
@@ -72,8 +72,8 @@ namespace cgicc {
     inline
     CgiInput()
     {}
-    
-    /*! 
+
+    /*!
      * \brief Copy constructor
      *
      * If you subclass CgiInput, you <strong>must</strong> overload
@@ -83,21 +83,21 @@ namespace cgicc {
     inline
     CgiInput(const CgiInput& input)
     { operator=(input); }
-    
+
     /*!
-     * \brief Destructor 
+     * \brief Destructor
      *
      * Delete this CgiInput object
      */
     virtual ~CgiInput();
     //@}
-    
-    
+
+
     // ============================================================
-    
+
     /*! \name Overloaded Operators */
     //@{
-    
+
     /*!
      * \brief Compare two CgiInput objects for equality
      *
@@ -105,10 +105,10 @@ namespace cgicc {
      * \param input The CgiInput object to compare to this one
      * \return \c true
      */
-    inline bool 
+    inline bool
     operator== (const CgiInput& /*input*/) 		const
     { return true; }
-    
+
     /*!
      * \brief Compare two CgiInput objects for inequality
      *
@@ -119,7 +119,7 @@ namespace cgicc {
     inline bool
     operator!= (const CgiInput& input) 			const
     { return ! operator==(input); }
-    
+
     /*!
      * \brief Assign one CgiInput to another
      *
@@ -127,16 +127,16 @@ namespace cgicc {
      * \param input The CgiInput object to copy
      * \return A reference to this.
      */
-    inline CgiInput& 
+    inline CgiInput&
     operator= (const CgiInput& /*input*/)
     { return *this; }
     //@}
-    
+
     // ============================================================
-    
+
     /*! \name Data Sources */
     //@{
-    
+
     /*!
      * \brief Read data from a data source
      *
@@ -146,7 +146,7 @@ namespace cgicc {
      * \return The number of characters read
      */
     virtual size_t read(char *data, size_t length);
-    
+
     /*!
      * \brief Query the value of an environment variable
      *
@@ -158,7 +158,7 @@ namespace cgicc {
     virtual std::string getenv(const char *varName);
     //@}
   };
-  
+
 } // namespace cgicc
 
 #endif /* ! _CGIINPUT_H_ */

@@ -22,7 +22,7 @@ extern FILE* gLog;
 void init_system()
 {
     flocker fl(g_fPulserLock);
-    
+
     if(gDebugLevel > 1) {
 #ifdef __PPC__
         printf("PPC hardware\r\n");
@@ -40,7 +40,7 @@ void init_system()
     fprintf(gLog, "NDDS = %d  (REF_CLK = %u MHz)   NSPI = %d\n",
             (int)NDDS, (unsigned)(AD9914_CLK*1e-6), (int)NSPI);
     fflush(gLog);
-    
+
     //set priority
     int nice = -20; // -20 = highest priority, 0 = default, 19 = lowest priority
     int ret=setpriority(PRIO_PROCESS, 0, nice);
@@ -48,13 +48,13 @@ void init_system()
         fprintf(gLog, "Set priority to %d.  SUCCESS\n", nice);
     else
         fprintf(gLog, "Set priority to %d.  FAILURE  ERRNO=%d\n", nice, errno);
-        
+
     init_pulse_controller();
     fprintf(gLog, "Initializing pulse controller at address %p...\r\n", (void*) pulser);
     PULSER_init(pulser, NDDS, false, gDebugLevel);
     fprintf(gLog, "Initializing pulse controller...done.\r\n");
     fflush(gLog);
-    
+
     PULSER_disable_timing_check(pulser);
     PULSER_clear_timing_check(pulser);
 
@@ -78,7 +78,7 @@ void init_system()
         active_dds.push_back(j);
       }
     }
-    
+
     //initialize active DDS if necessary
     for (unsigned j=0; j<active_dds.size(); j++) {
         unsigned i = active_dds[j];

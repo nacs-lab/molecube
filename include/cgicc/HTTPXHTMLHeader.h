@@ -19,7 +19,7 @@
  *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this library; if not, write to the Free Software
- *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA 
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
  */
 #ifndef HTTPXHTMLHEADER_H
 #define HTTPXHTMLHEADER_H
@@ -34,7 +34,7 @@
  */
 
 namespace cgicc {
-/*! \class HTTPXHTMLHeader HTTPXHTMLHeader.h cgicc/HTTPXHTMLHeader.h 
+/*! \class HTTPXHTMLHeader HTTPXHTMLHeader.h cgicc/HTTPXHTMLHeader.h
    * \brief Class that abstracts a XHTML Content Header
    *
    * This class add the XHTML feature
@@ -42,19 +42,19 @@ namespace cgicc {
 class CGICC_API HTTPXHTMLHeader : public HTTPContentHeader {
 	public:
 	// ============================================================
-    
+
     /*! \name Constructor and Destructor */
     //@{
-    
-    /*! 
+
+    /*!
      * \brief Constructor
      *
      * Create a new HTTPXHTMLHeader object
      */
 	HTTPXHTMLHeader();
-	
+
 	 /*!
-     * \brief Destructor 
+     * \brief Destructor
      *
      * Delete this HTTPXHTMLHeader object
      */

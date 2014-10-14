@@ -39,7 +39,7 @@
 /*! \namespace cgicc
  * \brief The namespace containing the cgicc library
  *
- * The namespace containing all classes and functions of the 
+ * The namespace containing all classes and functions of the
  * GNU cgicc library.
  */
 

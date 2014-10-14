@@ -18,7 +18,7 @@
  *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this library; if not, write to the Free Software
- *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA 
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
  */
 
 #ifndef _HTTPRESPONSEHEADER_H_
@@ -30,7 +30,7 @@
 
 /*! \file HTTPResponseHeader.h
  * \brief Class for generic, complete HTTP header responses
- * 
+ *
  * This is an class usually only used with Non-Parsed Header (NPH)
  * applications
  */
@@ -73,10 +73,10 @@ namespace cgicc {
   class CGICC_API HTTPResponseHeader : public MStreamable
   {
   public:
-    
+
     /*! \name Constructor and Destructor */
     //@{
-    
+
     /*!
      * \brief Create a new HTTP response header
      * \param http_version The HTTP version string, usually \c HTTP/1.1
@@ -86,31 +86,31 @@ namespace cgicc {
     HTTPResponseHeader(const std::string& http_version,
 		       int status_code,
 		       const std::string& reason_phrase);
-    
+
     /*!
      * \brief Delete this HTTPResponseHeader
-     * 
+     *
      */
     virtual ~HTTPResponseHeader();
     //@}
-    
+
     // ============================================================
-    
+
     /*! \name Additional Header Management */
     //@{
-    
+
     /*!
      * \brief Add a general, response, or entity header to this one
-     * 
+     *
      * \param header The text of the header to add
      * \return A reference to this
      */
     HTTPResponseHeader&
     addHeader(const std::string& header);
-    
+
     /*!
      * \brief Add a general, response, or entity header to this one
-     * 
+     *
      * \param name The name of the header element to add
      * \param value The value of the header element
      * \return A reference to this
@@ -118,7 +118,7 @@ namespace cgicc {
     HTTPResponseHeader&
     addHeader(const std::string& name,
 	      const std::string& value);
-    
+
     /*!
      * \brief Get a list of all additional headers
      *
@@ -128,17 +128,17 @@ namespace cgicc {
     getHeaders() 					const
     { return fHeaders; }
     //@}
-    
+
     /*! \name Cookie Management */
     //@{
-    
+
     /*!
      * \brief Set a cookie to go out with this HTTPResponseHeader
      * \param cookie The HTTPCookie to set
      */
     HTTPResponseHeader&
     setCookie(const HTTPCookie& cookie);
-    
+
     /*!
      * \brief Get a list of all cookies associated with this header
      * \return All the cookies associated with this header
@@ -147,14 +147,14 @@ namespace cgicc {
     getCookies() 					const
     { return fCookies; }
     //@}
-    
+
     // ============================================================
-    
-    /*! \name Accessor methods 
+
+    /*! \name Accessor methods
      * Retrieve information on the header
      */
     //@{
-    
+
     /*!
      * \brief Get the HTTP version
      *
@@ -164,7 +164,7 @@ namespace cgicc {
     inline const std::string&
     getHTTPVersion() 				const
     { return fHTTPVersion; }
-    
+
     /*!
      * \brief Get the 3-digit status code
      *
@@ -174,7 +174,7 @@ namespace cgicc {
     inline int
     getStatusCode() 				const
     { return fStatusCode; }
-    
+
     /*!
      * \brief Get the reason phrase associated with the stats code
      *
@@ -185,14 +185,14 @@ namespace cgicc {
     getReasonPhrase() 				const
     { return fReasonPhrase; }
     //@}
-    
+
     // ============================================================
-    
-    /*! \name Mutator methods 
+
+    /*! \name Mutator methods
      * Set information on the header
      */
     //@{
-    
+
     /*!
      * \brief Set the HTTP version
      *
@@ -203,7 +203,7 @@ namespace cgicc {
     inline HTTPResponseHeader&
     getHTTPVersion(const std::string& http_version)
     { fHTTPVersion = http_version; return *this; }
-    
+
     /*!
      * \brief Get the 3-digit status code
      *
@@ -214,7 +214,7 @@ namespace cgicc {
     inline HTTPResponseHeader&
     getStatusCode(int status_code)
     { fStatusCode = status_code; return *this; }
-    
+
     /*!
      * \brief Get the reason phrase associated with the stats code
      *
@@ -226,15 +226,15 @@ namespace cgicc {
     getReasonPhrase(const std::string& reason_phrase)
     { fReasonPhrase = reason_phrase; return *this; }
     //@}
-    
+
     // ============================================================
-    
+
     /*! \name Inherited Methods */
     //@{
-    virtual void 
+    virtual void
     render(std::ostream& out) 			const;
     //@}
-    
+
   private:
     HTTPResponseHeader();
 
@@ -244,7 +244,7 @@ namespace cgicc {
     std::vector<std::string> 	fHeaders;
     std::vector<HTTPCookie> 	fCookies;
   };
-  
+
 } // namespace cgicc
 
 #endif /* ! _HTTPRESPONSEHEADER_H_ */

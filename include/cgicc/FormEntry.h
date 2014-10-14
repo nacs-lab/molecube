@@ -18,7 +18,7 @@
  *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this library; if not, write to the Free Software
- *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA 
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
  */
 
 #ifndef _FORMENTRY_H_
@@ -32,7 +32,7 @@
  * \brief Class representing a single HTML form entry.
  *
  * FormEntry is an immutable class representing a single user entry
- * in an HTML form element such as a text field, radio button, or a 
+ * in an HTML form element such as a text field, radio button, or a
  * checkbox.  A FormEntry is essentially a name/value pair, where the
  * name is the name of the form element as specified in the HTML form
  * itself, and the value is the user-entered or user-selected value.
@@ -47,16 +47,16 @@
 #include "CgiUtils.h"
 
 namespace cgicc {
-  
+
   // ============================================================
   // Class FormEntry
   // ============================================================
-  
+
   /*! \class FormEntry FormEntry.h cgicc/FormEntry.h
    * \brief Class representing a single HTML form entry.
    *
    * FormEntry is an immutable class representing a single user entry
-   * in an HTML form element such as a text field, radio button, or a 
+   * in an HTML form element such as a text field, radio button, or a
    * checkbox.  A FormEntry is essentially a name/value pair, where the
    * name is the name of the form element as specified in the HTML form
    * itself, and the value is the user-entered or user-selected value.
@@ -70,13 +70,13 @@ namespace cgicc {
   class CGICC_API FormEntry
   {
   public:
-    
+
     // ============================================================
-    
+
     /*! \name Constructors and Destructor */
     //@{
-    
-    /*! 
+
+    /*!
      * \brief Default constructor
      *
      * Shouldn't be used.
@@ -84,7 +84,7 @@ namespace cgicc {
     inline
     FormEntry()
     {}
-    
+
     /*!
      * \brief Create a new FormEntry
      *
@@ -93,11 +93,11 @@ namespace cgicc {
      * \param value The value of the form element
      */
     inline
-    FormEntry(const std::string& name, 
+    FormEntry(const std::string& name,
 	      const std::string& value)
       : fName(name), fValue(value)
     {}
-    
+
     /*!
      * \brief Copy constructor.
      *
@@ -107,8 +107,8 @@ namespace cgicc {
     inline
     FormEntry(const FormEntry& entry)
     { operator=(entry); }
-    
-    /*! 
+
+    /*!
      * \brief Destructor.
      *
      * Delete this FormEntry object
@@ -117,12 +117,12 @@ namespace cgicc {
     ~FormEntry()
     {}
     //@}
-    
+
     // ============================================================
-    
+
     /*! \name Overloaded Operators */
     //@{
-    
+
     /*!
      * \brief Compare two FormEntrys for equality.
      *
@@ -130,10 +130,10 @@ namespace cgicc {
      * \param entry The FormEntry to compare to this one.
      * \return \c true if the two FormEntrys are equal, \c false otherwise.
      */
-    inline bool 
+    inline bool
     operator== (const FormEntry& entry) 		const
     { return stringsAreEqual(fName, entry.fName); }
-    
+
     /*!
      * \brief Compare two FormEntrys for inequality.
      *
@@ -144,32 +144,32 @@ namespace cgicc {
     inline bool
     operator!= (const FormEntry& entry) 		const
     { return ! operator==(entry); }
-    
+
 #ifdef WIN32
     /* Dummy operator for MSVC++ */
     inline bool
     operator< (const FormEntry& entry) 			const
     { return false; }
 #endif
-    
+
     /*!
-     * \brief Assign one FormEntry to another.  
+     * \brief Assign one FormEntry to another.
      *
      * Sets the name and value of this FormEntry to those of \c entry.
      * \param entry The FormEntry to copy.
      * \return A reference to this.
      */
-    FormEntry& 
+    FormEntry&
     operator= (const FormEntry& entry);
     //@}
-    
+
     // ============================================================
-    
-    /*! \name Accessor Methods 
+
+    /*! \name Accessor Methods
      * Information on the form element
      */
     //@{
-    
+
     /*!
      * \brief Get the name of the form element.
      *
@@ -180,7 +180,7 @@ namespace cgicc {
     inline std::string
     getName() 						const
     { return fName; }
-    
+
     /*!
      * \brief Get the value of the form element as a string
      *
@@ -190,7 +190,7 @@ namespace cgicc {
     inline std::string
     getValue() 						const
     { return fValue; }
-    
+
     /*!
      * \brief Get the value of the form element as a string
      *
@@ -200,7 +200,7 @@ namespace cgicc {
     inline std::string
     operator* () 					const
     { return getValue(); }
-    
+
     /*!
      * \brief Get the value of the form element as a string
      *
@@ -212,7 +212,7 @@ namespace cgicc {
     inline std::string
     getValue(std::string::size_type maxChars) 		const
     { return makeString(maxChars, true); }
-    
+
     /*!
      * \brief Get the value of the form element as a string
      *
@@ -222,7 +222,7 @@ namespace cgicc {
     inline std::string
     getStrippedValue() 					const
     { return getStrippedValue(INT_MAX); }
-    
+
     /*!
      * \brief Get the value of the form element as a string
      *
@@ -235,7 +235,7 @@ namespace cgicc {
     inline std::string
     getStrippedValue(std::string::size_type maxChars) 	const
     { return makeString(maxChars, false); }
-    
+
     /*!
      * \brief Get the value of the form element as an integer
      *
@@ -245,24 +245,24 @@ namespace cgicc {
      * \return The integer value of the form element.
      */
     long
-    getIntegerValue(long min = LONG_MIN, 
+    getIntegerValue(long min = LONG_MIN,
 		    long max = LONG_MAX) 		const;
-    
+
     /*!
      * \brief Get the value of the form element as an integer
      *
      * No syntax checking is performed on the string value.
      * \param min The minimum value to return.
      * \param max The maximum value to return.
-     * \param bounded Set to \c true if the value was originally outside the 
+     * \param bounded Set to \c true if the value was originally outside the
      * limits, \c false otherwise
      * \return The integer value of the form element.
      */
     long
-    getIntegerValue(long min, 
+    getIntegerValue(long min,
 		    long max,
 		    bool& bounded) 			const;
-    
+
     /*!
      * \brief Get the value of the form element as a double
      *
@@ -271,26 +271,26 @@ namespace cgicc {
      * \param max The maximum value to return (optional).
      * \return The double value of the form element.
      */
-    double 
-    getDoubleValue(double min = -DBL_MAX, 
+    double
+    getDoubleValue(double min = -DBL_MAX,
 		   double max = DBL_MAX) 		const;
-    
+
     /*!
      * \brief Get the value of the form element as a double
      *
      * No syntax checking is performed on the string value.
      * \param min The minimum value to return.
      * \param max The maximum value to return.
-     * \param bounded Set to \c true if the value was originally outside the 
+     * \param bounded Set to \c true if the value was originally outside the
      * limits, \c false otherwise
      * \return The double value of the form element.
      */
-    double 
-    getDoubleValue(double min, 
+    double
+    getDoubleValue(double min,
 		   double max,
 		   bool& bounded) 			const;
-    
-    
+
+
     /*!
      * \brief Get the number of characters in the value of the form element.
      *
@@ -300,28 +300,28 @@ namespace cgicc {
     inline std::string::size_type
     length() 						const
     { return fValue.length(); }
-    
+
     /*!
      * \brief Determine if this form element is empty
      *
      * In an empty form element, length() == 0.
      * \return \c true if this form element is empty, \c false otherwise.
      */
-    inline bool 
+    inline bool
     isEmpty() 						const
     { return (0 == length()); }
     //@}
-    
-  private:  
+
+  private:
     // utility function
     std::string
-    makeString(std::string::size_type maxLen, 
+    makeString(std::string::size_type maxLen,
 	       bool allowNewlines) 			const;
-    
+
     std::string fName;		// the name of this form element
     std::string fValue;		// the value of this form element
   };
-  
+
 } // namespace cgicc
 
 #endif /* ! _FORMENTRY_H_ */

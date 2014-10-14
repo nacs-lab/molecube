@@ -9,8 +9,8 @@
 //
 // Rewritten again with bug fixes and numerous enhancements by
 // Michael Shell.
-// 
-// And rewritten again by Rob Saccoccio. 
+//
+// And rewritten again by Rob Saccoccio.
 //
 // Special Thanks to Dietmar Kuehl for his help and the numerous custom
 // streambuf examples on his web site.
@@ -24,7 +24,7 @@
 //
 // This code is offered as-is without any warranty either expressed or
 // implied; without even the implied warranty of MERCHANTABILITY or
-// FITNESS FOR A PARTICULAR PURPOSE.  If it breaks, you get to keep 
+// FITNESS FOR A PARTICULAR PURPOSE.  If it breaks, you get to keep
 // both halves.
 
 #ifndef FCGIO_H
@@ -56,12 +56,12 @@ public:
     // Note that if no buf is assigned (the default), iostream methods
     // such as peek(), unget() and putback() will fail.  If a buf is
     // assigned, I/O is a bit less effecient and output streams will
-    // have to be flushed (or the streambuf destroyed) before the next 
+    // have to be flushed (or the streambuf destroyed) before the next
     // call to "accept".
     fcgi_streambuf(FCGX_Stream * fcgx, char * buf, int len);
-    
+
     fcgi_streambuf(char_type * buf, std::streamsize len);
-    
+
     fcgi_streambuf(FCGX_Stream * fcgx = 0);
 
     ~fcgi_streambuf(void);
@@ -85,7 +85,7 @@ protected:
     // Use a buffer.  The only reasons that a buffer would be useful is
     // to support the use of the unget()/putback() or seek() methods.  Using
     // a buffer will result in less efficient I/O.  Note: the underlying
-    // FastCGI library (FCGX) maintains its own input and output buffers.  
+    // FastCGI library (FCGX) maintains its own input and output buffers.
     virtual std::streambuf * setbuf(char_type * buf, std::streamsize len);
 
     virtual std::streamsize xsgetn(char_type * s, std::streamsize n);
@@ -100,7 +100,7 @@ private:
 
     // this isn't kept by the base class
     std::streamsize bufsize;
-    
+
     void init(FCGX_Stream * fcgx, char_type * buf, std::streamsize bufsize);
 
     void reset(void);
@@ -115,7 +115,7 @@ public:
 
     // deprecated
     fcgi_istream(FCGX_Stream * fcgx = 0);
-    
+
     // deprecated
     ~fcgi_istream(void) {}
 
@@ -133,10 +133,10 @@ private:
 class DLLAPI fcgi_ostream : public std::ostream
 {
 public:
-    
+
     // deprecated
     fcgi_ostream(FCGX_Stream * fcgx = 0);
-    
+
     // deprecated
     ~fcgi_ostream(void) {}
 
