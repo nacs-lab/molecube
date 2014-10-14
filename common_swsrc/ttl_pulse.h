@@ -19,15 +19,15 @@ extern unsigned g_tSequence; //accumulated sequence duration in PULSER units
 #define TTL_NOTHING     (0)
 
 #ifdef CONFIG_AL
-  #include "ttl_Al.h"
+#include "custom/ttl_Al.h"
 #endif
 
 #ifdef CONFIG_HG
-  #include "ttl_Hg.h"
+#include "custom/ttl_Hg.h"
 #endif
 
 #ifdef CONFIG_SHB
-  #include "ttl_SHB.h"
+#include "custom/ttl_SHB.h"
 #endif
 
 #ifdef CONFIG_BB
@@ -70,4 +70,3 @@ inline void TTL_pulse(unsigned t, unsigned ttl = 0, verbosity* v=0)
 }
 
 #endif /*TTL_PULSE_H_*/
-
