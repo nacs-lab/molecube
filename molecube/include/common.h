@@ -1,7 +1,7 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-extern void* pulser;
+extern void *pulser;
 extern bool g_debug_spi;
 extern unsigned gDebugLevel; //control printf debugging
 
