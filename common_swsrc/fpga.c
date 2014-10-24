@@ -149,4 +149,3 @@ int read_gpio(unsigned channel)
 }
 #endif //PLATFORM_ZYNQ
 #endif //LINUX_OS
-
