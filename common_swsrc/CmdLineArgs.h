@@ -60,5 +60,3 @@ public:
 protected:
 	std::vector<std::string> m_vArgv;
 };
-
-
