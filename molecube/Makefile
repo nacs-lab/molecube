@@ -10,7 +10,6 @@ FPGAINC = $(ROOT)/../include
 CROSS_COMPILE := arm-xilinx-linux-gnueabi-
 CXX = $(CROSS_COMPILE)g++
 CC = $(CROSS_COMPILE)gcc
-SIZE = $(CROSS_COMPILE)size
 RM := rm -rf
 
 INC = -I$(ROOT)/include \
@@ -53,11 +52,3 @@ MC: molecube
 
 molecube SHB barebones: $(OBJS)
 	$(CXX) -o $@ $(OBJS) $(USER_OBJS) $(LIBS)
-	@echo 'Finished building: $@'
-	@echo
-	@echo "**************" Determining Size of ELF File "**************"
-	@echo
-	$(SIZE) $@
-
-clean:
-	-$(RM) $(OBJS) planAhead*
