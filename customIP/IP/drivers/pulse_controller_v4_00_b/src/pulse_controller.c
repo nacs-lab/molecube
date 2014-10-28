@@ -35,7 +35,7 @@ unsigned short ddsAmp[PULSER_MAX_NDDS];
 
 //! Unsafe because FIFO PULSER_vacancy is not checked before write.
 //! Only call if you *know* there's space on the write FIFO.
-inline void
+static inline void
 PULSER_unsafe_pulse(void* base_addr, const unsigned control,
                     const unsigned operand)
 {

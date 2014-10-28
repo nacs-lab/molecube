@@ -37,13 +37,14 @@ extern unsigned PULSER_vacancy;
 
 //synchronize these parameters with N_BITS/N_BINS in the verilog files
 //I haven't figured out how to reuse them automatically in the Xilinx toolchain
-#define PULSER_N_PMT_BINS				      (16)
-#define PULSER_N_PMT_BITS				      (8)
+#define PULSER_N_PMT_BINS (16)
+#define PULSER_N_PMT_BITS (8)
 
 //! Set function to be called while waiting for FPGA
 void PULSER_set_idle_function(void (*new_idle_func)(void));
 
-void PULSER_init(void* base_addr, unsigned nDDS, unsigned bResetDDS, int debug_level );
+void PULSER_init(void* base_addr, unsigned nDDS, unsigned bResetDDS,
+                 int debug_level );
 void PULSER_self_test(void* base_addr, int nIO);
 int PULSER_test_slave_registers(void* base_addr);
 int PULSER_test_dds(void* base_addr, char nDDS);
@@ -74,8 +75,10 @@ int PULSER_read_empty(void* base_addr);
 unsigned PULSER_num_results(void* base_addr);
 
 unsigned PULSER_read_sr(void* base_addr, unsigned i);
-unsigned PULSER_pulse(void* base_addr, unsigned t, const unsigned flags, const unsigned operand);
-void PULSER_short_pulse(void* base_addr, const unsigned control, const unsigned operand);
+unsigned PULSER_pulse(void* base_addr, unsigned t, const unsigned flags,
+                      const unsigned operand);
+void PULSER_short_pulse(void* base_addr, const unsigned control,
+                        const unsigned operand);
 unsigned PULSER_pop_result(void* base_addr);
 
 unsigned PULSER_get_write_status(void* base_addr);

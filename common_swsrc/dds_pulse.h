@@ -32,7 +32,8 @@
 #include "AD9914.h"
 
 #ifdef CONFIG_BB
-inline const char* DDS_name(unsigned iDDS)
+static inline const char*
+DDS_name(unsigned iDDS)
 {
     switch (iDDS) {
     default:
@@ -80,7 +81,8 @@ void print_pulse_info(unsigned iDDS, unsigned ftwOn, unsigned ftwOff,
 //Ueful when the DDS do not all have the same clock.
 double dds_clk(int iDDS);
 
-inline void DDS_off(unsigned iDDS, verbosity* v=0)
+static inline void
+DDS_off(unsigned iDDS, verbosity* v=0)
 {
     PULSER_set_dds_freq(pulser, iDDS, 0);
 
@@ -93,7 +95,8 @@ inline void DDS_off(unsigned iDDS, verbosity* v=0)
 }
 
 //set FTW=frequency tuning word
-inline void DDS_set_ftw(unsigned iDDS, unsigned ftw, verbosity* v=0)
+static inline void
+DDS_set_ftw(unsigned iDDS, unsigned ftw, verbosity* v=0)
 {
     PULSER_set_dds_freq(pulser, iDDS, ftw);
 
@@ -106,23 +109,27 @@ inline void DDS_set_ftw(unsigned iDDS, unsigned ftw, verbosity* v=0)
     g_tSequence += PULSER_DDS_SET_FTW_DURATION;
 }
 
-inline void DDS_set_freqHz(unsigned iDDS, unsigned Hz, verbosity* v=0)
+static inline void
+DDS_set_freqHz(unsigned iDDS, unsigned Hz, verbosity* v=0)
 {
     DDS_set_ftw(iDDS, Hz2FTW(Hz, dds_clk(iDDS)), v);
 }
 
-inline unsigned DDS_get_ftw(unsigned iDDS)
+static inline unsigned
+DDS_get_ftw(unsigned iDDS)
 {
     return PULSER_get_dds_freq(pulser, iDDS);
 }
 
-inline double DDS_get_freqHz(unsigned iDDS) //get freq in Hz
+static inline double
+DDS_get_freqHz(unsigned iDDS) //get freq in Hz
 {
     return FTW2HzD(DDS_get_ftw(iDDS), AD9914_CLK);
 }
 
 //set PTW=phase tuning word
-inline void DDS_set_ptw(unsigned iDDS, unsigned ptw, verbosity* v=0)
+static inline void
+DDS_set_ptw(unsigned iDDS, unsigned ptw, verbosity* v=0)
 {
     PULSER_set_dds_phase(pulser, iDDS, ptw);
 
@@ -134,7 +141,7 @@ inline void DDS_set_ptw(unsigned iDDS, unsigned ptw, verbosity* v=0)
     g_tSequence += PULSER_DDS_SET_PTW_DURATION;
 }
 
-inline void
+static inline void
 DDS_shift_ptw(unsigned iDDS, unsigned ptw, verbosity* v=0)
 {
     PULSER_shift_dds_phase(pulser, iDDS, ptw);
@@ -147,24 +154,28 @@ DDS_shift_ptw(unsigned iDDS, unsigned ptw, verbosity* v=0)
     g_tSequence += PULSER_DDS_SET_PTW_DURATION;
 }
 
-inline void DDS_set_phase_deg(unsigned iDDS, double phase, verbosity* v=0)
+static inline void
+DDS_set_phase_deg(unsigned iDDS, double phase, verbosity* v=0)
 {
-    DDS_set_ptw(iDDS, (int)(PHASE_360*phase/360.0 + 0.5), v);
+    DDS_set_ptw(iDDS, (int)(PHASE_360 * phase / 360.0 + 0.5), v);
 }
 
-inline unsigned DDS_get_ptw(unsigned iDDS)
+static inline unsigned
+DDS_get_ptw(unsigned iDDS)
 {
     return PULSER_get_dds_two_bytes(pulser, iDDS, 0x30);
 }
 
-inline double DDS_get_phase_deg(unsigned iDDS)
+static inline double
+DDS_get_phase_deg(unsigned iDDS)
 {
     unsigned u0 = DDS_get_ptw(iDDS);
-    return u0*360.0/65536.0;
+    return u0 * 360.0 / 65536.0;
 }
 
 //set ATW=amplitude tuning word
-inline void DDS_set_atw(unsigned iDDS, unsigned atw, verbosity* v=0)
+static inline void
+DDS_set_atw(unsigned iDDS, unsigned atw, verbosity* v=0)
 {
     PULSER_set_dds_amp(pulser, iDDS, atw);
 
@@ -178,26 +189,30 @@ inline void DDS_set_atw(unsigned iDDS, unsigned atw, verbosity* v=0)
     g_tSequence += PULSER_DDS_SET_ATW_DURATION;
 }
 
-inline void DDS_set_amp(unsigned iDDS, double A, verbosity* v=0)
+static inline void
+DDS_set_amp(unsigned iDDS, double A, verbosity *v=0)
 {
-    DDS_set_atw(iDDS, (unsigned)(A*4095.0 + 0.5), v);
+    DDS_set_atw(iDDS, (unsigned)(A * 4095.0 + 0.5), v);
 }
 
-inline unsigned DDS_get_atw(unsigned iDDS)
+static inline unsigned
+DDS_get_atw(unsigned iDDS)
 {
     return PULSER_get_dds_two_bytes(pulser, iDDS, 0x32);
 }
 
-inline double DDS_get_amp(unsigned iDDS)
+static inline double
+DDS_get_amp(unsigned iDDS)
 {
     unsigned u0 = DDS_get_atw(iDDS);
-    return u0/4095.0;
+    return u0 / 4095.0;
 }
 
 
 //make an RF pulse of specified frequency and duration
-inline void DDS_pulse(unsigned iDDS, unsigned ftwOn, unsigned ftwOff,
-                      unsigned t, unsigned ttl = 0)
+static inline void
+DDS_pulse(unsigned iDDS, unsigned ftwOn, unsigned ftwOff,
+          unsigned t, unsigned ttl = 0)
 {
     if (t > 4) {
         DDS_set_ftw(iDDS, ftwOn);
@@ -211,8 +226,9 @@ inline void DDS_pulse(unsigned iDDS, unsigned ftwOn, unsigned ftwOff,
     }
 }
 
-inline void DDS_pulse(unsigned iDDS, unsigned ftwOn, unsigned ftwOff,
-                      unsigned aOn, unsigned aOff, unsigned t, unsigned ttl = 0)
+static inline void
+DDS_pulse(unsigned iDDS, unsigned ftwOn, unsigned ftwOff, unsigned aOn,
+          unsigned aOff, unsigned t, unsigned ttl = 0)
 {
     if (t > 4) {
         PULSER_set_dds_freq(pulser, iDDS, ftwOn);
@@ -228,8 +244,9 @@ inline void DDS_pulse(unsigned iDDS, unsigned ftwOn, unsigned ftwOff,
     }
 }
 
-inline void DDS_long_pulse(unsigned iDDS, unsigned ftwOn, unsigned ftwOff,
-                           unsigned t, unsigned flags, unsigned ttl)
+static inline void
+DDS_long_pulse(unsigned iDDS, unsigned ftwOn, unsigned ftwOff, unsigned t,
+               unsigned flags, unsigned ttl)
 {
     if (t > 4) {
         PULSER_set_dds_freq(pulser, iDDS, ftwOn);
@@ -244,9 +261,9 @@ inline void DDS_long_pulse(unsigned iDDS, unsigned ftwOn, unsigned ftwOff,
     }
 }
 
-inline void DDS_long_pulse(unsigned iDDS, unsigned ftwOn, unsigned ftwOff,
-                           unsigned aOn, unsigned aOff, unsigned t,
-                           unsigned flags, unsigned ttl)
+static inline void
+DDS_long_pulse(unsigned iDDS, unsigned ftwOn, unsigned ftwOff, unsigned aOn,
+               unsigned aOff, unsigned t, unsigned flags, unsigned ttl)
 {
     if (t > 4) {
         PULSER_set_dds_freq(pulser, iDDS, ftwOn);

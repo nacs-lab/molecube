@@ -126,7 +126,8 @@ bool other_test()
     unsigned nLoopback = 31;
     printf("Pushing values 0...%u onto result FIFO\n", nLoopback - 1);
     for (unsigned j = 0; j < nLoopback; j++) {
-        PULSER_short_pulse(pulser, (0x40000000), j); //push value j onto result FIFO
+        //push value j onto result FIFO
+        PULSER_short_pulse(pulser, (0x40000000), j);
     }
 
     usleep(1000);

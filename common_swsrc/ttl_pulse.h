@@ -33,7 +33,8 @@ extern unsigned g_tSequence; //accumulated sequence duration in PULSER units
 #ifdef CONFIG_BB
 
 #define TTL_START_EXP   (1 << 12)
-inline const char* TTL_name(unsigned ttl)
+static inline const char*
+TTL_name(unsigned ttl)
 {
     switch (ttl) {
     default:
@@ -43,12 +44,14 @@ inline const char* TTL_name(unsigned ttl)
 
 #endif
 
-inline unsigned int us2TW(double t)
+static inline unsigned int
+us2TW(double t)
 {
     return static_cast<unsigned int>(t * 100);
 }
 
-inline unsigned int ms2TW(double t)
+static inline unsigned int
+ms2TW(double t)
 {
     return us2TW(t * 1e3);
 }
@@ -57,14 +60,14 @@ void print_timing_info(verbosity* v, unsigned t0, unsigned dt, char last='\n');
 void print_pulse_info(verbosity* v, unsigned t, unsigned ttl, const char* info = 0);
 
 //make an RF pulse of specified frequency and duration
-inline void TTL_pulse(unsigned t, unsigned ttl = 0, verbosity* v=0)
+static inline void
+TTL_pulse(unsigned t, unsigned ttl = 0, verbosity *v=0)
 {
     if (t > 4) {
         PULSER_pulse(pulser, t, 0, ttl);
-
-        if (v)
+        if (v) {
             print_pulse_info(v, t, ttl);
-
+        }
         g_tSequence += t;
     }
 }
