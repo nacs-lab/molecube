@@ -76,14 +76,20 @@ public:
 class ttl_pulse_cmd : public pulse_cmd {
 public:
     virtual ~ttl_pulse_cmd() {}
-    ttl_pulse_cmd(unsigned t, unsigned ttl) : t(t), ttl(ttl) {
+    ttl_pulse_cmd(unsigned t, unsigned ttl) : t(t), ttl(ttl)
+    {
         if(t < PULSER_T_TTL_MIN) {
-            gvSTDOUT.printf("TTL pulse 0x%08X too short: %.2f us\n", t*PULSER_DT_us, ttl);
-            throw runtime_error("The pulse at t = " + to_string(t*PULSER_DT_us) + " us is too short or early.");
+            gvSTDOUT.printf("TTL pulse 0x%08X too short: %.2f us\n",
+                            t * PULSER_DT_us, ttl);
+            throw runtime_error("The pulse at t = " +
+                                to_string(t * PULSER_DT_us) +
+                                " us is too short or early.");
         }
     }
 
-    virtual void makePulse() {
+    virtual void
+    makePulse()
+    {
         TTL_pulse(t, ttl, v);
     }
 
@@ -93,10 +99,11 @@ public:
 class clock_out_cmd : public pulse_cmd {
 public:
     virtual ~clock_out_cmd() {}
-    clock_out_cmd(unsigned divider) : divider(divider) {
-    }
+    clock_out_cmd(unsigned divider) : divider(divider) {}
 
-    virtual void makePulse() {
+    virtual void
+    makePulse()
+    {
         if (v)
             v->printf("clock output divider = %u\n", divider);
         PULSER_enable_clock_out(pulser, divider);
@@ -113,9 +120,10 @@ public:
     virtual ~dds_cmd() {}
     dds_cmd(unsigned dds, unsigned operand) : dds(dds), operand(operand)
     {
-        if(dds > NDDS-1)
+        if (dds > NDDS - 1) {
             throw runtime_error("Line " + to_string(g_lineNum) +
                                 ", Invalid DDS: " + to_string(dds));
+        }
     }
 
     unsigned dds, operand;
@@ -128,7 +136,8 @@ public:
     set_freq_cmd(unsigned dds, unsigned ftw) : dds_cmd(dds, ftw) {}
     set_freq_cmd(unsigned dds, double f) : dds_cmd(dds, Hz2FTW(f, dds_clk(dds))) {}
 
-    virtual void makePulse() {
+    virtual void makePulse()
+    {
         DDS_set_ftw(dds, operand, v);
     }
 };

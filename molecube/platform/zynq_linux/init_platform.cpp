@@ -24,9 +24,10 @@ extern FILE* gLog;
 void *mapped_base = 0;
 int memfd = 0;
 
-void* get_pulse_controller_phys_addr()
+void*
+get_pulse_controller_phys_addr()
 {
-    void* addr = (void*)XPAR_PULSE_CONTROLLER_0_BASEADDR;
+    void *addr = (void*)XPAR_PULSE_CONTROLLER_0_BASEADDR;
 
     return addr;
 
@@ -44,18 +45,19 @@ void* get_pulse_controller_phys_addr()
     const char cmd[] = "find /proc/device-tree -name pulse-controller*";
     char ret[200];
 
-    if(addr == 0) {
-        if(FILE* f = popen(cmd, "r")) {
-            if(fgets(ret, 200, f)) {
+    if (addr == 0) {
+        if (FILE* f = popen(cmd, "r")) {
+            if (fgets(ret, 200, f)) {
                 char* p = strstr(ret, "pulse-controller");
-                if(p)
+                if (p) {
                     sscanf(p, "pulse-controller@%p", &addr);
+                }
             }
             fclose(f);
         }
     }
 
-    if(0 == addr) {
+    if (0 == addr) {
         printf("Can't determine address of pulse-controller!\n");
         printf("Command: %s\nReturn string: %s\n", cmd, ret);
         printf("So sad...\n");
