@@ -14,10 +14,6 @@ bool parseSeqCGI(cgicc::Cgicc& cgi);
 // more efficient for long sequences because no decoding from URL format is needed
 bool parseSeqMultiPart(std::istream& is, const std::string& line1);
 
-//parse text-encoded pulse sequence
-bool parseSeqTxt(unsigned reps, const std::string& seqTxt,
-                 bool bForever, bool bDebugPulses);
-
 std::string getQuote(const char* fname, const char* divider);
 
 #endif //PARSE_TXT_SEQ_H

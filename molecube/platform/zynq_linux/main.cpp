@@ -267,7 +267,7 @@ int main(int argc, char *argv[])
 
             try {
                 parseSeqURL(sStartupSeq);
-            } catch (runtime_error e) {
+            } catch (std::runtime_error e) {
                 fprintf(gLog, "Startup sequence error:   %s\n", e.what());
             }
         }
@@ -306,7 +306,7 @@ int main(int argc, char *argv[])
             if (!parseQueryCGI(cgi)) {
                 fprintf(gLog, "Couldn't understand HTTP request.\n");
             }
-        } catch (runtime_error e) {
+        } catch (std::runtime_error e) {
             gvSTDOUT.printf("Oh noes! \n   %s\n", e.what());
             gvSTDOUT.printf("%s", getQuote("/usr/local/quotes.frt", "%%").c_str());
         }

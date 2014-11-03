@@ -21,7 +21,7 @@ const char* polName(int p)
         return "s+";
     }
 
-    throw runtime_error("unknown polarization");
+    throw std::runtime_error("unknown polarization");
 }
 
 const char* modeName(int i)
@@ -49,18 +49,19 @@ const char* modeName(int i)
         return "SB9";
     }
 
-    throw runtime_error("no mode name");
+    throw std::runtime_error("no mode name");
 }
 
-string sbName(int i)
+std::string
+sbName(int i)
 {
-    if(i < 0)
-        return string("rsb ") + string(modeName(i));
+    if (i < 0)
+        return std::string("rsb ") + std::string(modeName(i));
 
-    if(i > 0)
-        return string("bsb ") + string(modeName(i));
+    if (i > 0)
+        return std::string("bsb ") + std::string(modeName(i));
 
-    return  string(modeName(i));
+    return std::string(modeName(i));
 }
 
 #ifdef WIN32
@@ -68,7 +69,8 @@ string sbName(int i)
 #endif
 
 
-std::string pulse_name(const std::string& base_name, int mFg2, int pol, int sb)
+std::string
+pulse_name(const std::string& base_name, int mFg2, int pol, int sb)
 {
     char sp[] = "+";
     if(mFg2 < 0)
@@ -84,7 +86,7 @@ std::string pulse_name(const std::string& base_name, int mFg2, int pol, int sb)
     char sbuff[64];
     snprintf(sbuff, 63, "%s %s %s mFg = %s%d%s", base_name.c_str(),sbName(sb).c_str(), polName(pol), sp, mFg2, sHalf);
 
-    return string(sbuff);
+    return std::string(sbuff);
 }
 
 template<> void get_sprintf_fmt(char* s, const bool*)
@@ -150,11 +152,12 @@ template<> bool from_string<bool>(const std::string& s)
     return from_string<unsigned>(s) != 0;
 }
 
-static void eat_non_numeric_or_zero(istream* i)
+static void
+eat_non_numeric_or_zero(std::istream* i)
 {
-    while(1) {
+    while (1) {
         char c = i->peek();
-        if(strchr("123456789", c))
+        if (strchr("123456789", c))
             break;
         else
             i->get(c);
@@ -233,11 +236,12 @@ template<> void get_sscanf_fmt(char* s, std::string*)
 }
 
 
-template<class V> bool extract_val(const std::string& s, const std::string& name, V* value)
+template<class V> bool
+extract_val(const std::string &s, const std::string &name, V *value)
 {
     size_t pos = s.find(name);
 
-    if(pos !=  string::npos) {
+    if(pos != std::string::npos) {
         string s2 = s.substr(pos+name.length());
         char fmt[16];
 
@@ -284,9 +288,10 @@ template unsigned extract_val(const std::string&, const std::string&);
 
 
 //! Turn a comma-delimeted string into a vector of strings
-std::vector<std::string> commaDelimStrings2Vector(const std::string& s)
+std::vector<std::string>
+commaDelimStrings2Vector(const std::string &s)
 {
-    vector<string> v;
+    std::vector<std::string> v;
 
     size_t i0 = 0;
     for(unsigned i=0; i<s.length(); i++) {

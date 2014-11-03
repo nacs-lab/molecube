@@ -152,14 +152,17 @@ void replaceAllR(std::string& str, const std::string& from, const std::string& t
 
 //url_encode is copied from stackexchange:
 // http://stackoverflow.com/questions/154536/encode-decode-urls-in-c
-string url_encode(const string &value)
+std::string
+url_encode(const std::string &value)
 {
     ostringstream escaped;
     escaped.fill('0'); //pad numbers w/ 0 to reach width
     escaped << hex; //numbers will be in hex format
 
-    for (string::const_iterator i = value.begin(), n = value.end(); i != n; ++i) {
-        string::value_type c = (*i);
+    for (std::string::const_iterator i = value.begin(), n = value.end();
+         i != n; ++i) {
+
+        std::string::value_type c = (*i);
 
         // Keep alphanumeric and other accepted characters intact
         if (isalnum(c) || c == '-' || c == '_' || c == '.' || c == '~') {
@@ -176,10 +179,10 @@ string url_encode(const string &value)
 
 // url_decode is copied from stackexchange:
 // http://stackoverflow.com/questions/154536/encode-decode-urls-in-c
-string
-url_decode(string &SRC)
+std::string
+url_decode(std::string &SRC)
 {
-    string ret;
+    std::string ret;
     char ch;
     for (unsigned i = 0;i < SRC.length();i++) {
         if (SRC[i] == '+') {

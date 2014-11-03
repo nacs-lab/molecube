@@ -6,19 +6,19 @@ using namespace std;
 
 CmdLineArgs::CmdLineArgs(int argc, char* argv[])
 {
-    m_vArgv = vector<string>(argc);
+    m_vArgv = std::vector<std::string>(argc);
 
-    for(int i=0; i<argc; i++) {
+    for (int i=0; i<argc; i++) {
         m_vArgv[i] = argv[i];
     }
 }
 
 CmdLineArgs::CmdLineArgs(const char* szCommandLine)
 {
-    istringstream ss(szCommandLine);
+    std::istringstream ss(szCommandLine);
 
     do {
-        string s;
+        std::string s;
         ss >> s;
         m_vArgv.push_back(s);
     } while(!(ss.rdstate() & ios::eofbit));
@@ -42,30 +42,33 @@ int CmdLineArgs::GetString(std::string& s, int index) const
     return (int)s.length();
 }
 
-string CmdLineArgs::GetStringAfter(const std::string& s, const string& sDefault) const
+std::string
+CmdLineArgs::GetStringAfter(const std::string &s,
+                            const std::string &sDefault) const
 {
     int i = FindString(s);
 
-    if(i < 0)
+    if (i < 0)
         return sDefault;
 
-    string sReturn;
+    std::string sReturn;
 
-    if(GetString(sReturn, i+1) < 0)
+    if (GetString(sReturn, i + 1) < 0)
         return sDefault;
     else
         return sReturn;
 }
 
-string CmdLineArgs::GetStringAfter(const std::string& s) const
+std::string
+CmdLineArgs::GetStringAfter(const std::string &s) const
 {
     int i = FindString(s);
-    if(i < 0)
+    if (i < 0)
         throw non_existing_string(s);
 
-    string sReturn;
+    std::string sReturn;
 
-    if(GetString(sReturn, i+1) < 0)
+    if (GetString(sReturn, i+1) < 0)
         throw non_existing_string(s);
     else
         return sReturn;

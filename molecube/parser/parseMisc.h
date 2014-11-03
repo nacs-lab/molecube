@@ -18,7 +18,6 @@ void printPlainResponseHeader();
 void printJSONResponseHeader();
 
 bool parseQueryCGI(cgicc::Cgicc& cgi);
-bool parseTTL(std::string& ttl);
 
 unsigned getUnsignedParam(const std::string& seq, const std::string& name,
                           unsigned defaultVal);
