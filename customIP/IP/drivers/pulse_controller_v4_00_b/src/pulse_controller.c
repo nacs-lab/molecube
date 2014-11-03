@@ -101,7 +101,7 @@ void PULSER_reinit_DDS(void* base_addr, unsigned nDDS)
     char iDDS;
     unsigned ftw;
 
-    for(iDDS=0; iDDS<nDDS; iDDS++) {
+    for (iDDS = 0;iDDS < nDDS;iDDS++) {
         ftw = PULSER_get_dds_freq(base_addr, iDDS);
         PULSER_dds_reset(base_addr, iDDS);
         //TR: no div2 for AD9914 PULSER_set_dds_div2(base_addr, iDDS, 0);

@@ -57,7 +57,8 @@ ms2TW(double t)
 }
 
 void print_timing_info(verbosity* v, unsigned t0, unsigned dt, char last='\n');
-void print_pulse_info(verbosity* v, unsigned t, unsigned ttl, const char* info = 0);
+void print_pulse_info(verbosity* v, unsigned t, unsigned ttl,
+                      const char *info=0);
 
 //make an RF pulse of specified frequency and duration
 static inline void

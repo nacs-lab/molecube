@@ -400,7 +400,7 @@ bool parseTTL(unsigned t, std::string& arg1, istream& s)
         return false;
 
     int channel = -1;
-    if(sscanf(arg1.c_str(), " %d", &channel)) {
+    if (sscanf(arg1.c_str(), " %d", &channel)) {
         setTTL(t, channel, ttl);
         return true;
     } else {
@@ -597,12 +597,11 @@ parseSeqTxt(unsigned reps, const std::string& seqTxt, bool bForever,
         stringstream ssL(line);
 
         while (!ssL.eof()) {
-            double t = 0; //timing spec from sequence
+            double t = 0; // timing spec from sequence
             double dt = 0;
             string strPrior;
 
-            //valid lines will start with "dt = "
-            //or "T = "
+            // valid lines will start with "dt = " or "t = "
 
             if (!eatStreamTo(ssL, '=', strPrior)) // ignore
                 break;
@@ -618,14 +617,14 @@ parseSeqTxt(unsigned reps, const std::string& seqTxt, bool bForever,
                 }
             }
 
-            //next comes the time unit, then a comma
+            // next comes the time unit, then a comma
             string timeunit;
             getline(ssL, timeunit, ',');
 
             if (ssL.eof())
                 badLine(g_lineNum, line);
 
-            //then comes the command name, followed by '(arg1)'
+            // then comes the command name, followed by '(arg1)'
             string cmd;
             getline(ssL, cmd, '(');
             if (ssL.eof())
@@ -738,9 +737,12 @@ parseSeqTxt(unsigned reps, const std::string& seqTxt, bool bForever,
         gvSTDOUT.printf("Consider inserting a 10-100 us spulse to start the sequence.\n");
     }
 
-    gvSTDOUT.printf("          Parser time: %9.3f ms\n", (tClock1 - tClock0)*0.001);
-    gvSTDOUT.printf("       Execution time: %9.3f ms\n", (tClock2 - tClock1)*0.001);
-    gvSTDOUT.printf("Duration of sequences: %9.3f ms\n", iRep*(tCurr*PULSER_DT_ns)*1e-6);
+    gvSTDOUT.printf("          Parser time: %9.3f ms\n",
+                    (tClock1 - tClock0) * 0.001);
+    gvSTDOUT.printf("       Execution time: %9.3f ms\n",
+                    (tClock2 - tClock1) * 0.001);
+    gvSTDOUT.printf("Duration of sequences: %9.3f ms\n",
+                    iRep * (tCurr * PULSER_DT_ns) * 1e-6);
     return true;
 }
 
