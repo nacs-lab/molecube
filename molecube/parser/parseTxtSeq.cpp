@@ -46,7 +46,7 @@ extern bool g_stop_curr_seq;
 //make sure any TTLs that were spec'd previously are still active
 // tNewPulse = spec'd time for new pulse
 // tMinPulse = minimum duration of new pulse *before* update
-void dealWithCurrentTTL(unsigned tNewPulse, unsigned tMinPulse);
+static void dealWithCurrentTTL(unsigned tNewPulse, unsigned tMinPulse);
 
 //abstract base class for different types of pulse commands
 class pulse_cmd {
@@ -333,18 +333,19 @@ eatStreamTo(istream &is, char to, string &strPrior)
 //make sure any TTLs that were spec'd previously are still active
 // tNewPulse = spec'd time for new pulse
 // tMinPulse = minimum duration of new pulse *before* update
-void dealWithCurrentTTL(unsigned tNewPulse, unsigned tMinPulse)
+static void
+dealWithCurrentTTL(unsigned tNewPulse, unsigned tMinPulse)
 {
-    if(hasTTL) {
+    if (hasTTL) {
         unsigned tMin = tCurr + tMinPulse;
 
-        if(currTTL != nextTTL)
+        if (currTTL != nextTTL)
             tMin += PULSER_T_TTL_MIN;
 
-        if(tNewPulse == tMin && currTTL == nextTTL)
+        if (tNewPulse == tMin && currTTL == nextTTL)
             return; // nothing to do.
 
-        if(tNewPulse < tMin) {
+        if (tNewPulse < tMin) {
             gvSTDOUT.printf("ERROR: Pulse too short at t = %.2f us. \n",
                             tNewPulse*PULSER_DT_us);
             gvSTDOUT.printf("Previous t = %.2f us.  Earliest is t = %.2f us.\n",
@@ -439,7 +440,8 @@ parseClockOut(unsigned t, std::string &arg1, istream&)
     return true;
 }
 
-bool parseCommand(unsigned t, std::string& cmd, std::string& arg1, istream& s)
+static bool
+parseCommand(unsigned t, std::string &cmd, std::string &arg1, istream &s)
 {
     if (pulse_cmd::v)
         pulse_cmd::v->printf("t = %8u x 10ns,  command = %10s,  arg1 = %4s\n", t,
@@ -487,7 +489,7 @@ bool parseSeqURL(std::string& seq)
     if(end_pos == string::npos)
         end_pos = seq.length();
 
-    string seqTxt = seq.substr(start_pos+L, end_pos-start_pos-L);
+    string seqTxt = seq.substr(start_pos + L, end_pos - start_pos - L);
     html2txt(seqTxt, 1); //this is a slow function
 
     parseSeqTxt(reps, seqTxt, bForever, bDebugPulses);
@@ -577,7 +579,7 @@ parseSeqTxt(unsigned reps, const std::string& seqTxt, bool bForever,
     g_lineNum = 0;
     double tSoFar = 0;
 
-    while(!ss0.eof()) {
+    while (!ss0.eof()) {
         //read line
         string line;
         getline(ss0, line);
@@ -586,7 +588,7 @@ parseSeqTxt(unsigned reps, const std::string& seqTxt, bool bForever,
 
         //ignore everything after '#' comment symbol
         size_t posC = line.find("#");
-        if(posC != string::npos)
+        if (posC != string::npos)
             line = line.substr(0, posC);
 
         //ignore blank lines
