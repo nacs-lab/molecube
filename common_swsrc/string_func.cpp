@@ -8,8 +8,6 @@
 
 #include "string_func.h"
 
-using namespace std;
-
 const char* polName(int p)
 {
     switch(p) {
@@ -105,7 +103,7 @@ template<> void get_sprintf_fmt(char* s, const double*)
 {
     strcpy(s, "%.15g");
 }
-template<> void get_sprintf_fmt(char* s, const string*)
+template<> void get_sprintf_fmt(char* s, const std::string*)
 {
     strcpy(s, "%s");
 }
@@ -123,7 +121,7 @@ template<> int to_string(const bool& value, char* s, size_t n)
     return snprintf(s, n, "%u", u);
 }
 
-template<> int to_string(const string& value, char* s, size_t n)
+template<> int to_string(const std::string& value, char* s, size_t n)
 {
     return snprintf(s, n, "%s", value.c_str());
 }
@@ -136,7 +134,7 @@ template<class T> T from_string(const std::string& s)
 {
     T value;
 
-    istringstream(s) >> value;
+    std::istringstream(s) >> value;
 
     return value;
 }
@@ -167,7 +165,7 @@ eat_non_numeric_or_zero(std::istream* i)
 template<> time_t from_string(const std::string& s)
 {
     tm t;
-    istringstream is(s);
+    std::istringstream is(s);
 
     eat_non_numeric_or_zero(&is);
     is >> t.tm_hour;
@@ -205,7 +203,7 @@ template unsigned from_string<unsigned>(const std::string& s);
 
 template<class T> std::string to_string(const T& value, int)
 {
-    string s;
+    std::string s;
     s.resize(128);
     to_string<T>(value, &(s[0]), 127);
     return s;
@@ -215,7 +213,7 @@ template std::string to_string<unsigned>(const unsigned&, int);
 template std::string to_string<int>(const int&, int);
 template std::string to_string<double>(const double&, int);
 template std::string to_string<bool>(const bool&, int);
-template std::string to_string<string>(const string&, int);
+template std::string to_string<std::string>(const std::string&, int);
 
 
 template<> void get_sscanf_fmt(char* s, int*)
@@ -242,7 +240,7 @@ extract_val(const std::string &s, const std::string &name, V *value)
     size_t pos = s.find(name);
 
     if(pos != std::string::npos) {
-        string s2 = s.substr(pos+name.length());
+        std::string s2 = s.substr(pos+name.length());
         char fmt[16];
 
         get_sscanf_fmt<V>(fmt, value);
@@ -253,15 +251,16 @@ extract_val(const std::string &s, const std::string &name, V *value)
     return false;
 }
 
-template<> bool extract_val(const std::string& s, const std::string& name, std::string* value)
+template<> bool
+extract_val(const std::string& s, const std::string& name, std::string* value)
 {
     size_t pos = s.find(name);
 
-    if(pos !=  string::npos) {
-        string s2 = s.substr(pos+name.length());
+    if(pos != std::string::npos) {
+        std::string s2 = s.substr(pos+name.length());
         size_t pos2 = s2.find(" ");
 
-        if(pos2 == string::npos)
+        if(pos2 == std::string::npos)
             pos2 = s2.length();
 
         *value = s2.substr(0, pos2);

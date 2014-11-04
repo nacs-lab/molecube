@@ -16,11 +16,10 @@
 
 extern FILE* gLog;
 
-using namespace std;
-
-void saveMap(const txtmap_t& params, const std::string& fname)
+void
+saveMap(const txtmap_t& params, const std::string& fname)
 {
-    ofstream os(fname.c_str());
+    std::ofstream os(fname.c_str());
 
     for (txtmap_t::const_iterator i = params.begin(); i != params.end(); i++) {
         //printf("%s = %s\n", i->first.c_str(), i->second.c_str());
@@ -28,40 +27,41 @@ void saveMap(const txtmap_t& params, const std::string& fname)
         if (i->second.length() > 0) {
             os << "{" << i->first.c_str() << "} = {";
             os << i->second.c_str() << "}";
-            os << ";" << endl;
+            os << ";" << std::endl;
         }
     }
 }
 
-bool processLine(const std::string& sLine, std::string& sName, std::string& sValue)
+bool
+processLine(const std::string& sLine, std::string& sName, std::string& sValue)
 {
-    string sWhite("\r\n ");
+    std::string sWhite("\r\n ");
 
     //find left/right brace surrounding the name
     size_t lbN = sLine.find('{');
     size_t rbN = sLine.find('}');
 
-    if (lbN == string::npos || rbN == string::npos)
+    if (lbN == std::string::npos || rbN == std::string::npos)
         return false; //can't process
 
     //copy the bracketed part into sName
-    sName = string(sLine, lbN + 1, rbN - lbN - 1);
+    sName = std::string(sLine, lbN + 1, rbN - lbN - 1);
 
     //find left/right brace surrounding the value
     size_t lbV = sLine.find('{', rbN + 1);
     size_t rbV = sLine.rfind('}');
 
-    if (lbV == string::npos || rbV == string::npos || lbV > rbV)
+    if (lbV == std::string::npos || rbV == std::string::npos || lbV > rbV)
         return false; //can't process
 
-    sValue = string(sLine, lbV + 1, rbV - lbV - 1);
+    sValue = std::string(sLine, lbV + 1, rbV - lbV - 1);
 
     return true;
 }
 
 void loadMap(txtmap_t& m, const std::string& fname)
 {
-    ifstream is(fname.c_str());
+    std::ifstream is(fname.c_str());
 
     if(! is.good() )
         fprintf(gLog, "failed to open parameters file: %s\n", fname.c_str());
@@ -70,12 +70,12 @@ void loadMap(txtmap_t& m, const std::string& fname)
 
     //loop through the file
     while (is.good() && !is.eof()) {
-        string sLine("");
+        std::string sLine("");
 
         //read until ';'
         getline(is, sLine, ';');
 
-        string sName, sValue;
+        std::string sName, sValue;
 
         if (!processLine(sLine, sName, sValue))
             continue;
@@ -92,20 +92,20 @@ void mergeMaps(txtmap_t& mOld, const txtmap_t& mNew)
         mOld[ i->first ] = i->second;
 }
 
-void dumpMapHTML(const txtmap_t& m, ostream& os)
+void dumpMapHTML(const txtmap_t& m, std::ostream& os)
 {
     bool notFirst = false;
     for (txtmap_t::const_iterator i = m.begin(); i != m.end(); i++) {
         //printf("%s = %s\n", i->first.c_str(), i->second.c_str());
 
         if (i->second.length() > 0) {
-            string name = i->first;
-            string value = i->second;
+            std::string name = i->first;
+            std::string value = i->second;
 
             html2txt(name, -1);
             html2txt(value, -1);
 
-            if(notFirst)
+            if (notFirst)
                 os << "&";
 
             os << name << "=" << value;
@@ -155,9 +155,9 @@ void replaceAllR(std::string& str, const std::string& from, const std::string& t
 std::string
 url_encode(const std::string &value)
 {
-    ostringstream escaped;
+    std::ostringstream escaped;
     escaped.fill('0'); //pad numbers w/ 0 to reach width
-    escaped << hex; //numbers will be in hex format
+    escaped << std::hex; //numbers will be in hex format
 
     for (std::string::const_iterator i = value.begin(), n = value.end();
          i != n; ++i) {
@@ -171,7 +171,7 @@ url_encode(const std::string &value)
         }
 
         // Any other characters are percent-encoded
-        escaped << '%' << setw(2) << int((unsigned char) c);
+        escaped << '%' << std::setw(2) << int((unsigned char) c);
     }
 
     return escaped.str();

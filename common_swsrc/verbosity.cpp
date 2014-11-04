@@ -2,8 +2,6 @@
 
 #include "verbosity.h"
 
-using namespace std;
-
 int verbosity::printf(const char* format, ...)
 {
     int ret = 0;

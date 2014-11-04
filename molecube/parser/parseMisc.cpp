@@ -35,67 +35,66 @@ flocker::~flocker()
 }
 
 
-using namespace std;
-
 void printPlainResponseHeader()
 {
-    //cout << "HTTP/1.1 200 OK\n";
-    cout << "Content-type: text/plain; charset=UTF-8\r\n\r\n";
+    // std::cout << "HTTP/1.1 200 OK\n";
+    std::cout << "Content-type: text/plain; charset=UTF-8\r\n\r\n";
 }
 
 void printJSONResponseHeader()
 {
-    //cout << "HTTP/1.1 200 OK\n";
-    cout << "Content-type: application/json; charset=UTF-8\r\n\r\n";
+    // std::cout << "HTTP/1.1 200 OK\n";
+    std::cout << "Content-type: application/json; charset=UTF-8\r\n\r\n";
 }
 
 
-void removeNonAlphaNum(std::string& s)
+void removeNonAlphaNum(std::string &s)
 {
     size_t i=0;
 
-    while(i<s.length()) {
-        if(isalpha(s[i]) || isdigit(s[i]))
+    while (i < s.length()) {
+        if (isalpha(s[i]) || isdigit(s[i])) {
             i++;
-        else
+        } else {
             s.erase(i, 1);
+        }
     }
 }
 
-size_t requireToken(std::string& doc, const std::string& token)
+size_t
+requireToken(std::string& doc, const std::string& token)
 {
     size_t pos = doc.find(token);
 
-    if(pos == string::npos)
+    if (pos == std::string::npos)
         throw noSuchToken(token);
-
     return pos;
 }
 
 //parse params in doc
 bool
-parseParams(txtmap_t& params, const std::string& doc, const std::string&)
+parseParams(txtmap_t &params, const std::string& doc, const std::string&)
 {
     size_t pos = doc.find("&page=") + 5;
 
-    if (pos == string::npos)
+    if (pos == std::string::npos)
         return false;
 
     size_t pos1 = doc.find("&", pos);
 
     //add new ones
-    while (pos1 != string::npos && pos1 < doc.length()) {
+    while (pos1 != std::string::npos && pos1 < doc.length()) {
         size_t pos2 = doc.find("=", pos1 + 1);
 
-        if (pos2 == string::npos)
+        if (pos2 == std::string::npos)
             break;
 
         size_t pos3 = doc.find("&", pos2 + 1);
 
-        if(pos3 == string::npos)
+        if(pos3 == std::string::npos)
             pos3 = doc.length();
 
-        string val = doc.substr(pos2 + 1, pos3 - pos2 - 1);
+        std::string val = doc.substr(pos2 + 1, pos3 - pos2 - 1);
         html2txt(val, 1);
         params[doc.substr(pos1 + 1, pos2 - pos1 - 1)] = val;
 
@@ -151,7 +150,7 @@ void setDeviceParams(const std::string& page, const txtmap_t& params)
     flocker fl(g_fPulserLock);
 
     if(page == "dds") {
-//    dumpMap(params, gLog);
+        // dumpMap(params, gLog);
 
         txtmap_t::const_iterator pos;
         char buff[32];
@@ -215,7 +214,8 @@ void setDeviceParams(const std::string& page, const txtmap_t& params)
     }
 }
 
-template<class V> void stream_vect_to_JSON_array(ostream& os, const V& v)
+template<class V>
+void stream_vect_to_JSON_array(std::ostream& os, const V& v)
 {
     os << "[";
 
@@ -245,7 +245,7 @@ parseQueryCGI(cgicc::Cgicc& cgi)
 
             char buff[64];
             sprintf(buff, "{\"lo\":%u, \"hi\":%u}", lo, hi);
-            cout << buff;
+            std::cout << buff;
 
             fprintf(gLog, "%s\n", buff);
             return true;
@@ -253,18 +253,18 @@ parseQueryCGI(cgicc::Cgicc& cgi)
 
         if ((**cmd) == "getActiveDDS") {
             printJSONResponseHeader();
-            stream_vect_to_JSON_array(cout, active_dds);
+            stream_vect_to_JSON_array(std::cout, active_dds);
             return true;
         }
 
         if ((**cmd) == "setParams" &&  page != cgi.getElements().end()) {
             printPlainResponseHeader();
-            string sPage = **page;
+            std::string sPage = **page;
             removeNonAlphaNum(sPage);
 
             if (sPage.length()) {
                 txtmap_t params;
-                string fname = "/home/www/userdata/params_" + sPage;
+                std::string fname = "/home/www/userdata/params_" + sPage;
 
                 //load existing params
                 loadMap(params, fname);
@@ -281,14 +281,14 @@ parseQueryCGI(cgicc::Cgicc& cgi)
 
         if ((**cmd) == "getParams" &&  page != cgi.getElements().end() ) {
             printPlainResponseHeader();
-            string sPage = **page;
+            std::string sPage = **page;
             removeNonAlphaNum(sPage);
             if (sPage.length()) {
                 txtmap_t params;
                 loadMap(params, "/home/www/userdata/params_" + sPage);
                 getDeviceParams(sPage, params);
                 //dumpMap(params, gLog); fflush(gLog);
-                dumpMapHTML(params, cout);
+                dumpMapHTML(params, std::cout);
                 return true;
             } else {
                 return false;
@@ -298,7 +298,7 @@ parseQueryCGI(cgicc::Cgicc& cgi)
         if ((**cmd) == "setDeviceParams" &&  page != cgi.getElements().end()) {
             printPlainResponseHeader();
 
-            string sPage = **page;
+            std::string sPage = **page;
             removeNonAlphaNum(sPage);
 
             if(sPage.length()) {
@@ -329,7 +329,7 @@ unsigned getUnsignedParam(const std::string& seq, const std::string& name,
 {
     size_t pos = seq.find(name);
 
-    if(pos != string::npos) {
+    if(pos != std::string::npos) {
         unsigned val;
 
         if(sscanf(seq.substr(pos).c_str()+name.length(), "%u", &val))
@@ -344,7 +344,7 @@ unsigned getHexParam(const std::string& seq, const std::string& name,
 {
     size_t pos = seq.find(name);
 
-    if(pos != string::npos) {
+    if(pos != std::string::npos) {
         unsigned val;
 
         if(sscanf(seq.substr(pos).c_str()+name.length(), "%x", &val))
@@ -359,7 +359,7 @@ double getDoubleParam(const std::string& seq, const std::string& name,
 {
     size_t pos = seq.find(name);
 
-    if(pos != string::npos) {
+    if(pos != std::string::npos) {
         double val;
 
         //this may not be working.  glibc bug?
@@ -375,7 +375,7 @@ bool getCheckboxParam(const std::string& seq, const std::string& name,
 {
     size_t pos = seq.find(name+"on");
 
-    if(pos != string::npos) {
+    if(pos != std::string::npos) {
         return true;
     }
 
@@ -387,12 +387,12 @@ getStringParam(const std::string &seq, const std::string &token,
                const std::string &defaultVal, const std::string&)
 {
     size_t pos = seq.find(token);
-    if (pos != string::npos) {
+    if (pos != std::string::npos) {
         pos += token.length();
         std::string val;
 
         size_t pos2 = seq.substr(pos).find("&");
-        if (pos2 != string::npos) {
+        if (pos2 != std::string::npos) {
             return seq.substr(pos).substr(0, pos2);
         } else {
             return seq.substr(pos);

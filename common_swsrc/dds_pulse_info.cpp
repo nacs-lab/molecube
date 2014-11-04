@@ -8,7 +8,6 @@
 #include <iostream>
 #include "dds_pulse_info.h"
 
-using namespace std;
 unsigned extract_flags(const std::string& s)
 {
     unsigned flags = 0;
@@ -169,10 +168,10 @@ unsigned numOccurences(const std::string& s1, const std::string& s2)
     unsigned n = 0;
     size_t i = 0;
 
-    while(i != string::npos) {
+    while(i != std::string::npos) {
         i = s1.find(s2, i);
 
-        if(i != string::npos) {
+        if(i != std::string::npos) {
             n++;
             i++;
         }

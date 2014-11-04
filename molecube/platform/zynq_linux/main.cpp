@@ -34,8 +34,6 @@ void init_system();
 #include <fcgi/fcgio.h>
 #include <fcgi/fcgi_config.h>
 
-using namespace cgicc;
-
 #include "fcgi/fcgio.h"
 
 #include "cgicc/CgiInput.h"
@@ -139,9 +137,6 @@ protected:
 };
 
 
-using namespace std;
-
-
 int nSig = 0;
 bool g_stop = false;
 
@@ -216,13 +211,13 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    string sLogFileName = cla.GetStringAfter("-l", "stdout");
+    std::string sLogFileName = cla.GetStringAfter("-l", "stdout");
     if(sLogFileName == "stdout")
         gLog =stdout;
     else
         gLog = fopen(sLogFileName.c_str(), "a");
 
-    gvSTDOUT = verbosity(&cout, gLog);
+    gvSTDOUT = verbosity(&std::cout, gLog);
     gvLog = verbosity(0, gLog);
 
     printHeader(gLog);
@@ -251,15 +246,15 @@ int main(int argc, char *argv[])
     fprintf(gLog, "Random seed = %u.  2 random numbers: %u, %u\n", (unsigned)srandT, rand(), rand());
 
     // run startup sequence
-    string fnameStartup = cla.GetStringAfter("-s", "");
+    std::string fnameStartup = cla.GetStringAfter("-s", "");
     if(fnameStartup.length()) {
         fprintf(gLog, "Read startup sequence from: %s\n", fnameStartup.c_str());
-        ifstream ifs(fnameStartup);
+        std::ifstream ifs(fnameStartup);
 
         if(ifs.is_open()) {
-            string sStartupSeq;
+            std::string sStartupSeq;
             while(!ifs.eof()) {
-                string line;
+                std::string line;
                 getline(ifs, line);
                 sStartupSeq.append(line);
                 sStartupSeq.append("\n");
@@ -293,14 +288,14 @@ int main(int argc, char *argv[])
         fcgi_streambuf cerr_fcgi_streambuf(request.err);
 
         //   cin.rdbuf(&cin_fcgi_streambuf);
-        cout.rdbuf(&cout_fcgi_streambuf);
-        cerr.rdbuf(&cerr_fcgi_streambuf);
+        std::cout.rdbuf(&cout_fcgi_streambuf);
+        std::cerr.rdbuf(&cerr_fcgi_streambuf);
 
 
         FCgiIO IO(request);
-        Cgicc cgi(&IO);
+        cgicc::Cgicc cgi(&IO);
 
-        gvSTDOUT = verbosity(&cout, gLog);
+        gvSTDOUT = verbosity(&std::cout, gLog);
 
         try {
             if (!parseQueryCGI(cgi)) {
@@ -313,7 +308,7 @@ int main(int argc, char *argv[])
 
         fprintf(gLog, "================ Finish FastCGI request %d ================\n\n", nAccept++);
         fflush(gLog);
-        cout << endl;
+        std::cout << std::endl;
         setProgramStatus(0, "Idle");
     }
 

@@ -2,9 +2,7 @@
 #include <sstream>
 #include <cstring>
 
-using namespace std;
-
-CmdLineArgs::CmdLineArgs(int argc, char* argv[])
+CmdLineArgs::CmdLineArgs(int argc, char *argv[])
 {
     m_vArgv = std::vector<std::string>(argc);
 
@@ -13,7 +11,7 @@ CmdLineArgs::CmdLineArgs(int argc, char* argv[])
     }
 }
 
-CmdLineArgs::CmdLineArgs(const char* szCommandLine)
+CmdLineArgs::CmdLineArgs(const char *szCommandLine)
 {
     std::istringstream ss(szCommandLine);
 
@@ -21,15 +19,16 @@ CmdLineArgs::CmdLineArgs(const char* szCommandLine)
         std::string s;
         ss >> s;
         m_vArgv.push_back(s);
-    } while(!(ss.rdstate() & ios::eofbit));
+    } while(!(ss.rdstate() & std::ios::eofbit));
 }
 
-int CmdLineArgs::FindString(const string& s, int iAfter /*=0*/) const
+int CmdLineArgs::FindString(const std::string &s, int iAfter /*=0*/) const
 {
-    for(int i=iAfter; i<(int)m_vArgv.size(); i++)
-        if(strcmp(m_vArgv[i].c_str(), s.c_str()) == 0)
+    for(int i = iAfter; i < (int)m_vArgv.size();i++) {
+        if (strcmp(m_vArgv[i].c_str(), s.c_str()) == 0) {
             return i;
-
+        }
+    }
     return -1;
 }
 

@@ -8,8 +8,6 @@
 #include <iostream>
 
 
-using namespace std;
-
 //set DAC voltage for channels 0-31
 //if channel > 31, set offset voltage
 void SetDAC_AD5532(spi_p spi, unsigned channel, unsigned dacWord)
