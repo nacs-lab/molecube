@@ -63,7 +63,5 @@ public:
     int fd;
 };
 
-extern FILE* gLog; //log file
-
 extern std::vector<unsigned> active_dds; // all DDS that are available
 #endif //PARSE_MISC_H

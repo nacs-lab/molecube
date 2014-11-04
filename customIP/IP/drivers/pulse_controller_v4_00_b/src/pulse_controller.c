@@ -17,18 +17,16 @@
 #include "pulse_controller_io.h"
 #endif
 
-unsigned nDDS_boards = 0;
+static unsigned nDDS_boards = 0;
+static unsigned last_PMT_value = 0;
+static unsigned extra_flags = 0;
 unsigned PULSER_vacancy = 0;
 
-unsigned last_PMT_value = 0;
+static void (*idle_func)(void);
 
-unsigned extra_flags = 0;
-
-void (*idle_func)(void);
-
-unsigned int ddsFTW[PULSER_MAX_NDDS];
-unsigned short ddsPhase[PULSER_MAX_NDDS];
-unsigned short ddsAmp[PULSER_MAX_NDDS];
+static unsigned int ddsFTW[PULSER_MAX_NDDS];
+static unsigned short ddsPhase[PULSER_MAX_NDDS];
+static unsigned short ddsAmp[PULSER_MAX_NDDS];
 
 #define ENABLE_TIMING_CHECK    (0x08000000)
 
@@ -48,7 +46,7 @@ PULSER_unsafe_pulse(void* base_addr, const unsigned control,
     PULSER_mWriteSlaveReg31(base_addr, 0, control);
 }
 
-void
+static void
 PULSER_debug_regs(void *base_addr)
 {
     printf("PULSE_CONTROLLER registers:\r\n");
@@ -68,7 +66,8 @@ PULSER_debug_regs(void *base_addr)
     printf("\r\n");
 }
 
-void PULSER_init(void* base_addr, unsigned nDDS, unsigned bResetDDS, int debug_level)
+void
+PULSER_init(void* base_addr, unsigned nDDS, unsigned bResetDDS, int debug_level)
 {
     //soft reset
     //PULSER_mReset(base_addr);

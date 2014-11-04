@@ -41,8 +41,6 @@ unsigned nextTTL = 0;
 unsigned currTTL = 0;
 unsigned g_lineNum = 0;
 
-extern bool g_stop_curr_seq;
-
 //make sure any TTLs that were spec'd previously are still active
 // tNewPulse = spec'd time for new pulse
 // tMinPulse = minimum duration of new pulse *before* update

@@ -8,13 +8,13 @@
  *
  * */
 
+#include "saveloadmap.h"
+
+#include <common.h>
+
 #include <sstream>
 #include <iostream>
 #include <iomanip>
-
-#include "saveloadmap.h"
-
-extern FILE* gLog;
 
 void
 saveMap(const txtmap_t& params, const std::string& fname)
@@ -32,7 +32,7 @@ saveMap(const txtmap_t& params, const std::string& fname)
     }
 }
 
-bool
+static bool
 processLine(const std::string& sLine, std::string& sName, std::string& sValue)
 {
     std::string sWhite("\r\n ");
@@ -124,7 +124,9 @@ dumpMap(const txtmap_t &m, FILE *f)
 
 //replace next string in str matching from with to.  start at next
 //return next positon after replacment or string::npos if no match
-size_t replace(std::string& str, const std::string& from, const std::string& to, size_t next)
+static size_t
+replace(std::string& str, const std::string& from,
+        const std::string& to, size_t next)
 {
     size_t start_pos = str.find(from, next);
 
@@ -145,14 +147,9 @@ void replaceAll(std::string& str, const std::string& from, const std::string& to
         while((next = replace(str, to, from, next)) != std::string::npos) {}
 }
 
-void replaceAllR(std::string& str, const std::string& from, const std::string& to)
-{
-    while(replace(str, to, from, 0)) {}
-}
-
 //url_encode is copied from stackexchange:
 // http://stackoverflow.com/questions/154536/encode-decode-urls-in-c
-std::string
+static std::string
 url_encode(const std::string &value)
 {
     std::ostringstream escaped;
@@ -179,7 +176,7 @@ url_encode(const std::string &value)
 
 // url_decode is copied from stackexchange:
 // http://stackoverflow.com/questions/154536/encode-decode-urls-in-c
-std::string
+static std::string
 url_decode(std::string &SRC)
 {
     std::string ret;

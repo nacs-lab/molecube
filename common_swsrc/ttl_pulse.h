@@ -1,7 +1,7 @@
 #ifndef TTL_PULSE_H_
 #define TTL_PULSE_H_
 
-#include <stdio.h>
+#include <common.h>
 #include "fpga.h"
 #include "verbosity.h"
 
@@ -11,7 +11,6 @@
 #endif
 
 extern bool bDebugPulses;
-extern FILE* gLog;
 extern unsigned g_tSequence; //accumulated sequence duration in PULSER units
 
 #define TIME_UNIT    (1e-8)

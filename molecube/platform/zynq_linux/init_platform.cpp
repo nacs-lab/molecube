@@ -17,14 +17,7 @@
 //Platform specific initialization
 //Linux: get device addresses
 
-#define MAP_SIZE 4096UL
-#define MAP_MASK (MAP_SIZE - 1)
-
-extern FILE* gLog;
-void *mapped_base = 0;
-int memfd = 0;
-
-void*
+static void*
 get_pulse_controller_phys_addr()
 {
     void *addr = (void*)XPAR_PULSE_CONTROLLER_0_BASEADDR;
@@ -68,18 +61,8 @@ get_pulse_controller_phys_addr()
     return addr;
 }
 
-void close_pulse_controller_mapped_addr()
-{
-    // unmap the memory before exiting
-    if (munmap(mapped_base, MAP_SIZE) == -1) {
-        printf("Can't unmap memory from user space.\n");
-    }
-
-    close(memfd);
-    fprintf(gLog, "Memory unmapped from %p.\n", mapped_base);
-}
-
-void init_pulse_controller()
+void
+init_pulse_controller()
 {
     fprintf(gLog, "Initializing pulse controller\r\n");
     void* phys_addr = get_pulse_controller_phys_addr();

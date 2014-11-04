@@ -1,7 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <vector>
-
+#include "init_system.h"
 #include "init_platform.h"
 
 #include "fpga.h"
@@ -10,20 +7,23 @@
 #include "self_test.h"
 #include "AD9914.h"
 #include "dds_pulse.h"
+#include "../../parser/parseMisc.h"
 
+#include <vector>
+
+#include <stdio.h>
+#include <stdlib.h>
 #include <sys/time.h>
 #include <sys/resource.h>
 #include <errno.h>
-#include "../../parser/parseMisc.h"
 
 spi_struct g_spi[NSPI];
-extern FILE* gLog;
 
 void init_system()
 {
     flocker fl(g_fPulserLock);
 
-    if(gDebugLevel > 1) {
+    if (gDebugLevel > 1) {
 #ifdef __PPC__
         printf("PPC hardware\r\n");
 #endif
@@ -31,8 +31,6 @@ void init_system()
 #ifdef __arm__
         printf("ARM / Zynq hardware\r\n");
 #endif
-
-
         printf("TICKS_PER_US = %d\n", (int)(TICKS_PER_US));
     }
 

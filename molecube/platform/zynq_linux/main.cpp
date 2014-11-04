@@ -1,6 +1,23 @@
-#include <stdio.h>
-
 #include "init_platform.h"
+#include "init_system.h"
+
+#include "fpga.h"
+#include "timing.h"
+#include "linux_file_util.h"
+
+#include "../../parser/parseTxtSeq.h"
+#include "../../parser/parseMisc.h"
+
+#include <verbosity.h>
+#include <CmdLineArgs.h>
+#include <common.h>
+
+#include <cstdio>
+#include <stdexcept>
+#include <cassert>
+#include <iostream>
+#include <fstream>
+#include <map>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -11,25 +28,6 @@
 #include <time.h>
 #include <signal.h>
 #include <fcntl.h>
-
-void init_system();
-
-
-#include <cstdio>
-#include <stdexcept>
-#include <cassert>
-#include <iostream>
-#include <fstream>
-#include <map>
-
-#include "fpga.h"
-#include "timing.h"
-#include "linux_file_util.h"
-
-#include "../../parser/parseTxtSeq.h"
-#include "../../parser/parseMisc.h"
-#include <verbosity.h>
-#include <CmdLineArgs.h>
 
 #include <fcgi/fcgio.h>
 #include <fcgi/fcgi_config.h>
@@ -136,86 +134,96 @@ protected:
     std::map<std::string, std::string> fEnv;
 };
 
-
-int nSig = 0;
-bool g_stop = false;
-
 #ifdef LINUX_OS
-void* pulser = 0;
+void *pulser = 0;
 #else
-void* pulser = (void*)XPAR_PULSE_CONTROLLER_0_BASEADDR;
+void *pulser = (void*)XPAR_PULSE_CONTROLLER_0_BASEADDR;
 #endif
 
 bool g_debug_spi = false;
 bool g_stop_curr_seq = false;
 
-FILE* gLog = 0;
+FILE *gLog = 0;
 verbosity gvSTDOUT(0, 0);
 verbosity gvLog(0, 0);
 
-const char PROG_NAME[]="molecube";
+const char PROG_NAME[] = "molecube";
 
 unsigned gDebugLevel = 0;
 
 //atexit handler
-void bye(void)
+static void
+bye()
 {
     fprintf(gLog, "bye\n\n");
 }
 
-void handleINT(int)
+static void
+handleINT(int)
 {
-    g_stop = true;
-    printf("received signal to exit\n");
+    // IIRC printf is not reentrant
+    // printf("received signal to exit\n");
     exit(0);
 }
 
-void handleUSR1(int)
+static void
+handleUSR1(int)
 {
     g_stop_curr_seq = true;
 
-    fprintf(gLog, "Received USR1 signal\n");
-    fprintf(gLog, "Stopping pulse sequence\n");
+    // Not reentrant
+    // fprintf(gLog, "Received USR1 signal\n");
+    // fprintf(gLog, "Stopping pulse sequence\n");
 }
 
-void printHeader(FILE* fLog)
+static void
+printHeader(FILE* fLog)
 {
     fprintf(fLog, "\n\nMolecube 1.09 (FastCGI)\n");
     fprintf(fLog, "Built: %s %s  ", __DATE__, __TIME__);
-    fprintf(fLog, "with GCC %d.%d.%d\n", __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
+    fprintf(fLog, "with GCC %d.%d.%d\n", __GNUC__,
+            __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
 }
-void printUsage()
+
+static void
+printUsage()
 {
     printHeader(stdout);
     printf("Command line options:\n");
-    printf(" -l log_file_name : Set log file.  If none specified, use stdout.\n");
-    printf(" -s startup_file_name : If specified, run startup pulse sequence from file.\n");
+    printf(" -l log_file_name : Set log file.  "
+           "If none specified, use stdout.\n");
+    printf(" -s startup_file_name : "
+           "If specified, run startup pulse sequence from file.\n");
     printf(" -h or --help : Print help / usage info.\n");
     printf("\n\n");
 }
 
-int main(int argc, char *argv[])
+int
+main(int argc, char *argv[])
 {
-    signal(SIGINT, &handleINT); //handler gets called for ctrl-C or similar kill signals
-    signal(SIGUSR1, &handleUSR1); //USR1: stop current pulse sequence
-    atexit(bye); //bye gets called from exit()
+    // handler gets called for ctrl-C or similar kill signals
+    signal(SIGINT, &handleINT);
+    // USR1: stop current pulse sequence
+    signal(SIGUSR1, &handleUSR1);
+    atexit(bye); // bye gets called from exit()
 
     //get command line args
     CmdLineArgs cla(argc, argv);
 
     g_fPulserLock = fopen("/tmp/pulser.lock", "w");
 
-    if( (cla.FindString("-h") >= 0) || (cla.FindString("--help") >= 0) ) {
+    if (cla.FindString("-h") >= 0 || cla.FindString("--help") >= 0) {
         gLog = stdout;
         printUsage();
         return 0;
     }
 
     std::string sLogFileName = cla.GetStringAfter("-l", "stdout");
-    if(sLogFileName == "stdout")
-        gLog =stdout;
-    else
+    if (sLogFileName == "stdout") {
+        gLog = stdout;
+    } else {
         gLog = fopen(sLogFileName.c_str(), "a");
+    }
 
     gvSTDOUT = verbosity(&std::cout, gLog);
     gvLog = verbosity(0, gLog);
@@ -243,17 +251,19 @@ int main(int argc, char *argv[])
 
     time_t srandT = time(0);
     srand(srandT + nAccept);
-    fprintf(gLog, "Random seed = %u.  2 random numbers: %u, %u\n", (unsigned)srandT, rand(), rand());
+    fprintf(gLog, "Random seed = %u.  2 random numbers: %u, %u\n",
+            (unsigned)srandT, rand(), rand());
 
     // run startup sequence
     std::string fnameStartup = cla.GetStringAfter("-s", "");
-    if(fnameStartup.length()) {
-        fprintf(gLog, "Read startup sequence from: %s\n", fnameStartup.c_str());
+    if (fnameStartup.length()) {
+        fprintf(gLog, "Read startup sequence from: %s\n",
+                fnameStartup.c_str());
         std::ifstream ifs(fnameStartup);
 
-        if(ifs.is_open()) {
+        if (ifs.is_open()) {
             std::string sStartupSeq;
-            while(!ifs.eof()) {
+            while (!ifs.eof()) {
                 std::string line;
                 getline(ifs, line);
                 sStartupSeq.append(line);
@@ -265,9 +275,9 @@ int main(int argc, char *argv[])
             } catch (std::runtime_error e) {
                 fprintf(gLog, "Startup sequence error:   %s\n", e.what());
             }
-        }
-        else
+        } else {
             fprintf(gLog, "Could not open file.\n");
+        }
     }
 
     fprintf(gLog, "Waiting for network connections...\n\n");
@@ -277,7 +287,8 @@ int main(int argc, char *argv[])
 
     while (FCGX_Accept_r(&request) == 0) {
         setProgramStatus(0, "Processing request");
-        fprintf(gLog, "================ Accept FastCGI request %d ================\n", nAccept);
+        fprintf(gLog, "================ Accept FastCGI request %d "
+                "================\n", nAccept);
 
         // Replace stdio streambufs.
         // Note that the default bufsize (0) will cause the use of iostream
@@ -291,7 +302,6 @@ int main(int argc, char *argv[])
         std::cout.rdbuf(&cout_fcgi_streambuf);
         std::cerr.rdbuf(&cerr_fcgi_streambuf);
 
-
         FCgiIO IO(request);
         cgicc::Cgicc cgi(&IO);
 
@@ -303,10 +313,12 @@ int main(int argc, char *argv[])
             }
         } catch (std::runtime_error e) {
             gvSTDOUT.printf("Oh noes! \n   %s\n", e.what());
-            gvSTDOUT.printf("%s", getQuote("/usr/local/quotes.frt", "%%").c_str());
+            gvSTDOUT.printf("%s", getQuote("/usr/local/quotes.frt",
+                                           "%%").c_str());
         }
 
-        fprintf(gLog, "================ Finish FastCGI request %d ================\n\n", nAccept++);
+        fprintf(gLog, "================ Finish FastCGI request %d "
+                "================\n\n", nAccept++);
         fflush(gLog);
         std::cout << std::endl;
         setProgramStatus(0, "Idle");
