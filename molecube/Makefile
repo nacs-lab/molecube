@@ -22,13 +22,12 @@ INC = -I$(ROOT)/include \
       -I$(DRIVERS) \
       -I$(FPGAINC)
 
-CFLAGS += -std=gnu11 -O1 -g -DPLATFORM_ZYNQ -DLINUX_OS $(INC) -Wall -Wextra
-CXXFLAGS += -std=c++11 -O2 -g -DPLATFORM_ZYNQ -DLINUX_OS $(INC) -Wall -Wextra
+CFLAGS += -pthread -std=gnu11 -O2 -g -DPLATFORM_ZYNQ -DLINUX_OS $(INC) -Wall -Wextra -flto
+CXXFLAGS += -pthread -std=c++11 -O2 -g -DPLATFORM_ZYNQ -DLINUX_OS $(INC) -Wall -Wextra -flto
 
 MC: CXXFLAGS += -DCONFIG_BB -DNSPI=2 -DNDDS=22 -DAD9914_CLK=3.5e9 -DNAD9914=8 -DN_SHIFT_SWITCHES=0
 
-LIBS := -Wl,--start-group,-L$(FPGALIB),-lgcc,-lc,-lstdc++,-lsupc++,-lrt,-lpthread,-lcgicc,-lfcgi,-lfcgi++,--end-group
-
+LIBS := -pthread -L$(FPGALIB) -lrt -lcgicc -lfcgi -lfcgi++ -flto -O2 -Wl,--as-needed
 
 # All of the sources participating in the build are defined here
 SRCS  = $(wildcard $(ROOT)/parser/*.cpp)
