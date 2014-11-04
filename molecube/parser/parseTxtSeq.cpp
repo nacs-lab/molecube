@@ -600,8 +600,7 @@ parseSeqTxt(unsigned reps, const std::string& seqTxt, bool bForever,
         std::stringstream ssL(line);
 
         while (!ssL.eof()) {
-            double t = 0; // timing spec from sequence
-            double dt = 0;
+            double new_t;
             std::string strPrior;
 
             // valid lines will start with "dt = " or "t = "
@@ -611,14 +610,15 @@ parseSeqTxt(unsigned reps, const std::string& seqTxt, bool bForever,
             }
 
             if (strPrior.find("dt") != std::string::npos) {
-                ssL >> dt;
+                ssL >> new_t;
+                new_t += tSoFar;
+            } else if (strPrior.find("t") != std::string::npos) {
+                ssL >> new_t;
             } else {
-                if (strPrior.find("t") != std::string::npos) {
-                    ssL >> t;
-                } else {
-                    // invalid line
-                    badLine(g_lineNum, line);
-                }
+                badLine(g_lineNum, line);
+            }
+            if (new_t <= tSoFar) {
+                badLine(g_lineNum, line);
             }
 
             // next comes the time unit, then a comma
@@ -639,23 +639,17 @@ parseSeqTxt(unsigned reps, const std::string& seqTxt, bool bForever,
             if (ssL.eof())
                 badLine(g_lineNum, line);
 
-            if (t > dt) {
-                if (parseCommand(floor(t * PULSER_DT_per_us + 0.5),
-                                 cmd, arg1, ssL)) {
-                    tSoFar = t;
-                } else {
-                    badLine(g_lineNum, line);
-                }
+            if (parseCommand(floor(tSoFar * PULSER_DT_per_us + 0.5),
+                             cmd, arg1, ssL)) {
+                tSoFar = new_t;
             } else {
-                if (parseCommand(floor(tSoFar * PULSER_DT_per_us + 0.5),
-                                 cmd, arg1, ssL)) {
-                    tSoFar += dt;
-                } else {
-                    badLine(g_lineNum, line);
-                }
+                badLine(g_lineNum, line);
             }
         }
     }
+    unsigned new_tcurr = floor(tSoFar * PULSER_DT_per_us + 0.5);
+    dealWithCurrentTTL(new_tcurr, 0);
+    tCurr = new_tcurr;
     finishTTL();
 
     gvSTDOUT.printf("Parsed sequence into %d pulse commands.\n", pulses.size());
