@@ -606,8 +606,9 @@ parseSeqTxt(unsigned reps, const std::string& seqTxt, bool bForever,
 
             // valid lines will start with "dt = " or "t = "
 
-            if (!eatStreamTo(ssL, '=', strPrior)) // ignore
-                break;
+            if (!eatStreamTo(ssL, '=', strPrior)) {
+                badLine(g_lineNum, line);
+            }
 
             if (strPrior.find("dt") != std::string::npos) {
                 ssL >> dt;
