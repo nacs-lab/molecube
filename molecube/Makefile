@@ -13,7 +13,6 @@ CC = $(CROSS_COMPILE)gcc
 RM := rm -rf
 
 INC = -I$(ROOT)/include \
-      -I$(ROOT)/../../thirdparty \
       -I$(COMMON) \
       -I$(COMMON)/linux \
       -I$(XILINXINC) \
@@ -32,11 +31,9 @@ LIBS := -pthread -L$(FPGALIB) -lrt -lcgicc -lfcgi -lfcgi++ -flto -O2 -Wl,--as-ne
 # All of the sources participating in the build are defined here
 SRCS  = $(wildcard $(ROOT)/parser/*.cpp)
 SRCS += $(wildcard $(ROOT)/platform/zynq_linux/*.cpp)
-SRCS += $(wildcard $(ROOT)/BB/*.cpp)
 SRCS += $(wildcard $(COMMON)/*.cpp)
 
-CSRCS  = $(wildcard $(ROOT)/*.c)
-CSRCS += $(wildcard $(ROOT)/platform/zynq_linux/*.c)
+CSRCS = $(wildcard $(ROOT)/platform/zynq_linux/*.c)
 CSRCS += $(wildcard $(COMMON)/*.c)
 CSRCS += $(wildcard $(COMMON)/linux/*.c)
 CSRCS += $(wildcard $(XILINXINC)/*.c)
