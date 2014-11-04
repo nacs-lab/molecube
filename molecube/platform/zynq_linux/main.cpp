@@ -147,7 +147,7 @@ FILE *gLog = 0;
 verbosity gvSTDOUT(0, 0);
 verbosity gvLog(0, 0);
 
-const char PROG_NAME[] = "molecube";
+static const char PROG_NAME[] = "molecube";
 
 unsigned gDebugLevel = 0;
 
