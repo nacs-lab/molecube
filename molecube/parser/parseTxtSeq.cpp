@@ -524,25 +524,23 @@ parseSeqCGI(cgicc::Cgicc& cgi)
 
 // 7/21/2014: no longer using this code
 // keeping it in case CGICC causes trouble
-/*
 
-  #include "parseMultiPart.h"
+// #include "parseMultiPart.h"
 
-  bool parseSeqMultiPart(std::istream& is, const std::string& line1)
-  {
-  txtmap_t m;
-  if(!parseMultiPart(is, line1, m))
-  return false;
+// bool parseSeqMultiPart(std::istream& is, const std::string& line1)
+// {
+//     txtmap_t m;
+//     if (!parseMultiPart(is, line1, m))
+//         return false;
 
-  unsigned reps = atoi(m["reps"].c_str());
-  bool bDebugPulses = (string::npos != m["debugPulses"].find("on"));
-  bool bForever = (string::npos != m["forever"].find("on"));
+//     unsigned reps = atoi(m["reps"].c_str());
+//     bool bDebugPulses = (string::npos != m["debugPulses"].find("on"));
+//     bool bForever = string::npos != m["forever"].find("on");
 
-  parseSeqTxt(reps, m["sequence.txt"], bForever, bDebugPulses);
+//     parseSeqTxt(reps, m["sequence.txt"], bForever, bDebugPulses);
 
-  return true;
-  }
-*/
+//     return true;
+// }
 
 //parse text-encoded pulse sequence
 static bool
