@@ -84,7 +84,7 @@ public:
             gvSTDOUT.printf("TTL pulse 0x%08X too short: %.2f us\n",
                             t * PULSER_DT_us, ttl);
             throw std::runtime_error("The pulse at t = " +
-                                     to_string(t * PULSER_DT_us) +
+                                     std::to_string(t * PULSER_DT_us) +
                                      " us is too short or early.");
         }
     }
@@ -123,8 +123,8 @@ public:
     dds_cmd(unsigned dds, unsigned operand) : dds(dds), operand(operand)
     {
         if (dds > NDDS - 1) {
-            throw std::runtime_error("Line " + to_string(g_lineNum) +
-                                     ", Invalid DDS: " + to_string(dds));
+            throw std::runtime_error("Line " + std::to_string(g_lineNum) +
+                                     ", Invalid DDS: " + std::to_string(dds));
         }
     }
 
@@ -259,7 +259,7 @@ makeCurrTTL(unsigned tEnd)
                             (PULSER_T_TTL_MIN + tCurr) * PULSER_DT_us);
 
             throw std::runtime_error("The pulse at t = " +
-                                     to_string(tEnd * PULSER_DT_us) +
+                                     std::to_string(tEnd * PULSER_DT_us) +
                                      " us is too early.  What's the big hurry?");
         }
 
@@ -346,7 +346,7 @@ dealWithCurrentTTL(unsigned tNewPulse, unsigned tMinPulse)
                             tCurr*PULSER_DT_us, tMin*PULSER_DT_us);
 
             throw std::runtime_error("The pulse at t = " +
-                                     to_string(tNewPulse * PULSER_DT_us) +
+                                     std::to_string(tNewPulse * PULSER_DT_us) +
                                      " us is too early.  What's the big hurry?");
         } else {
             pulses.push_back(new ttl_pulse_cmd(tNewPulse-tCurr-tMinPulse, nextTTL));
@@ -355,7 +355,7 @@ dealWithCurrentTTL(unsigned tNewPulse, unsigned tMinPulse)
         }
     } else {
         throw std::runtime_error("Must run a TTL pulse prior to pulse at t = " +
-                                 to_string(tNewPulse * PULSER_DT_us));
+                                 std::to_string(tNewPulse * PULSER_DT_us));
     }
 }
 
@@ -544,13 +544,6 @@ parseSeqCGI(cgicc::Cgicc& cgi)
   }
 */
 
-static inline void
-badLine(unsigned lineNum, std::string& line)
-{
-    throw std::runtime_error("invalid line: " + to_string(lineNum) +
-                             "\n>>> " + line);
-}
-
 //parse text-encoded pulse sequence
 static bool
 parseSeqTxt(unsigned reps, const std::string& seqTxt, bool bForever,
@@ -597,52 +590,60 @@ parseSeqTxt(unsigned reps, const std::string& seqTxt, bool bForever,
         // otherwise parse the line
         std::stringstream ssL(line);
 
-        while (!ssL.eof()) {
-            double new_t;
-            std::string strPrior;
+        double new_t;
+        std::string strPrior;
 
-            // valid lines will start with "dt = " or "t = "
+        // valid lines will start with "dt = " or "t = "
 
-            if (!eatStreamTo(ssL, '=', strPrior)) {
-                badLine(g_lineNum, line);
-            }
+        if (!eatStreamTo(ssL, '=', strPrior)) {
+            throw std::runtime_error(std::to_string(g_lineNum) +
+                                     ": no time spec.");
+        }
 
-            if (strPrior.find("dt") != std::string::npos) {
-                ssL >> new_t;
-                new_t += tSoFar;
-            } else if (strPrior.find("t") != std::string::npos) {
-                ssL >> new_t;
-            } else {
-                badLine(g_lineNum, line);
-            }
-            if (new_t <= tSoFar) {
-                badLine(g_lineNum, line);
-            }
+        if (strPrior.find("dt") != std::string::npos) {
+            ssL >> new_t;
+            new_t += tSoFar;
+        } else if (strPrior.find("t") != std::string::npos) {
+            ssL >> new_t;
+        } else {
+            throw std::runtime_error(std::to_string(g_lineNum) +
+                                     ": invalid time spec.");
+        }
+        if (new_t <= tSoFar) {
+            throw std::runtime_error(std::to_string(g_lineNum) +
+                                     ": going back in time.");
+        }
 
-            // next comes the time unit, then a comma
-            std::string timeunit;
-            getline(ssL, timeunit, ',');
+        // next comes the time unit, then a comma
+        std::string timeunit;
+        getline(ssL, timeunit, ',');
 
-            if (ssL.eof())
-                badLine(g_lineNum, line);
+        if (ssL.eof()) {
+            throw std::runtime_error(std::to_string(g_lineNum) +
+                                     ": no action.");
+        }
 
-            // then comes the command name, followed by '(arg1)'
-            std::string cmd;
-            getline(ssL, cmd, '(');
-            if (ssL.eof())
-                badLine(g_lineNum, line);
+        // then comes the command name, followed by '(arg1)'
+        std::string cmd;
+        getline(ssL, cmd, '(');
+        if (ssL.eof()) {
+            throw std::runtime_error(std::to_string(g_lineNum) +
+                                     ": incomplete action.");
+        }
 
-            std::string arg1;
-            getline(ssL, arg1, ')');
-            if (ssL.eof())
-                badLine(g_lineNum, line);
+        std::string arg1;
+        getline(ssL, arg1, ')');
+        if (ssL.eof()) {
+            throw std::runtime_error(std::to_string(g_lineNum) +
+                                     ": incomplete action (2).");
+        }
 
-            if (parseCommand(floor(tSoFar * PULSER_DT_per_us + 0.5),
-                             cmd, arg1, ssL)) {
-                tSoFar = new_t;
-            } else {
-                badLine(g_lineNum, line);
-            }
+        if (parseCommand(floor(tSoFar * PULSER_DT_per_us + 0.5),
+                         cmd, arg1, ssL)) {
+            tSoFar = new_t;
+        } else {
+            throw std::runtime_error(std::to_string(g_lineNum) +
+                                     ": failed to parse command.");
         }
     }
     unsigned new_tcurr = floor(tSoFar * PULSER_DT_per_us + 0.5);
