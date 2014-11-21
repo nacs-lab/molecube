@@ -58,7 +58,7 @@ This would require:
 3. Add network thread for background transfer
 4. Make sure main thread has highest priority.
 
-Or we could let the pulse controller execute SPI commands and 
+Or we could let the pulse controller execute SPI commands and
 gain enough free time to execute a network transfer before the processor is needed.
 
 1/26/2013
@@ -81,7 +81,7 @@ Code runs.  PMT values in scan don't make sense.
 
 Suddenly linker settings got messed up in Eclipse.
 Added environment variables to end of linker cmd line
-LIBS2 = -Wl,--start-group,-lxil,-lgcc,-lc,-lstdc++,--end-group 
+LIBS2 = -Wl,--start-group,-lxil,-lgcc,-lc,-lstdc++,--end-group
 LIBS3 = -Wl,--start-group,-lxil,-llwip4,-lgcc,-lc,--end-group
 
 Linker is fixed.
@@ -92,13 +92,13 @@ Observe the PMT register incrementing by 1 every shot.  However, the PMT average
 
 
 5/8/2013
-Updated to Xilinx 14.5 software.  
+Updated to Xilinx 14.5 software.
 
 5/9/2013
 Merge Zynq code with operating Virtex 4 code.  A few platform specific files remain in platform/zynq
 All other files are symbolic links to control_trunk/FPGA/SDK/ionizerFPGA.
 UDP transfer to PC is not working.  Can see some transfer via netcat, but transmit buffer overflows after 400 to 800 records.
-Nothing shows up on PC ionizer. 
+Nothing shows up on PC ionizer.
 
 5/10/2013
 Rebuild HW (.bit file) from PlanAhead.  Export to SDK does not update the .bit file that gets sent to FPGA from SDK.
