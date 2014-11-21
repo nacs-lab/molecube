@@ -57,13 +57,10 @@ ms2TW(double t)
 
 //make an RF pulse of specified frequency and duration
 static inline void
-TTL_pulse(unsigned t, unsigned ttl = 0, verbosity *v=0)
+TTL_pulse(unsigned t, unsigned ttl)
 {
     if (t > 4) {
         PULSER_pulse(pulser, t, 0, ttl);
-        // if (v) {
-        //     print_pulse_info(v, t, ttl);
-        // }
         g_tSequence += t;
     }
 }

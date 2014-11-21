@@ -123,7 +123,7 @@ setDeviceParams(const std::string& page, const txtmap_t& params)
             if(pos != params.end()) {
                 double f = 1e6*atof(pos->second.c_str());
                 fprintf(gLog, "DDS setfreq(%d): %12.3f\r\n", iDDS, f);
-                DDS_set_freqHz(iDDS, f, &gvLog);
+                DDS_set_freqHz(iDDS, f);
                 unsigned ftw = DDS_get_ftw(iDDS);
                 gvLog.printf("DDS getfreq(%d): %12.3f  (ftw = %08X)\r\n",
                              iDDS, FTW2HzD(ftw, dds_clk(iDDS)), ftw);
@@ -136,7 +136,7 @@ setDeviceParams(const std::string& page, const txtmap_t& params)
                 double A = atof(pos->second.c_str());
                 A = restrict(A, 0, 1);
                 fprintf(gLog, "DDS setamp (%d): %6.3f %%\r\n", iDDS, A*100);
-                DDS_set_amp(iDDS, A, &gvLog);
+                DDS_set_amp(iDDS, A);
             }
 
             sprintf(buff, "phase%d", iDDS);
@@ -144,7 +144,7 @@ setDeviceParams(const std::string& page, const txtmap_t& params)
             if(pos != params.end()) {
                 double phase = atof(pos->second.c_str());
                 fprintf(gLog, "DDS setphase(%d): %9.3f degrees\r\n", iDDS, phase);
-                DDS_set_phase_deg(iDDS, phase, &gvLog);
+                DDS_set_phase_deg(iDDS, phase);
             }
 
             sprintf(buff, "reset%d", iDDS);

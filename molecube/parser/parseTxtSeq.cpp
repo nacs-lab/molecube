@@ -92,7 +92,7 @@ public:
     virtual void
     makePulse()
     {
-        TTL_pulse(t, ttl, v);
+        TTL_pulse(t, ttl);
     }
 
     unsigned t, ttl;
@@ -140,7 +140,7 @@ public:
 
     virtual void makePulse()
     {
-        DDS_set_ftw(dds, operand, v);
+        DDS_set_ftw(dds, operand);
     }
 };
 
@@ -152,8 +152,9 @@ public:
         dds_cmd(dds, 0x0FFF & (int)(A * 4095 + 0.5))
     {}
 
-    virtual void makePulse() {
-        DDS_set_atw(dds, operand, v);
+    virtual void makePulse()
+    {
+        DDS_set_atw(dds, operand);
     }
 };
 
@@ -164,7 +165,7 @@ public:
     set_phase_cmd(unsigned dds, double phi) : dds_cmd(dds, 0xFFFF & (int)(phi*65536/360.0 + 0.5) ) {}
 
     virtual void makePulse() {
-        DDS_set_ptw(dds, operand, v);
+        DDS_set_ptw(dds, operand);
     }
 };
 
@@ -179,8 +180,9 @@ public:
         dds_cmd(dds, 0xFFFF & (int)(phi * 65536 / 360.0 + 0.5))
     {}
 
-    virtual void makePulse() {
-        DDS_shift_ptw(dds, operand, v);
+    virtual void makePulse()
+    {
+        DDS_shift_ptw(dds, operand);
     }
 };
 
