@@ -47,4 +47,3 @@ XSpi_Config XSpi_ConfigTable[] = {
         XPAR_SPI_1_USE_STARTUP
     }
 };
-

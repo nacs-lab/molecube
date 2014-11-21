@@ -165,5 +165,4 @@ int XSpi_Initialize(XSpi *InstancePtr, u16 DeviceId)
 
     return XSpi_CfgInitialize(InstancePtr, ConfigPtr,
                               ConfigPtr->BaseAddress);
-
 }

@@ -426,7 +426,7 @@ typedef struct {
 
     XSpi_StatusHandler StatusHandler; /**< Status Handler */
     void *StatusRef;	/**< Callback reference for status handler */
-    u32 FlashBaseAddr;    	/**< Used in XIP Mode */
+    u32 FlashBaseAddr;   /**< Used in XIP Mode */
     u8 XipMode;             /**< 0 if Non-XIP, 1 if XIP Mode */
 } XSpi;
 
