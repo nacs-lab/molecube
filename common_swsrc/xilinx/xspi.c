@@ -179,7 +179,7 @@ int XSpi_CfgInitialize(XSpi *InstancePtr, XSpi_Config *Config,
      * Set some default values.
      */
     InstancePtr->IsStarted = 0;
-    InstancePtr->IsBusy = FALSE;
+    InstancePtr->IsBusy = false;
 
     InstancePtr->StatusHandler = StubStatusHandler;
 
@@ -582,7 +582,7 @@ int XSpi_Transfer(XSpi *InstancePtr, u8 *SendBufPtr,
         if ((ControlReg & XSP_CR_LOOPBACK_MASK) == 0) {
             if (InstancePtr->SlaveSelectReg ==
                     InstancePtr->SlaveSelectMask) {
-                if (GlobalIntrReg == TRUE) {
+                if (GlobalIntrReg == true) {
                     /* Interrupt Mode of operation */
                     XSpi_IntrGlobalEnable(InstancePtr);
                 }
@@ -601,7 +601,7 @@ int XSpi_Transfer(XSpi *InstancePtr, u8 *SendBufPtr,
      * Set the busy flag, which will be cleared when the transfer
      * is completely done.
      */
-    InstancePtr->IsBusy = TRUE;
+    InstancePtr->IsBusy = true;
 
     /*
      * Set up buffer pointers.
@@ -663,7 +663,7 @@ int XSpi_Transfer(XSpi *InstancePtr, u8 *SendBufPtr,
      * Enable Register, then enable the transmit empty interrupt to operate
      * in Interrupt mode of operation.
      */
-    if (GlobalIntrReg == TRUE) { /* Interrupt Mode of operation */
+    if (GlobalIntrReg == true) { /* Interrupt Mode of operation */
 
         /*
          * Enable the transmit empty interrupt, which we use to
@@ -832,7 +832,7 @@ int XSpi_Transfer(XSpi *InstancePtr, u8 *SendBufPtr,
          */
         XSpi_SetSlaveSelectReg(InstancePtr,
                                InstancePtr->SlaveSelectMask);
-        InstancePtr->IsBusy = FALSE;
+        InstancePtr->IsBusy = false;
     }
 
     return XST_SUCCESS;
@@ -1259,7 +1259,7 @@ void XSpi_InterruptHandler(void *InstancePtr)
              */
             XSpi_IntrDisable(SpiPtr, XSP_INTR_TX_EMPTY_MASK);
 
-            SpiPtr->IsBusy = FALSE;
+            SpiPtr->IsBusy = false;
 
             SpiPtr->StatusHandler(SpiPtr->StatusRef,
                                   XST_SPI_TRANSFER_DONE,
@@ -1380,6 +1380,5 @@ void XSpi_Abort(XSpi *InstancePtr)
 
     InstancePtr->RemainingBytes = 0;
     InstancePtr->RequestedBytes = 0;
-    InstancePtr->IsBusy = FALSE;
+    InstancePtr->IsBusy = false;
 }
-

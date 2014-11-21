@@ -57,23 +57,16 @@
 *
 ******************************************************************************/
 
+#ifndef __cplusplus
+#  include <stdbool.h>
+#endif
+
+#include <stddef.h>
+
 #ifndef XIL_TYPES_H	/* prevent circular inclusions */
 #define XIL_TYPES_H	/* by using protection macros */
 
-
 /************************** Constant Definitions *****************************/
-
-#ifndef TRUE
-#  define TRUE		1
-#endif
-
-#ifndef FALSE
-#  define FALSE		0
-#endif
-
-#ifndef NULL
-#define NULL		0
-#endif
 
 #define XIL_COMPONENT_IS_READY     0x11111111  /**< component has been initialized */
 #define XIL_COMPONENT_IS_STARTED   0x22222222  /**< component has been started */
@@ -140,20 +133,4 @@ typedef long long s64;
 
 
 /*@}*/
-
-
-/************************** Constant Definitions *****************************/
-
-#ifndef TRUE
-#define TRUE		1
-#endif
-
-#ifndef FALSE
-#define FALSE		0
-#endif
-
-#ifndef NULL
-#define NULL		0
-#endif
-
 #endif	/* end of protection macro */

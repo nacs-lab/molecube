@@ -159,7 +159,7 @@ u16 SPI_Transfer2(spi_p InstancePtr, u16 tx)
      * Set the busy flag, which will be cleared when the transfer
      * is completely done.
      */
-    InstancePtr->IsBusy = TRUE;
+    InstancePtr->IsBusy = true;
 
 
     //TX should be empty from previous transmission
@@ -181,8 +181,7 @@ u16 SPI_Transfer2(spi_p InstancePtr, u16 tx)
         StatusReg = XSpi_GetStatusReg(InstancePtr);
     } while ((StatusReg & XSP_SR_RX_EMPTY_MASK) == 0);
 
-    InstancePtr->IsBusy = FALSE;
-
+    InstancePtr->IsBusy = false;
 
     return rcv;
 }
@@ -197,7 +196,7 @@ u16 SPI_Transfer_ADS8361(spi_p  InstancePtr, unsigned tx)
      * Set the busy flag, which will be cleared when the transfer
      * is completely done.
      */
-    InstancePtr->IsBusy = TRUE;
+    InstancePtr->IsBusy = true;
 
     //TX should be empty from previous transmission
     //transfer data to SPI transmitter
@@ -216,7 +215,7 @@ u16 SPI_Transfer_ADS8361(spi_p  InstancePtr, unsigned tx)
         StatusReg = XSpi_GetStatusReg(InstancePtr);
     } while ((StatusReg & XSP_SR_RX_EMPTY_MASK) == 0);
 
-    InstancePtr->IsBusy = FALSE;
+    InstancePtr->IsBusy = false;
 
     out = (rcv >> 12) + 32768;
 

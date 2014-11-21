@@ -54,31 +54,15 @@
 
 #ifdef __cplusplus
 extern "C" {
+#else
+#include <stdbool.h>
 #endif
 
+#include <stddef.h>
 
 /***************************** Include Files *********************************/
 
-
 /************************** Constant Definitions *****************************/
-
-#ifndef TRUE
-#  define TRUE		1
-#endif
-
-#ifndef FALSE
-#  define FALSE		0
-#endif
-
-#ifndef NULL
-#define NULL		0
-#endif
-
-/** Xilinx NULL, TRUE and FALSE legacy support. Deprecated. */
-#define XNULL		NULL
-#define XTRUE		TRUE
-#define XFALSE		FALSE
-
 
 #define XCOMPONENT_IS_READY     0x11111111  /**< component has been initialized */
 #define XCOMPONENT_IS_STARTED   0x22222222  /**< component has been started */
