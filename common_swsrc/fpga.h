@@ -37,9 +37,7 @@ void XTime_GetTime(XTime* t);
 typedef unsigned XGpio;
 unsigned XGpio_DiscreteRead(XGpio* TTLchan, unsigned /*dir*/);
 
-#ifndef WIN32
 #include "unistd.h"
-#endif
 
 #else //ALUMINIZER_SIM
 

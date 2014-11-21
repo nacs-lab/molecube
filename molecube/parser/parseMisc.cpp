@@ -14,6 +14,7 @@
 #include "util.h"
 #include "dds_pulse.h"
 #include <string_func.h>
+#include "verbosity.h"
 
 extern "C" {
 #include "pulse_controller.h"

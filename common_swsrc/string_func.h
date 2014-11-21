@@ -4,12 +4,6 @@
 #include <string>
 #include <vector>
 
-#ifdef WIN32
-#ifndef snprintf
-#define snprintf _snprintf
-#endif
-#endif
-
 /*
 template for conversion between strings and binary types
 */

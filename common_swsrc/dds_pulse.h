@@ -17,13 +17,6 @@
 #include "ttl_pulse.h"
 #include "fpga.h"
 #include <float.h>
-#include "verbosity.h"
-
-#ifdef WIN32
-#define _USE_MATH_DEFINES 1
-#define scalb _scalb
-#define snprintf _snprintf
-#endif
 
 #include <math.h>
 #include <algorithm>
@@ -40,18 +33,6 @@ DDS_name(unsigned iDDS)
         return "";
     }
 }
-#endif
-
-#ifdef CONFIG_AL
-#include "custom/ttl_Al.h"
-#endif
-
-#ifdef CONFIG_HG
-#include "custom/ttl_Hg.h"
-#endif
-
-#ifdef CONFIG_SHB
-#include "custom/ttl_SHB.h"
 #endif
 
 #define DDS_NONE     (100)
@@ -160,65 +141,5 @@ DDS_get_amp(unsigned iDDS)
     unsigned u0 = DDS_get_atw(iDDS);
     return u0 / 4095.0;
 }
-
-
-//make an RF pulse of specified frequency and duration
-static inline void
-DDS_pulse(unsigned iDDS, unsigned ftwOn, unsigned ftwOff,
-          unsigned t, unsigned ttl=0)
-{
-    if (t > 4) {
-        DDS_set_ftw(iDDS, ftwOn);
-        PULSER_short_pulse(pulser, t, ttl);
-        DDS_set_ftw(iDDS, ftwOff);
-        g_tSequence += t;
-    }
-}
-
-static inline void
-DDS_pulse(unsigned iDDS, unsigned ftwOn, unsigned ftwOff, unsigned aOn,
-          unsigned aOff, unsigned t, unsigned ttl=0)
-{
-    if (t > 4) {
-        PULSER_set_dds_freq(pulser, iDDS, ftwOn);
-        PULSER_set_dds_amp(pulser, iDDS, aOn);
-        PULSER_short_pulse(pulser, t, ttl);
-        PULSER_set_dds_amp(pulser, iDDS, aOff);
-        PULSER_set_dds_freq(pulser, iDDS, ftwOff);
-        g_tSequence += t;
-    }
-}
-
-static inline void
-DDS_long_pulse(unsigned iDDS, unsigned ftwOn, unsigned ftwOff, unsigned t,
-               unsigned flags, unsigned ttl)
-{
-    if (t > 4) {
-        PULSER_set_dds_freq(pulser, iDDS, ftwOn);
-        PULSER_pulse(pulser, t, flags, ttl);
-        PULSER_pulse(pulser, 10, 0, 0);
-        PULSER_set_dds_freq(pulser, iDDS, ftwOff);
-        g_tSequence += t;
-    }
-}
-
-static inline void
-DDS_long_pulse(unsigned iDDS, unsigned ftwOn, unsigned ftwOff, unsigned aOn,
-               unsigned aOff, unsigned t, unsigned flags, unsigned ttl)
-{
-    if (t > 4) {
-        PULSER_set_dds_freq(pulser, iDDS, ftwOn);
-        PULSER_set_dds_amp(pulser, iDDS, aOn);
-        PULSER_pulse(pulser, t, flags, ttl);
-        PULSER_pulse(pulser, 10, 0, 0);
-        PULSER_set_dds_amp(pulser, iDDS, aOff);
-        PULSER_set_dds_freq(pulser, iDDS, ftwOff);
-        g_tSequence += t;
-    }
-}
-
-#ifdef CONFIG_AL
-#include "Al_pulses.h"
-#endif // CONFIG_AL
 
 #endif /*DDS_PULSE_H_*/

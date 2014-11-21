@@ -3,12 +3,6 @@
 
 #include <common.h>
 #include "fpga.h"
-#include "verbosity.h"
-
-#ifdef WIN32
-#define scalb _scalb
-#define snprintf _snprintf
-#endif
 
 extern bool bDebugPulses;
 extern unsigned g_tSequence; //accumulated sequence duration in PULSER units
@@ -16,18 +10,6 @@ extern unsigned g_tSequence; //accumulated sequence duration in PULSER units
 #define TIME_UNIT    (1e-8)
 
 #define TTL_NOTHING     (0)
-
-#ifdef CONFIG_AL
-#include "custom/ttl_Al.h"
-#endif
-
-#ifdef CONFIG_HG
-#include "custom/ttl_Hg.h"
-#endif
-
-#ifdef CONFIG_SHB
-#include "custom/ttl_SHB.h"
-#endif
 
 #ifdef CONFIG_BB
 

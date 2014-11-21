@@ -62,11 +62,6 @@ sbName(int i)
     return std::string(modeName(i));
 }
 
-#ifdef WIN32
-#define snprintf _snprintf
-#endif
-
-
 std::string
 pulse_name(const std::string& base_name, int mFg2, int pol, int sb)
 {
