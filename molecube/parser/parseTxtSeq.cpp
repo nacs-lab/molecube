@@ -55,11 +55,7 @@ class pulse_cmd {
 public:
     virtual ~pulse_cmd() {}
     virtual void makePulse() = 0;
-
-    static verbosity* v;
 };
-
-verbosity *pulse_cmd::v = 0;
 
 //parsed pulse commands are stored in this vector for later playback
 std::vector<pulse_cmd*> pulses;
@@ -106,8 +102,6 @@ public:
     virtual void
     makePulse()
     {
-        if (v)
-            v->printf("clock output divider = %u\n", divider);
         PULSER_enable_clock_out(pulser, divider);
         g_tSequence += DURATION;
     }
@@ -441,10 +435,6 @@ parseClockOut(unsigned t, std::string &arg1, std::istream&)
 static bool
 parseCommand(unsigned t, std::string &cmd, std::string &arg1, std::istream &s)
 {
-    if (pulse_cmd::v)
-        pulse_cmd::v->printf("t = %8u x 10ns,  command = %10s,  arg1 = %4s\n", t,
-                             cmd.c_str(), arg1.c_str());
-
     if (cmd.find("TTL") != std::string::npos)
         return parseTTL(t, arg1, s);
 
@@ -670,9 +660,6 @@ parseSeqTxt(unsigned reps, const std::string& seqTxt, bool bForever,
 
     unsigned iRep;
 
-    // Debug on slows down the sequence by a LOOOT.
-    pulse_cmd::v = bDebugPulses ? &gvSTDOUT : 0;
-
     clock_t tClock1 = clock();
 
     // now run the pulses
@@ -727,9 +714,6 @@ parseSeqTxt(unsigned reps, const std::string& seqTxt, bool bForever,
             g_stop_curr_seq = false;
             break;
         }
-
-        //only log debug info for 1st sequence
-        pulse_cmd::v = 0;
     }
 
     clock_t tClock2 = clock();
