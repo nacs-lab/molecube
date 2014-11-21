@@ -60,7 +60,6 @@ static inline void
 DDS_set_ftw(unsigned iDDS, unsigned ftw)
 {
     PULSER_set_dds_freq(pulser, iDDS, ftw);
-    g_tSequence += PULSER_DDS_SET_FTW_DURATION;
 }
 
 static inline void
@@ -86,14 +85,12 @@ static inline void
 DDS_set_ptw(unsigned iDDS, unsigned ptw)
 {
     PULSER_set_dds_phase(pulser, iDDS, ptw);
-    g_tSequence += PULSER_DDS_SET_PTW_DURATION;
 }
 
 static inline void
 DDS_shift_ptw(unsigned iDDS, unsigned ptw)
 {
     PULSER_shift_dds_phase(pulser, iDDS, ptw);
-    g_tSequence += PULSER_DDS_SET_PTW_DURATION;
 }
 
 static inline void
@@ -120,7 +117,6 @@ static inline void
 DDS_set_atw(unsigned iDDS, unsigned atw)
 {
     PULSER_set_dds_amp(pulser, iDDS, atw);
-    g_tSequence += PULSER_DDS_SET_ATW_DURATION;
 }
 
 static inline void

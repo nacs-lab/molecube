@@ -91,6 +91,7 @@ public:
     virtual void
     makePulse()
     {
+        // PULSE_pulse
         TTL_pulse(t, ttl);
     }
 
@@ -105,8 +106,8 @@ public:
     virtual void
     makePulse()
     {
+        // PULSER_short_pulse
         PULSER_enable_clock_out(pulser, divider);
-        g_tSequence += DURATION;
     }
 
     unsigned divider;
@@ -135,7 +136,8 @@ public:
     set_freq_cmd(unsigned dds, unsigned ftw) : dds_cmd(dds, ftw) {}
     set_freq_cmd(unsigned dds, double f) : dds_cmd(dds, Hz2FTW(f, dds_clk(dds))) {}
 
-    virtual void makePulse()
+    virtual void
+    makePulse()
     {
         DDS_set_ftw(dds, operand);
     }
@@ -196,8 +198,6 @@ public:
 
         //enable amplitude control (OSK)
         PULSER_set_dds_two_bytes(pulser, dds, 0x0, 0x0108);
-
-        g_tSequence += DURATION;
     }
 
     static const unsigned DURATION = 90;
@@ -666,8 +666,6 @@ parseSeqTxt(unsigned reps, const std::string& seqTxt, bool bForever,
     clock_t tClock1 = clock();
 
     // now run the pulses
-    g_tSequence = 0;
-
     // update status string every 500 ms
     unsigned updateStatusModulo = 500000000 / (tCurr * PULSER_DT_ns);
 

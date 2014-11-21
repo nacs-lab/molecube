@@ -1,9 +1,9 @@
 /*****************************************************************************
-* Filename:          PULSER_v4_00_b/src/pulse_controller.h
-* Version:           4.00.b
-* Description:       pulse_controller Driver Header File
-* Date:              Sat Jul 14 14:34:13 2012 (by Create and Import Peripheral Wizard)
-*****************************************************************************/
+ * Filename:          PULSER_v4_00_b/src/pulse_controller.h
+ * Version:           4.00.b
+ * Description:       pulse_controller Driver Header File
+ * Date:              Sat Jul 14 14:34:13 2012 (by Create and Import Peripheral Wizard)
+ *****************************************************************************/
 
 #ifndef PULSER_IO_H
 #define PULSER_IO_H
@@ -14,7 +14,6 @@
 #endif
 
 /************************** Constant Definitions ***************************/
-
 
 /**
  * User Logic Slave Space Offsets
@@ -117,11 +116,11 @@
  *
  * @note
  * C-style signature:
- * 	void PULSER_mWriteReg(unsigned BaseAddress, unsigned RegOffset, unsigned Data)
+ * void PULSER_mWriteReg(unsigned BaseAddress, unsigned RegOffset, unsigned Data)
  *
  */
-#define PULSER_mWriteReg(BaseAddress, RegOffset, Data) \
- 	Xil_Out32((BaseAddress) + (RegOffset), (unsigned)(Data))
+#define PULSER_mWriteReg(BaseAddress, RegOffset, Data)          \
+    Xil_Out32((BaseAddress) + (RegOffset), (unsigned)(Data))
 
 /**
  *
@@ -137,12 +136,11 @@
  *
  * @note
  * C-style signature:
- * 	unsigned PULSER_mReadReg(unsigned BaseAddress, unsigned RegOffset)
+ * unsigned PULSER_mReadReg(unsigned BaseAddress, unsigned RegOffset)
  *
  */
 #define PULSER_mReadReg(BaseAddress, RegOffset) \
- 	Xil_In32((BaseAddress) + (RegOffset))
-
+    Xil_In32((BaseAddress) + (RegOffset))
 
 /**
  *
@@ -156,139 +154,139 @@
  *
  * @note
  * C-style signature:
- * 	void PULSER_mWriteSlaveRegn(unsigned BaseAddress, unsigned RegOffset, unsigned Value)
- * 	unsigned PULSER_mReadSlaveRegn(unsigned BaseAddress, unsigned RegOffset)
+ * void PULSER_mWriteSlaveRegn(unsigned BaseAddress, unsigned RegOffset, unsigned Value)
+ * unsigned PULSER_mReadSlaveRegn(unsigned BaseAddress, unsigned RegOffset)
  *
  */
-#define PULSER_mWriteSlaveReg0(BaseAddress, RegOffset, Value) \
- 	Xil_Out32((BaseAddress) + (PULSER_SLV_REG0_OFFSET) + (RegOffset), (unsigned)(Value))
-#define PULSER_mWriteSlaveReg1(BaseAddress, RegOffset, Value) \
- 	Xil_Out32((BaseAddress) + (PULSER_SLV_REG1_OFFSET) + (RegOffset), (unsigned)(Value))
-#define PULSER_mWriteSlaveReg2(BaseAddress, RegOffset, Value) \
- 	Xil_Out32((BaseAddress) + (PULSER_SLV_REG2_OFFSET) + (RegOffset), (unsigned)(Value))
-#define PULSER_mWriteSlaveReg3(BaseAddress, RegOffset, Value) \
- 	Xil_Out32((BaseAddress) + (PULSER_SLV_REG3_OFFSET) + (RegOffset), (unsigned)(Value))
-#define PULSER_mWriteSlaveReg4(BaseAddress, RegOffset, Value) \
- 	Xil_Out32((BaseAddress) + (PULSER_SLV_REG4_OFFSET) + (RegOffset), (unsigned)(Value))
-#define PULSER_mWriteSlaveReg5(BaseAddress, RegOffset, Value) \
- 	Xil_Out32((BaseAddress) + (PULSER_SLV_REG5_OFFSET) + (RegOffset), (unsigned)(Value))
-#define PULSER_mWriteSlaveReg6(BaseAddress, RegOffset, Value) \
- 	Xil_Out32((BaseAddress) + (PULSER_SLV_REG6_OFFSET) + (RegOffset), (unsigned)(Value))
-#define PULSER_mWriteSlaveReg7(BaseAddress, RegOffset, Value) \
- 	Xil_Out32((BaseAddress) + (PULSER_SLV_REG7_OFFSET) + (RegOffset), (unsigned)(Value))
-#define PULSER_mWriteSlaveReg8(BaseAddress, RegOffset, Value) \
- 	Xil_Out32((BaseAddress) + (PULSER_SLV_REG8_OFFSET) + (RegOffset), (unsigned)(Value))
-#define PULSER_mWriteSlaveReg9(BaseAddress, RegOffset, Value) \
- 	Xil_Out32((BaseAddress) + (PULSER_SLV_REG9_OFFSET) + (RegOffset), (unsigned)(Value))
-#define PULSER_mWriteSlaveReg10(BaseAddress, RegOffset, Value) \
- 	Xil_Out32((BaseAddress) + (PULSER_SLV_REG10_OFFSET) + (RegOffset), (unsigned)(Value))
-#define PULSER_mWriteSlaveReg11(BaseAddress, RegOffset, Value) \
- 	Xil_Out32((BaseAddress) + (PULSER_SLV_REG11_OFFSET) + (RegOffset), (unsigned)(Value))
-#define PULSER_mWriteSlaveReg12(BaseAddress, RegOffset, Value) \
- 	Xil_Out32((BaseAddress) + (PULSER_SLV_REG12_OFFSET) + (RegOffset), (unsigned)(Value))
-#define PULSER_mWriteSlaveReg13(BaseAddress, RegOffset, Value) \
- 	Xil_Out32((BaseAddress) + (PULSER_SLV_REG13_OFFSET) + (RegOffset), (unsigned)(Value))
-#define PULSER_mWriteSlaveReg14(BaseAddress, RegOffset, Value) \
- 	Xil_Out32((BaseAddress) + (PULSER_SLV_REG14_OFFSET) + (RegOffset), (unsigned)(Value))
-#define PULSER_mWriteSlaveReg15(BaseAddress, RegOffset, Value) \
- 	Xil_Out32((BaseAddress) + (PULSER_SLV_REG15_OFFSET) + (RegOffset), (unsigned)(Value))
-#define PULSER_mWriteSlaveReg16(BaseAddress, RegOffset, Value) \
- 	Xil_Out32((BaseAddress) + (PULSER_SLV_REG16_OFFSET) + (RegOffset), (unsigned)(Value))
-#define PULSER_mWriteSlaveReg17(BaseAddress, RegOffset, Value) \
- 	Xil_Out32((BaseAddress) + (PULSER_SLV_REG17_OFFSET) + (RegOffset), (unsigned)(Value))
-#define PULSER_mWriteSlaveReg18(BaseAddress, RegOffset, Value) \
- 	Xil_Out32((BaseAddress) + (PULSER_SLV_REG18_OFFSET) + (RegOffset), (unsigned)(Value))
-#define PULSER_mWriteSlaveReg19(BaseAddress, RegOffset, Value) \
- 	Xil_Out32((BaseAddress) + (PULSER_SLV_REG19_OFFSET) + (RegOffset), (unsigned)(Value))
-#define PULSER_mWriteSlaveReg20(BaseAddress, RegOffset, Value) \
- 	Xil_Out32((BaseAddress) + (PULSER_SLV_REG20_OFFSET) + (RegOffset), (unsigned)(Value))
-#define PULSER_mWriteSlaveReg21(BaseAddress, RegOffset, Value) \
- 	Xil_Out32((BaseAddress) + (PULSER_SLV_REG21_OFFSET) + (RegOffset), (unsigned)(Value))
-#define PULSER_mWriteSlaveReg22(BaseAddress, RegOffset, Value) \
- 	Xil_Out32((BaseAddress) + (PULSER_SLV_REG22_OFFSET) + (RegOffset), (unsigned)(Value))
-#define PULSER_mWriteSlaveReg23(BaseAddress, RegOffset, Value) \
- 	Xil_Out32((BaseAddress) + (PULSER_SLV_REG23_OFFSET) + (RegOffset), (unsigned)(Value))
-#define PULSER_mWriteSlaveReg24(BaseAddress, RegOffset, Value) \
- 	Xil_Out32((BaseAddress) + (PULSER_SLV_REG24_OFFSET) + (RegOffset), (unsigned)(Value))
-#define PULSER_mWriteSlaveReg25(BaseAddress, RegOffset, Value) \
- 	Xil_Out32((BaseAddress) + (PULSER_SLV_REG25_OFFSET) + (RegOffset), (unsigned)(Value))
-#define PULSER_mWriteSlaveReg26(BaseAddress, RegOffset, Value) \
- 	Xil_Out32((BaseAddress) + (PULSER_SLV_REG26_OFFSET) + (RegOffset), (unsigned)(Value))
-#define PULSER_mWriteSlaveReg27(BaseAddress, RegOffset, Value) \
- 	Xil_Out32((BaseAddress) + (PULSER_SLV_REG27_OFFSET) + (RegOffset), (unsigned)(Value))
-#define PULSER_mWriteSlaveReg28(BaseAddress, RegOffset, Value) \
- 	Xil_Out32((BaseAddress) + (PULSER_SLV_REG28_OFFSET) + (RegOffset), (unsigned)(Value))
-#define PULSER_mWriteSlaveReg29(BaseAddress, RegOffset, Value) \
- 	Xil_Out32((BaseAddress) + (PULSER_SLV_REG29_OFFSET) + (RegOffset), (unsigned)(Value))
-#define PULSER_mWriteSlaveReg30(BaseAddress, RegOffset, Value) \
- 	Xil_Out32((BaseAddress) + (PULSER_SLV_REG30_OFFSET) + (RegOffset), (unsigned)(Value))
-#define PULSER_mWriteSlaveReg31(BaseAddress, RegOffset, Value) \
- 	Xil_Out32((BaseAddress) + (PULSER_SLV_REG31_OFFSET) + (RegOffset), (unsigned)(Value))
+#define PULSER_mWriteSlaveReg0(BaseAddress, RegOffset, Value)           \
+    Xil_Out32((BaseAddress) + (PULSER_SLV_REG0_OFFSET) + (RegOffset), (unsigned)(Value))
+#define PULSER_mWriteSlaveReg1(BaseAddress, RegOffset, Value)           \
+    Xil_Out32((BaseAddress) + (PULSER_SLV_REG1_OFFSET) + (RegOffset), (unsigned)(Value))
+#define PULSER_mWriteSlaveReg2(BaseAddress, RegOffset, Value)           \
+    Xil_Out32((BaseAddress) + (PULSER_SLV_REG2_OFFSET) + (RegOffset), (unsigned)(Value))
+#define PULSER_mWriteSlaveReg3(BaseAddress, RegOffset, Value)           \
+    Xil_Out32((BaseAddress) + (PULSER_SLV_REG3_OFFSET) + (RegOffset), (unsigned)(Value))
+#define PULSER_mWriteSlaveReg4(BaseAddress, RegOffset, Value)           \
+    Xil_Out32((BaseAddress) + (PULSER_SLV_REG4_OFFSET) + (RegOffset), (unsigned)(Value))
+#define PULSER_mWriteSlaveReg5(BaseAddress, RegOffset, Value)           \
+    Xil_Out32((BaseAddress) + (PULSER_SLV_REG5_OFFSET) + (RegOffset), (unsigned)(Value))
+#define PULSER_mWriteSlaveReg6(BaseAddress, RegOffset, Value)           \
+    Xil_Out32((BaseAddress) + (PULSER_SLV_REG6_OFFSET) + (RegOffset), (unsigned)(Value))
+#define PULSER_mWriteSlaveReg7(BaseAddress, RegOffset, Value)           \
+    Xil_Out32((BaseAddress) + (PULSER_SLV_REG7_OFFSET) + (RegOffset), (unsigned)(Value))
+#define PULSER_mWriteSlaveReg8(BaseAddress, RegOffset, Value)           \
+    Xil_Out32((BaseAddress) + (PULSER_SLV_REG8_OFFSET) + (RegOffset), (unsigned)(Value))
+#define PULSER_mWriteSlaveReg9(BaseAddress, RegOffset, Value)           \
+    Xil_Out32((BaseAddress) + (PULSER_SLV_REG9_OFFSET) + (RegOffset), (unsigned)(Value))
+#define PULSER_mWriteSlaveReg10(BaseAddress, RegOffset, Value)          \
+    Xil_Out32((BaseAddress) + (PULSER_SLV_REG10_OFFSET) + (RegOffset), (unsigned)(Value))
+#define PULSER_mWriteSlaveReg11(BaseAddress, RegOffset, Value)          \
+    Xil_Out32((BaseAddress) + (PULSER_SLV_REG11_OFFSET) + (RegOffset), (unsigned)(Value))
+#define PULSER_mWriteSlaveReg12(BaseAddress, RegOffset, Value)          \
+    Xil_Out32((BaseAddress) + (PULSER_SLV_REG12_OFFSET) + (RegOffset), (unsigned)(Value))
+#define PULSER_mWriteSlaveReg13(BaseAddress, RegOffset, Value)          \
+    Xil_Out32((BaseAddress) + (PULSER_SLV_REG13_OFFSET) + (RegOffset), (unsigned)(Value))
+#define PULSER_mWriteSlaveReg14(BaseAddress, RegOffset, Value)          \
+    Xil_Out32((BaseAddress) + (PULSER_SLV_REG14_OFFSET) + (RegOffset), (unsigned)(Value))
+#define PULSER_mWriteSlaveReg15(BaseAddress, RegOffset, Value)          \
+    Xil_Out32((BaseAddress) + (PULSER_SLV_REG15_OFFSET) + (RegOffset), (unsigned)(Value))
+#define PULSER_mWriteSlaveReg16(BaseAddress, RegOffset, Value)          \
+    Xil_Out32((BaseAddress) + (PULSER_SLV_REG16_OFFSET) + (RegOffset), (unsigned)(Value))
+#define PULSER_mWriteSlaveReg17(BaseAddress, RegOffset, Value)          \
+    Xil_Out32((BaseAddress) + (PULSER_SLV_REG17_OFFSET) + (RegOffset), (unsigned)(Value))
+#define PULSER_mWriteSlaveReg18(BaseAddress, RegOffset, Value)          \
+    Xil_Out32((BaseAddress) + (PULSER_SLV_REG18_OFFSET) + (RegOffset), (unsigned)(Value))
+#define PULSER_mWriteSlaveReg19(BaseAddress, RegOffset, Value)          \
+    Xil_Out32((BaseAddress) + (PULSER_SLV_REG19_OFFSET) + (RegOffset), (unsigned)(Value))
+#define PULSER_mWriteSlaveReg20(BaseAddress, RegOffset, Value)          \
+    Xil_Out32((BaseAddress) + (PULSER_SLV_REG20_OFFSET) + (RegOffset), (unsigned)(Value))
+#define PULSER_mWriteSlaveReg21(BaseAddress, RegOffset, Value)          \
+    Xil_Out32((BaseAddress) + (PULSER_SLV_REG21_OFFSET) + (RegOffset), (unsigned)(Value))
+#define PULSER_mWriteSlaveReg22(BaseAddress, RegOffset, Value)          \
+    Xil_Out32((BaseAddress) + (PULSER_SLV_REG22_OFFSET) + (RegOffset), (unsigned)(Value))
+#define PULSER_mWriteSlaveReg23(BaseAddress, RegOffset, Value)          \
+    Xil_Out32((BaseAddress) + (PULSER_SLV_REG23_OFFSET) + (RegOffset), (unsigned)(Value))
+#define PULSER_mWriteSlaveReg24(BaseAddress, RegOffset, Value)          \
+    Xil_Out32((BaseAddress) + (PULSER_SLV_REG24_OFFSET) + (RegOffset), (unsigned)(Value))
+#define PULSER_mWriteSlaveReg25(BaseAddress, RegOffset, Value)          \
+    Xil_Out32((BaseAddress) + (PULSER_SLV_REG25_OFFSET) + (RegOffset), (unsigned)(Value))
+#define PULSER_mWriteSlaveReg26(BaseAddress, RegOffset, Value)          \
+    Xil_Out32((BaseAddress) + (PULSER_SLV_REG26_OFFSET) + (RegOffset), (unsigned)(Value))
+#define PULSER_mWriteSlaveReg27(BaseAddress, RegOffset, Value)          \
+    Xil_Out32((BaseAddress) + (PULSER_SLV_REG27_OFFSET) + (RegOffset), (unsigned)(Value))
+#define PULSER_mWriteSlaveReg28(BaseAddress, RegOffset, Value)          \
+    Xil_Out32((BaseAddress) + (PULSER_SLV_REG28_OFFSET) + (RegOffset), (unsigned)(Value))
+#define PULSER_mWriteSlaveReg29(BaseAddress, RegOffset, Value)          \
+    Xil_Out32((BaseAddress) + (PULSER_SLV_REG29_OFFSET) + (RegOffset), (unsigned)(Value))
+#define PULSER_mWriteSlaveReg30(BaseAddress, RegOffset, Value)          \
+    Xil_Out32((BaseAddress) + (PULSER_SLV_REG30_OFFSET) + (RegOffset), (unsigned)(Value))
+#define PULSER_mWriteSlaveReg31(BaseAddress, RegOffset, Value)          \
+    Xil_Out32((BaseAddress) + (PULSER_SLV_REG31_OFFSET) + (RegOffset), (unsigned)(Value))
 
-#define PULSER_mReadSlaveReg0(BaseAddress, RegOffset) \
- 	Xil_In32((BaseAddress) + (PULSER_SLV_REG0_OFFSET) + (RegOffset))
-#define PULSER_mReadSlaveReg1(BaseAddress, RegOffset) \
- 	Xil_In32((BaseAddress) + (PULSER_SLV_REG1_OFFSET) + (RegOffset))
-#define PULSER_mReadSlaveReg2(BaseAddress, RegOffset) \
- 	Xil_In32((BaseAddress) + (PULSER_SLV_REG2_OFFSET) + (RegOffset))
-#define PULSER_mReadSlaveReg3(BaseAddress, RegOffset) \
- 	Xil_In32((BaseAddress) + (PULSER_SLV_REG3_OFFSET) + (RegOffset))
-#define PULSER_mReadSlaveReg4(BaseAddress, RegOffset) \
- 	Xil_In32((BaseAddress) + (PULSER_SLV_REG4_OFFSET) + (RegOffset))
-#define PULSER_mReadSlaveReg5(BaseAddress, RegOffset) \
- 	Xil_In32((BaseAddress) + (PULSER_SLV_REG5_OFFSET) + (RegOffset))
-#define PULSER_mReadSlaveReg6(BaseAddress, RegOffset) \
- 	Xil_In32((BaseAddress) + (PULSER_SLV_REG6_OFFSET) + (RegOffset))
-#define PULSER_mReadSlaveReg7(BaseAddress, RegOffset) \
- 	Xil_In32((BaseAddress) + (PULSER_SLV_REG7_OFFSET) + (RegOffset))
-#define PULSER_mReadSlaveReg8(BaseAddress, RegOffset) \
- 	Xil_In32((BaseAddress) + (PULSER_SLV_REG8_OFFSET) + (RegOffset))
-#define PULSER_mReadSlaveReg9(BaseAddress, RegOffset) \
- 	Xil_In32((BaseAddress) + (PULSER_SLV_REG9_OFFSET) + (RegOffset))
-#define PULSER_mReadSlaveReg10(BaseAddress, RegOffset) \
- 	Xil_In32((BaseAddress) + (PULSER_SLV_REG10_OFFSET) + (RegOffset))
-#define PULSER_mReadSlaveReg11(BaseAddress, RegOffset) \
- 	Xil_In32((BaseAddress) + (PULSER_SLV_REG11_OFFSET) + (RegOffset))
-#define PULSER_mReadSlaveReg12(BaseAddress, RegOffset) \
- 	Xil_In32((BaseAddress) + (PULSER_SLV_REG12_OFFSET) + (RegOffset))
-#define PULSER_mReadSlaveReg13(BaseAddress, RegOffset) \
- 	Xil_In32((BaseAddress) + (PULSER_SLV_REG13_OFFSET) + (RegOffset))
-#define PULSER_mReadSlaveReg14(BaseAddress, RegOffset) \
- 	Xil_In32((BaseAddress) + (PULSER_SLV_REG14_OFFSET) + (RegOffset))
-#define PULSER_mReadSlaveReg15(BaseAddress, RegOffset) \
- 	Xil_In32((BaseAddress) + (PULSER_SLV_REG15_OFFSET) + (RegOffset))
-#define PULSER_mReadSlaveReg16(BaseAddress, RegOffset) \
- 	Xil_In32((BaseAddress) + (PULSER_SLV_REG16_OFFSET) + (RegOffset))
-#define PULSER_mReadSlaveReg17(BaseAddress, RegOffset) \
- 	Xil_In32((BaseAddress) + (PULSER_SLV_REG17_OFFSET) + (RegOffset))
-#define PULSER_mReadSlaveReg18(BaseAddress, RegOffset) \
- 	Xil_In32((BaseAddress) + (PULSER_SLV_REG18_OFFSET) + (RegOffset))
-#define PULSER_mReadSlaveReg19(BaseAddress, RegOffset) \
- 	Xil_In32((BaseAddress) + (PULSER_SLV_REG19_OFFSET) + (RegOffset))
-#define PULSER_mReadSlaveReg20(BaseAddress, RegOffset) \
- 	Xil_In32((BaseAddress) + (PULSER_SLV_REG20_OFFSET) + (RegOffset))
-#define PULSER_mReadSlaveReg21(BaseAddress, RegOffset) \
- 	Xil_In32((BaseAddress) + (PULSER_SLV_REG21_OFFSET) + (RegOffset))
-#define PULSER_mReadSlaveReg22(BaseAddress, RegOffset) \
- 	Xil_In32((BaseAddress) + (PULSER_SLV_REG22_OFFSET) + (RegOffset))
-#define PULSER_mReadSlaveReg23(BaseAddress, RegOffset) \
- 	Xil_In32((BaseAddress) + (PULSER_SLV_REG23_OFFSET) + (RegOffset))
-#define PULSER_mReadSlaveReg24(BaseAddress, RegOffset) \
- 	Xil_In32((BaseAddress) + (PULSER_SLV_REG24_OFFSET) + (RegOffset))
-#define PULSER_mReadSlaveReg25(BaseAddress, RegOffset) \
- 	Xil_In32((BaseAddress) + (PULSER_SLV_REG25_OFFSET) + (RegOffset))
-#define PULSER_mReadSlaveReg26(BaseAddress, RegOffset) \
- 	Xil_In32((BaseAddress) + (PULSER_SLV_REG26_OFFSET) + (RegOffset))
-#define PULSER_mReadSlaveReg27(BaseAddress, RegOffset) \
- 	Xil_In32((BaseAddress) + (PULSER_SLV_REG27_OFFSET) + (RegOffset))
-#define PULSER_mReadSlaveReg28(BaseAddress, RegOffset) \
- 	Xil_In32((BaseAddress) + (PULSER_SLV_REG28_OFFSET) + (RegOffset))
-#define PULSER_mReadSlaveReg29(BaseAddress, RegOffset) \
- 	Xil_In32((BaseAddress) + (PULSER_SLV_REG29_OFFSET) + (RegOffset))
-#define PULSER_mReadSlaveReg30(BaseAddress, RegOffset) \
- 	Xil_In32((BaseAddress) + (PULSER_SLV_REG30_OFFSET) + (RegOffset))
-#define PULSER_mReadSlaveReg31(BaseAddress, RegOffset) \
- 	Xil_In32((BaseAddress) + (PULSER_SLV_REG31_OFFSET) + (RegOffset))
+#define PULSER_mReadSlaveReg0(BaseAddress, RegOffset)                   \
+    Xil_In32((BaseAddress) + (PULSER_SLV_REG0_OFFSET) + (RegOffset))
+#define PULSER_mReadSlaveReg1(BaseAddress, RegOffset)                   \
+    Xil_In32((BaseAddress) + (PULSER_SLV_REG1_OFFSET) + (RegOffset))
+#define PULSER_mReadSlaveReg2(BaseAddress, RegOffset)                   \
+    Xil_In32((BaseAddress) + (PULSER_SLV_REG2_OFFSET) + (RegOffset))
+#define PULSER_mReadSlaveReg3(BaseAddress, RegOffset)                   \
+    Xil_In32((BaseAddress) + (PULSER_SLV_REG3_OFFSET) + (RegOffset))
+#define PULSER_mReadSlaveReg4(BaseAddress, RegOffset)                   \
+    Xil_In32((BaseAddress) + (PULSER_SLV_REG4_OFFSET) + (RegOffset))
+#define PULSER_mReadSlaveReg5(BaseAddress, RegOffset)                   \
+    Xil_In32((BaseAddress) + (PULSER_SLV_REG5_OFFSET) + (RegOffset))
+#define PULSER_mReadSlaveReg6(BaseAddress, RegOffset)                   \
+    Xil_In32((BaseAddress) + (PULSER_SLV_REG6_OFFSET) + (RegOffset))
+#define PULSER_mReadSlaveReg7(BaseAddress, RegOffset)                   \
+    Xil_In32((BaseAddress) + (PULSER_SLV_REG7_OFFSET) + (RegOffset))
+#define PULSER_mReadSlaveReg8(BaseAddress, RegOffset)                   \
+    Xil_In32((BaseAddress) + (PULSER_SLV_REG8_OFFSET) + (RegOffset))
+#define PULSER_mReadSlaveReg9(BaseAddress, RegOffset)                   \
+    Xil_In32((BaseAddress) + (PULSER_SLV_REG9_OFFSET) + (RegOffset))
+#define PULSER_mReadSlaveReg10(BaseAddress, RegOffset)                  \
+    Xil_In32((BaseAddress) + (PULSER_SLV_REG10_OFFSET) + (RegOffset))
+#define PULSER_mReadSlaveReg11(BaseAddress, RegOffset)                  \
+    Xil_In32((BaseAddress) + (PULSER_SLV_REG11_OFFSET) + (RegOffset))
+#define PULSER_mReadSlaveReg12(BaseAddress, RegOffset)                  \
+    Xil_In32((BaseAddress) + (PULSER_SLV_REG12_OFFSET) + (RegOffset))
+#define PULSER_mReadSlaveReg13(BaseAddress, RegOffset)                  \
+    Xil_In32((BaseAddress) + (PULSER_SLV_REG13_OFFSET) + (RegOffset))
+#define PULSER_mReadSlaveReg14(BaseAddress, RegOffset)                  \
+    Xil_In32((BaseAddress) + (PULSER_SLV_REG14_OFFSET) + (RegOffset))
+#define PULSER_mReadSlaveReg15(BaseAddress, RegOffset)                  \
+    Xil_In32((BaseAddress) + (PULSER_SLV_REG15_OFFSET) + (RegOffset))
+#define PULSER_mReadSlaveReg16(BaseAddress, RegOffset)                  \
+    Xil_In32((BaseAddress) + (PULSER_SLV_REG16_OFFSET) + (RegOffset))
+#define PULSER_mReadSlaveReg17(BaseAddress, RegOffset)                  \
+    Xil_In32((BaseAddress) + (PULSER_SLV_REG17_OFFSET) + (RegOffset))
+#define PULSER_mReadSlaveReg18(BaseAddress, RegOffset)                  \
+    Xil_In32((BaseAddress) + (PULSER_SLV_REG18_OFFSET) + (RegOffset))
+#define PULSER_mReadSlaveReg19(BaseAddress, RegOffset)                  \
+    Xil_In32((BaseAddress) + (PULSER_SLV_REG19_OFFSET) + (RegOffset))
+#define PULSER_mReadSlaveReg20(BaseAddress, RegOffset)                  \
+    Xil_In32((BaseAddress) + (PULSER_SLV_REG20_OFFSET) + (RegOffset))
+#define PULSER_mReadSlaveReg21(BaseAddress, RegOffset)                  \
+    Xil_In32((BaseAddress) + (PULSER_SLV_REG21_OFFSET) + (RegOffset))
+#define PULSER_mReadSlaveReg22(BaseAddress, RegOffset)                  \
+    Xil_In32((BaseAddress) + (PULSER_SLV_REG22_OFFSET) + (RegOffset))
+#define PULSER_mReadSlaveReg23(BaseAddress, RegOffset)                  \
+    Xil_In32((BaseAddress) + (PULSER_SLV_REG23_OFFSET) + (RegOffset))
+#define PULSER_mReadSlaveReg24(BaseAddress, RegOffset)                  \
+    Xil_In32((BaseAddress) + (PULSER_SLV_REG24_OFFSET) + (RegOffset))
+#define PULSER_mReadSlaveReg25(BaseAddress, RegOffset)                  \
+    Xil_In32((BaseAddress) + (PULSER_SLV_REG25_OFFSET) + (RegOffset))
+#define PULSER_mReadSlaveReg26(BaseAddress, RegOffset)                  \
+    Xil_In32((BaseAddress) + (PULSER_SLV_REG26_OFFSET) + (RegOffset))
+#define PULSER_mReadSlaveReg27(BaseAddress, RegOffset)                  \
+    Xil_In32((BaseAddress) + (PULSER_SLV_REG27_OFFSET) + (RegOffset))
+#define PULSER_mReadSlaveReg28(BaseAddress, RegOffset)                  \
+    Xil_In32((BaseAddress) + (PULSER_SLV_REG28_OFFSET) + (RegOffset))
+#define PULSER_mReadSlaveReg29(BaseAddress, RegOffset)                  \
+    Xil_In32((BaseAddress) + (PULSER_SLV_REG29_OFFSET) + (RegOffset))
+#define PULSER_mReadSlaveReg30(BaseAddress, RegOffset)                  \
+    Xil_In32((BaseAddress) + (PULSER_SLV_REG30_OFFSET) + (RegOffset))
+#define PULSER_mReadSlaveReg31(BaseAddress, RegOffset)                  \
+    Xil_In32((BaseAddress) + (PULSER_SLV_REG31_OFFSET) + (RegOffset))
 
 /**
  *
@@ -300,11 +298,11 @@
  *
  * @note
  * C-style signature:
- * 	void PULSER_mReset(unsigned BaseAddress)
+ * void PULSER_mReset(unsigned BaseAddress)
  *
  */
-#define PULSER_mReset(BaseAddress) \
- 	Xil_Out32((BaseAddress)+(PULSER_RST_REG_OFFSET), SOFT_RESET)
+#define PULSER_mReset(BaseAddress)                                      \
+    Xil_Out32((BaseAddress)+(PULSER_RST_REG_OFFSET), SOFT_RESET)
 
 /************************** Function Prototypes ****************************/
 
@@ -330,8 +328,7 @@
  */
 unsigned PULSER_SelfTest0(void * baseaddr_p);
 /**
-*  Defines the number of registers available for read and write*/
+ *  Defines the number of registers available for read and write*/
 #define PULSER_USER_NUM_REG 32
-
 
 #endif /** PULSER_IO_H */

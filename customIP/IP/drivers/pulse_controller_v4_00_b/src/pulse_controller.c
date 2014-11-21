@@ -19,7 +19,6 @@
 
 static unsigned nDDS_boards = 0;
 static unsigned extra_flags = 0;
-unsigned PULSER_vacancy = 0;
 
 static void (*idle_func)(void);
 

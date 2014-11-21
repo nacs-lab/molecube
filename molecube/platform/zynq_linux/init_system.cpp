@@ -9,27 +9,27 @@
 #include "dds_pulse.h"
 #include "../../parser/parseMisc.h"
 
-#include <vector>
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
 #include <sys/resource.h>
 #include <errno.h>
 
-spi_struct g_spi[NSPI];
+static spi_struct g_spi[NSPI];
 
 void init_system()
 {
     flocker fl(g_fPulserLock);
 
-    fprintf(gLog, "Processor clock frequency: %9.3f MHz\r\n", 1e-6*CPU_FREQ_HZ);
+    fprintf(gLog, "Processor clock frequency: %9.3f MHz\r\n",
+            1e-6 * CPU_FREQ_HZ);
     fprintf(gLog, "NDDS = %d  (REF_CLK = %u MHz)   NSPI = %d\n",
             (int)NDDS, (unsigned)(AD9914_CLK * 1e-6), (int)NSPI);
     fflush(gLog);
 
-    //set priority
-    int nice = -20; // -20 = highest priority, 0 = default, 19 = lowest priority
+    // set priority
+    // -20 = highest priority, 0 = default, 19 = lowest priority
+    const int nice = -20;
     int ret = setpriority(PRIO_PROCESS, 0, nice);
     if (ret == 0) {
         fprintf(gLog, "Set priority to %d.  SUCCESS\n", nice);
@@ -54,7 +54,8 @@ void init_system()
     for (int i = 0; i < NSPI; i++) {
         fprintf(gLog, "Initializing SPI %d.\r\n", i);
 
-        SPI_init(g_spi + i, i, spi_active_low[i], spi_clock_phase[i], gDebugLevel);
+        SPI_init(g_spi + i, i, spi_active_low[i],
+                 spi_clock_phase[i], gDebugLevel);
     }
 
     fprintf(gLog, "Initializing GPIO ... ");
@@ -62,27 +63,18 @@ void init_system()
     fprintf(gLog, "done.\n\n");
     fflush(gLog);
 
-    //detect active DDS
-    for (unsigned j=0; j<PULSER_MAX_NDDS; j++) {
-      if(PULSER_dds_exists(pulser, j)) {
-        active_dds.push_back(j);
-      }
+    // detect active DDS
+    for (unsigned j = 0;j < PULSER_MAX_NDDS;j++) {
+        if (PULSER_dds_exists(pulser, j)) {
+            active_dds.push_back(j);
+        }
     }
 
-    //initialize active DDS if necessary
-    for (unsigned j=0; j<active_dds.size(); j++) {
+    // initialize active DDS if necessary
+    for (unsigned j = 0;j < active_dds.size();j++) {
         unsigned i = active_dds[j];
         init_AD9914(pulser, i, false, gLog);
         print_AD9914_registers(pulser, i, gLog);
         fflush(gLog);
     }
-
-    /*
-      PULSER_dds_set_sel(pulser, 0xFFFFFFFF); //((1 << 11) | (1 << 12) | (1 << 13)));
-      init_AD9914(pulser, 0);
-      DDS_set_freqHz(0, 10000000);
-      DDS_set_amplitude(0, 4095); // full scale
-      PULSER_dds_set_sel(pulser, 0);
-      //set_phase_AD9914(pulser, 12, 0x8000);
-      */
 }

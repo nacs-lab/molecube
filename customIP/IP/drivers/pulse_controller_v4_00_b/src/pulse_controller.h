@@ -30,8 +30,6 @@
 #define PULSER_T_TTL_MIN (5)
 #define PULSER_T_DDS_MIN (30)
 
-extern unsigned PULSER_vacancy;
-
 #define PULSER_COUNTING_PULSE_FLAG    (0x04000000)
 #define PULSER_INVERT_SYNC            (0x02000000)
 

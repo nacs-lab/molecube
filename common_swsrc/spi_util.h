@@ -26,8 +26,6 @@ typedef spi_struct* spi_p;
 
 #endif
 
-extern spi_struct g_spi[NSPI];
-
 //! wrapper for XSpi_Transfer
 void Spi_Transfer(spi_p spi, unsigned char* tx, unsigned char* rc, unsigned nBytes);
 

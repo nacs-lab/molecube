@@ -5,7 +5,6 @@
 #include "fpga.h"
 
 extern bool bDebugPulses;
-extern unsigned g_tSequence; //accumulated sequence duration in PULSER units
 
 #define TIME_UNIT    (1e-8)
 
@@ -43,7 +42,6 @@ TTL_pulse(unsigned t, unsigned ttl)
 {
     if (t > 4) {
         PULSER_pulse(pulser, t, 0, ttl);
-        g_tSequence += t;
     }
 }
 
