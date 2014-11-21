@@ -23,25 +23,24 @@ void init_system()
 {
     flocker fl(g_fPulserLock);
 
-    if (gDebugLevel > 1) {
-        printf("TICKS_PER_US = %d\n", (int)(TICKS_PER_US));
-    }
-
     fprintf(gLog, "Processor clock frequency: %9.3f MHz\r\n", 1e-6*CPU_FREQ_HZ);
     fprintf(gLog, "NDDS = %d  (REF_CLK = %u MHz)   NSPI = %d\n",
-            (int)NDDS, (unsigned)(AD9914_CLK*1e-6), (int)NSPI);
+            (int)NDDS, (unsigned)(AD9914_CLK * 1e-6), (int)NSPI);
     fflush(gLog);
 
     //set priority
     int nice = -20; // -20 = highest priority, 0 = default, 19 = lowest priority
-    int ret=setpriority(PRIO_PROCESS, 0, nice);
-    if(0 == ret)
+    int ret = setpriority(PRIO_PROCESS, 0, nice);
+    if (ret == 0) {
         fprintf(gLog, "Set priority to %d.  SUCCESS\n", nice);
-    else
-        fprintf(gLog, "Set priority to %d.  FAILURE  ERRNO=%d\n", nice, errno);
+    } else {
+        fprintf(gLog, "Set priority to %d.  FAILURE  ERRNO=%d\n",
+                nice, errno);
+    }
 
     init_pulse_controller();
-    fprintf(gLog, "Initializing pulse controller at address %p...\r\n", (void*) pulser);
+    fprintf(gLog, "Initializing pulse controller at address %p...\r\n",
+            (void*)pulser);
     PULSER_init(pulser, NDDS, false, gDebugLevel);
     fprintf(gLog, "Initializing pulse controller...done.\r\n");
     fflush(gLog);
