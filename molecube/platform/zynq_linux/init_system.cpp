@@ -24,13 +24,6 @@ void init_system()
     flocker fl(g_fPulserLock);
 
     if (gDebugLevel > 1) {
-#ifdef __PPC__
-        printf("PPC hardware\r\n");
-#endif
-
-#ifdef __arm__
-        printf("ARM / Zynq hardware\r\n");
-#endif
         printf("TICKS_PER_US = %d\n", (int)(TICKS_PER_US));
     }
 

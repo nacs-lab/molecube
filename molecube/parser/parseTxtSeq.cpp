@@ -66,7 +66,10 @@ class disable_timing_check_cmd  : public pulse_cmd {
 public:
     virtual ~disable_timing_check_cmd() {}
 
-    virtual void makePulse() {
+    virtual void
+    makePulse()
+    {
+        // Change extra_flags
         PULSER_disable_timing_check(pulser);
     }
 };

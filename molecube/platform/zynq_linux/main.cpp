@@ -161,8 +161,6 @@ bye()
 static void
 handleINT(int)
 {
-    // IIRC printf is not reentrant
-    // printf("received signal to exit\n");
     exit(0);
 }
 
@@ -170,10 +168,6 @@ static void
 handleUSR1(int)
 {
     g_stop_curr_seq = true;
-
-    // Not reentrant
-    // fprintf(gLog, "Received USR1 signal\n");
-    // fprintf(gLog, "Stopping pulse sequence\n");
 }
 
 static void

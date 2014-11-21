@@ -18,7 +18,6 @@
 #endif
 
 static unsigned nDDS_boards = 0;
-static unsigned last_PMT_value = 0;
 static unsigned extra_flags = 0;
 unsigned PULSER_vacancy = 0;
 
@@ -37,11 +36,11 @@ static inline void
 PULSER_unsafe_pulse(void* base_addr, const unsigned control,
                     const unsigned operand)
 {
-    //does not check if there is space in buffer before writing.
-    //but AXI bus will wait until space is available
+    // does not check if there is space in buffer before writing.
+    // but AXI bus will wait until space is available
 
-//   PULSER_vacancy--;
-//   __asm__ volatile ("stw %0,0(%2); stw %1,4(%2); eieio" : : "r" (control),  "r" (operand), "b" (base_addr + PULSER_WRFIFO_DATA_OFFSET));
+    //   PULSER_vacancy--;
+    //   __asm__ volatile ("stw %0,0(%2); stw %1,4(%2); eieio" : : "r" (control),  "r" (operand), "b" (base_addr + PULSER_WRFIFO_DATA_OFFSET));
     PULSER_mWriteSlaveReg31(base_addr, 0, operand);
     PULSER_mWriteSlaveReg31(base_addr, 0, control);
 }
@@ -89,25 +88,6 @@ PULSER_init(void* base_addr, unsigned nDDS, unsigned bResetDDS, int debug_level)
         }
         //TR: no div2 for AD9914 PULSER_set_dds_div2(base_addr, iDDS, 0);
     }
-
-    /* printf("PULSER_init... get PMT\r\n"); */
-    /* r = PULSER_get_PMT(base_addr); */
-    /* printf("Result = %08X\r\n", r); */
-}
-
-void PULSER_reinit_DDS(void* base_addr, unsigned nDDS)
-{
-    char iDDS;
-    unsigned ftw;
-
-    for (iDDS = 0;iDDS < nDDS;iDDS++) {
-        ftw = PULSER_get_dds_freq(base_addr, iDDS);
-        PULSER_dds_reset(base_addr, iDDS);
-        //TR: no div2 for AD9914 PULSER_set_dds_div2(base_addr, iDDS, 0);
-        PULSER_set_dds_freq(base_addr, iDDS, ftw);
-    }
-
-    PULSER_get_PMT(base_addr);
 }
 
 //! Make sure there is space for at least n pulses on the FIFO.
@@ -437,31 +417,6 @@ PULSER_test_dds(void *base_addr, char nDDS)
     return ftw_ok && phase_ok;
 }
 
-unsigned
-PULSER_get_last_PMT()
-{
-    return last_PMT_value;
-}
-
-void
-PULSER_set_last_PMT(unsigned n)
-{
-    last_PMT_value = n;
-}
-
-unsigned
-PULSER_get_PMT(void *base_addr)
-{
-    unsigned new_PMT_value, d;
-
-    PULSER_short_pulse(base_addr, 0x20000000, 0);
-    new_PMT_value = PULSER_pop_result(base_addr);
-    d = new_PMT_value - last_PMT_value;
-
-    last_PMT_value = new_PMT_value;
-    return d;
-}
-
 unsigned PULSER_read_sr(void* base_addr, unsigned i)
 {
     return PULSER_mReadSlaveReg0(base_addr, 4*i);
@@ -470,22 +425,17 @@ unsigned PULSER_read_sr(void* base_addr, unsigned i)
 //make timed pulses
 //if t > t_max, subdivide into shorter pulses
 //returns number of pulses made
-unsigned PULSER_pulse(void* base_addr, unsigned t, const unsigned flags, const unsigned operand)
+void
+PULSER_pulse(void *base_addr, unsigned t, const unsigned flags,
+             const unsigned operand)
 {
-    unsigned t_max = 0x001FFFFF;
-    unsigned t_big = 0x001FFFF0;
-
-    unsigned nPulses = 1;
-
-    while(t > t_max) {
+    static const unsigned t_max = 0x001FFFFF;
+    static const unsigned t_big = 0x001FFFF0;
+    while (t > t_max) {
         PULSER_short_pulse(base_addr, t_big | flags, operand);
         t -= t_big;
-        nPulses++;
     }
-
     PULSER_short_pulse(base_addr, t | flags, operand);
-
-    return nPulses;
 }
 
 //make short timed pulses
@@ -496,7 +446,6 @@ PULSER_short_pulse(void* base_addr, const unsigned control,
 {
     PULSER_unsafe_pulse(base_addr, control | extra_flags, operand);
 }
-
 
 void PULSER_set_idle_function(void (*new_idle_func)(void))
 {
@@ -521,44 +470,52 @@ PULSER_pop_result(void* base_addr)
 
 // set bytes at addr+1 and addr
 // note that get_dds_two bytes also returns data at addr+1 and addr
-void PULSER_set_dds_two_bytes(void* base_addr, char i, unsigned addr, unsigned data)
+void
+PULSER_set_dds_two_bytes(void *base_addr, char i,
+                         unsigned addr, unsigned data)
 {
-//	printf("AD9914 board=%i set byte [0x%02X] = 0x%02X\n", addr, data);
-
-    unsigned dds_addr = (addr+1) & 0x7F; //put addr in bits 15...9 (maps to DDS opcode_reg[14:9] )?
-    unsigned dds_data = data & 0xFFFF; // put data in bits 15...0 (maps to DDS operand_reg[15:0] )?
-    PULSER_short_pulse(base_addr, 0x10000002 | (i << 4) | (dds_addr << 9), dds_data);
+    //put addr in bits 15...9 (maps to DDS opcode_reg[14:9] )?
+    unsigned dds_addr = (addr + 1) & 0x7F;
+    // put data in bits 15...0 (maps to DDS operand_reg[15:0] )?
+    unsigned dds_data = data & 0xFFFF;
+    PULSER_short_pulse(base_addr,
+                       0x10000002 | (i << 4) | (dds_addr << 9), dds_data);
 }
 
 //! set bytes addr+3 ... addr
-void PULSER_set_dds_four_bytes(void* base_addr, char i, unsigned addr, unsigned data)
+void
+PULSER_set_dds_four_bytes(void *base_addr, char i,
+                          unsigned addr, unsigned data)
 {
-    unsigned dds_addr = (addr+1) & 0x7F; //put addr in bits 15...9 (maps to DDS opcode_reg[14:9] )?
-    PULSER_short_pulse(base_addr, 0x1000000F | (i << 4) | (dds_addr << 9), data);
+    //put addr in bits 15...9 (maps to DDS opcode_reg[14:9])?
+    unsigned dds_addr = (addr + 1) & 0x7F;
+    PULSER_short_pulse(base_addr,
+                       0x1000000F | (i << 4) | (dds_addr << 9), data);
 }
 
-void PULSER_set_dds_freq(void* base_addr, char i, unsigned ftw)
+void
+PULSER_set_dds_freq(void *base_addr, char i, unsigned ftw)
 {
     PULSER_short_pulse(base_addr, 0x10000000 | (i << 4), ftw);
-
     ddsFTW[(int)i] = ftw;
 }
 
-void PULSER_set_dds_amp(void* base_addr, char i, unsigned short A)
+void
+PULSER_set_dds_amp(void *base_addr, char i, unsigned short A)
 {
     PULSER_set_dds_two_bytes(base_addr, i, 0x32, A);
-
     ddsAmp[(int)i] = A;
 }
 
-void PULSER_set_dds_phase(void* base_addr, char i, unsigned short phase)
+void
+PULSER_set_dds_phase(void *base_addr, char i, unsigned short phase)
 {
     PULSER_set_dds_two_bytes(base_addr, i, 0x30, phase);
-
     ddsPhase[(int)i] = phase;
 }
 
-void PULSER_shift_dds_phase(void* base_addr, char i, unsigned short phase)
+void
+PULSER_shift_dds_phase(void *base_addr, char i, unsigned short phase)
 {
     PULSER_set_dds_phase(base_addr, i, phase + ddsPhase[(int)i]);
 }
@@ -566,7 +523,7 @@ void PULSER_shift_dds_phase(void* base_addr, char i, unsigned short phase)
 int
 PULSER_check_all_dds(void *base_addr)
 {
-    for(char i = 0;i < nDDS_boards;i++) {
+    for (char i = 0;i < nDDS_boards;i++) {
         if (!PULSER_check_dds(base_addr, i)) {
             printf("ERROR on DDS %d !\r\n", (int)i);
             return 0;
@@ -575,14 +532,16 @@ PULSER_check_all_dds(void *base_addr)
     return 1;
 }
 
-int PULSER_check_dds(void* base_addr, char i)
+int
+PULSER_check_dds(void *base_addr, char i)
 {
     return ((ddsFTW[(int)i] == PULSER_get_dds_freq(base_addr, i)) &&
             (ddsPhase[(int)i] == PULSER_get_dds_phase(base_addr, i)) &&
             (ddsAmp[(int)i] == PULSER_get_dds_amp(base_addr, i)));
 }
 
-unsigned PULSER_get_dds_freq(void* base_addr, char i)
+unsigned
+PULSER_get_dds_freq(void *base_addr, char i)
 {
     //PULSER_short_pulse(base_addr, 0x1000000E | (i << 4) | (0x2D << 9), 0);
     //return PULSER_pop_result(base_addr);
@@ -592,38 +551,14 @@ unsigned PULSER_get_dds_freq(void* base_addr, char i)
     return u0 | (u2 << 16);
 }
 
-unsigned PULSER_get_dds_phase(void* base_addr, char i)
+unsigned
+PULSER_get_dds_phase(void *base_addr, char i)
 {
     return PULSER_get_dds_two_bytes(base_addr, i, 0x30);
 }
 
-unsigned PULSER_get_dds_amp(void* base_addr, char i)
+unsigned
+PULSER_get_dds_amp(void *base_addr, char i)
 {
     return PULSER_get_dds_two_bytes(base_addr, i, 0x32);
-}
-
-void PULSER_config_PMT_correlation(void* base_addr, unsigned removeFromQueue, unsigned clkDiv)
-{
-    PULSER_write_slave_reg(base_addr, 3, 0, 0x00000040 | (removeFromQueue << 5) | ((0x0F & clkDiv) << 1));
-    PULSER_write_slave_reg(base_addr, 3, 0, 0x00000000);
-}
-
-void PULSER_reset_PMT_correlation(void* base_addr)
-{
-    PULSER_write_slave_reg(base_addr, 3, 0, 0x00000001);
-    PULSER_write_slave_reg(base_addr, 3, 0, 0x00000000);
-}
-
-void PULSER_get_PMT_correlation(void* base_addr, unsigned* histogram)
-{
-    unsigned k, j;
-    const unsigned bins_per_word = 32/PULSER_N_PMT_BITS;
-    const unsigned n_words = PULSER_N_PMT_BINS/bins_per_word;
-    const unsigned max_val = (1 << PULSER_N_PMT_BITS)-1;
-
-    for(j = 0; j < n_words; j++) {
-        unsigned r = PULSER_read_slave_reg(base_addr, 4+j, 0);
-        for(k=0; k<bins_per_word; k++)
-            histogram[j*bins_per_word + k] += max_val & (r >> (PULSER_N_PMT_BITS*k));
-    }
 }
