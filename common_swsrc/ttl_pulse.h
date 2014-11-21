@@ -65,9 +65,9 @@ TTL_pulse(unsigned t, unsigned ttl = 0, verbosity *v=0)
 {
     if (t > 4) {
         PULSER_pulse(pulser, t, 0, ttl);
-        if (v) {
-            print_pulse_info(v, t, ttl);
-        }
+        // if (v) {
+        //     print_pulse_info(v, t, ttl);
+        // }
         g_tSequence += t;
     }
 }

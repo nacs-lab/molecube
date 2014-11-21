@@ -568,6 +568,7 @@ parseSeqTxt(unsigned reps, const std::string& seqTxt, bool bForever,
 
     g_lineNum = 0;
     double tSoFar = 0;
+    bool use_dt = true;
 
     while (!ss0.eof()) {
         //read line
@@ -576,12 +577,12 @@ parseSeqTxt(unsigned reps, const std::string& seqTxt, bool bForever,
 
         g_lineNum++;
 
-        //ignore everything after '#' comment symbol
+        // ignore everything after '#' comment symbol
         size_t posC = line.find("#");
         if (posC != std::string::npos)
             line = line.substr(0, posC);
 
-        //ignore blank lines
+        // ignore blank lines
         if (line.length() == 0)
             continue;
 
@@ -594,20 +595,23 @@ parseSeqTxt(unsigned reps, const std::string& seqTxt, bool bForever,
         // valid lines will start with "dt = " or "t = "
 
         if (!eatStreamTo(ssL, '=', strPrior)) {
+            continue;
             throw std::runtime_error(std::to_string(g_lineNum) +
                                      ": no time spec.");
         }
 
         if (strPrior.find("dt") != std::string::npos) {
+            use_dt = true;
             ssL >> new_t;
             new_t += tSoFar;
         } else if (strPrior.find("t") != std::string::npos) {
+            use_dt = false;
             ssL >> new_t;
         } else {
             throw std::runtime_error(std::to_string(g_lineNum) +
                                      ": invalid time spec.");
         }
-        if (new_t <= tSoFar) {
+        if (new_t <= tSoFar && tSoFar > 0) {
             throw std::runtime_error(std::to_string(g_lineNum) +
                                      ": going back in time.");
         }
@@ -636,6 +640,9 @@ parseSeqTxt(unsigned reps, const std::string& seqTxt, bool bForever,
                                      ": incomplete action (2).");
         }
 
+        if (!use_dt) {
+            tSoFar = new_t;
+        }
         if (parseCommand(floor(tSoFar * PULSER_DT_per_us + 0.5),
                          cmd, arg1, ssL)) {
             tSoFar = new_t;
@@ -644,9 +651,11 @@ parseSeqTxt(unsigned reps, const std::string& seqTxt, bool bForever,
                                      ": failed to parse command.");
         }
     }
-    unsigned new_tcurr = floor(tSoFar * PULSER_DT_per_us + 0.5);
-    dealWithCurrentTTL(new_tcurr, 0);
-    tCurr = new_tcurr;
+    if (use_dt) {
+        unsigned new_tcurr = floor(tSoFar * PULSER_DT_per_us + 0.5);
+        dealWithCurrentTTL(new_tcurr, 0);
+        tCurr = new_tcurr;
+    }
     finishTTL();
 
     gvSTDOUT.printf("Parsed sequence into %d pulse commands.\n", pulses.size());
