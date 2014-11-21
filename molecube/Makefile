@@ -7,7 +7,7 @@ DRIVERS = ../customIP/IP/drivers/pulse_controller_v4_00_b/src
 FPGALIB = $(ROOT)/../lib
 FPGAINC = $(ROOT)/../include
 
-CROSS_COMPILE := arm-xilinx-linux-gnueabi-
+CROSS_COMPILE := arm-linux-gnueabi-
 CXX = $(CROSS_COMPILE)g++
 CC = $(CROSS_COMPILE)gcc
 RM := rm -rf
