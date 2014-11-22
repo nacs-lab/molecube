@@ -12,11 +12,6 @@
 
 NACS_BEGIN_DECLS
 
-#ifdef LINUX_OS
-#  define Xil_Out32(addr, data) *((volatile unsigned *)(addr)) = data
-#  define Xil_In32(addr) *((volatile unsigned*)(addr))
-#endif
-
 /************************** Constant Definitions ***************************/
 
 /**

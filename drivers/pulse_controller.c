@@ -15,6 +15,8 @@
 
 #include "pulse_controller_io.h"
 
+#include <xil_io.h>
+
 static unsigned nDDS_boards = 0;
 static unsigned extra_flags = 0;
 

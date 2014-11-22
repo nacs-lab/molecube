@@ -61,30 +61,21 @@
 ******************************************************************************/
 
 #include <nacs-utils/utils.h>
-#include "xil_types.h"
 
 #ifndef XIL_IO_H
 #define XIL_IO_H
-
-NACS_BEGIN_DECLS
 
 /* The following functions allow the software to be transportable across
  * processors which may use memory mapped I/O or I/O which is mapped into a
  * seperate address space.
  */
-#ifndef Xil_Out32
 #define Xil_Out8(addr, data) *((volatile unsigned char*)(addr)) = data
 #define Xil_In8(addr) *((volatile unsigned char*)(addr))
-#endif
 
-#ifndef Xil_Out16
 #define Xil_Out16(addr, data) *((volatile unsigned short*)(addr)) = data
 #define Xil_In16(addr) *((volatile unsigned short*)(addr))
 
 #define Xil_Out32(addr, data) *((volatile unsigned *)(addr)) = data
 #define Xil_In32(addr) *((volatile unsigned*)(addr))
-#endif
-
-NACS_END_DECLS
 
 #endif
