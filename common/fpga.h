@@ -1,14 +1,11 @@
 #include "timing.h"
+#include "common.h"
 
 #include <nacs-utils/utils.h>
 #include <pulse_controller.h>
 
 #ifndef FPGA_H
 #define FPGA_H
-
-//Some basic definitions and includes for the FPGA go here
-
-extern void *pulser; // pointer to pulse controller HW
 
 NACS_BEGIN_DECLS
 

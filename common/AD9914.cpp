@@ -8,7 +8,7 @@
 
 // const double ad9914_clk_MHz = 3500.0;
 
-void set_freq_AD9914PM(void* base_addr, char i, unsigned ftw,
+void set_freq_AD9914PM(volatile void *base_addr, char i, unsigned ftw,
                        unsigned a, unsigned b, FILE* f)
 {
     if (f) {
@@ -24,14 +24,16 @@ void set_freq_AD9914PM(void* base_addr, char i, unsigned ftw,
 }
 
 
-bool test_val_AD9914(void* base_addr, char i, unsigned addr, unsigned val)
+bool
+test_val_AD9914(volatile void *base_addr, char i, unsigned addr, unsigned val)
 {
     PULSER_set_dds_two_bytes(base_addr, i, addr, val);
 
     return PULSER_get_dds_two_bytes(base_addr, i, addr) == val;
 }
 
-bool test_AD9914(void* base_addr, char i)
+bool
+test_AD9914(volatile void *base_addr, char i)
 {
     unsigned addr = 0x34; //FTW for profile 1, shouldn't affect the signal
     bool pass = true;
@@ -56,17 +58,17 @@ bool test_AD9914(void* base_addr, char i)
     return pass;
 }
 
-void test_dds_addr(void* base_addr, char i, unsigned low_addr,
-                   unsigned high_addr, unsigned ntest, FILE* f)
+void test_dds_addr(volatile void* base_addr, char i, unsigned low_addr,
+                   unsigned high_addr, unsigned ntest, FILE *f)
 {
     unsigned nerrors = 0;
     unsigned ntested = 0;
 
-    for(unsigned addr=low_addr; addr<=high_addr; addr++) {
+    for (unsigned addr = low_addr;addr <= high_addr;addr++) {
         unsigned d0 = PULSER_get_dds_byte(base_addr, i, addr);
-        unsigned d1 = PULSER_get_dds_byte(base_addr, i, addr+1);
+        unsigned d1 = PULSER_get_dds_byte(base_addr, i, addr + 1);
 
-        for(unsigned j=0; j<ntest; j++) {
+        for(unsigned j = 0;j < ntest;j++) {
             unsigned r = rand() & 0xFF;
             PULSER_set_dds_two_bytes(base_addr, i, addr, r);
 
@@ -91,7 +93,8 @@ void test_dds_addr(void* base_addr, char i, unsigned low_addr,
             ntested, low_addr, high_addr, nerrors);
 }
 
-void print_AD9914_registers(void* base_addr, char i, FILE* f)
+void
+print_AD9914_registers(volatile void *base_addr, char i, FILE *f)
 {
     bool bNonZeroOnly = true;
 
@@ -116,17 +119,18 @@ void print_AD9914_registers(void* base_addr, char i, FILE* f)
 
 
 void
-set_dds_four_bytes(void* base_addr, char i, unsigned addr, unsigned data)
+set_dds_four_bytes(volatile void *base_addr, char i,
+                   unsigned addr, unsigned data)
 {
     // printf("AD9914 board=%i set byte [0x%02X] = 0x%02X\n", addr, data);
 
-    //put addr in bits 14...9 (maps to DDS opcode_reg[14:9] )?
+    // put addr in bits 14...9 (maps to DDS opcode_reg[14:9] )?
     unsigned dds_addr = (addr & 0x3F) << 9;
     PULSER_short_pulse(base_addr, 0x1000000F | (i << 4) |
                        (dds_addr << 9), data); // takes 0.3 us
 }
 
-// void set_freq_AD9914(void* base_addr, char i, double Hz, bool bPrintInfo)
+// void set_freq_AD9914(volatile void *base_addr, char i, double Hz, bool bPrintInfo)
 // {
 //     //convert Hz to FTW, a, and b
 //     unsigned ftw = static_cast<unsigned int>(floor(0.5 + (Hz * pow(2., 32.) / AD9914_CLK)));
@@ -151,12 +155,14 @@ set_dds_four_bytes(void* base_addr, char i, unsigned addr, unsigned data)
 //     PULSER_set_dds_freq(base_addr, i, ftw);
 // }
 
-unsigned gcd(unsigned x, unsigned y)
+// TODO use a faster implementation
+unsigned
+gcd(unsigned x, unsigned y)
 {
     if (y == 0)
         return x; // base case, return x when y equals 0
 
-    return gcd(y,x%y); // recursive call by using arithmetic rules
+    return gcd(y, x % y); // recursive call by using arithmetic rules
 }
 
 //Initialize the DDS.
@@ -164,12 +170,12 @@ unsigned gcd(unsigned x, unsigned y)
 //           false: init only if not previopusly initialized
 // return true if init was performed
 
-bool init_AD9914(void*, char i, bool bForce, FILE* f)
+bool init_AD9914(volatile void*, char i, bool bForce, FILE* f)
 {
     bool bInit = bForce; //init needed?
     const unsigned magic_bytes = 0xF00F0000;
 
-    if(!bForce) {
+    if (!bForce) {
 
         //Check if magic bytes have been set (profile 7, FTW) which is otherwise
         //not used.  If already set, the board has been initialized and doesn't

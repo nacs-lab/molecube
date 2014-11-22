@@ -135,9 +135,9 @@ protected:
 };
 
 #ifdef LINUX_OS
-void *pulser = 0;
+volatile void *pulser = 0;
 #else
-void *pulser = (void*)XPAR_PULSE_CONTROLLER_0_BASEADDR;
+volatile void *pulser = (void*)XPAR_PULSE_CONTROLLER_0_BASEADDR;
 #endif
 
 bool g_debug_spi = false;
