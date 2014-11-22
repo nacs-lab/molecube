@@ -18,7 +18,7 @@ add_definitions(-Wall -Wextra -g -pthread -fvisibility=hidden
 set(LINKER_FLAGS -Wl,--as-needed -Wl,--no-undefined -Wl,--gc-sections
   -pthread -O2 -flto -fno-math-errno
   # FIXME Hack before porting to Archlinux ARM
-  -L${PROJECT_SOURCE_DIR}/lib)
+  -L${PROJECT_SOURCE_DIR}/tmp_lib)
 
 cmake_c_add_flags(CMAKE_C_FLAGS -std=gnu11)
 cmake_c_add_flags(CMAKE_CXX_FLAGS -std=c++11)
@@ -28,6 +28,6 @@ cmake_c_add_flags(CMAKE_SHARED_LINKER_FLAGS ${LINKER_FLAGS})
 cmake_c_add_flags(CMAKE_MODULE_LINKER_FLAGS ${LINKER_FLAGS})
 
 # FIXME Hack before porting to Archlinux ARM
-include_directories(include)
+include_directories(tmp_include)
 
 add_subdirectory(molecube)
