@@ -1,15 +1,16 @@
 # Notes for use of ZC702 Zynq development board from Xilinx
 
 ### Boot configuration via light blue DIP switch (SW16)
-To boot via JTAG, all DIP switches are down
-To boot via flash, DIP switch 4 is up and the rest are down
-To boot via SD card, DIP switches 3 and 4 are up and the rest are down
-Up is with respect to numbers on sswitch
+* To boot via JTAG, all DIP switches are down
+* To boot via flash, DIP switch 4 is up and the rest are down
+* To boot via SD card, DIP switches 3 and 4 are up and the rest are down
+* Up is with respect to numbers on sswitch
 
 ### Digilent JTAG cable on Linux:
 Set DIP switch (SW10) to positions 1=down, 2=up
 
 See https://bbs.archlinux.org/viewtopic.php?id=132394
+
 Edit `/etc/udev/52-digilent-usb.rules` to contain:
 
     ATTRS{idVendor}=="1443", MODE="666"
@@ -28,7 +29,9 @@ Check that USB/Digilent programming cable works:
     Failed to connect to Xilinx hw_server. Check if the hw_server is running and correct TCP port is used.
 
 Solution:
+
 Select "Configure JTAG Setting", "Digilent USB cable" in SDK
+
 See: http://www.xilinx.com/support/answers/55431.htm
 
 ### Linux terminal coneection to FPGA:
@@ -42,8 +45,7 @@ Launch xilinx shell, navigate to folder that contains boot image BOOT.mcs
 
     impact -batch program_flash.cmd
 
-or run `impact -batch`
-then enter these commands:
+or run `impact -batch`, then enter these commands:
 
     setMode -bs
     setCable -port auto
