@@ -5,11 +5,6 @@
 #include "common.h"
 
 #ifndef NO_XSPI
-#ifndef __cplusplus
-#include <stdbool.h>
-#endif
-
-#include <stddef.h>
 #include <xspi.h>
 
 typedef XSpi spi_struct;

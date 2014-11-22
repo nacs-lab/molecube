@@ -13,9 +13,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 
-#ifndef ALUMINIZER_SIM
 #include "pulse_controller_io.h"
-#endif
 
 static unsigned nDDS_boards = 0;
 static unsigned extra_flags = 0;

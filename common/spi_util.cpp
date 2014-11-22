@@ -226,41 +226,4 @@ void Spi_Transfer(spi_p spi, uint8_t* tx, uint8_t* rc, unsigned nBytes)
 {
     XSpi_Transfer(spi, tx, rc, nBytes);
 }
-
-#else //NO_XSPI
-
-#ifdef ALUMINIZER_SIM
-
-void SPI_init(spi_p spi, unsigned id, bool bActiveLow, char clockPhase)
-{
-
-}
-
-unsigned SPI_Transmit(spi_p spi, unsigned* dataTX, unsigned* dataRC, unsigned nBytes)
-{
-    return 0;
-}
-
-void Spi_Transfer(spi_p spi, uint8_t* tx, uint8_t* rc, unsigned nBytes)
-{
-}
-
-unsigned short SPI_Transfer2(spi_p InstancePtr, unsigned short tx)
-{
-    return 0;
-}
-
-int SPI_SetSlaveSelect(spi_p InstancePtr, unsigned SlaveMask)
-{
-    return 0;
-}
-
-unsigned short SPI_Transfer_ADS8361(spi_p InstancePtr, unsigned tx)
-{
-    return 0;
-}
-
-#endif
-
 #endif //NO_XSPI
-

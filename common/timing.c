@@ -13,18 +13,3 @@ void XTime_GetTime(XTime* xt)
     *xt = clock();
 }
 #endif
-
-#ifdef ALUMINIZER_SIM
-unsigned long long nTicks = 0;
-
-void sim_increment_time(int us)
-{
-    nTicks += us * 200;
-}
-
-void XTime_GetTime(XTime* t)
-{
-    *t = nTicks;
-    nTicks += 400;
-}
-#endif //ALUMINIZER_SIM
