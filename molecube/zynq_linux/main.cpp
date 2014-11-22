@@ -1,4 +1,5 @@
 #include <nacs-utils/timer.h>
+#include <nacs-utils/log.h>
 
 #include "init_platform.h"
 #include "init_system.h"
@@ -137,19 +138,15 @@ volatile void *pulser = 0;
 bool g_debug_spi = false;
 bool g_stop_curr_seq = false;
 
-FILE *gLog = 0;
-verbosity gvSTDOUT(0, 0);
-verbosity gvLog(0, 0);
+verbosity gvSTDOUT(nullptr);
 
 static const char PROG_NAME[] = "molecube";
-
-unsigned gDebugLevel = 0;
 
 //atexit handler
 static void
 bye()
 {
-    fprintf(gLog, "bye\n\n");
+    nacsInfo("bye\n\n");
 }
 
 static void
@@ -165,7 +162,7 @@ handleUSR1(int)
 }
 
 static void
-printHeader(FILE* fLog)
+printHeader(FILE *fLog)
 {
     fprintf(fLog, "\n\nMolecube 1.09 (FastCGI)\n");
     fprintf(fLog, "Built: %s %s  ", __DATE__, __TIME__);
@@ -201,22 +198,20 @@ main(int argc, char *argv[])
     g_fPulserLock = fopen("/tmp/pulser.lock", "w");
 
     if (cla.FindString("-h") >= 0 || cla.FindString("--help") >= 0) {
-        gLog = stdout;
         printUsage();
         return 0;
     }
 
     std::string sLogFileName = cla.GetStringAfter("-l", "stdout");
     if (sLogFileName == "stdout") {
-        gLog = stdout;
+        nacsSetLog(stdout);
     } else {
-        gLog = fopen(sLogFileName.c_str(), "a");
+        nacsSetLog(fopen(sLogFileName.c_str(), "a"));
     }
 
-    gvSTDOUT = verbosity(&std::cout, gLog);
-    gvLog = verbosity(0, gLog);
+    gvSTDOUT = verbosity(&std::cout);
 
-    printHeader(gLog);
+    printHeader(nacsGetLog());
 
     setProgramStatus(PROG_NAME, "Initializing");
 
@@ -225,8 +220,7 @@ main(int argc, char *argv[])
 
     time(&rawtime);
     timeinfo = localtime(&rawtime);
-    fprintf(gLog, "Current time: (UTC) %s\n", asctime(timeinfo));
-    fflush(gLog);
+    nacsInfo("Current time: (UTC) %s\n", asctime(timeinfo));
 
     init_system();
 
@@ -239,14 +233,13 @@ main(int argc, char *argv[])
 
     time_t srandT = time(0);
     srand(srandT + nAccept);
-    fprintf(gLog, "Random seed = %u.  2 random numbers: %u, %u\n",
+    nacsLog("Random seed = %u.  2 random numbers: %u, %u\n",
             (unsigned)srandT, rand(), rand());
 
     // run startup sequence
     std::string fnameStartup = cla.GetStringAfter("-s", "");
     if (fnameStartup.length()) {
-        fprintf(gLog, "Read startup sequence from: %s\n",
-                fnameStartup.c_str());
+        nacsLog("Read startup sequence from: %s\n", fnameStartup.c_str());
         std::ifstream ifs(fnameStartup);
 
         if (ifs.is_open()) {
@@ -261,21 +254,20 @@ main(int argc, char *argv[])
             try {
                 parseSeqURL(sStartupSeq);
             } catch (std::runtime_error e) {
-                fprintf(gLog, "Startup sequence error:   %s\n", e.what());
+                nacsError("Startup sequence error:   %s\n", e.what());
             }
         } else {
-            fprintf(gLog, "Could not open file.\n");
+            nacsError("Could not open file.\n");
         }
     }
 
-    fprintf(gLog, "Waiting for network connections...\n\n");
-    fflush(gLog);
+    nacsInfo("Waiting for network connections...\n\n");
 
     setProgramStatus(0, "Idle");
 
     while (FCGX_Accept_r(&request) == 0) {
         setProgramStatus(0, "Processing request");
-        fprintf(gLog, "================ Accept FastCGI request %d "
+        nacsLog("================ Accept FastCGI request %d "
                 "================\n", nAccept);
 
         // Replace stdio streambufs.
@@ -293,11 +285,11 @@ main(int argc, char *argv[])
         FCgiIO IO(request);
         cgicc::Cgicc cgi(&IO);
 
-        gvSTDOUT = verbosity(&std::cout, gLog);
+        gvSTDOUT = verbosity(&std::cout);
 
         try {
             if (!parseQueryCGI(cgi)) {
-                fprintf(gLog, "Couldn't understand HTTP request.\n");
+                nacsError("Couldn't understand HTTP request.\n");
             }
         } catch (std::runtime_error e) {
             gvSTDOUT.printf("Oh noes! \n   %s\n", e.what());
@@ -305,14 +297,13 @@ main(int argc, char *argv[])
                                            "%%").c_str());
         }
 
-        fprintf(gLog, "================ Finish FastCGI request %d "
+        nacsLog("================ Finish FastCGI request %d "
                 "================\n\n", nAccept++);
-        fflush(gLog);
         std::cout << std::endl;
         setProgramStatus(0, "Idle");
     }
 
-    fprintf(gLog, "Exit, return 0\n");
+    nacsLog("Exit, return 0\n");
     setProgramStatus(0, "Finished / Quit");
     return 0;
 }

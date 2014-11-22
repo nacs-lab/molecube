@@ -26,7 +26,7 @@ typedef spi_struct* spi_p;
 //! wrapper for XSpi_Transfer
 void Spi_Transfer(spi_p spi, unsigned char* tx, unsigned char* rc, unsigned nBytes);
 
-int SPI_init(spi_p spi, unsigned id, bool bActiveLow, char clockPhase, int debug_level);
+int SPI_init(spi_p spi, unsigned id, bool bActiveLow, char clockPhase);
 unsigned SPI_Transmit(spi_p spi, unsigned* dataTX, unsigned* dataRC, unsigned nBytes);
 
 //16 bit transfer.  MSB first.

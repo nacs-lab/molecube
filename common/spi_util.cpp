@@ -1,5 +1,7 @@
 #include "spi_util.h"
 
+#include <nacs-utils/log.h>
+
 #ifndef NO_XSPI
 
 #include <xspi_l.h>
@@ -31,7 +33,7 @@ unsigned SPI_Transmit16(spi_p spi, unsigned short *dataTX,
     uint8_t* rc = (uint8_t*)(&rc2);
 
     if (g_debug_spi)
-        printf("spi <- tx =%08x\r\n", (unsigned)*dataTX);
+        printf("spi <- tx =%08x\n", (unsigned)*dataTX);
 
     SPI_SetSlaveSelect(spi, 1);
     XStatus s = XSpi_Transfer(spi, tx, rc, 2);
@@ -40,7 +42,7 @@ unsigned SPI_Transmit16(spi_p spi, unsigned short *dataTX,
     *dataRC = be16toh(rc2);
 
     if (g_debug_spi)
-        printf("spi -> rc =%08x\r\n", (unsigned)*dataRC);
+        printf("spi -> rc =%08x\n", (unsigned)*dataRC);
 
     return s;
 }
@@ -52,20 +54,20 @@ unsigned SPI_Transmit(spi_p spi, unsigned* dataTX, unsigned* dataRC, unsigned nB
     uint8_t* rc = (uint8_t*)dataRC;
 
     if (g_debug_spi)
-        printf("spi <- tx =%08x\r\n", *dataTX);
+        printf("spi <- tx =%08x\n", *dataTX);
 
     SPI_SetSlaveSelect(spi, 1);
     XStatus s = XSpi_Transfer(spi, tx, rc, nBytes);
     SPI_SetSlaveSelect(spi, 0);
     /*
-       switch(s){
-          case XST_DEVICE_IS_STOPPED : printf("SPI failure.  XST_DEVICE_IS_STOPPED\n"); break;
-          case XST_DEVICE_BUSY : printf("SPI failure.  XST_DEVICE_BUSY\n"); break;
-          case XST_SPI_NO_SLAVE : printf("SPI failure.  XST_SPI_NO_SLAVE\n"); break;
-       }
-     */
+      switch(s){
+      case XST_DEVICE_IS_STOPPED : printf("SPI failure.  XST_DEVICE_IS_STOPPED\n"); break;
+      case XST_DEVICE_BUSY : printf("SPI failure.  XST_DEVICE_BUSY\n"); break;
+      case XST_SPI_NO_SLAVE : printf("SPI failure.  XST_SPI_NO_SLAVE\n"); break;
+      }
+    */
     if (g_debug_spi)
-        printf("spi -> rc =%08x\r\n", *dataRC);
+        printf("spi -> rc =%08x\n", *dataRC);
 
     return s;
 }
@@ -87,31 +89,33 @@ int SPI_SetSlaveSelect(spi_p  InstancePtr, unsigned SlaveMask)
     return XST_SUCCESS;
 }
 
-int SPI_init(spi_p spi, unsigned id, bool bActiveLow, char clockPhase, int debug_level)
+int
+SPI_init(spi_p spi, unsigned id, bool bActiveLow, char clockPhase)
 {
     int s = XSpi_Initialize(spi, id);
 
     //not sure why the driver sometimes returns XST_DEVICE_IS_STARTED on startup
     if (XST_DEVICE_IS_STARTED == s) {
-        printf("spi<%d> already started. Stopping...\r\n", id);
+        nacsLog("spi<%d> already started. Stopping...\n", id);
 
         //Xilinx docs say to stop device and re-initialize
         XSpi_Stop(spi);
         s = XSpi_Initialize(spi, id);
     }
-    if(debug_level > 0) {
-        if (XST_SUCCESS == s) {
-            printf("spi<%d> initialized successfully\r\n", id);
-            printf("spi<%d> base address: %08X\r\n", id, (unsigned)(spi->BaseAddr));
+    if (XST_SUCCESS == s) {
+        nacsInfo("spi<%d> initialized successfully\n", id);
+        nacsInfo("spi<%d> base address: %08X\n",
+                 id, (unsigned)(spi->BaseAddr));
 
-            if(bActiveLow)
-                printf("spi<%d> active low\n", id);
-            else
-                printf("spi<%d> active high\n", id);
+        if (bActiveLow) {
+            nacsInfo("spi<%d> active low\n", id);
+        } else {
+            nacsInfo("spi<%d> active high\n", id);
+        }
 
-            printf("spi<%d> clock phase = %d\n", id, (int)clockPhase);
-        } else
-            printf("spi<%d> failed to initialize\r\n", id);
+        nacsInfo("spi<%d> clock phase = %d\n", id, (int)clockPhase);
+    } else {
+        nacsError("spi<%d> failed to initialize\n", id);
     }
 
     /*
@@ -119,7 +123,7 @@ int SPI_init(spi_p spi, unsigned id, bool bActiveLow, char clockPhase, int debug
      */
     unsigned options = XSP_MASTER_OPTION | XSP_MANUAL_SSELECT_OPTION;
 
-//     unsigned options = XSP_MASTER_OPTION;
+    // unsigned options = XSP_MASTER_OPTION;
 
     if (bActiveLow) //Clock idles high
         options |= XSP_CLK_ACTIVE_LOW_OPTION;

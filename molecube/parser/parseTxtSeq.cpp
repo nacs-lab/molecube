@@ -13,6 +13,8 @@
  */
 #include "parseTxtSeq.h"
 
+#include <nacs-utils/log.h>
+
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -515,8 +517,8 @@ parseSeqCGI(cgicc::Cgicc& cgi)
     std::string seqTxt = getStringParamCGI(cgi, "seqtext", "");
     if (seqTxt.length() == 0) {
         //if missing, look for attached file (multi-part)
-        fprintf(gLog, "no seqtext parameter in form, looking for seqtext file\n");
-        fprintf(gLog, "%d files attached\n", cgi.getFiles().size());
+        nacsLog("no seqtext parameter in form, looking for seqtext file\n");
+        nacsLog("%d files attached\n", cgi.getFiles().size());
 
         cgicc::file_iterator i =  cgi.getFile("seqtext");
         if (i != cgi.getFiles().end()) {
@@ -559,8 +561,7 @@ parseSeqTxt(unsigned reps, const std::string& seqTxt, bool bForever,
     printPlainResponseHeader();
 
     if (bDebugPulses) {
-        fprintf(gLog, "Parsing pulse sequence:%s\n", seqTxt.c_str());
-        fflush(gLog);
+        nacsLog("Parsing pulse sequence:%s\n", seqTxt.c_str());
     }
 
     unsigned nTimingErrors = 0;
@@ -670,9 +671,9 @@ parseSeqTxt(unsigned reps, const std::string& seqTxt, bool bForever,
     gvSTDOUT.printf("Parsed sequence into %d pulse commands.\n", pulses.size());
 
     if (bForever) {
-        fprintf(gLog, "Start continuous run.\n");
+        nacsLog("Start continuous run.\n");
     } else {
-        fprintf(gLog, "Run %d sequences.\n", reps);
+        nacsLog("Run %d sequences.\n", reps);
     }
 
     unsigned iRep;
@@ -788,8 +789,7 @@ getQuote(const char *fname, const char *delim)
             FILE *f = fopen(fname, "r");
 
             if (f) {
-                fprintf(gLog, "Retrieving quote %s\n", fname);
-                fflush(gLog);
+                nacsLog("Retrieving quote %s\n", fname);
                 //get file length
                 fseek(f, 0, SEEK_END);
                 size_t len = ftell(f);

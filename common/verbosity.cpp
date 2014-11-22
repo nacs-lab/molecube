@@ -1,20 +1,19 @@
-#include <stdarg.h>
-
 #include "verbosity.h"
 
-int verbosity::printf(const char* format, ...)
+#include <stdarg.h>
+#include <nacs-utils/log.h>
+
+int
+verbosity::printf(const char *format, ...)
 {
     int ret = 0;
 
-    if(f) {
-        va_list vl;
-        va_start(vl, format);
-        ret = vfprintf(f, format, vl);
-        va_end(vl);
-        fflush(f);
-    }
+    va_list ap;
+    va_start(ap, format);
+    nacsLogV(format, ap);
+    va_end(ap);
 
-    if(pos) {
+    if (m_pos) {
         char buff[1024];
 
         va_list vl;
@@ -22,8 +21,7 @@ int verbosity::printf(const char* format, ...)
         ret = vsnprintf(buff, 1024, format, vl);
         va_end(vl);
 
-        *pos << buff;
+        *m_pos << buff;
     }
-
     return ret;
 }

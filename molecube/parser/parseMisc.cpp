@@ -1,6 +1,7 @@
 #include "parseMisc.h"
 
 #include <nacs-utils/number.h>
+#include <nacs-utils/log.h>
 
 #include <iostream>
 #include <fstream>
@@ -116,17 +117,17 @@ setDeviceParams(const std::string& page, const txtmap_t& params)
         txtmap_t::const_iterator pos;
         char buff[32];
 
-        for(unsigned iDDS=0; iDDS<NDDS; iDDS++) {
+        for (unsigned iDDS = 0;iDDS < NDDS;iDDS++) {
             sprintf(buff, "freq%d", iDDS);
 
             pos = params.find(buff);
-            if(pos != params.end()) {
-                double f = 1e6*atof(pos->second.c_str());
-                fprintf(gLog, "DDS setfreq(%d): %12.3f\r\n", iDDS, f);
+            if (pos != params.end()) {
+                double f = 1e6 * atof(pos->second.c_str());
+                nacsLog("DDS setfreq(%d): %12.3f\n", iDDS, f);
                 DDS_set_freqHz(iDDS, f);
                 unsigned ftw = DDS_get_ftw(iDDS);
-                gvLog.printf("DDS getfreq(%d): %12.3f  (ftw = %08X)\r\n",
-                             iDDS, FTW2HzD(ftw, dds_clk(iDDS)), ftw);
+                nacsLog("DDS getfreq(%d): %12.3f  (ftw = %08X)\n",
+                        iDDS, FTW2HzD(ftw, dds_clk(iDDS)), ftw);
             }
 
             // "amp" doesn't work with jQuery (special meaning? jQuery bug?)
@@ -135,7 +136,7 @@ setDeviceParams(const std::string& page, const txtmap_t& params)
             if(pos != params.end()) {
                 double A = atof(pos->second.c_str());
                 A = nacsBound(0, A, 1);
-                fprintf(gLog, "DDS setamp (%d): %6.3f %%\r\n", iDDS, A*100);
+                nacsLog("DDS setamp (%d): %6.3f %%\n", iDDS, A*100);
                 DDS_set_amp(iDDS, A);
             }
 
@@ -143,16 +144,16 @@ setDeviceParams(const std::string& page, const txtmap_t& params)
             pos = params.find(buff);
             if(pos != params.end()) {
                 double phase = atof(pos->second.c_str());
-                fprintf(gLog, "DDS setphase(%d): %9.3f degrees\r\n", iDDS, phase);
+                nacsLog("DDS setphase(%d): %9.3f degrees\n", iDDS, phase);
                 DDS_set_phase_deg(iDDS, phase);
             }
 
             sprintf(buff, "reset%d", iDDS);
             pos = params.find(buff);
             if(pos != params.end()) {
-                fprintf(gLog, "DDS reset/init (%d)\r\n", iDDS);
-                init_AD9914(pulser, iDDS, true, gLog);
-                //fprintf(gLog, "DDS test (%d)\r\n", iDDS);
+                nacsLog("DDS reset/init (%d)\n", iDDS);
+                init_AD9914(pulser, iDDS, true);
+                //fprintf(gLog, "DDS test (%d)\n", iDDS);
                 //print_AD9914_registers(pulser, iDDS, gLog);
             }
         }
@@ -170,7 +171,7 @@ setDeviceParams(const std::string& page, const txtmap_t& params)
             sscanf(posLo->second.c_str(), "%x", &lo);
 
             PULSER_set_ttl(pulser, hi, lo);
-            fprintf(gLog, "set TTL ttlHiMask=%08X  ttlLoMask=%08X\n", hi, lo);
+            nacsLog("set TTL ttlHiMask=%08X  ttlLoMask=%08X\n", hi, lo);
         }
     }
 }
@@ -207,7 +208,7 @@ parseQueryCGI(cgicc::Cgicc &cgi)
             sprintf(buff, "{\"lo\":%u, \"hi\":%u}", lo, hi);
             std::cout << buff;
 
-            fprintf(gLog, "%s\n", buff);
+            nacsLog("%s\n", buff);
             return true;
         }
 

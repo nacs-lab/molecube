@@ -79,7 +79,7 @@ bool check_timing()
     printf(
         "Detected pulses_finished = %d at t = %8.0f us.  Register 2 = %08X\n",
         r2 & 4 ? 1 : 0, dt, r2);
-    printf("Wait up to three seconds for pulses_finished to go high\r\n");
+    printf("Wait up to three seconds for pulses_finished to go high\n");
 
     do {
         t1 = nacsGetTime();
@@ -114,7 +114,7 @@ bool other_test()
 
     for (j = 0; j < NDDS; j++) {
         unsigned ftw = PULSER_get_dds_freq(pulser, j);
-        printf("DDS[%02i] frequency: %12.3f Hz\r\n", j, FTW2HzD(ftw, AD9914_CLK));
+        printf("DDS[%02i] frequency: %12.3f Hz\n", j, FTW2HzD(ftw, AD9914_CLK));
     }
 
     r2 = PULSER_read_slave_reg(pulser, 2, 0);
@@ -148,7 +148,7 @@ bool other_test()
         if (nResults) {
             unsigned r = PULSER_pop_result(pulser);
             checkLoopback &= (k == r);
-            //printf("result[%02i] = %d\r\n", k, r);
+            //printf("result[%02i] = %d\n", k, r);
             k++;
         }
 

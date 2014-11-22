@@ -5,6 +5,8 @@
  * Date:              10:33 PM Friday, July 13, 2012
  *****************************************************************************/
 
+#include <nacs-utils/log.h>
+
 #include "pulse_controller.h"
 #include "pulse_controller_io.h"
 
@@ -40,7 +42,7 @@ PULSER_unsafe_pulse(volatile void *base_addr, const unsigned control,
 static void
 PULSER_debug_regs(volatile void *base_addr)
 {
-    printf("PULSE_CONTROLLER registers:\r\n");
+    printf("PULSE_CONTROLLER registers:\n");
 
     unsigned i;
 
@@ -51,29 +53,32 @@ PULSER_debug_regs(volatile void *base_addr)
         printf("%08X ", PULSER_read_slave_reg(base_addr, i, 0));
 
         if (i % 4 == 3) {
-            printf("\r\n");
+            printf("\n");
         }
     }
-    printf("\r\n");
+    printf("\n");
 }
 
 void
-PULSER_init(volatile void *base_addr, unsigned nDDS, unsigned bResetDDS, int debug_level)
+PULSER_init(volatile void *base_addr, unsigned nDDS, unsigned bResetDDS)
 {
     //soft reset
     //PULSER_mReset(base_addr);
 
-    if (debug_level > 0)
+    if (nacsCheckLogLevel(NACS_LOG_INFO)) {
         PULSER_debug_regs(base_addr);
+    }
 
     nDDS_boards = nDDS;
 
-    if (debug_level > 0)
-        printf("PULSER_init... disable timing check\r\n");
+    if (nacsCheckLogLevel(NACS_LOG_INFO)) {
+        printf("PULSER_init... disable timing check\n");
+    }
     PULSER_disable_timing_check(base_addr);
 
-    if (debug_level > 0)
-        printf("PULSER_init... reset DDS\r\n");
+    if (nacsCheckLogLevel(NACS_LOG_INFO)) {
+        printf("PULSER_init... reset DDS\n");
+    }
     for (char iDDS = 0;iDDS < nDDS_boards;iDDS++) {
         if (bResetDDS) {
             PULSER_dds_reset(base_addr, iDDS);
@@ -280,7 +285,7 @@ PULSER_self_test(volatile void *base_addr, int nIO)
     unsigned nBad = 0;
 
     PULSER_test_slave_registers(base_addr);
-    printf("\r\n");
+    printf("\n");
 
     if (nIO > 0) {
         for (char iDDS = 0;iDDS < nDDS_boards;iDDS++) {
@@ -302,10 +307,10 @@ PULSER_self_test(volatile void *base_addr, int nIO)
             unsigned ftw_read = PULSER_get_dds_freq(base_addr, iDDS);
 
             if(ftw_read != ftw[(int)iDDS]) {
-                printf("\r\n");
-                printf("ERROR on DDS %d : wrote FTW %08X\r\n", (int)iDDS,
+                printf("\n");
+                printf("ERROR on DDS %d : wrote FTW %08X\n", (int)iDDS,
                        ftw[(int)iDDS]);
-                printf("                   read FTW %08X\r\n", ftw_read);
+                printf("                   read FTW %08X\n", ftw_read);
                 nBad++;
             }
 
@@ -320,9 +325,9 @@ PULSER_self_test(volatile void *base_addr, int nIO)
         }
 
         if (nBad == 0) {
-            printf("OK\r\n");
+            printf("OK\n");
         } else {
-            printf("FAILURE: %d errors\r\n", nBad);
+            printf("FAILURE: %d errors\n", nBad);
         }
     }
 }
@@ -351,9 +356,9 @@ int PULSER_test_slave_registers(volatile void *base_addr)
         }
 
         if(sr_ok)
-            printf("OK\r\n");
+            printf("OK\n");
         else
-            printf("FAILED\r\n");
+            printf("FAILED\n");
     }
 
     return sr_ok;
@@ -379,9 +384,9 @@ PULSER_test_dds(volatile void *base_addr, char nDDS)
         ftw_ok = ftw_ok && (read == test_val);
 
         if (read != test_val) {
-            printf("ERROR !\r\n");
-            printf("wrote FTW %08X\r\n", test_val);
-            printf(" read FTW %08X\r\n", read);
+            printf("ERROR !\n");
+            printf("wrote FTW %08X\n", test_val);
+            printf(" read FTW %08X\n", read);
         }
     }
 
@@ -392,18 +397,18 @@ PULSER_test_dds(volatile void *base_addr, char nDDS)
         phase_ok = phase_ok && (read == phase);
 
         if (read != phase) {
-            printf("ERROR on DDS %d !\r\n", (int)nDDS);
-            printf("wrote PHASE %04X\r\n", test_val);
-            printf(" read PHASE %04X\r\n", read);
+            printf("ERROR on DDS %d !\n", (int)nDDS);
+            printf("wrote PHASE %04X\n", test_val);
+            printf(" read PHASE %04X\n", read);
         }
 
         phase++;
     }
 
     if (ftw_ok && phase_ok) {
-        printf("DDS %d OK\r\n", (int)nDDS);
+        printf("DDS %d OK\n", (int)nDDS);
     } else {
-        printf("DDS %d FAILED\r\n", (int)nDDS);
+        printf("DDS %d FAILED\n", (int)nDDS);
     }
 
     return ftw_ok && phase_ok;
@@ -517,7 +522,7 @@ PULSER_shift_dds_phase(volatile void *base_addr, char i, unsigned short phase)
 /* { */
 /*     for (char i = 0;i < nDDS_boards;i++) { */
 /*         if (!PULSER_check_dds(base_addr, i)) { */
-/*             printf("ERROR on DDS %d !\r\n", (int)i); */
+/*             printf("ERROR on DDS %d !\n", (int)i); */
 /*             return 0; */
 /*         } */
 /*     } */

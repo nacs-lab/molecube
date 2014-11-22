@@ -1,6 +1,8 @@
 #include "init_system.h"
 #include "init_platform.h"
 
+#include <nacs-utils/log.h>
+
 #include "fpga.h"
 #include "common.h"
 #include "dac.h"
@@ -19,29 +21,25 @@ void init_system()
 {
     flocker fl(g_fPulserLock);
 
-    fprintf(gLog, "Processor clock frequency: %9.3f MHz\r\n",
-            1e-6 * CPU_FREQ_HZ);
-    fprintf(gLog, "NDDS = %d  (REF_CLK = %u MHz)   NSPI = %d\n",
+    nacsInfo("Processor clock frequency: %9.3f MHz\n", 1e-6 * CPU_FREQ_HZ);
+    nacsLog("NDDS = %d  (REF_CLK = %u MHz)   NSPI = %d\n",
             (int)NDDS, (unsigned)(AD9914_CLK * 1e-6), (int)NSPI);
-    fflush(gLog);
 
     // set priority
     // -20 = highest priority, 0 = default, 19 = lowest priority
     const int nice = -20;
     int ret = setpriority(PRIO_PROCESS, 0, nice);
     if (ret == 0) {
-        fprintf(gLog, "Set priority to %d.  SUCCESS\n", nice);
+        nacsInfo("Set priority to %d.  SUCCESS\n", nice);
     } else {
-        fprintf(gLog, "Set priority to %d.  FAILURE  ERRNO=%d\n",
-                nice, errno);
+        nacsError("Set priority to %d.  FAILURE  ERRNO=%d\n",
+                  nice, errno);
     }
 
     init_pulse_controller();
-    fprintf(gLog, "Initializing pulse controller at address %p...\r\n",
-            (void*)pulser);
-    PULSER_init(pulser, NDDS, false, gDebugLevel);
-    fprintf(gLog, "Initializing pulse controller...done.\r\n");
-    fflush(gLog);
+    nacsInfo("Initializing pulse controller at address %p...\n", pulser);
+    PULSER_init(pulser, NDDS, false);
+    nacsLog("Initializing pulse controller...done.\n");
 
     PULSER_disable_timing_check(pulser);
     PULSER_clear_timing_check(pulser);
@@ -50,16 +48,13 @@ void init_system()
     char spi_clock_phase[4] = {0, 0, 0, 0};
 
     for (int i = 0; i < NSPI; i++) {
-        fprintf(gLog, "Initializing SPI %d.\r\n", i);
-
-        SPI_init(g_spi + i, i, spi_active_low[i],
-                 spi_clock_phase[i], gDebugLevel);
+        nacsInfo("Initializing SPI %d.\n", i);
+        SPI_init(g_spi + i, i, spi_active_low[i], spi_clock_phase[i]);
     }
 
-    fprintf(gLog, "Initializing GPIO ... ");
+    nacsInfo("Initializing GPIO ... ");
     init_gpio();
-    fprintf(gLog, "done.\n\n");
-    fflush(gLog);
+    nacsInfo("done.\n\n");
 
     // detect active DDS
     for (unsigned j = 0;j < PULSER_MAX_NDDS;j++) {
@@ -71,8 +66,7 @@ void init_system()
     // initialize active DDS if necessary
     for (unsigned j = 0;j < active_dds.size();j++) {
         unsigned i = active_dds[j];
-        init_AD9914(pulser, i, false, gLog);
-        print_AD9914_registers(pulser, i, gLog);
-        fflush(gLog);
+        init_AD9914(pulser, i, false);
+        print_AD9914_registers(pulser, i);
     }
 }

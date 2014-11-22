@@ -31,36 +31,36 @@ get_pulse_controller_phys_addr()
      *    /proc/device-tree/amba@0/pulse-controller@73000000
      */
 
-    const char cmd[] = "find /proc/device-tree -name pulse-controller*";
-    char ret[200];
+    // const char cmd[] = "find /proc/device-tree -name pulse-controller*";
+    // char ret[200];
 
-    if (addr == 0) {
-        if (FILE* f = popen(cmd, "r")) {
-            if (fgets(ret, 200, f)) {
-                char* p = strstr(ret, "pulse-controller");
-                if (p) {
-                    sscanf(p, "pulse-controller@%p", &addr);
-                }
-            }
-            fclose(f);
-        }
-    }
+    // if (addr == 0) {
+    //     if (FILE* f = popen(cmd, "r")) {
+    //         if (fgets(ret, 200, f)) {
+    //             char* p = strstr(ret, "pulse-controller");
+    //             if (p) {
+    //                 sscanf(p, "pulse-controller@%p", &addr);
+    //             }
+    //         }
+    //         fclose(f);
+    //     }
+    // }
 
-    if (0 == addr) {
-        printf("Can't determine address of pulse-controller!\n");
-        printf("Command: %s\nReturn string: %s\n", cmd, ret);
-        printf("So sad...\n");
-        exit(0);
-    }
+    // if (0 == addr) {
+    //     printf("Can't determine address of pulse-controller!\n");
+    //     printf("Command: %s\nReturn string: %s\n", cmd, ret);
+    //     printf("So sad...\n");
+    //     exit(0);
+    // }
 
-    fprintf(gLog, "Pulse controller physical address is %p\r\n", addr);
-    return addr;
+    // nacsInfo("Pulse controller physical address is %p\n", addr);
+    // return addr;
 }
 
 void
 init_pulse_controller()
 {
-    fprintf(gLog, "Initializing pulse controller\r\n");
+    nacsInfo("Initializing pulse controller\n");
     void* phys_addr = get_pulse_controller_phys_addr();
     pulser = remap_device_addr(phys_addr);
 }

@@ -10,6 +10,8 @@
 
 #include "saveloadmap.h"
 
+#include <nacs-utils/log.h>
+
 #include <common.h>
 
 #include <sstream>
@@ -63,10 +65,11 @@ void loadMap(txtmap_t& m, const std::string& fname)
 {
     std::ifstream is(fname.c_str());
 
-    if(! is.good() )
-        fprintf(gLog, "failed to open parameters file: %s\n", fname.c_str());
-    else
-        fprintf(gLog, "opened parameters file: %s\n", fname.c_str());
+    if (!is.good()) {
+        nacsError("failed to open parameters file: %s\n", fname.c_str());
+    } else {
+        nacsError("opened parameters file: %s\n", fname.c_str());
+    }
 
     //loop through the file
     while (is.good() && !is.eof()) {

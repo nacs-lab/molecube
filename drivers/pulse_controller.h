@@ -43,8 +43,7 @@ NACS_BEGIN_DECLS
 //! Set function to be called while waiting for FPGA
 void PULSER_set_idle_function(void (*new_idle_func)(void));
 
-void PULSER_init(volatile void *base_addr, unsigned nDDS, unsigned bResetDDS,
-                 int debug_level);
+void PULSER_init(volatile void *base_addr, unsigned nDDS, unsigned bResetDDS);
 void PULSER_self_test(volatile void *base_addr, int nIO);
 int PULSER_test_slave_registers(volatile void *base_addr);
 int PULSER_test_dds(volatile void *base_addr, char nDDS);
