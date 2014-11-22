@@ -7,7 +7,7 @@
 #include "self_test.h"
 #include "AD9914.h"
 #include "dds_pulse.h"
-#include "../../parser/parseMisc.h"
+#include "../parser/parseMisc.h"
 
 #include <stdio.h>
 #include <stdlib.h>

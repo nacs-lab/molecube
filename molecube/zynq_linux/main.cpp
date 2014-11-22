@@ -5,8 +5,8 @@
 #include "timing.h"
 #include "linux_file_util.h"
 
-#include "../../parser/parseTxtSeq.h"
-#include "../../parser/parseMisc.h"
+#include "../parser/parseTxtSeq.h"
+#include "../parser/parseMisc.h"
 
 #include <verbosity.h>
 #include <CmdLineArgs.h>
