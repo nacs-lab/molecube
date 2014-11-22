@@ -139,6 +139,7 @@ public:
     virtual void
     makePulse()
     {
+        // PULSER_short_pulse
         DDS_set_ftw(dds, operand);
     }
 };
@@ -151,8 +152,10 @@ public:
         dds_cmd(dds, 0x0FFF & (int)(A * 4095 + 0.5))
     {}
 
-    virtual void makePulse()
+    virtual void
+    makePulse()
     {
+        // PULSER_short_pulse
         DDS_set_atw(dds, operand);
     }
 };
@@ -163,7 +166,11 @@ public:
     set_phase_cmd(unsigned dds, unsigned ptw) : dds_cmd(dds, ptw) {}
     set_phase_cmd(unsigned dds, double phi) : dds_cmd(dds, 0xFFFF & (int)(phi*65536/360.0 + 0.5) ) {}
 
-    virtual void makePulse() {
+    virtual void
+    makePulse()
+    {
+        // PULSER_short_pulse
+        // Set ddsPhase
         DDS_set_ptw(dds, operand);
     }
 };
@@ -179,8 +186,11 @@ public:
         dds_cmd(dds, 0xFFFF & (int)(phi * 65536 / 360.0 + 0.5))
     {}
 
-    virtual void makePulse()
+    virtual void
+    makePulse()
     {
+        // PULSER_short_pulse
+        // use ddsPhase
         DDS_shift_ptw(dds, operand);
     }
 };
@@ -190,7 +200,11 @@ public:
     virtual ~dds_reset_cmd() {}
     dds_reset_cmd(unsigned dds) : dds(dds) {}
 
-    virtual void makePulse() {
+    virtual void
+    makePulse()
+    {
+        // PULSER_short_pulse
+        // Set ddsPhase
         PULSER_dds_reset(pulser, dds);
 
         //disable programmable modulus, enable profile 0, enable SYNC_CLK output

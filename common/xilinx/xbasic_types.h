@@ -77,7 +77,7 @@ extern "C" {
 #define XASSERT_OCCURRED 1
 
 extern unsigned int XAssertStatus;
-extern void XAssert(char *, int);
+void XAssert(char*, int);
 
 /**************************** Type Definitions *******************************/
 
