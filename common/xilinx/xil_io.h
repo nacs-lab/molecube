@@ -55,8 +55,8 @@
 * ----- -------- -------- -----------------------------------------------
 * 1.00a ecm/sdm  10/24/09 First release
 * 1.00a sdm      07/21/10 Added Xil_Htonl/s, Xil_Ntohl/s
-* 3.07a asa	     08/31/12 Added xil_printf.h include
-* 3.08a sgd	     11/05/12 Reverted SYNC macros definitions
+* 3.07a asa      08/31/12 Added xil_printf.h include
+* 3.08a sgd      11/05/12 Reverted SYNC macros definitions
 * </pre>
 ******************************************************************************/
 
@@ -242,13 +242,13 @@ extern "C" {
 #define Xil_In32(addr) *((volatile unsigned*)(addr))
 #endif
 
-u16 Xil_In16BE(u32 Addr);
-u32 Xil_In32BE(u32 Addr);
-void Xil_Out16BE(u32 Addr, u16 Value);
-void Xil_Out32BE(u32 Addr, u32 Value);
+uint16_t Xil_In16BE(uint32_t Addr);
+uint32_t Xil_In32BE(uint32_t Addr);
+void Xil_Out16BE(uint32_t Addr, uint16_t Value);
+void Xil_Out32BE(uint32_t Addr, uint32_t Value);
 
-u16 Xil_EndianSwap16(u16 Data);
-u32 Xil_EndianSwap32(u32 Data);
+uint16_t Xil_EndianSwap16(uint16_t Data);
+uint32_t Xil_EndianSwap32(uint32_t Data);
 
 #ifdef __cplusplus
 }

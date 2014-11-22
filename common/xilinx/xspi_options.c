@@ -86,8 +86,8 @@
  * expansion of the options.
  */
 typedef struct {
-    u32 Option;
-    u32 Mask;
+    uint32_t Option;
+    uint32_t Mask;
 } OptionsMap;
 
 static OptionsMap OptionsTable[] = {
@@ -130,10 +130,10 @@ static OptionsMap OptionsTable[] = {
 * semaphore).
 *
 ******************************************************************************/
-int XSpi_SetOptions(XSpi *InstancePtr, u32 Options)
+int XSpi_SetOptions(XSpi *InstancePtr, uint32_t Options)
 {
-    u32 ControlReg;
-    u32 Index;
+    uint32_t ControlReg;
+    uint32_t Index;
 
     Xil_AssertNonvoid(InstancePtr != NULL);
     Xil_AssertNonvoid(InstancePtr->IsReady == XIL_COMPONENT_IS_READY);
@@ -203,11 +203,11 @@ int XSpi_SetOptions(XSpi *InstancePtr, u32 Options)
 * @note		None.
 *
 ******************************************************************************/
-u32 XSpi_GetOptions(XSpi *InstancePtr)
+uint32_t XSpi_GetOptions(XSpi *InstancePtr)
 {
-    u32 OptionsFlag = 0;
-    u32 ControlReg;
-    u32 Index;
+    uint32_t OptionsFlag = 0;
+    uint32_t ControlReg;
+    uint32_t Index;
 
     Xil_AssertNonvoid(InstancePtr != NULL);
     Xil_AssertNonvoid(InstancePtr->IsReady == XIL_COMPONENT_IS_READY);

@@ -99,10 +99,10 @@ extern XSpi_Config XSpi_ConfigTable[];
 * @note		None.
 *
 ******************************************************************************/
-XSpi_Config *XSpi_LookupConfig(u16 DeviceId)
+XSpi_Config *XSpi_LookupConfig(uint16_t DeviceId)
 {
     XSpi_Config *CfgPtr = NULL;
-    u32 Index;
+    uint32_t Index;
 
     for (Index = 0; Index < XPAR_XSPI_NUM_INSTANCES; Index++) {
         if (XSpi_ConfigTable[Index].DeviceId == DeviceId) {
@@ -148,7 +148,7 @@ XSpi_Config *XSpi_LookupConfig(u16 DeviceId)
 * @note		None.
 *
 ******************************************************************************/
-int XSpi_Initialize(XSpi *InstancePtr, u16 DeviceId)
+int XSpi_Initialize(XSpi *InstancePtr, uint16_t DeviceId)
 {
     XSpi_Config *ConfigPtr;	/* Pointer to Configuration ROM data */
 

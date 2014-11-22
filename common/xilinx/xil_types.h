@@ -62,6 +62,7 @@
 #endif
 
 #include <stddef.h>
+#include <stdint.h>
 
 #ifndef XIL_TYPES_H	/* prevent circular inclusions */
 #define XIL_TYPES_H	/* by using protection macros */
@@ -76,16 +77,6 @@
  * @{
  */
 #ifndef __KERNEL__
-#ifndef XBASIC_TYPES_H
-/**
- * guarded against xbasic_types.h.
- */
-typedef unsigned char u8;
-typedef unsigned short u16;
-typedef unsigned long u32;
-
-#endif /* XBASIC_TYPES_H */
-
 /**
  * xbasic_types.h does not typedef s* or u64
  */

@@ -1,71 +1,71 @@
 /******************************************************************************
-*
-* (c) Copyright 2002-2013 Xilinx, Inc. All rights reserved.
-*
-* This file contains confidential and proprietary information of Xilinx, Inc.
-* and is protected under U.S. and international copyright and other
-* intellectual property laws.
-*
-* DISCLAIMER
-* This disclaimer is not a license and does not grant any rights to the
-* materials distributed herewith. Except as otherwise provided in a valid
-* license issued to you by Xilinx, and to the maximum extent permitted by
-* applicable law: (1) THESE MATERIALS ARE MADE AVAILABLE "AS IS" AND WITH ALL
-* FAULTS, AND XILINX HEREBY DISCLAIMS ALL WARRANTIES AND CONDITIONS, EXPRESS,
-* IMPLIED, OR STATUTORY, INCLUDING BUT NOT LIMITED TO WARRANTIES OF
-* MERCHANTABILITY, NON-INFRINGEMENT, OR FITNESS FOR ANY PARTICULAR PURPOSE;
-* and (2) Xilinx shall not be liable (whether in contract or tort, including
-* negligence, or under any other theory of liability) for any loss or damage
-* of any kind or nature related to, arising under or in connection with these
-* materials, including for any direct, or any indirect, special, incidental,
-* or consequential loss or damage (including loss of data, profits, goodwill,
-* or any type of loss or damage suffered as a result of any action brought by
-* a third party) even if such damage or loss was reasonably foreseeable or
-* Xilinx had been advised of the possibility of the same.
-*
-* CRITICAL APPLICATIONS
-* Xilinx products are not designed or intended to be fail-safe, or for use in
-* any application requiring fail-safe performance, such as life-support or
-* safety devices or systems, Class III medical devices, nuclear facilities,
-* applications related to the deployment of airbags, or any other applications
-* that could lead to death, personal injury, or severe property or
-* environmental damage (individually and collectively, "Critical
-* Applications"). Customer assumes the sole risk and liability of any use of
-* Xilinx products in Critical Applications, subject only to applicable laws
-* and regulations governing limitations on product liability.
-*
-* THIS COPYRIGHT NOTICE AND DISCLAIMER MUST BE RETAINED AS PART OF THIS FILE
-* AT ALL TIMES.
-*
-******************************************************************************/
+ *
+ * (c) Copyright 2002-2013 Xilinx, Inc. All rights reserved.
+ *
+ * This file contains confidential and proprietary information of Xilinx, Inc.
+ * and is protected under U.S. and international copyright and other
+ * intellectual property laws.
+ *
+ * DISCLAIMER
+ * This disclaimer is not a license and does not grant any rights to the
+ * materials distributed herewith. Except as otherwise provided in a valid
+ * license issued to you by Xilinx, and to the maximum extent permitted by
+ * applicable law: (1) THESE MATERIALS ARE MADE AVAILABLE "AS IS" AND WITH ALL
+ * FAULTS, AND XILINX HEREBY DISCLAIMS ALL WARRANTIES AND CONDITIONS, EXPRESS,
+ * IMPLIED, OR STATUTORY, INCLUDING BUT NOT LIMITED TO WARRANTIES OF
+ * MERCHANTABILITY, NON-INFRINGEMENT, OR FITNESS FOR ANY PARTICULAR PURPOSE;
+ * and (2) Xilinx shall not be liable (whether in contract or tort, including
+ * negligence, or under any other theory of liability) for any loss or damage
+ * of any kind or nature related to, arising under or in connection with these
+ * materials, including for any direct, or any indirect, special, incidental,
+ * or consequential loss or damage (including loss of data, profits, goodwill,
+ * or any type of loss or damage suffered as a result of any action brought by
+ * a third party) even if such damage or loss was reasonably foreseeable or
+ * Xilinx had been advised of the possibility of the same.
+ *
+ * CRITICAL APPLICATIONS
+ * Xilinx products are not designed or intended to be fail-safe, or for use in
+ * any application requiring fail-safe performance, such as life-support or
+ * safety devices or systems, Class III medical devices, nuclear facilities,
+ * applications related to the deployment of airbags, or any other applications
+ * that could lead to death, personal injury, or severe property or
+ * environmental damage (individually and collectively, "Critical
+ * Applications"). Customer assumes the sole risk and liability of any use of
+ * Xilinx products in Critical Applications, subject only to applicable laws
+ * and regulations governing limitations on product liability.
+ *
+ * THIS COPYRIGHT NOTICE AND DISCLAIMER MUST BE RETAINED AS PART OF THIS FILE
+ * AT ALL TIMES.
+ *
+ ******************************************************************************/
 /*****************************************************************************/
 /**
-*
-* @file xspi_selftest.c
-*
-* This component contains the implementation of selftest functions for the
-* XSpi driver component.
-*
-* <pre>
-* MODIFICATION HISTORY:
-*
-* Ver   Who  Date     Changes
-* ----- ---- -------- -----------------------------------------------
-* 1.00b jhl  2/27/02  First release
-* 1.00b rpm  04/25/02 Collapsed IPIF and reg base addresses into one
-* 1.11a wgr  03/22/07 Converted to new coding style.
-* 1.12a sv   03/17/08 Updated the code to support 16/32 bit transfer width.
-* 2.00a sv   07/30/08 Updated the code to support 16/32 bit transfer width.
-* 3.00a sdm  10/28/09 Updated all the register accesses as 32 bit access.
-* 3.02a sdm  05/04/11 Updated to run the loopback test only in standard spi
-*		      mode.
-* 3.03a sdm  08/09/11 Updated the selftest to check for a correct default value
-*		      in the case of axi_qspi - CR 620502
-* 3.04a bss  03/21/12 Updated Selftest to check for XIP mode and return if XIP
-*		      mode is true
-* </pre>
-*
-******************************************************************************/
+ *
+ * @file xspi_selftest.c
+ *
+ * This component contains the implementation of selftest functions for the
+ * XSpi driver component.
+ *
+ * <pre>
+ * MODIFICATION HISTORY:
+ *
+ * Ver   Who  Date     Changes
+ * ----- ---- -------- -----------------------------------------------
+ * 1.00b jhl  2/27/02  First release
+ * 1.00b rpm  04/25/02 Collapsed IPIF and reg base addresses into one
+ * 1.11a wgr  03/22/07 Converted to new coding style.
+ * 1.12a sv   03/17/08 Updated the code to support 16/32 bit transfer width.
+ * 2.00a sv   07/30/08 Updated the code to support 16/32 bit transfer width.
+ * 3.00a sdm  10/28/09 Updated all the register accesses as 32 bit access.
+ * 3.02a sdm  05/04/11 Updated to run the loopback test only in standard spi
+ *		      mode.
+ * 3.03a sdm  08/09/11 Updated the selftest to check for a correct default value
+ *		      in the case of axi_qspi - CR 620502
+ * 3.04a bss  03/21/12 Updated Selftest to check for XIP mode and return if XIP
+ *		      mode is true
+ * </pre>
+ *
+ ******************************************************************************/
 
 /***************************** Include Files *********************************/
 
@@ -95,31 +95,31 @@ static int LoopbackTest(XSpi *InstancePtr);
 
 /*****************************************************************************/
 /**
-*
-* Runs a self-test on the driver/device. The self-test is destructive in that
-* a reset of the device is performed in order to check the reset values of
-* the registers and to get the device into a known state. A simple loopback
-* test is also performed to verify that transmit and receive are working
-* properly. The device is changed to master mode for the loopback test, since
-* only a master can initiate a data transfer.
-*
-* Upon successful return from the self-test, the device is reset.
-*
-* @param	InstancePtr is a pointer to the XSpi instance to be worked on.
-*
-* @return
-* 		- XST_SUCCESS if successful.
-*		- XST_REGISTER_ERROR indicates a register did not read or write
-*		  correctly.
-* 		- XST_LOOPBACK_ERROR if a loopback error occurred.
-*
-* @note		None.
-*
-******************************************************************************/
+ *
+ * Runs a self-test on the driver/device. The self-test is destructive in that
+ * a reset of the device is performed in order to check the reset values of
+ * the registers and to get the device into a known state. A simple loopback
+ * test is also performed to verify that transmit and receive are working
+ * properly. The device is changed to master mode for the loopback test, since
+ * only a master can initiate a data transfer.
+ *
+ * Upon successful return from the self-test, the device is reset.
+ *
+ * @param	InstancePtr is a pointer to the XSpi instance to be worked on.
+ *
+ * @return
+ * 		- XST_SUCCESS if successful.
+ *		- XST_REGISTER_ERROR indicates a register did not read or write
+ *		  correctly.
+ * 		- XST_LOOPBACK_ERROR if a loopback error occurred.
+ *
+ * @note		None.
+ *
+ ******************************************************************************/
 int XSpi_SelfTest(XSpi *InstancePtr)
 {
     int Result;
-    u32 Register;
+    uint32_t Register;
 
     Xil_AssertNonvoid(InstancePtr != NULL);
     Xil_AssertNonvoid(InstancePtr->IsReady == XIL_COMPONENT_IS_READY);
@@ -212,35 +212,35 @@ int XSpi_SelfTest(XSpi *InstancePtr)
 
 /*****************************************************************************/
 /*
-*
-* Runs an internal loopback test on the SPI device. This is done as a master
-* with a enough data to fill the FIFOs if FIFOs are present. If the device is
-* configured as a slave-only, this function returns successfully even though
-* no loopback test is performed.
-*
-* This function does not restore the device context after performing the test
-* as it assumes the device will be reset after the call.
-*
-* @param	InstancePtr is a pointer to the XSpi instance to be worked on.
-*
-* @return
-* 		- XST_SUCCESS if loopback was performed successfully or not
-*		  performed at all if device is slave-only.
-*		- XST_LOOPBACK_ERROR if loopback failed.
-*
-* @note		None.
-*
-******************************************************************************/
+ *
+ * Runs an internal loopback test on the SPI device. This is done as a master
+ * with a enough data to fill the FIFOs if FIFOs are present. If the device is
+ * configured as a slave-only, this function returns successfully even though
+ * no loopback test is performed.
+ *
+ * This function does not restore the device context after performing the test
+ * as it assumes the device will be reset after the call.
+ *
+ * @param	InstancePtr is a pointer to the XSpi instance to be worked on.
+ *
+ * @return
+ * 		- XST_SUCCESS if loopback was performed successfully or not
+ *		  performed at all if device is slave-only.
+ *		- XST_LOOPBACK_ERROR if loopback failed.
+ *
+ * @note		None.
+ *
+ ******************************************************************************/
 static int LoopbackTest(XSpi *InstancePtr)
 {
-    u32 StatusReg;
-    u32 ControlReg;
-    u32 Index;
-    u32 Data;
-    u32 RxData;
-    u32 NumSent = 0;
-    u32 NumRecvd = 0;
-    u8  DataWidth;
+    uint32_t StatusReg;
+    uint32_t ControlReg;
+    uint32_t Index;
+    uint32_t Data;
+    uint32_t RxData;
+    uint32_t NumSent = 0;
+    uint32_t NumRecvd = 0;
+    uint8_t  DataWidth;
 
     /*
      * Cannot run as a slave-only because we need to be master in order to
@@ -304,7 +304,7 @@ static int LoopbackTest(XSpi *InstancePtr)
          * enabling the device.
          */
         ControlReg = XSpi_GetControlReg(InstancePtr) &
-                     (~XSP_CR_TRANS_INHIBIT_MASK);
+            (~XSP_CR_TRANS_INHIBIT_MASK);
         XSpi_SetControlReg(InstancePtr, ControlReg |
                            XSP_CR_ENABLE_MASK);
 
@@ -325,17 +325,17 @@ static int LoopbackTest(XSpi *InstancePtr)
                                   XSP_DRR_OFFSET);
 
             if (DataWidth == XSP_DATAWIDTH_BYTE) {
-                if((u8)RxData != Index) {
+                if((uint8_t)RxData != Index) {
                     return XST_LOOPBACK_ERROR;
                 }
             } else if (DataWidth ==
                        XSP_DATAWIDTH_HALF_WORD) {
-                if((u16)RxData != (u16)(Index +
-                                        XSP_HALF_WORD_TESTBYTE)) {
+                if((uint16_t)RxData != (uint16_t)(Index +
+                                                  XSP_HALF_WORD_TESTBYTE)) {
                     return XST_LOOPBACK_ERROR;
                 }
             } else if (DataWidth == XSP_DATAWIDTH_WORD) {
-                if(RxData != (u32)(Index + XSP_WORD_TESTBYTE)) {
+                if(RxData != (uint32_t)(Index + XSP_WORD_TESTBYTE)) {
                     return XST_LOOPBACK_ERROR;
                 }
             }

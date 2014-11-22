@@ -246,9 +246,9 @@ void startConversion_AD7689(spi_p spi)
 unsigned short getResult_AD7689(spi_p spi, unsigned)
 {
     /*
-       u16 tx0 = 0xF1C4 | (next_channel << 9);
-       u16 tx1 = 0;
-       u16 rc0, rc1;
+       uint16_t tx0 = 0xF1C4 | (next_channel << 9);
+       uint16_t tx1 = 0;
+       uint16_t rc0, rc1;
 
        //send configuration for next conversion
        //initiate conversion when SS/CNV goes high at end of xfer
@@ -268,15 +268,15 @@ unsigned short getResult_AD7689(spi_p spi, unsigned)
     XStatus s = XSpi_Transfer(spi, (u8*)&tx, (u8*)&rc, 2);
     */
     /*
-    u16 tx = 0xF1C4 | (next_channel << 9);
+    uint16_t tx = 0xF1C4 | (next_channel << 9);
 
     SPI_SetSlaveSelect(spi, 1);
-    u16 rc = SPI_Transfer2(spi, tx);
+    uint16_t rc = SPI_Transfer2(spi, tx);
     */
 
 //new in burninator?
-    u16 tx = 0x001;
-    u16 rc;
+    uint16_t tx = 0x001;
+    uint16_t rc;
 
     SPI_SetSlaveSelect(spi,1);
     usleep(1);
@@ -289,7 +289,7 @@ unsigned short getResult_AD7689(spi_p spi, unsigned)
 
 void Init_ADS8361(spi_p spi)
 {
-    u32 tx = 3 << 29;
+    uint32_t tx = 3 << 29;
 
     SPI_SetSlaveSelect(spi,0);
 
@@ -299,8 +299,8 @@ void Init_ADS8361(spi_p spi)
 
 unsigned getResult_ADS8361(spi_p spi, unsigned next_channel)
 {
-    u32 tx = 3 << 29;
-    u16 rc;
+    uint32_t tx = 3 << 29;
+    uint16_t rc;
 
     if( next_channel == 1 ) {
         SPI_SetSlaveSelect(spi,0);
@@ -314,7 +314,7 @@ unsigned getResult_ADS8361(spi_p spi, unsigned next_channel)
 // convert and transfer 'num_channels' from AD7656 ADC evaluation board
 unsigned short getResult_AD7656(spi_p spi, unsigned num_channels, short* pValues)
 {
-    u16 tx = 0x0000;
+    uint16_t tx = 0x0000;
 
     SPI_SetSlaveSelect(spi,2);
     SPI_SetSlaveSelect(spi,0);
@@ -330,7 +330,7 @@ unsigned short getResult_AD7656(spi_p spi, unsigned num_channels, short* pValues
 // convert and transfer 'num_channels' from AD7656 ADC evaluation board
 unsigned short getResult_AD7656i(spi_p spi, unsigned num_channels, int* pValues)
 {
-    u16 tx = 0x0000;
+    uint16_t tx = 0x0000;
 
     SPI_SetSlaveSelect(spi,0);
     usleep(3);
@@ -345,7 +345,7 @@ unsigned short getResult_AD7656i(spi_p spi, unsigned num_channels, int* pValues)
 // convert and transfer 'num_channels' from AD7656 ADC evaluation board and add to pValues
 unsigned short getAddResult_AD7656(spi_p spi, unsigned num_channels, int* pValues)
 {
-    u16 tx = 0x0000;
+    uint16_t tx = 0x0000;
 
     SPI_SetSlaveSelect(spi,0); //the chip select line is wired to trigger a conversion (CONVST)
     usleep(3);

@@ -114,7 +114,7 @@
 
 /************************** Function Prototypes ******************************/
 
-static void StubStatusHandler(void *CallBackRef, u32 StatusEvent,
+static void StubStatusHandler(void *CallBackRef, uint32_t StatusEvent,
                               unsigned int ByteCount);
 
 void XSpi_Abort(XSpi *InstancePtr);
@@ -158,10 +158,10 @@ void XSpi_Abort(XSpi *InstancePtr);
 *
 ******************************************************************************/
 int XSpi_CfgInitialize(XSpi *InstancePtr, XSpi_Config *Config,
-                       u32 EffectiveAddr)
+                       uint32_t EffectiveAddr)
 {
-    u8  Buffer[3];
-    u32 ControlReg;
+    uint8_t  Buffer[3];
+    uint32_t ControlReg;
 
     Xil_AssertNonvoid(InstancePtr != NULL);
 
@@ -295,7 +295,7 @@ int XSpi_CfgInitialize(XSpi *InstancePtr, XSpi_Config *Config,
 ******************************************************************************/
 int XSpi_Start(XSpi *InstancePtr)
 {
-    u32 ControlReg;
+    uint32_t ControlReg;
 
     Xil_AssertNonvoid(InstancePtr != NULL);
     Xil_AssertNonvoid(InstancePtr->IsReady == XIL_COMPONENT_IS_READY);
@@ -373,7 +373,7 @@ int XSpi_Start(XSpi *InstancePtr)
 ******************************************************************************/
 int XSpi_Stop(XSpi *InstancePtr)
 {
-    u32 ControlReg;
+    uint32_t ControlReg;
 
     Xil_AssertNonvoid(InstancePtr != NULL);
     Xil_AssertNonvoid(InstancePtr->IsReady == XIL_COMPONENT_IS_READY);
@@ -526,14 +526,14 @@ void XSpi_Reset(XSpi *InstancePtr)
 * no two threads are transferring data on the SPI bus at the same time.
 *
 ******************************************************************************/
-int XSpi_Transfer(XSpi *InstancePtr, u8 *SendBufPtr,
-                  u8 *RecvBufPtr, unsigned int ByteCount)
+int XSpi_Transfer(XSpi *InstancePtr, uint8_t *SendBufPtr,
+                  uint8_t *RecvBufPtr, unsigned int ByteCount)
 {
-    u32 ControlReg;
-    u32 GlobalIntrReg;
-    u32 StatusReg;
-    u32 Data = 0;
-    u8  DataWidth;
+    uint32_t ControlReg;
+    uint32_t GlobalIntrReg;
+    uint32_t StatusReg;
+    uint32_t Data = 0;
+    uint8_t  DataWidth;
 
     /*
      * The RecvBufPtr argument can be NULL.
@@ -634,12 +634,12 @@ int XSpi_Transfer(XSpi *InstancePtr, u8 *SendBufPtr,
             /*
              * Data Transfer Width is Half Word (16 bit).
              */
-            Data = *(u16 *)InstancePtr->SendBufferPtr;
+            Data = *(uint16_t *)InstancePtr->SendBufferPtr;
         } else if (DataWidth == XSP_DATAWIDTH_WORD) {
             /*
              * Data Transfer Width is Word (32 bit).
              */
-            Data = *(u32 *)InstancePtr->SendBufferPtr;
+            Data = *(uint32_t *)InstancePtr->SendBufferPtr;
         }
 
         XSpi_WriteReg(InstancePtr->BaseAddr, XSP_DTR_OFFSET, Data);
@@ -724,7 +724,7 @@ int XSpi_Transfer(XSpi *InstancePtr, u8 *SendBufPtr,
                      */
                     if(InstancePtr->RecvBufferPtr != NULL) {
                         *InstancePtr->RecvBufferPtr++ =
-                            (u8)Data;
+                            (uint8_t)Data;
                     }
                 } else if (DataWidth ==
                            XSP_DATAWIDTH_HALF_WORD) {
@@ -733,8 +733,8 @@ int XSpi_Transfer(XSpi *InstancePtr, u8 *SendBufPtr,
                      * (16 bit).
                      */
                     if (InstancePtr->RecvBufferPtr != NULL) {
-                        *(u16 *)InstancePtr->RecvBufferPtr =
-                            (u16)Data;
+                        *(uint16_t *)InstancePtr->RecvBufferPtr =
+                            (uint16_t)Data;
                         InstancePtr->RecvBufferPtr += 2;
                     }
                 } else if (DataWidth == XSP_DATAWIDTH_WORD) {
@@ -742,7 +742,7 @@ int XSpi_Transfer(XSpi *InstancePtr, u8 *SendBufPtr,
                      * Data Transfer Width is Word (32 bit).
                      */
                     if (InstancePtr->RecvBufferPtr != NULL) {
-                        *(u32 *)InstancePtr->RecvBufferPtr =
+                        *(uint32_t *)InstancePtr->RecvBufferPtr =
                             Data;
                         InstancePtr->RecvBufferPtr += 4;
                     }
@@ -785,7 +785,7 @@ int XSpi_Transfer(XSpi *InstancePtr, u8 *SendBufPtr,
                          * Data Transfer Width is Half
                          * Word (16 bit).
                          */
-                        Data = *(u16 *)InstancePtr->
+                        Data = *(uint16_t *)InstancePtr->
                                SendBufferPtr;
                     } else if (DataWidth ==
                                XSP_DATAWIDTH_WORD) {
@@ -793,7 +793,7 @@ int XSpi_Transfer(XSpi *InstancePtr, u8 *SendBufPtr,
                          * Data Transfer Width is Word
                          * (32 bit).
                          */
-                        Data = *(u32 *)InstancePtr->
+                        Data = *(uint32_t *)InstancePtr->
                                SendBufferPtr;
                     }
                     XSpi_WriteReg(InstancePtr->BaseAddr,
@@ -871,7 +871,7 @@ int XSpi_Transfer(XSpi *InstancePtr, u8 *SendBufPtr,
 * has no affect when the device is configured as a slave.
 *
 ******************************************************************************/
-int XSpi_SetSlaveSelect(XSpi *InstancePtr, u32 SlaveMask)
+int XSpi_SetSlaveSelect(XSpi *InstancePtr, uint32_t SlaveMask)
 {
     int NumAsserted;
     int Index;
@@ -937,7 +937,7 @@ int XSpi_SetSlaveSelect(XSpi *InstancePtr, u32 SlaveMask)
 *		the slave select register stored in the instance pointer.
 *
 ******************************************************************************/
-u32 XSpi_GetSlaveSelect(XSpi *InstancePtr)
+uint32_t XSpi_GetSlaveSelect(XSpi *InstancePtr)
 {
     Xil_AssertNonvoid(InstancePtr != NULL);
     Xil_AssertNonvoid(InstancePtr->IsReady == XIL_COMPONENT_IS_READY);
@@ -1025,7 +1025,7 @@ void XSpi_SetStatusHandler(XSpi *InstancePtr, void *CallBackRef,
 * @note		None.
 *
 ******************************************************************************/
-static void StubStatusHandler(void *CallBackRef, u32 StatusEvent,
+static void StubStatusHandler(void *CallBackRef, uint32_t StatusEvent,
                               unsigned int ByteCount)
 {
     (void )CallBackRef;
@@ -1087,12 +1087,12 @@ static void StubStatusHandler(void *CallBackRef, u32 StatusEvent,
 void XSpi_InterruptHandler(void *InstancePtr)
 {
     XSpi *SpiPtr = (XSpi *)InstancePtr;
-    u32 IntrStatus;
+    uint32_t IntrStatus;
     unsigned int BytesDone;	/* number of bytes done so far */
-    u32 Data = 0;
-    u32 ControlReg;
-    u32 StatusReg;
-    u8  DataWidth;
+    uint32_t Data = 0;
+    uint32_t ControlReg;
+    uint32_t StatusReg;
+    uint8_t  DataWidth;
 
     Xil_AssertVoid(InstancePtr != NULL);
 
@@ -1172,17 +1172,17 @@ void XSpi_InterruptHandler(void *InstancePtr)
              */
             if (DataWidth == XSP_DATAWIDTH_BYTE) {
                 if (SpiPtr->RecvBufferPtr != NULL) {
-                    *SpiPtr->RecvBufferPtr++ = (u8) Data;
+                    *SpiPtr->RecvBufferPtr++ = (uint8_t) Data;
                 }
             } else if (DataWidth == XSP_DATAWIDTH_HALF_WORD) {
                 if (SpiPtr->RecvBufferPtr != NULL) {
-                    *(u16 *) SpiPtr->RecvBufferPtr =
-                        (u16) Data;
+                    *(uint16_t *) SpiPtr->RecvBufferPtr =
+                        (uint16_t) Data;
                     SpiPtr->RecvBufferPtr +=2;
                 }
             } else if (DataWidth == XSP_DATAWIDTH_WORD) {
                 if (SpiPtr->RecvBufferPtr != NULL) {
-                    *(u32 *) SpiPtr->RecvBufferPtr =
+                    *(uint32_t *) SpiPtr->RecvBufferPtr =
                         Data;
                     SpiPtr->RecvBufferPtr +=4;
                 }
@@ -1220,13 +1220,13 @@ void XSpi_InterruptHandler(void *InstancePtr)
                      * Data Transfer Width is Half Word
                      * (16 bit).
                      */
-                    Data = *(u16 *) SpiPtr->SendBufferPtr;
+                    Data = *(uint16_t *) SpiPtr->SendBufferPtr;
                 } else if (DataWidth ==
                            XSP_DATAWIDTH_WORD) {
                     /*
                      * Data Transfer Width is Word (32 bit).
                      */
-                    Data = *(u32 *) SpiPtr->SendBufferPtr;
+                    Data = *(uint32_t*)SpiPtr->SendBufferPtr;
                 }
 
                 XSpi_WriteReg(SpiPtr->BaseAddr, XSP_DTR_OFFSET,
@@ -1349,7 +1349,7 @@ void XSpi_InterruptHandler(void *InstancePtr)
 ******************************************************************************/
 void XSpi_Abort(XSpi *InstancePtr)
 {
-    u16 ControlReg;
+    uint16_t ControlReg;
 
     /*
      * Deselect the slave on the SPI bus to abort a transfer, this must be

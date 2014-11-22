@@ -1,13 +1,15 @@
 #ifndef SPI_UTIL_H
 #define SPI_UTIL_H
 
-
 #include "fpga.h"
 #include "common.h"
 
-
 #ifndef NO_XSPI
-#include <xbasic_types.h>
+#ifndef __cplusplus
+#include <stdbool.h>
+#endif
+
+#include <stddef.h>
 #include <xspi.h>
 
 typedef XSpi spi_struct;

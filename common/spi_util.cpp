@@ -28,8 +28,8 @@ unsigned SPI_Transmit16(spi_p spi, unsigned short* dataTX, unsigned short* dataR
     unsigned short tx2 = NATIVE_TO_BIG_ENDIAN16(*dataTX);
     unsigned short rc2 = 0;
 
-    Xuint8* tx = (Xuint8*)(&tx2);
-    Xuint8* rc = (Xuint8*)(&rc2);
+    uint8_t* tx = (uint8_t*)(&tx2);
+    uint8_t* rc = (uint8_t*)(&rc2);
 
     if (g_debug_spi)
         printf("spi <- tx =%08x\r\n", (unsigned)*dataTX);
@@ -49,8 +49,8 @@ unsigned SPI_Transmit16(spi_p spi, unsigned short* dataTX, unsigned short* dataR
 unsigned SPI_Transmit(spi_p spi, unsigned* dataTX, unsigned* dataRC, unsigned nBytes)
 {
 
-    Xuint8* tx = (Xuint8*)dataTX;
-    Xuint8* rc = (Xuint8*)dataRC;
+    uint8_t* tx = (uint8_t*)dataTX;
+    uint8_t* rc = (uint8_t*)dataRC;
 
     if (g_debug_spi)
         printf("spi <- tx =%08x\r\n", *dataTX);
@@ -137,7 +137,7 @@ int SPI_init(spi_p spi, unsigned id, bool bActiveLow, char clockPhase, int debug
     XSpi_IntrGlobalDisable(spi);
 
     //turn off inhibit
-    u16 ControlReg;
+    uint16_t ControlReg;
     ControlReg = XSpi_GetControlReg(spi);
     ControlReg &= ~XSP_CR_TRANS_INHIBIT_MASK;
     XSpi_SetControlReg(spi,  ControlReg);
@@ -148,12 +148,12 @@ int SPI_init(spi_p spi, unsigned id, bool bActiveLow, char clockPhase, int debug
 }
 
 /******************************************************************************/
-u16 SPI_Transfer2(spi_p InstancePtr, u16 tx)
+uint16_t SPI_Transfer2(spi_p InstancePtr, uint16_t tx)
 {
     //printf("SPI_Transfer2\n");
 
-    u16 rcv;
-    u8 StatusReg;
+    uint16_t rcv;
+    uint8_t StatusReg;
 
     /*
      * Set the busy flag, which will be cleared when the transfer
@@ -186,11 +186,11 @@ u16 SPI_Transfer2(spi_p InstancePtr, u16 tx)
     return rcv;
 }
 
-u16 SPI_Transfer_ADS8361(spi_p  InstancePtr, unsigned tx)
+uint16_t SPI_Transfer_ADS8361(spi_p  InstancePtr, unsigned tx)
 {
-    u32 rcv;
-    u16 out;
-    u8 StatusReg;
+    uint32_t rcv;
+    uint16_t out;
+    uint8_t StatusReg;
 
     /*
      * Set the busy flag, which will be cleared when the transfer
@@ -222,7 +222,7 @@ u16 SPI_Transfer_ADS8361(spi_p  InstancePtr, unsigned tx)
     return out;
 }
 
-void Spi_Transfer(spi_p spi, Xuint8* tx, Xuint8* rc, unsigned nBytes)
+void Spi_Transfer(spi_p spi, uint8_t* tx, uint8_t* rc, unsigned nBytes)
 {
     XSpi_Transfer(spi, tx, rc, nBytes);
 }
@@ -241,7 +241,7 @@ unsigned SPI_Transmit(spi_p spi, unsigned* dataTX, unsigned* dataRC, unsigned nB
     return 0;
 }
 
-void Spi_Transfer(spi_p spi, Xuint8* tx, Xuint8* rc, unsigned nBytes)
+void Spi_Transfer(spi_p spi, uint8_t* tx, uint8_t* rc, unsigned nBytes)
 {
 }
 

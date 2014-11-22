@@ -367,37 +367,37 @@ extern "C" {
  *			requested if the status event indicates an error.
  *
  *******************************************************************************/
-typedef void (*XSpi_StatusHandler) (void *CallBackRef, u32 StatusEvent,
+typedef void (*XSpi_StatusHandler) (void *CallBackRef, uint32_t StatusEvent,
                                     unsigned int ByteCount);
 
 /**
  * XSpi statistics
  */
 typedef struct {
-    u32 ModeFaults;		/**< Number of mode fault errors */
-    u32 XmitUnderruns;	/**< Number of transmit underruns */
-    u32 RecvOverruns;	/**< Number of receive overruns */
-    u32 SlaveModeFaults;	/**< Num of selects as slave while disabled */
-    u32 BytesTransferred;	/**< Number of bytes transferred */
-    u32 NumInterrupts;	/**< Number of transmit/receive interrupts */
+    uint32_t ModeFaults;		/**< Number of mode fault errors */
+    uint32_t XmitUnderruns;	/**< Number of transmit underruns */
+    uint32_t RecvOverruns;	/**< Number of receive overruns */
+    uint32_t SlaveModeFaults;	/**< Num of selects as slave while disabled */
+    uint32_t BytesTransferred;	/**< Number of bytes transferred */
+    uint32_t NumInterrupts;	/**< Number of transmit/receive interrupts */
 } XSpi_Stats;
 
 /**
  * This typedef contains configuration information for the device.
  */
 typedef struct {
-    u16 DeviceId;		/**< Unique ID  of device */
-    u32 BaseAddress;	/**< Base address of the device */
+    uint16_t DeviceId;		/**< Unique ID  of device */
+    uint32_t BaseAddress;	/**< Base address of the device */
     int HasFifos;		/**< Does device have FIFOs? */
-    u32 SlaveOnly;		/**< Is the device slave only? */
-    u8 NumSlaveBits;	/**< Num of slave select bits on the device */
-    u8 DataWidth;		/**< Data transfer Width */
-    u8 SpiMode;		/**< Standard/Dual/Quad mode */
-    u8 AxiInterface;	/**< AXI-Lite/AXI Full Interface */
-    u32 AxiFullBaseAddress;	/**< AXI Full Interface Base address of
-                                   the device */
-    u8 XipMode;             /**< 0 if Non-XIP, 1 if XIP Mode */
-    u8 Use_Startup;		/**< 1 if Starup block is used in h/w */
+    uint32_t SlaveOnly;		/**< Is the device slave only? */
+    uint8_t NumSlaveBits;	/**< Num of slave select bits on the device */
+    uint8_t DataWidth;		/**< Data transfer Width */
+    uint8_t SpiMode;		/**< Standard/Dual/Quad mode */
+    uint8_t AxiInterface;	/**< AXI-Lite/AXI Full Interface */
+    uint32_t AxiFullBaseAddress;	/**< AXI Full Interface Base address of
+                                           the device */
+    uint8_t XipMode;             /**< 0 if Non-XIP, 1 if XIP Mode */
+    uint8_t Use_Startup;		/**< 1 if Starup block is used in h/w */
 } XSpi_Config;
 
 /**
@@ -407,27 +407,27 @@ typedef struct {
  */
 typedef struct {
     XSpi_Stats Stats;	/**< Statistics */
-    u32 BaseAddr;		/**< Base address of device (IPIF) */
+    uint32_t BaseAddr;		/**< Base address of device (IPIF) */
     int IsReady;		/**< Device is initialized and ready */
     int IsStarted;		/**< Device has been started */
     int HasFifos;		/**< Device is configured with FIFOs or not */
-    u32 SlaveOnly;		/**< Device is configured to be slave only */
-    u8 NumSlaveBits;	/**< Number of slave selects for this device */
-    u8 DataWidth;		/**< Data Transfer Width 8 or 16 or 32 */
-    u8 SpiMode;		/**< Standard/Dual/Quad mode */
-    u32 SlaveSelectMask;	/**< Mask that matches the number of SS bits */
-    u32 SlaveSelectReg;	/**< Slave select register */
+    uint32_t SlaveOnly;		/**< Device is configured to be slave only */
+    uint8_t NumSlaveBits;	/**< Number of slave selects for this device */
+    uint8_t DataWidth;		/**< Data Transfer Width 8 or 16 or 32 */
+    uint8_t SpiMode;		/**< Standard/Dual/Quad mode */
+    uint32_t SlaveSelectMask;	/**< Mask that matches the number of SS bits */
+    uint32_t SlaveSelectReg;	/**< Slave select register */
 
-    u8 *SendBufferPtr;	/**< Buffer to send  */
-    u8 *RecvBufferPtr;	/**< Buffer to receive */
+    uint8_t *SendBufferPtr;	/**< Buffer to send  */
+    uint8_t *RecvBufferPtr;	/**< Buffer to receive */
     unsigned int RequestedBytes; /**< Total bytes to transfer (state) */
     unsigned int RemainingBytes; /**< Bytes left to transfer (state) */
     int IsBusy;		/**< A transfer is in progress (state) */
 
     XSpi_StatusHandler StatusHandler; /**< Status Handler */
     void *StatusRef;	/**< Callback reference for status handler */
-    u32 FlashBaseAddr;   /**< Used in XIP Mode */
-    u8 XipMode;             /**< 0 if Non-XIP, 1 if XIP Mode */
+    uint32_t FlashBaseAddr;   /**< Used in XIP Mode */
+    uint8_t XipMode;             /**< 0 if Non-XIP, 1 if XIP Mode */
 } XSpi;
 
 /***************** Macros (Inline Functions) Definitions *********************/
@@ -504,7 +504,7 @@ typedef struct {
  *		Status Register.
  *
  * @note		C-Style signature:
- *		u32 XSpi_IntrGetStatus(XSpi *InstancePtr);
+ *		uint32_t XSpi_IntrGetStatus(XSpi *InstancePtr);
  *
  ******************************************************************************/
 #define XSpi_IntrGetStatus(InstancePtr)                         \
@@ -532,7 +532,7 @@ typedef struct {
  * @return	None.
  *
  * @note		C-Style signature:
- *		void XSpi_IntrClear(XSpi *InstancePtr, u32 ClearMask);
+ *		void XSpi_IntrClear(XSpi *InstancePtr, uint32_t ClearMask);
  *
  ******************************************************************************/
 #define XSpi_IntrClear(InstancePtr, ClearMask) 			\
@@ -554,7 +554,7 @@ typedef struct {
  * @return 	None.
  *
  * @note		C-Style signature:
- *		void XSpi_IntrEnable(XSpi *InstancePtr, u32 EnableMask);
+ *		void XSpi_IntrEnable(XSpi *InstancePtr, uint32_t EnableMask);
  *
  ******************************************************************************/
 #define XSpi_IntrEnable(InstancePtr, EnableMask)			\
@@ -576,7 +576,7 @@ typedef struct {
  * @return	None.
  *
  * @note		C-Style signature:
- *		void XSpi_IntrDisable(XSpi *InstancePtr, u32 DisableMask);
+ *		void XSpi_IntrDisable(XSpi *InstancePtr, uint32_t DisableMask);
  *
  ******************************************************************************/
 #define XSpi_IntrDisable(InstancePtr, DisableMask) 			\
@@ -595,7 +595,7 @@ typedef struct {
  * @return	The contents read from the Interrupt Enable Register.
  *
  * @note		C-Style signature:
- *		u32 XSpi_IntrGetEnabled(XSpi *InstancePtr)
+ *		uint32_t XSpi_IntrGetEnabled(XSpi *InstancePtr)
  *
  ******************************************************************************/
 #define XSpi_IntrGetEnabled(InstancePtr)                        \
@@ -613,7 +613,7 @@ typedef struct {
  * @return	None.
  *
  * @note		C-Style signature:
- * 		void XSpi_SetControlReg(XSpi *InstancePtr, u32 Mask);
+ * 		void XSpi_SetControlReg(XSpi *InstancePtr, uint32_t Mask);
  *
  *****************************************************************************/
 #define XSpi_SetControlReg(InstancePtr, Mask)                           \
@@ -631,7 +631,7 @@ typedef struct {
  *		register.
  *
  * @note		C-Style signature:
- * 		u32 XSpi_GetControlReg(XSpi *InstancePtr);
+ * 		uint32_t XSpi_GetControlReg(XSpi *InstancePtr);
  *
  *****************************************************************************/
 #define XSpi_GetControlReg(InstancePtr)                         \
@@ -649,7 +649,7 @@ typedef struct {
  *		register.
  *
  * @note		C-Style signature:
- * 		u8 XSpi_GetStatusReg(XSpi *InstancePtr);
+ * 		uint8_t XSpi_GetStatusReg(XSpi *InstancePtr);
  *
  *****************************************************************************/
 #define XSpi_GetStatusReg(InstancePtr)                          \
@@ -667,7 +667,7 @@ typedef struct {
  * @return	None.
  *
  * @note		C-Style signature:
- * 		void XSpi_SetXipControlReg(XSpi *InstancePtr, u32 Mask);
+ * 		void XSpi_SetXipControlReg(XSpi *InstancePtr, uint32_t Mask);
  *
  *****************************************************************************/
 #define XSpi_SetXipControlReg(InstancePtr, Mask)                        \
@@ -685,7 +685,7 @@ typedef struct {
  *		register.
  *
  * @note		C-Style signature:
- * 		u32 XSpi_GetXipControlReg(XSpi *InstancePtr);
+ * 		uint32_t XSpi_GetXipControlReg(XSpi *InstancePtr);
  *
  *****************************************************************************/
 #define XSpi_GetXipControlReg(InstancePtr)                      \
@@ -703,7 +703,7 @@ typedef struct {
  *		register.
  *
  * @note		C-Style signature:
- * 		u8 XSpi_GetXipStatusReg(XSpi *InstancePtr);
+ * 		uint8_t XSpi_GetXipStatusReg(XSpi *InstancePtr);
  *
  *****************************************************************************/
 #define XSpi_GetXipStatusReg(InstancePtr)                       \
@@ -722,7 +722,7 @@ typedef struct {
  * @return	None.
  *
  * @note		C-Style signature:
- * 		void XSpi_SetSlaveSelectReg(XSpi *InstancePtr, u32 Mask);
+ * 		void XSpi_SetSlaveSelectReg(XSpi *InstancePtr, uint32_t Mask);
  *
  *****************************************************************************/
 #define XSpi_SetSlaveSelectReg(InstancePtr, Mask)                       \
@@ -740,7 +740,7 @@ typedef struct {
  * @return	The 32-bit value in the slave select register.
  *
  * @note		C-Style signature:
- * 		u32 XSpi_GetSlaveSelectReg(XSpi *InstancePtr);
+ * 		uint32_t XSpi_GetSlaveSelectReg(XSpi *InstancePtr);
  *
  *****************************************************************************/
 #define XSpi_GetSlaveSelectReg(InstancePtr) 			\
@@ -762,7 +762,7 @@ typedef struct {
  *****************************************************************************/
 #define XSpi_Enable(InstancePtr)                        \
     {                                                   \
-	u16 Control;                                    \
+	uint16_t Control;                               \
 	Control = XSpi_GetControlReg((InstancePtr));    \
 	Control |= XSP_CR_ENABLE_MASK;                  \
 	Control &= ~XSP_CR_TRANS_INHIBIT_MASK;          \
@@ -791,24 +791,24 @@ typedef struct {
 /*
  * Initialization functions in xspi_sinit.c
  */
-int XSpi_Initialize(XSpi *InstancePtr, u16 DeviceId);
-XSpi_Config *XSpi_LookupConfig(u16 DeviceId);
+int XSpi_Initialize(XSpi *InstancePtr, uint16_t DeviceId);
+XSpi_Config *XSpi_LookupConfig(uint16_t DeviceId);
 
 /*
  * Functions, in xspi.c
  */
 int XSpi_CfgInitialize(XSpi *InstancePtr, XSpi_Config * Config,
-                       u32 EffectiveAddr);
+                       uint32_t EffectiveAddr);
 
 int XSpi_Start(XSpi *InstancePtr);
 int XSpi_Stop(XSpi *InstancePtr);
 
 void XSpi_Reset(XSpi *InstancePtr);
 
-int XSpi_SetSlaveSelect(XSpi *InstancePtr, u32 SlaveMask);
-u32 XSpi_GetSlaveSelect(XSpi *InstancePtr);
+int XSpi_SetSlaveSelect(XSpi *InstancePtr, uint32_t SlaveMask);
+uint32_t XSpi_GetSlaveSelect(XSpi *InstancePtr);
 
-int XSpi_Transfer(XSpi *InstancePtr, u8 *SendBufPtr, u8 *RecvBufPtr,
+int XSpi_Transfer(XSpi *InstancePtr, uint8_t *SendBufPtr, uint8_t *RecvBufPtr,
                   unsigned int ByteCount);
 
 void XSpi_SetStatusHandler(XSpi *InstancePtr, void *CallBackRef,
@@ -830,8 +830,8 @@ void XSpi_ClearStats(XSpi *InstancePtr);
 /*
  * Functions for options, in xspi_options.c
  */
-int XSpi_SetOptions(XSpi *InstancePtr, u32 Options);
-u32 XSpi_GetOptions(XSpi *InstancePtr);
+int XSpi_SetOptions(XSpi *InstancePtr, uint32_t Options);
+uint32_t XSpi_GetOptions(XSpi *InstancePtr);
 
 #ifdef __cplusplus
 }
