@@ -15,8 +15,7 @@ typedef unsigned long long XTime;
 #include <unistd.h> //contains sleep functions
 
 //re-implement XTime_ functions.  Should probably rename these.
-void XTime_GetTime(XTime* t);
-void XTime_wait(unsigned ns10);
+void XTime_GetTime(XTime *t);
 
 #define TICKS_PER_10NS (TICKS_PER_SECOND / 100000000.0)
 #define TICKS_PER_MICROSECOND (TICKS_PER_SECOND / 1000000.0)
