@@ -60,32 +60,13 @@
 * </pre>
 ******************************************************************************/
 
-#ifndef XIL_IO_H           /* prevent circular inclusions */
-#define XIL_IO_H           /* by using protection macros */
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-/***************************** Include Files *********************************/
-
+#include <nacs-utils/utils.h>
 #include "xil_types.h"
 
-/************************** Constant Definitions *****************************/
+#ifndef XIL_IO_H
+#define XIL_IO_H
 
-/**************************** Type Definitions *******************************/
-
-/***************** Macros (Inline Functions) Definitions *********************/
-
-#if defined __GNUC__
-#  define SYNCHRONIZE_IO	dmb()
-#  define INST_SYNC		isb()
-#  define DATA_SYNC		dsb()
-#else
-#  define SYNCHRONIZE_IO
-#  define INST_SYNC
-#  define DATA_SYNC
-#endif /* __GNUC__ */
+NACS_BEGIN_DECLS
 
 /*****************************************************************************/
 /**
@@ -250,8 +231,6 @@ void Xil_Out32BE(uint32_t Addr, uint32_t Value);
 uint16_t Xil_EndianSwap16(uint16_t Data);
 uint32_t Xil_EndianSwap32(uint32_t Data);
 
-#ifdef __cplusplus
-}
-#endif
+NACS_END_DECLS
 
-#endif /* end of protection macro */
+#endif

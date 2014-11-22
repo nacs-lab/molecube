@@ -5,12 +5,16 @@
  * Date:              Sat Jul 14 14:34:13 2012 (by Create and Import Peripheral Wizard)
  *****************************************************************************/
 
+#include <nacs-utils/utils.h>
+
 #ifndef PULSER_IO_H
 #define PULSER_IO_H
 
+NACS_BEGIN_DECLS
+
 #ifdef LINUX_OS
-#define Xil_Out32(addr, data) *((volatile unsigned *)(addr)) = data
-#define Xil_In32(addr) *((volatile unsigned*)(addr))
+#  define Xil_Out32(addr, data) *((volatile unsigned *)(addr)) = data
+#  define Xil_In32(addr) *((volatile unsigned*)(addr))
 #endif
 
 /************************** Constant Definitions ***************************/
@@ -330,5 +334,7 @@ unsigned PULSER_SelfTest0(void * baseaddr_p);
 /**
  *  Defines the number of registers available for read and write*/
 #define PULSER_USER_NUM_REG 32
+
+NACS_END_DECLS
 
 #endif /** PULSER_IO_H */

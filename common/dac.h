@@ -1,7 +1,7 @@
+#include <nacs-utils/utils.h>
+
 #ifndef DAC_H_
 #define DAC_H_
-
-#include <stdint.h>
 
 #include <xparameters.h>
 #include <xstatus.h>

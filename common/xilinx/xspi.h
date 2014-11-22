@@ -289,18 +289,14 @@
  *
  ******************************************************************************/
 
-#ifndef XSPI_H			/* prevent circular inclusions */
-#define XSPI_H			/* by using protection macros */
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-/***************************** Include Files *********************************/
-
 #include "xil_types.h"
 #include "xstatus.h"
 #include "xspi_l.h"
+
+#ifndef XSPI_H
+#define XSPI_H
+
+NACS_BEGIN_DECLS
 
 /************************** Constant Definitions *****************************/
 
@@ -762,11 +758,11 @@ typedef struct {
  *****************************************************************************/
 #define XSpi_Enable(InstancePtr)                        \
     {                                                   \
-	uint16_t Control;                               \
-	Control = XSpi_GetControlReg((InstancePtr));    \
-	Control |= XSP_CR_ENABLE_MASK;                  \
-	Control &= ~XSP_CR_TRANS_INHIBIT_MASK;          \
-	XSpi_SetControlReg((InstancePtr), Control);     \
+        uint16_t Control;                               \
+        Control = XSpi_GetControlReg((InstancePtr));    \
+        Control |= XSP_CR_ENABLE_MASK;                  \
+        Control &= ~XSP_CR_TRANS_INHIBIT_MASK;          \
+        XSpi_SetControlReg((InstancePtr), Control);     \
     }
 
 /****************************************************************************/
@@ -778,8 +774,8 @@ typedef struct {
  *
  * @return	None.
  *
- * @note		C-Style signature:
- * 		void XSpi_Disable(XSpi *InstancePtr);
+ * @note        C-Style signature:
+ *              void XSpi_Disable(XSpi *InstancePtr);
  *
  *****************************************************************************/
 #define XSpi_Disable(InstancePtr)                                       \
@@ -833,9 +829,7 @@ void XSpi_ClearStats(XSpi *InstancePtr);
 int XSpi_SetOptions(XSpi *InstancePtr, uint32_t Options);
 uint32_t XSpi_GetOptions(XSpi *InstancePtr);
 
-#ifdef __cplusplus
-}
-#endif
+NACS_END_DECLS
 
 #ifndef Xil_AssertNonvoid
 #define Xil_AssertNonvoid assert
@@ -851,4 +845,4 @@ uint32_t XSpi_GetOptions(XSpi *InstancePtr);
 
 #include <assert.h>
 
-#endif /* end of protection macro */
+#endif

@@ -48,17 +48,16 @@
 * device drivers.
 *
 ******************************************************************************/
+#include <nacs-utils/utils.h>
 
 #ifndef XSTATUS_H		/* prevent circular inclusions */
 #define XSTATUS_H		/* by using protection macros */
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /***************************** Include Files *********************************/
 
 #include "xil_types.h"
+
+NACS_BEGIN_DECLS
 
 /************************** Constant Definitions *****************************/
 
@@ -334,105 +333,81 @@ extern "C" {
 
 /************************ Intc statuses 1201 - 1225 **************************/
 
-#define XST_INTC_FAIL_SELFTEST      1201	/* self test failed */
-#define XST_INTC_CONNECT_ERROR      1202	/* interrupt already in use */
+#define XST_INTC_FAIL_SELFTEST 1201 /* self test failed */
+#define XST_INTC_CONNECT_ERROR 1202 /* interrupt already in use */
 
 /********************** TmrCtr statuses 1226 - 1250 **************************/
 
-#define XST_TMRCTR_TIMER_FAILED     1226	/* self test failed */
+#define XST_TMRCTR_TIMER_FAILED 1226 /* self test failed */
 
 /********************** WdtTb statuses 1251 - 1275 ***************************/
 
-#define XST_WDTTB_TIMER_FAILED      1251L
+#define XST_WDTTB_TIMER_FAILED 1251L
 
 /********************** PlbArb statuses 1276 - 1300 **************************/
 
-#define XST_PLBARB_FAIL_SELFTEST    1276L
+#define XST_PLBARB_FAIL_SELFTEST 1276L
 
 /********************** Plb2Opb statuses 1301 - 1325 *************************/
 
-#define XST_PLB2OPB_FAIL_SELFTEST   1301L
+#define XST_PLB2OPB_FAIL_SELFTEST 1301L
 
 /********************** Opb2Plb statuses 1326 - 1350 *************************/
 
-#define XST_OPB2PLB_FAIL_SELFTEST   1326L
+#define XST_OPB2PLB_FAIL_SELFTEST 1326L
 
 /********************** SysAce statuses 1351 - 1360 **************************/
 
-#define XST_SYSACE_NO_LOCK          1351L	/* No MPU lock has been granted */
+#define XST_SYSACE_NO_LOCK 1351L /* No MPU lock has been granted */
 
 /********************** PCI Bridge statuses 1361 - 1375 **********************/
 
-#define XST_PCI_INVALID_ADDRESS     1361L
+#define XST_PCI_INVALID_ADDRESS 1361L
 
 /********************** FlexRay constants 1400 - 1409 *************************/
 
-#define XST_FR_TX_ERROR			1400
-#define XST_FR_TX_BUSY			1401
-#define XST_FR_BUF_LOCKED		1402
-#define XST_FR_NO_BUF			1403
+#define XST_FR_TX_ERROR 1400
+#define XST_FR_TX_BUSY 1401
+#define XST_FR_BUF_LOCKED 1402
+#define XST_FR_NO_BUF 1403
 
 /****************** USB constants 1410 - 1420  *******************************/
 
-#define XST_USB_ALREADY_CONFIGURED	1410
-#define XST_USB_BUF_ALIGN_ERROR		1411
-#define XST_USB_NO_DESC_AVAILABLE	1412
-#define XST_USB_BUF_TOO_BIG		1413
-#define XST_USB_NO_BUF			1414
+#define XST_USB_ALREADY_CONFIGURED 1410
+#define XST_USB_BUF_ALIGN_ERROR 1411
+#define XST_USB_NO_DESC_AVAILABLE 1412
+#define XST_USB_BUF_TOO_BIG 1413
+#define XST_USB_NO_BUF 1414
 
 /****************** HWICAP constants 1421 - 1429  *****************************/
 
-#define XST_HWICAP_WRITE_DONE		1421
+#define XST_HWICAP_WRITE_DONE 1421
 
 
 /****************** AXI VDMA constants 1430 - 1440  *****************************/
 
-#define XST_VDMA_MISMATCH_ERROR		1430
+#define XST_VDMA_MISMATCH_ERROR 1430
 
 /*********************** NAND Flash statuses 1441 - 1459  *********************/
 
-#define XST_NAND_BUSY			1441L	/* Flash is erasing or
-						 * programming
-						 */
-#define XST_NAND_READY			1442L	/* Flash is ready for commands
-						 */
-#define XST_NAND_ERROR			1443L	/* Flash had detected an
-						 * internal error.
-						 */
-#define XST_NAND_PART_NOT_SUPPORTED	1444L	/* Flash type not supported by
-						 * driver
-						 */
-#define XST_NAND_OPT_NOT_SUPPORTED	1445L	/* Operation not supported
-						 */
-#define XST_NAND_TIMEOUT_ERROR		1446L	/* Programming or erase
-						 * operation aborted due to a
-						 * timeout
-						 */
-#define XST_NAND_ADDRESS_ERROR		1447L	/* Accessed flash outside its
-						 * addressible range
-						 */
-#define XST_NAND_ALIGNMENT_ERROR	1448L	/* Write alignment error
-						 */
-#define XST_NAND_PARAM_PAGE_ERROR	1449L	/* Failed to read parameter
-						 * page of the device
-						 */
-#define XST_NAND_CACHE_ERROR		1450L	/* Flash page buffer error
-						 */
-
-#define XST_NAND_WRITE_PROTECTED	1451L	/* Flash is write protected
-						 */
-
-/**************************** Type Definitions *******************************/
+#define XST_NAND_BUSY 1441L /* Flash is erasing or programming */
+#define XST_NAND_READY 1442L /* Flash is ready for commands */
+#define XST_NAND_ERROR 1443L /* Flash had detected an internal error. */
+#define XST_NAND_PART_NOT_SUPPORTED 1444L /* Flash type not supported by
+                                           * driver */
+#define XST_NAND_OPT_NOT_SUPPORTED 1445L /* Operation not supported */
+#define XST_NAND_TIMEOUT_ERROR 1446L /* Programming or erase operation aborted
+                                      * due to a timeout */
+#define XST_NAND_ADDRESS_ERROR 1447L /* Accessed flash outside its addressible
+                                      * range */
+#define XST_NAND_ALIGNMENT_ERROR 1448L /* Write alignment error */
+#define XST_NAND_PARAM_PAGE_ERROR 1449L /* Failed to read parameter
+                                         * page of the device */
+#define XST_NAND_CACHE_ERROR 1450L /* Flash page buffer error */
+#define XST_NAND_WRITE_PROTECTED 1451L /* Flash is write protected */
 
 typedef int XStatus;
 
-/***************** Macros (Inline Functions) Definitions *********************/
-
-
-/************************** Function Prototypes ******************************/
-
-#ifdef __cplusplus
-}
-#endif
+NACS_END_DECLS
 
 #endif /* end of protection macro */

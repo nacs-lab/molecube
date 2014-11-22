@@ -61,26 +61,14 @@
 
 /***************************** Include Files *********************************/
 
+#include <nacs-utils/utils.h>
 #include "xparameters.h"
 #include "xspi.h"
-#include <stdint.h>
-
 #include "remap_addr.h"
-/************************** Constant Definitions *****************************/
-
-
-/**************************** Type Definitions *******************************/
-
-/***************** Macros (Inline Functions) Definitions *********************/
-
-
-/************************** Function Prototypes ******************************/
 
 /************************** Variable Definitions *****************************/
 
 extern XSpi_Config XSpi_ConfigTable[];
-
-
 
 /*****************************************************************************/
 /**
@@ -102,18 +90,17 @@ extern XSpi_Config XSpi_ConfigTable[];
 XSpi_Config *XSpi_LookupConfig(uint16_t DeviceId)
 {
     XSpi_Config *CfgPtr = NULL;
-    uint32_t Index;
 
-    for (Index = 0; Index < XPAR_XSPI_NUM_INSTANCES; Index++) {
-        if (XSpi_ConfigTable[Index].DeviceId == DeviceId) {
-            CfgPtr = &XSpi_ConfigTable[Index];
+    for (unsigned i = 0;i < XPAR_XSPI_NUM_INSTANCES;i++) {
+        if (XSpi_ConfigTable[i].DeviceId == DeviceId) {
+            CfgPtr = &XSpi_ConfigTable[i];
             break;
         }
     }
 #ifdef LINUX_OS
     //remap physical address to virtual one
     CfgPtr->BaseAddress =
-        (intptr_t)remap_device_addr((void*)(CfgPtr->BaseAddress));
+        (intptr_t)remap_device_addr((void*)CfgPtr->BaseAddress);
 #endif
 
     return CfgPtr;

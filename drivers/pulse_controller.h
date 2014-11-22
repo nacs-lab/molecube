@@ -8,10 +8,14 @@
 /* The name PULSER is due to Chris Langer, who developed the original FPGA
  * pulse generator while doing his PhD research at NIST */
 
+#include <nacs-utils/utils.h>
+
 #ifndef PULSER_H
 #define PULSER_H
 
 #include "pulse_controller_io.h"
+
+NACS_BEGIN_DECLS
 
 //time resolution of pulse controller in ns, us, and 1/us
 #define PULSER_DT_ns     (10)
@@ -143,5 +147,7 @@ void PULSER_set_hold(void* base_addr);
 
 //! release hold.  pulses can run
 void PULSER_release_hold(void* base_addr);
+
+NACS_END_DECLS
 
 #endif /** PULSER_H */

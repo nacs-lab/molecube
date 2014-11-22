@@ -1,3 +1,8 @@
+#include "timing.h"
+
+#include <nacs-utils/utils.h>
+#include <pulse_controller.h>
+
 #ifndef FPGA_H
 #define FPGA_H
 
@@ -5,30 +10,13 @@
 
 extern void *pulser; // pointer to pulse controller HW
 
-#ifdef __cplusplus
-extern "C"
-{
-#include <pulse_controller.h>
-}
-#else
-#include <pulse_controller.h>
-#endif
+NACS_BEGIN_DECLS
 
-#ifdef PLATFORM_ZYNQ
-#define NO_LOG_UART
-#endif
-
-#ifdef __cplusplus
-extern "C"
-{
-#endif
 void init_gpio();
 int read_gpio(unsigned channel);
 int gpio_set_pin(int channel, int val);
-#ifdef __cplusplus
-}
-#endif
 
-#include "timing.h"
+NACS_END_DECLS
+
 
 #endif // FPGA_H

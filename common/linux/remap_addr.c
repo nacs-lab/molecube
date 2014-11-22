@@ -5,10 +5,7 @@
  *      Author: trosen
  */
 
-#ifndef REMAP_ADDR_H_
-#define REMAP_ADDR_H_
-
-#ifdef LINUX_OS
+#include "remap_addr.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -59,6 +56,3 @@ remap_device_addr(void *phys_addr)
 
     return mapped_dev_base;
 }
-#endif // LINUX_OS
-
-#endif /* REMAP_ADDR_H_ */

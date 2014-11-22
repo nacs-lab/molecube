@@ -1,12 +1,7 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-#ifndef __cplusplus
-#  include <stdbool.h>
-#endif
-
-#include <stdio.h>
-#include <stddef.h>
+#include <nacs-utils/utils.h>
 
 extern void *pulser;
 extern bool g_debug_spi;

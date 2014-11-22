@@ -68,26 +68,19 @@
  * </pre>
  *
  ******************************************************************************/
-
-#ifndef XSPI_L_H                /* prevent circular inclusions */
-#define XSPI_L_H                /* by using protection macros */
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-/***************************** Include Files *********************************/
-
+#include <nacs-utils/utils.h>
 #include "xil_types.h"
 #include "xil_io.h"
 
-/**************************** Type Definitions *******************************/
+#ifndef XSPI_L_H
+#define XSPI_L_H
 
+NACS_BEGIN_DECLS
 
 /***************** Macros (Inline Functions) Definitions *********************/
 
-#define XSpi_In32        Xil_In32
-#define XSpi_Out32        Xil_Out32
+#define XSpi_In32 Xil_In32
+#define XSpi_Out32 Xil_Out32
 
 /****************************************************************************/
 /**
@@ -269,11 +262,7 @@ extern "C" {
 #define XSP_CR_XIP_CLK_PHASE_MASK        0x00000001 /**< Clock phase 0 or 1 */
 #define XSP_CR_XIP_CLK_POLARITY_MASK        0x00000002 /**< Clock polarity
                                                           high or low */
-
 /* @} */
-
-
-
 
 /** @name Status Register (SR) masks
  *
@@ -351,21 +340,12 @@ extern "C" {
  *
  * @{
  */
-#define XSP_STANDARD_MODE        0
-#define XSP_DUAL_MODE                1
-#define XSP_QUAD_MODE                2
+#define XSP_STANDARD_MODE 0
+#define XSP_DUAL_MODE 1
+#define XSP_QUAD_MODE 2
 
 /*@}*/
-/**************************** Type Definitions *******************************/
 
-/***************** Macros (Inline Functions) Definitions *********************/
+NACS_END_DECLS
 
-/************************** Function Prototypes ******************************/
-
-/************************** Variable Definitions *****************************/
-
-#ifdef __cplusplus
-}
 #endif
-
-#endif /* end of protection macro */

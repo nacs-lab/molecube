@@ -57,39 +57,10 @@
 *
 ******************************************************************************/
 
-#ifndef __cplusplus
-#  include <stdbool.h>
+#ifndef XIL_TYPES_H
+#define XIL_TYPES_H
+
+#define XIL_COMPONENT_IS_READY 0x11111111 /**< component has been initialized */
+#define XIL_COMPONENT_IS_STARTED 0x22222222 /**< component has been started */
+
 #endif
-
-#include <stddef.h>
-#include <stdint.h>
-
-#ifndef XIL_TYPES_H	/* prevent circular inclusions */
-#define XIL_TYPES_H	/* by using protection macros */
-
-/************************** Constant Definitions *****************************/
-
-#define XIL_COMPONENT_IS_READY     0x11111111  /**< component has been initialized */
-#define XIL_COMPONENT_IS_STARTED   0x22222222  /**< component has been started */
-
-/** @name New types
- * New simple types.
- * @{
- */
-#ifndef __KERNEL__
-/**
- * xbasic_types.h does not typedef s* or u64
- */
-typedef unsigned long long u64;
-
-typedef char s8;
-typedef short s16;
-typedef long s32;
-typedef long long s64;
-#else
-#include <linux/types.h>
-#endif
-
-
-/*@}*/
-#endif	/* end of protection macro */

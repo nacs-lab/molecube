@@ -15,6 +15,8 @@ set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS)
 add_definitions(-Wall -Wextra -g -pthread -fvisibility=hidden
   -DPLATFORM_ZYNQ -DLINUX_OS -O2 -flto -fno-math-errno)
 
+cmake_c_fix_include_path(lib/utils nacs-utils)
+
 set(LINKER_FLAGS -Wl,--as-needed -Wl,--no-undefined -Wl,--gc-sections
   -pthread -O2 -flto -fno-math-errno
   # FIXME Hack before porting to Archlinux ARM
@@ -30,4 +32,5 @@ cmake_c_add_flags(CMAKE_MODULE_LINKER_FLAGS ${LINKER_FLAGS})
 # FIXME Hack before porting to Archlinux ARM
 include_directories(tmp_include)
 
+cmake_c_include_fix_path()
 add_subdirectory(molecube)

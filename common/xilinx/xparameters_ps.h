@@ -59,13 +59,12 @@
 * None.
 *
 ******************************************************************************/
+#include <nacs-utils/utils.h>
 
 #ifndef _XPARAMETERS_PS_H_
 #define _XPARAMETERS_PS_H_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+NACS_BEGIN_DECLS
 
 /************************** Constant Definitions *****************************/
 
@@ -326,9 +325,6 @@ extern "C" {
 #define XPAR_SCUTIMER_DEVICE_ID		0
 #define XPAR_SCUWDT_DEVICE_ID		0
 
-
-#ifdef __cplusplus
-}
-#endif
+NACS_END_DECLS
 
 #endif /* protection macro */

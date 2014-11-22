@@ -63,23 +63,14 @@
 *
 ******************************************************************************/
 
-#ifndef XSPI_I_H		/* prevent circular inclusions */
-#define XSPI_I_H		/* by using protection macros */
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-/***************************** Include Files *********************************/
-
+#include <nacs-utils/utils.h>
 #include "xil_types.h"
 #include "xspi_l.h"
 
-/************************** Constant Definitions *****************************/
+#ifndef XSPI_I_H
+#define XSPI_I_H
 
-/**************************** Type Definitions *******************************/
-
-/***************** Macros (Inline Functions) Definitions *********************/
+NACS_BEGIN_DECLS
 
 /************************** Function Prototypes ******************************/
 
@@ -89,8 +80,6 @@ void XSpi_Abort(XSpi *InstancePtr);
 
 extern XSpi_Config XSpi_ConfigTable[];
 
-#ifdef __cplusplus
-}
-#endif
+NACS_END_DECLS
 
-#endif /* end of protection macro */
+#endif
