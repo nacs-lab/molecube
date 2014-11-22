@@ -1,0 +1,18 @@
+set(nacs_utils_SRCS
+  log.cpp)
+set(nacs_utils_LINKS m rt pthread)
+
+include_directories("${CMAKE_CURRENT_BINARY_DIR}")
+
+add_library(nacs-utils SHARED
+  ${nacs_utils_SRCS})
+
+target_link_libraries(nacs-utils ${nacs_utils_LINKS})
+
+set_target_properties(nacs-utils PROPERTIES
+  VERSION 0.1
+  SOVERSION 0
+  COMPILE_FLAGS "-fvisibility=hidden"
+  LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
+# install(TARGETS nacs-utils LIBRARY
+#   DESTINATION "${LIB_INSTALL_DIR}")

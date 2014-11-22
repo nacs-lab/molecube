@@ -33,4 +33,5 @@ cmake_c_add_flags(CMAKE_MODULE_LINKER_FLAGS ${LINKER_FLAGS})
 include_directories(tmp_include)
 
 cmake_c_include_fix_path()
+add_subdirectory(lib)
 add_subdirectory(molecube)
