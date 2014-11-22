@@ -12,11 +12,6 @@ public:
     verbosity(std::ostream* pos, FILE* f) : pos(pos), f(f) {}
     verbosity(const verbosity& v) : pos(v.pos), f(v.f) {}
     int printf(const char* format, ...);
-
-    std::ostream& os() {
-        return *pos;
-    }
-
 private:
     std::ostream* pos;
     FILE* f;
