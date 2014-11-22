@@ -49,4 +49,4 @@ set(SOURCES ${SOURCES}
 
 add_executable(molecube ${SOURCES})
 
-target_link_libraries(molecube rt cgicc fcgi fcgi++)
+target_link_libraries(molecube rt cgicc fcgi fcgi++ nacs-utils)

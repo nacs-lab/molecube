@@ -1,5 +1,6 @@
 set(nacs_utils_SRCS
-  log.cpp)
+  log.cpp
+  fd_utils.cpp)
 set(nacs_utils_LINKS m rt pthread)
 
 include_directories("${CMAKE_CURRENT_BINARY_DIR}")
