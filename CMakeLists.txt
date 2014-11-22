@@ -12,10 +12,11 @@ include(CMakeCMacros)
 set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS)
 set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS)
 
-add_definitions(-Wall -Wextra -g -O2 -pthread -flto -fvisibility=hidden
-  -DPLATFORM_ZYNQ -DLINUX_OS)
+add_definitions(-Wall -Wextra -g -pthread -fvisibility=hidden
+  -DPLATFORM_ZYNQ -DLINUX_OS -O2 -flto -fno-math-errno)
 
-set(LINKER_FLAGS -Wl,--as-needed -Wl,--no-undefined -pthread -flto -O2
+set(LINKER_FLAGS -Wl,--as-needed -Wl,--no-undefined -Wl,--gc-sections
+  -pthread -O2 -flto -fno-math-errno
   # FIXME Hack before porting to Archlinux ARM
   -L${PROJECT_SOURCE_DIR}/lib)
 

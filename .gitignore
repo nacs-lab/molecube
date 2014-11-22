@@ -33,5 +33,3 @@ __pycache__/
 *.db
 *.bak
 *.o
-
-molecube/molecube
