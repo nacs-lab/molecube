@@ -2,8 +2,6 @@
 #include "fpga.h"
 #include "AD9914.h"
 #include "dds_pulse.h"
-#include <stdio.h>
-#include <stdlib.h>
 
 
 // const double ad9914_clk_MHz = 3500.0;

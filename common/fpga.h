@@ -1,4 +1,3 @@
-#include "timing.h"
 #include "common.h"
 
 #include <nacs-utils/utils.h>

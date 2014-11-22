@@ -23,7 +23,6 @@ set(SOURCES ${SOURCES}
   ../common/dac.cpp
   ../common/util.cpp
   ../common/linux_file_util.c
-  ../common/timing.c
   ../common/dds_pulse.cpp
   ../common/verbosity.cpp
   ../common/spi_util.cpp

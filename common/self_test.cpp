@@ -8,12 +8,11 @@
  *  Functions are probably called at startup.
  */
 
+#include <nacs-utils/timer.h>
+
 #include "common.h"
 #include "fpga.h"
 #include "dds_pulse.h"
-
-#include <stdio.h>
-#include <math.h>
 
 namespace self_test {
 
@@ -44,7 +43,6 @@ bool check_register(char n)
 
 bool check_timing()
 {
-    XTime t0, t1;
     unsigned j;
 
     bool bTimingOK = true;
@@ -61,7 +59,7 @@ bool check_timing()
 
     PULSER_pulse(pulser, 100, 0, 0);
     PULSER_enable_timing_check(pulser);
-    XTime_GetTime(&t0);
+    uint64_t t0 = nacsGetTime();
 
     for (j = 0; j < 1000000; j++) {
         PULSER_pulse(pulser, 100, 0, 0);
@@ -74,7 +72,7 @@ bool check_timing()
 
     r2 = PULSER_read_slave_reg(pulser, 2, 0);
 
-    XTime_GetTime(&t1);
+    uint64_t t1 = nacsGetTime();
     double dt = ((float) (t1 - t0)) / TICKS_PER_US;
     bTimingOK &= fabs(dt - 1000000) < 1000;
 
@@ -84,7 +82,7 @@ bool check_timing()
     printf("Wait up to three seconds for pulses_finished to go high\r\n");
 
     do {
-        XTime_GetTime(&t1);
+        t1 = nacsGetTime();
         r2 = PULSER_read_slave_reg(pulser, 2, 0);
     } while (((t1 - t0) < 3000 * TICKS_PER_MS) && !(r2 & 4));
 

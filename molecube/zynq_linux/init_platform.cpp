@@ -2,9 +2,6 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include <string.h>
-#include <stdlib.h>
-#include <math.h>
 #include <sys/mman.h>
 #include <sched.h>
 #include <errno.h>

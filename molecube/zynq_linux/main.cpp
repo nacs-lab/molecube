@@ -1,8 +1,9 @@
+#include <nacs-utils/timer.h>
+
 #include "init_platform.h"
 #include "init_system.h"
 
 #include "fpga.h"
-#include "timing.h"
 #include "linux_file_util.h"
 
 #include "../parser/parseTxtSeq.h"
@@ -19,11 +20,8 @@
 #include <fstream>
 #include <map>
 
-#include <stdio.h>
-#include <stdlib.h>
 #include <unistd.h>
 #include <errno.h>
-#include <string.h>
 #include <sys/types.h>
 #include <time.h>
 #include <signal.h>

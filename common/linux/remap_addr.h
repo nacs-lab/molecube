@@ -9,8 +9,6 @@
 #include <nacs-utils/log.h>
 #include <nacs-utils/fd_utils.h>
 
-#include <stdlib.h>
-
 #ifndef REMAP_ADDR_H_
 #define REMAP_ADDR_H_
 

@@ -9,9 +9,7 @@
 /***************************** Include Files *******************************/
 
 #include "pulse_controller.h"
-#include <stdio.h>
 #include <unistd.h>
-#include <stdlib.h>
 
 #include "pulse_controller_io.h"
 
