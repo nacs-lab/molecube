@@ -3,7 +3,7 @@
 ROOT = .
 COMMON = ../common_swsrc
 XILINXINC = $(COMMON)/xilinx
-DRIVERS = ../customIP/IP/drivers/pulse_controller_v4_00_b/src
+DRIVERS = ../customIP/IP/drivers/
 FPGALIB = $(ROOT)/../lib
 FPGAINC = $(ROOT)/../include
 
