@@ -50,8 +50,8 @@ int PULSER_test_dds(void* base_addr, char nDDS);
 //! If DDS i is present return non-zero, otherwise 0.
 int PULSER_dds_exists(void* base_addr, char i);
 
-int PULSER_check_dds(void* base_addr, char i);
-int PULSER_check_all_dds(void* base_addr);
+// int PULSER_check_dds(void* base_addr, char i);
+// int PULSER_check_all_dds(void* base_addr);
 
 void PULSER_write_slave_reg(void* base_addr, char n, unsigned offset, unsigned val);
 unsigned PULSER_read_slave_reg(void* base_addr, char n, unsigned offset);

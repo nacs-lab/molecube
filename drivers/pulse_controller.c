@@ -22,9 +22,9 @@ static unsigned extra_flags = 0;
 
 static void (*idle_func)(void);
 
-static unsigned int ddsFTW[PULSER_MAX_NDDS];
+/* static unsigned int ddsFTW[PULSER_MAX_NDDS]; */
 static unsigned short ddsPhase[PULSER_MAX_NDDS];
-static unsigned short ddsAmp[PULSER_MAX_NDDS];
+/* static unsigned short ddsAmp[PULSER_MAX_NDDS]; */
 
 #define ENABLE_TIMING_CHECK    (0x08000000)
 
@@ -151,7 +151,7 @@ PULSER_dds_reset(void *base_addr, char _i)
     int i = _i;
     PULSER_short_pulse(base_addr, 0x10000004 | (i << 4), 0);
 
-    ddsFTW[i] = 0;
+    /* ddsFTW[i] = 0; */
     ddsPhase[i] = 0;
 }
 
@@ -496,14 +496,14 @@ void
 PULSER_set_dds_freq(void *base_addr, char i, unsigned ftw)
 {
     PULSER_short_pulse(base_addr, 0x10000000 | (i << 4), ftw);
-    ddsFTW[(int)i] = ftw;
+    /* ddsFTW[(int)i] = ftw; */
 }
 
 void
 PULSER_set_dds_amp(void *base_addr, char i, unsigned short A)
 {
     PULSER_set_dds_two_bytes(base_addr, i, 0x32, A);
-    ddsAmp[(int)i] = A;
+    /* ddsAmp[(int)i] = A; */
 }
 
 void
@@ -519,25 +519,25 @@ PULSER_shift_dds_phase(void *base_addr, char i, unsigned short phase)
     PULSER_set_dds_phase(base_addr, i, phase + ddsPhase[(int)i]);
 }
 
-int
-PULSER_check_all_dds(void *base_addr)
-{
-    for (char i = 0;i < nDDS_boards;i++) {
-        if (!PULSER_check_dds(base_addr, i)) {
-            printf("ERROR on DDS %d !\r\n", (int)i);
-            return 0;
-        }
-    }
-    return 1;
-}
+/* int */
+/* PULSER_check_all_dds(void *base_addr) */
+/* { */
+/*     for (char i = 0;i < nDDS_boards;i++) { */
+/*         if (!PULSER_check_dds(base_addr, i)) { */
+/*             printf("ERROR on DDS %d !\r\n", (int)i); */
+/*             return 0; */
+/*         } */
+/*     } */
+/*     return 1; */
+/* } */
 
-int
-PULSER_check_dds(void *base_addr, char i)
-{
-    return ((ddsFTW[(int)i] == PULSER_get_dds_freq(base_addr, i)) &&
-            (ddsPhase[(int)i] == PULSER_get_dds_phase(base_addr, i)) &&
-            (ddsAmp[(int)i] == PULSER_get_dds_amp(base_addr, i)));
-}
+/* int */
+/* PULSER_check_dds(void *base_addr, char i) */
+/* { */
+/*     return ((ddsFTW[(int)i] == PULSER_get_dds_freq(base_addr, i)) && */
+/*             (ddsPhase[(int)i] == PULSER_get_dds_phase(base_addr, i)) && */
+/*             (ddsAmp[(int)i] == PULSER_get_dds_amp(base_addr, i))); */
+/* } */
 
 unsigned
 PULSER_get_dds_freq(void *base_addr, char i)
