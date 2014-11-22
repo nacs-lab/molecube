@@ -84,38 +84,6 @@ typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned long u32;
 
-#define __XUINT64__
-typedef struct {
-    u32 Upper;
-    u32 Lower;
-} Xuint64;
-
-/*****************************************************************************/
-/**
-* Return the most significant half of the 64 bit data type.
-*
-* @param    x is the 64 bit word.
-*
-* @return   The upper 32 bits of the 64 bit word.
-*
-* @note     None.
-*
-******************************************************************************/
-#define XUINT64_MSW(x) ((x).Upper)
-
-/*****************************************************************************/
-/**
-* Return the least significant half of the 64 bit data type.
-*
-* @param    x is the 64 bit word.
-*
-* @return   The lower 32 bits of the 64 bit word.
-*
-* @note     None.
-*
-******************************************************************************/
-#define XUINT64_LSW(x) ((x).Lower)
-
 #endif /* XBASIC_TYPES_H */
 
 /**
