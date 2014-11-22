@@ -1,8 +1,6 @@
 #ifndef AD9914_H
 #define AD9914_H
 
-#include <stdio.h>
-
 bool init_AD9914(volatile void *base_addr, char i, bool bForce, FILE* f);
 
 void set_freq_AD9914PM(volatile void *base_addr, char i, unsigned ftw,

@@ -2,7 +2,6 @@
 
 #ifndef NO_XSPI
 
-#include <stdio.h>
 #include <xspi_l.h>
 
 #include "my_endian.h"

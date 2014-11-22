@@ -1,7 +1,6 @@
 #ifndef VERBOSITY_H
 #define VERBOSITY_H
 
-#include <stdio.h>
 #include <ostream>
 
 // Flexible logging via C++ ostream and printf

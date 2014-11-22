@@ -1,6 +1,4 @@
 #include "fpga.h"
-#include <stdio.h>
-
 #include "linux_file_util.h"
 
 /*Hide real GPIO IDs from user.

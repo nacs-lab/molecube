@@ -47,8 +47,6 @@ yield_execution()
 #include "xtime_l.h"
 
 #include <pthread.h>
-#include <stdio.h>
-#include <math.h>
 
 void disable_interrupts()
 {

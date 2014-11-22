@@ -1,7 +1,5 @@
 #include <common.h>
-#include <stdio.h>
 #include <fcntl.h>
-#include <unistd.h>
 #include <sys/mman.h>
 #include <sched.h>
 #include <errno.h>
