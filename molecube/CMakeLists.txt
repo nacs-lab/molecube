@@ -37,8 +37,7 @@ set(SOURCES ${SOURCES}
   ../common/xilinx/xspi_selftest.c
   ../common/xilinx/xspi_options.c
   ../common/xilinx/xspi.c
-  ../common/string_func.cpp
-  ../common/linux/remap_addr.c)
+  ../common/string_func.cpp)
 
 # Drivers
 include_directories(../drivers)

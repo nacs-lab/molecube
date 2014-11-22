@@ -134,11 +134,7 @@ protected:
     std::map<std::string, std::string> fEnv;
 };
 
-#ifdef LINUX_OS
 volatile void *pulser = 0;
-#else
-volatile void *pulser = (void*)XPAR_PULSE_CONTROLLER_0_BASEADDR;
-#endif
 
 bool g_debug_spi = false;
 bool g_stop_curr_seq = false;

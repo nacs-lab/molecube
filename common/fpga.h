@@ -10,8 +10,11 @@
 NACS_BEGIN_DECLS
 
 void init_gpio();
-int read_gpio(unsigned channel);
+void close_gpio();
+
 int gpio_set_pin(int channel, int val);
+
+int read_gpio(unsigned channel);
 
 NACS_END_DECLS
 

@@ -94,12 +94,9 @@ XSpi_Config *XSpi_LookupConfig(uint16_t DeviceId)
             break;
         }
     }
-#ifdef LINUX_OS
     //remap physical address to virtual one
     CfgPtr->BaseAddress =
         (intptr_t)remap_device_addr((void*)CfgPtr->BaseAddress);
-#endif
-
     return CfgPtr;
 }
 

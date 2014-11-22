@@ -1,6 +1,5 @@
 #include "timing.h"
 
-#ifdef LINUX_OS
 #include <time.h>
 
 void XTime_GetTime(XTime* xt)
@@ -12,4 +11,3 @@ void XTime_GetTime(XTime* xt)
 
     *xt = clock();
 }
-#endif

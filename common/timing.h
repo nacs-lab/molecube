@@ -5,7 +5,6 @@
 
 NACS_BEGIN_DECLS
 
-#ifdef LINUX_OS
 #ifndef CLOCKS_PER_SEC
 #define CLOCKS_PER_SEC         (1000000)
 #endif
@@ -17,23 +16,6 @@ typedef unsigned long long XTime;
 
 //re-implement XTime_ functions.  Should probably rename these.
 void XTime_GetTime(XTime* t);
-
-#else
-#include <xtime_l.h>
-#include <xparameters.h>
-#include <sleep.h>
-#ifdef __arm__
-#  define CPU_FREQ_HZ XPAR_CPU_CORTEXA9_CORE_CLOCK_FREQ_HZ
-#  define T_PRESCALE 2 /* cycles per clock tick on ARM (Zynq) */
-#  define TICKS_PER_SECOND (CPU_FREQ_HZ / (T_PRESCALE))
-#endif
-
-#ifdef __PPC__
-#  define CPU_FREQ_HZ XPAR_CPU_PPC405_CORE_CLOCK_FREQ_HZ
-#  define TICKS_PER_SECOND (CPU_FREQ_HZ)
-#endif
-#endif
-
 void XTime_wait(unsigned ns10);
 
 #define TICKS_PER_10NS (TICKS_PER_SECOND / 100000000.0)
