@@ -3,8 +3,7 @@
 #ifndef NO_XSPI
 
 #include <xspi_l.h>
-
-#include "my_endian.h"
+#include <endian.h>
 
 #ifdef __arm__
 //Zynq uses Xil_, Virtex/PPC uses XIo_.
@@ -22,9 +21,10 @@
 #define XSpi_GetStatusReg XSpi_mGetStatusReg
 #endif
 
-unsigned SPI_Transmit16(spi_p spi, unsigned short* dataTX, unsigned short* dataRC)
+unsigned SPI_Transmit16(spi_p spi, unsigned short *dataTX,
+                        unsigned short *dataRC)
 {
-    unsigned short tx2 = NATIVE_TO_BIG_ENDIAN16(*dataTX);
+    unsigned short tx2 = htobe16(*dataTX);
     unsigned short rc2 = 0;
 
     uint8_t* tx = (uint8_t*)(&tx2);
@@ -37,7 +37,7 @@ unsigned SPI_Transmit16(spi_p spi, unsigned short* dataTX, unsigned short* dataR
     XStatus s = XSpi_Transfer(spi, tx, rc, 2);
     SPI_SetSlaveSelect(spi, 0);
 
-    *dataRC = BIG_ENDIAN_TO_NATIVE16(rc2);
+    *dataRC = be16toh(rc2);
 
     if (g_debug_spi)
         printf("spi -> rc =%08x\r\n", (unsigned)*dataRC);

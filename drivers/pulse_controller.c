@@ -5,12 +5,7 @@
  * Date:              10:33 PM Friday, July 13, 2012
  *****************************************************************************/
 
-
-/***************************** Include Files *******************************/
-
 #include "pulse_controller.h"
-#include <unistd.h>
-
 #include "pulse_controller_io.h"
 
 #include <xil_io.h>

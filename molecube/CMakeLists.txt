@@ -21,7 +21,6 @@ include_directories(../common
 set(SOURCES ${SOURCES}
   ../common/CmdLineArgs.cpp
   ../common/dac.cpp
-  ../common/util.cpp
   ../common/linux_file_util.c
   ../common/dds_pulse.cpp
   ../common/verbosity.cpp

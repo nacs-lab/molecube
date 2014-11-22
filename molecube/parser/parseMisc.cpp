@@ -1,3 +1,7 @@
+#include "parseMisc.h"
+
+#include <nacs-utils/number.h>
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -5,12 +9,10 @@
 #include <map>
 
 #include "common.h"
-#include "parseMisc.h"
 #include "parseTxtSeq.h"
 
 #include "saveloadmap.h"
 #include "AD9914.h"
-#include "util.h"
 #include "dds_pulse.h"
 #include <string_func.h>
 #include "verbosity.h"
@@ -132,7 +134,7 @@ setDeviceParams(const std::string& page, const txtmap_t& params)
             pos = params.find(buff);
             if(pos != params.end()) {
                 double A = atof(pos->second.c_str());
-                A = restrict(A, 0, 1);
+                A = nacsBound(0, A, 1);
                 fprintf(gLog, "DDS setamp (%d): %6.3f %%\r\n", iDDS, A*100);
                 DDS_set_amp(iDDS, A);
             }

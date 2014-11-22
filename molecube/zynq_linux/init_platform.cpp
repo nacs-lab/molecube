@@ -1,10 +1,11 @@
+#include "init_platform.h"
+
 #include <common.h>
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <sched.h>
 #include <errno.h>
 
-#include "init_platform.h"
 #include "remap_addr.h"
 
 #include <xparameters.h>

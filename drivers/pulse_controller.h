@@ -13,8 +13,6 @@
 #ifndef PULSER_H
 #define PULSER_H
 
-#include "pulse_controller_io.h"
-
 NACS_BEGIN_DECLS
 
 //time resolution of pulse controller in ns, us, and 1/us

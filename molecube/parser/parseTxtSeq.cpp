@@ -11,6 +11,7 @@
  *  ___
  *   |R
  */
+#include "parseTxtSeq.h"
 
 #include <iostream>
 #include <sstream>
@@ -26,7 +27,6 @@
 
 #include "parseMisc.h"
 #include "saveloadmap.h"
-#include "parseTxtSeq.h"
 #include "verbosity.h"
 #include "linux_file_util.h"
 
