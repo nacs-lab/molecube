@@ -16,9 +16,7 @@
 #include <string_func.h>
 #include "verbosity.h"
 
-extern "C" {
 #include "pulse_controller.h"
-}
 
 FILE* g_fPulserLock;
 std::vector<unsigned> active_dds; // all DDS that are available

@@ -64,11 +64,8 @@
 #include <nacs-utils/utils.h>
 #include "xparameters.h"
 #include "xspi.h"
+#include "xspi_i.h"
 #include "remap_addr.h"
-
-/************************** Variable Definitions *****************************/
-
-extern XSpi_Config XSpi_ConfigTable[];
 
 /*****************************************************************************/
 /**
