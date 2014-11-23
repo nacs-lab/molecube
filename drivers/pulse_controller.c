@@ -17,7 +17,7 @@ static unsigned extra_flags = 0;
 static unsigned short ddsPhase[PULSER_MAX_NDDS];
 /* static unsigned short ddsAmp[PULSER_MAX_NDDS]; */
 
-#define ENABLE_TIMING_CHECK    (0x08000000)
+#define ENABLE_TIMING_CHECK (0x08000000)
 
 //! Unsafe because FIFO PULSER_vacancy is not checked before write.
 //! Only call if you *know* there's space on the write FIFO.

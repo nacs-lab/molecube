@@ -78,15 +78,16 @@ public:
 };
 
 class ttl_pulse_cmd : public pulse_cmd {
+    unsigned m_t, m_ttl;
 public:
     virtual ~ttl_pulse_cmd() {}
-    ttl_pulse_cmd(unsigned t, unsigned ttl) : t(t), ttl(ttl)
+    ttl_pulse_cmd(unsigned t, unsigned ttl) : m_t(t), m_ttl(ttl)
     {
-        if(t < PULSER_T_TTL_MIN) {
+        if (m_t < PULSER_T_TTL_MIN) {
             gvSTDOUT.printf("TTL pulse 0x%08X too short: %.2f us\n",
-                            t * PULSER_DT_us, ttl);
+                            m_t * PULSER_DT_us, m_ttl);
             throw std::runtime_error("The pulse at t = " +
-                                     std::to_string(t * PULSER_DT_us) +
+                                     std::to_string(m_t * PULSER_DT_us) +
                                      " us is too short or early.");
         }
     }
@@ -95,41 +96,38 @@ public:
     makePulse()
     {
         // PULSE_pulse
-        TTL_pulse(t, ttl);
+        TTL_pulse(m_t, m_ttl);
     }
-
-    unsigned t, ttl;
 };
 
 class clock_out_cmd : public pulse_cmd {
+    unsigned m_divider;
 public:
     virtual ~clock_out_cmd() {}
-    clock_out_cmd(unsigned divider) : divider(divider) {}
+    clock_out_cmd(unsigned divider) : m_divider(divider) {}
 
     virtual void
     makePulse()
     {
         // PULSER_short_pulse
-        PULSER_enable_clock_out(pulser, divider);
+        PULSER_enable_clock_out(pulser, m_divider);
     }
-
-    unsigned divider;
-
     static const unsigned DURATION = 5;
 };
 
 class dds_cmd : public pulse_cmd {
+protected:
+    unsigned m_dds, m_operand;
 public:
     virtual ~dds_cmd() {}
-    dds_cmd(unsigned dds, unsigned operand) : dds(dds), operand(operand)
+    dds_cmd(unsigned dds, unsigned operand) : m_dds(dds), m_operand(operand)
     {
         if (dds > NDDS - 1) {
             throw std::runtime_error("Line " + std::to_string(g_lineNum) +
-                                     ", Invalid DDS: " + std::to_string(dds));
+                                     ", Invalid DDS: " +
+                                     std::to_string(m_dds));
         }
     }
-
-    unsigned dds, operand;
     static const unsigned DURATION = PULSER_T_DDS_MIN;
 };
 
@@ -137,13 +135,16 @@ class set_freq_cmd : public dds_cmd {
 public:
     virtual ~set_freq_cmd() {}
     set_freq_cmd(unsigned dds, unsigned ftw) : dds_cmd(dds, ftw) {}
-    set_freq_cmd(unsigned dds, double f) : dds_cmd(dds, Hz2FTW(f, dds_clk(dds))) {}
+    set_freq_cmd(unsigned dds, double f) :
+        dds_cmd(dds, Hz2FTW(f, dds_clk(dds)))
+    {
+    }
 
     virtual void
     makePulse()
     {
         // PULSER_short_pulse
-        DDS_set_ftw(dds, operand);
+        DDS_set_ftw(m_dds, m_operand);
     }
 };
 
@@ -159,7 +160,7 @@ public:
     makePulse()
     {
         // PULSER_short_pulse
-        DDS_set_atw(dds, operand);
+        DDS_set_atw(m_dds, m_operand);
     }
 };
 
@@ -167,14 +168,15 @@ class set_phase_cmd : public dds_cmd {
 public:
     virtual ~set_phase_cmd() {}
     set_phase_cmd(unsigned dds, unsigned ptw) : dds_cmd(dds, ptw) {}
-    set_phase_cmd(unsigned dds, double phi) : dds_cmd(dds, 0xFFFF & (int)(phi*65536/360.0 + 0.5) ) {}
+    set_phase_cmd(unsigned dds, double phi) :
+        dds_cmd(dds, 0xFFFF & (int)(phi * 65536 / 360.0 + 0.5)) {}
 
     virtual void
     makePulse()
     {
         // PULSER_short_pulse
         // Set ddsPhase
-        DDS_set_ptw(dds, operand);
+        DDS_set_ptw(m_dds, m_operand);
     }
 };
 
@@ -194,31 +196,31 @@ public:
     {
         // PULSER_short_pulse
         // use ddsPhase
-        DDS_shift_ptw(dds, operand);
+        DDS_shift_ptw(m_dds, m_operand);
     }
 };
 
 class dds_reset_cmd : public pulse_cmd {
+    unsigned m_dds;
 public:
     virtual ~dds_reset_cmd() {}
-    dds_reset_cmd(unsigned dds) : dds(dds) {}
+    dds_reset_cmd(unsigned dds) : m_dds(dds) {}
 
     virtual void
     makePulse()
     {
         // PULSER_short_pulse
         // Set ddsPhase
-        PULSER_dds_reset(pulser, dds);
+        PULSER_dds_reset(pulser, m_dds);
 
         //disable programmable modulus, enable profile 0, enable SYNC_CLK output
-        PULSER_set_dds_two_bytes(pulser, dds, 0x05, 0x840B);
+        PULSER_set_dds_two_bytes(pulser, m_dds, 0x05, 0x840B);
 
         //enable amplitude control (OSK)
-        PULSER_set_dds_two_bytes(pulser, dds, 0x0, 0x0108);
+        PULSER_set_dds_two_bytes(pulser, m_dds, 0x0, 0x0108);
     }
 
     static const unsigned DURATION = 90;
-    unsigned dds, ftw;
 };
 
 
