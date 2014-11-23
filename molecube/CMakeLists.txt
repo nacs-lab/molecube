@@ -13,10 +13,19 @@ set(SOURCES
   zynq_linux/init_system.cpp
   zynq_linux/main.cpp)
 
+# Lib
+include_directories(../lib/xilinx)
+
+set(SOURCES ${SOURCES}
+  ../lib/xilinx/xspi_stats.c
+  ../lib/xilinx/xspi_g.c
+  ../lib/xilinx/xspi_sinit.c
+  ../lib/xilinx/xspi_selftest.c
+  ../lib/xilinx/xspi_options.c
+  ../lib/xilinx/xspi.c)
+
 # Common
-include_directories(../common
-  ../common/linux
-  ../common/xilinx)
+include_directories(../common)
 
 set(SOURCES ${SOURCES}
   ../common/CmdLineArgs.cpp
@@ -29,12 +38,6 @@ set(SOURCES ${SOURCES}
   ../common/fpga.c
   ../common/AD9914.cpp
   ../common/self_test.cpp
-  ../common/xilinx/xspi_stats.c
-  ../common/xilinx/xspi_g.c
-  ../common/xilinx/xspi_sinit.c
-  ../common/xilinx/xspi_selftest.c
-  ../common/xilinx/xspi_options.c
-  ../common/xilinx/xspi.c
   ../common/string_func.cpp)
 
 # Drivers
