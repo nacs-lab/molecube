@@ -11,8 +11,6 @@
 #ifndef PULSER_IO_H
 #define PULSER_IO_H
 
-NACS_BEGIN_DECLS
-
 /************************** Constant Definitions ***************************/
 
 /**
@@ -96,9 +94,6 @@ NACS_BEGIN_DECLS
  * -- SOFT_RESET : software reset
  */
 #define SOFT_RESET (0x0000000A)
-
-/**************************** Type Definitions *****************************/
-
 
 /***************** Macros (Inline Functions) Definitions *******************/
 
@@ -304,33 +299,7 @@ NACS_BEGIN_DECLS
 #define PULSER_mReset(BaseAddress)                                      \
     mem_write32((BaseAddress)+(PULSER_RST_REG_OFFSET), SOFT_RESET)
 
-/************************** Function Prototypes ****************************/
-
-
-/**
- *
- * Run a self-test on the driver/device. Note this may be a destructive test if
- * resets of the device are performed.
- *
- * If the hardware system is not built correctly, this function may never
- * return to the caller.
- *
- * @param   baseaddr_p is the base address of the PULSE_CONTROLLER instance to be worked on.
- *
- * @return
- *
- *    - XST_SUCCESS   if all self-test code passed
- *    - XST_FAILURE   if any self-test code failed
- *
- * @note    Caching must be turned off for this function to work.
- * @note    Self test may fail if data memory and device are not on the same bus.
- *
- */
-unsigned PULSER_SelfTest0(void * baseaddr_p);
-/**
- *  Defines the number of registers available for read and write*/
+/* Defines the number of registers available for read and write */
 #define PULSER_USER_NUM_REG 32
-
-NACS_END_DECLS
 
 #endif /** PULSER_IO_H */

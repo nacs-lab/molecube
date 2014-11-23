@@ -13,20 +13,17 @@
 static unsigned nDDS_boards = 0;
 static unsigned extra_flags = 0;
 
-static void (*idle_func)(void);
-
 /* static unsigned int ddsFTW[PULSER_MAX_NDDS]; */
 static unsigned short ddsPhase[PULSER_MAX_NDDS];
 /* static unsigned short ddsAmp[PULSER_MAX_NDDS]; */
 
 #define ENABLE_TIMING_CHECK    (0x08000000)
 
-
 //! Unsafe because FIFO PULSER_vacancy is not checked before write.
 //! Only call if you *know* there's space on the write FIFO.
-static inline void
-PULSER_unsafe_pulse(volatile void *base_addr, const unsigned control,
-                    const unsigned operand)
+static NACS_INLINE void
+PULSER_unsafe_pulse(volatile void *base_addr, unsigned control,
+                    unsigned operand)
 {
     // does not check if there is space in buffer before writing.
     // but AXI bus will wait until space is available
@@ -83,15 +80,12 @@ PULSER_init(volatile void *base_addr, unsigned nDDS, unsigned bResetDDS)
 
 //! Make sure there is space for at least n pulses on the FIFO.
 // NOT NEEDED ON AXI
-void
-PULSER_ensure_vacancy(volatile void *base_addr, unsigned n)
-{
-    (void)base_addr;
-    (void)n;
-    /* while (PULSER_vacancy < n) { */
-    /*     PULSER_vacancy = PULSER_mWriteFIFOVacancy((Xuint32)base_addr); */
-    /* } */
-}
+/* void */
+/* PULSER_ensure_vacancy(volatile void *base_addr, unsigned n) */
+/* { */
+/*     (void)base_addr; */
+/*     (void)n; */
+/* } */
 
 //! Is the read FIFO empty?.
 int PULSER_read_empty(volatile void *base_addr)
@@ -224,13 +218,13 @@ void PULSER_clear_timing_check(volatile void *base_addr)
 }
 
 //! were there any timing failures?
-int  PULSER_timing_ok(volatile void *base_addr)
+int PULSER_timing_ok(volatile void *base_addr)
 {
     return !(PULSER_read_sr(base_addr, 2) & 0x1);
 }
 
 //! return whether current pulse sequence is finished
-unsigned
+static unsigned
 PULSER_is_finished(volatile void *base_addr)
 {
     return PULSER_read_sr(base_addr, 2) & 0x4;
@@ -243,9 +237,6 @@ PULSER_wait_for_finished(volatile void *base_addr)
     PULSER_release_hold(base_addr);
 
     while (!PULSER_is_finished(base_addr)) {
-        // I'm not sure if the sleep here is doing anything at all....
-        // Too lazy to remove or replace with sth like nanosleep for now.
-        sleep(0);
     }
 }
 
@@ -410,7 +401,7 @@ PULSER_test_dds(volatile void *base_addr, char nDDS)
 
 unsigned PULSER_read_sr(volatile void *base_addr, unsigned i)
 {
-    return PULSER_mReadSlaveReg0(base_addr, 4*i);
+    return PULSER_mReadSlaveReg0(base_addr, 4 * i);
 }
 
 //make timed pulses
@@ -438,11 +429,6 @@ PULSER_short_pulse(volatile void *base_addr, const unsigned control,
     PULSER_unsafe_pulse(base_addr, control | extra_flags, operand);
 }
 
-void PULSER_set_idle_function(void (*new_idle_func)(void))
-{
-    idle_func = new_idle_func;
-}
-
 unsigned PULSER_num_results(volatile void *base_addr)
 {
     unsigned r = PULSER_mReadSlaveReg2(base_addr, 0);
@@ -452,9 +438,7 @@ unsigned PULSER_num_results(volatile void *base_addr)
 unsigned
 PULSER_pop_result(volatile void *base_addr)
 {
-    while(PULSER_num_results(base_addr) == 0) {
-        if(idle_func)
-            idle_func();
+    while (PULSER_num_results(base_addr) == 0) {
     }
     return PULSER_mReadSlaveReg31(base_addr, 0);
 }
@@ -465,7 +449,7 @@ void
 PULSER_set_dds_two_bytes(volatile void *base_addr, char i,
                          unsigned addr, unsigned data)
 {
-    //put addr in bits 15...9 (maps to DDS opcode_reg[14:9] )?
+    // put addr in bits 15...9 (maps to DDS opcode_reg[14:9] )?
     unsigned dds_addr = (addr + 1) & 0x7F;
     // put data in bits 15...0 (maps to DDS operand_reg[15:0] )?
     unsigned dds_data = data & 0xFFFF;

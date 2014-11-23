@@ -31,8 +31,7 @@ set(SOURCES ${SOURCES}
 include_directories(../drivers)
 
 set(SOURCES ${SOURCES}
-  ../drivers/pulse_controller.c
-  ../drivers/pulse_controller_selftest.c)
+  ../drivers/pulse_controller.c)
 
 add_executable(molecube ${SOURCES})
 

@@ -164,7 +164,7 @@ setDeviceParams(const std::string& page, const txtmap_t& params)
 }
 
 template<class V>
-static inline void
+static NACS_INLINE void
 stream_vect_to_JSON_array(std::ostream& os, const V& v)
 {
     os << "[";

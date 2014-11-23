@@ -40,9 +40,6 @@ NACS_BEGIN_DECLS
 #define PULSER_N_PMT_BINS (16)
 #define PULSER_N_PMT_BITS (8)
 
-//! Set function to be called while waiting for FPGA
-void PULSER_set_idle_function(void (*new_idle_func)(void));
-
 void PULSER_init(volatile void *base_addr, unsigned nDDS, unsigned bResetDDS);
 void PULSER_self_test(volatile void *base_addr, int nIO);
 int PULSER_test_slave_registers(volatile void *base_addr);
@@ -63,12 +60,12 @@ unsigned PULSER_read_slave_reg(volatile void *base_addr, char n,
 unsigned PULSER_old_is_finished(volatile void *base_addr);
 
 //! return whether current pulse sequence is finished
-unsigned PULSER_is_finished(volatile void *base_addr);
+// unsigned PULSER_is_finished(volatile void *base_addr);
 
 //! wait for the current pulse sequence to finish
 void PULSER_wait_for_finished(volatile void *base_addr);
 
-void PULSER_ensure_vacancy(volatile void *base_addr, unsigned n);
+// void PULSER_ensure_vacancy(volatile void *base_addr, unsigned n);
 int PULSER_read_empty(volatile void *base_addr);
 unsigned PULSER_num_results(volatile void *base_addr);
 

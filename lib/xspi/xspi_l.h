@@ -82,16 +82,16 @@ NACS_BEGIN_DECLS
  *
  * @param        BaseAddress contains the base address of the device.
  * @param        RegOffset contains the offset from the 1st register of the
- *                device to select the specific register.
+ *               device to select the specific register.
  *
- * @return        The value read from the register.
- *
- * @note                C-Style signature:
- *                u32 XSpi_ReadReg(u32 BaseAddress, u32 RegOffset);
+ * @return       The value read from the register.
  *
  ******************************************************************************/
-#define XSpi_ReadReg(BaseAddress, RegOffset)    \
-    mem_read32((BaseAddress) + (RegOffset))
+static NACS_INLINE uint32_t
+XSpi_ReadReg(volatile void *base, off_t offset)
+{
+    return mem_read32((volatile char*)base + offset);
+}
 
 /***************************************************************************/
 /**
@@ -109,10 +109,11 @@ NACS_BEGIN_DECLS
  *                void XSpi_WriteReg(u32 BaseAddress, u32 RegOffset,
  *                                        u32 RegisterValue);
  ******************************************************************************/
-#define XSpi_WriteReg(BaseAddress, RegOffset, RegisterValue)    \
-    mem_write32((BaseAddress) + (RegOffset), (RegisterValue))
-
-/************************** Function Prototypes ******************************/
+static NACS_INLINE void
+XSpi_WriteReg(volatile void *base, off_t offset, uint32_t val)
+{
+    mem_write32((volatile char*)base + offset, val);
+}
 
 /************************** Constant Definitions *****************************/
 

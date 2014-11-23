@@ -236,52 +236,52 @@
  *                     after the Spi Initialization is completed and Spi is
  *                     started.
  * 2.01a sdm  08/22/08 Removed support for static interrupt handlers from the MDD
- *		      file
+ *                     file
  * 2.01b sdm  04/08/09 Fixed an issue in the XSpi_Transfer function where the
  *                     Global Interrupt is being enabled in polled mode when a
  *                     slave is not selected.
  * 3.00a ktn  10/22/09 Converted all register accesses to 32 bit access.
- *		      Updated driver to use the HAL APIs/macros.
- *		      Removed the macro XSpi_mReset, XSpi_Reset API should be
- *		      used in its place.
- *		      The macros have been renamed to remove _m from the name
- *		      XSpi_mIntrGlobalEnable is renamed XSpi_IntrGlobalEnable,
- *		      XSpi_mIntrGlobalDisable is now XSpi_IntrGlobalDisable,
- *		      XSpi_mIsIntrGlobalEnabled is now XSpi_IsIntrGlobalEnabled,
- *		      XSpi_mIntrGetStatus is now XSpi_IntrGetStatus,
- *		      XSpi_mIntrClear is now XSpi_IntrClear,
- *		      XSpi_mIntrEnable is now XSpi_IntrEnable,
- *		      XSpi_mIntrDisable is now XSpi_IntrDisable,
- *		      XSpi_mIntrGetEnabled is now XSpi_IntrGetEnabled,
- *		      XSpi_mSetControlReg is now XSpi_SetControlReg,
- *		      XSpi_mGetControlReg is now XSpi_GetControlReg,
- *		      XSpi_mGetStatusReg is now XSpi_GetStatusReg,
- *		      XSpi_mSetSlaveSelectReg is now XSpi_SetSlaveSelectReg,
- *		      XSpi_mGetSlaveSelectReg is now XSpi_GetSlaveSelectReg,
- *		      XSpi_mEnable is now XSpi_Enable,
- *		      XSpi_mDisable is now XSpi_Disable.
+ *                     Updated driver to use the HAL APIs/macros.
+ *                     Removed the macro XSpi_mReset, XSpi_Reset API should be
+ *                     used in its place.
+ *                     The macros have been renamed to remove _m from the name
+ *                     XSpi_mIntrGlobalEnable is renamed XSpi_IntrGlobalEnable,
+ *                     XSpi_mIntrGlobalDisable is now XSpi_IntrGlobalDisable,
+ *                     XSpi_mIsIntrGlobalEnabled is now XSpi_IsIntrGlobalEnabled,
+ *                     XSpi_mIntrGetStatus is now XSpi_IntrGetStatus,
+ *                     XSpi_mIntrClear is now XSpi_IntrClear,
+ *                     XSpi_mIntrEnable is now XSpi_IntrEnable,
+ *                     XSpi_mIntrDisable is now XSpi_IntrDisable,
+ *                     XSpi_mIntrGetEnabled is now XSpi_IntrGetEnabled,
+ *                     XSpi_mSetControlReg is now XSpi_SetControlReg,
+ *                     XSpi_mGetControlReg is now XSpi_GetControlReg,
+ *                     XSpi_mGetStatusReg is now XSpi_GetStatusReg,
+ *                     XSpi_mSetSlaveSelectReg is now XSpi_SetSlaveSelectReg,
+ *                     XSpi_mGetSlaveSelectReg is now XSpi_GetSlaveSelectReg,
+ *                     XSpi_mEnable is now XSpi_Enable,
+ *                     XSpi_mDisable is now XSpi_Disable.
  * 3.01a sdm  04/23/10 Updated the driver to handle new slave mode interrupts
- *		      and the DTR Half Empty interrupt.
+ *                     and the DTR Half Empty interrupt.
  * 3.02a sdm  03/30/11 Updated to support axi_qspi.
  * 3.03a sdm  08/09/11 Updated the selftest to check for a correct default value
- *		      in the case of axi_qspi - CR 620502
- *		      Updated tcl to generate a config parameter for C_SPI_MODE
+ *                     in the case of axi_qspi - CR 620502
+ *                     Updated tcl to generate a config parameter for C_SPI_MODE
  * 3.04a bss  03/21/12 Updated XSpi_Config and XSpi instance structure to support
- *		      XIP Mode.
- *		      Updated XSpi_CfgInitialize to support XIP Mode
- *		      Added XIP Mode Register masks in xspi_l.h
- *        	      Tcl Script changes:
- *		      Added C_TYPE_OF_AXI4_INTERFACE, C_AXI4_BASEADDR and
- *		      C_XIP_MODE to config structure.
- *		      Modified such that based on C_XIP_MODE and
- *		      C_TYPE_OF_AXI4_INTERFACE parameters C_BASEADDR will
- *		      be updated with C_AXI4_BASEADDR.
- *		      Modified such that C_FIFO_EXIST will be updated based
- *		      on C_FIFO_DEPTH for compatability of the driver with
- *		      Axi Spi.
+ *                     XIP Mode.
+ *                     Updated XSpi_CfgInitialize to support XIP Mode
+ *                     Added XIP Mode Register masks in xspi_l.h
+ *                     Tcl Script changes:
+ *                     Added C_TYPE_OF_AXI4_INTERFACE, C_AXI4_BASEADDR and
+ *                     C_XIP_MODE to config structure.
+ *                     Modified such that based on C_XIP_MODE and
+ *                     C_TYPE_OF_AXI4_INTERFACE parameters C_BASEADDR will
+ *                     be updated with C_AXI4_BASEADDR.
+ *                     Modified such that C_FIFO_EXIST will be updated based
+ *                     on C_FIFO_DEPTH for compatability of the driver with
+ *                     Axi Spi.
  * 3.05a adk  18/04/13 Updated the code to avoid unused variable
- *			 warnings when compiling with the -Wextra -Wall flags
- *			 In the file xspi.c. CR:705005.
+ *                     warnings when compiling with the -Wextra -Wall flags
+ *                     In the file xspi.c. CR:705005.
  * 3.06a adk  07/08/13 Added a dummy read in the CfgInitialize(), if startup
  *                     block is used in the h/w design (CR 721229).
  *
@@ -332,11 +332,11 @@ NACS_BEGIN_DECLS
  * select signal between bytes in a transfer.
  * </pre>
  */
-#define XSP_MASTER_OPTION		0x1
-#define XSP_CLK_ACTIVE_LOW_OPTION	0x2
-#define XSP_CLK_PHASE_1_OPTION		0x4
-#define XSP_LOOPBACK_OPTION		0x8
-#define XSP_MANUAL_SSELECT_OPTION	0x10
+#define XSP_MASTER_OPTION 0x1
+#define XSP_CLK_ACTIVE_LOW_OPTION 0x2
+#define XSP_CLK_PHASE_1_OPTION 0x4
+#define XSP_LOOPBACK_OPTION 0x8
+#define XSP_MANUAL_SSELECT_OPTION 0x10
 /*@}*/
 
 /**************************** Type Definitions *******************************/
@@ -349,50 +349,50 @@ NACS_BEGIN_DECLS
  * driven mode.  The handler executes in an interrupt context such that minimal
  * processing should be performed.
  *
- * @param CallBackRef	A callback reference passed in by the upper layer when
- *			setting the callback functions, and passed back to the
- *			upper layer when the callback is invoked. Its type is
- *			unimportant to the driver component, so it is a void
- *			pointer.
- * @param StatusEvent	Indicates one or more status events that occurred. See
- *			the XSpi_SetStatusHandler() for details on the status
- *			events that can be passed in the callback.
- * @param ByteCount	Indicates how many bytes of data were successfully
- *			transferred.  This may be less than the number of bytes
- *			requested if the status event indicates an error.
+ * @param CallBackRef A callback reference passed in by the upper layer when
+ *                    setting the callback functions, and passed back to the
+ *                    upper layer when the callback is invoked. Its type is
+ *                    unimportant to the driver component, so it is a void
+ *                    pointer.
+ * @param StatusEvent Indicates one or more status events that occurred. See
+ *                    the XSpi_SetStatusHandler() for details on the status
+ *                    events that can be passed in the callback.
+ * @param ByteCount   Indicates how many bytes of data were successfully
+ *                    transferred.  This may be less than the number of bytes
+ *                    requested if the status event indicates an error.
  *
  *******************************************************************************/
-typedef void (*XSpi_StatusHandler) (void *CallBackRef, uint32_t StatusEvent,
-                                    unsigned int ByteCount);
+typedef void (*XSpi_StatusHandler)(void *CallBackRef, uint32_t StatusEvent,
+                                   unsigned int ByteCount);
 
 /**
  * XSpi statistics
  */
 typedef struct {
-    uint32_t ModeFaults;		/**< Number of mode fault errors */
-    uint32_t XmitUnderruns;	/**< Number of transmit underruns */
-    uint32_t RecvOverruns;	/**< Number of receive overruns */
-    uint32_t SlaveModeFaults;	/**< Num of selects as slave while disabled */
-    uint32_t BytesTransferred;	/**< Number of bytes transferred */
-    uint32_t NumInterrupts;	/**< Number of transmit/receive interrupts */
+    uint32_t ModeFaults; /**< Number of mode fault errors */
+    uint32_t XmitUnderruns; /**< Number of transmit underruns */
+    uint32_t RecvOverruns; /**< Number of receive overruns */
+    uint32_t SlaveModeFaults; /**< Num of selects as slave while disabled */
+    uint32_t BytesTransferred; /**< Number of bytes transferred */
+    uint32_t NumInterrupts; /**< Number of transmit/receive interrupts */
 } XSpi_Stats;
 
 /**
  * This typedef contains configuration information for the device.
  */
 typedef struct {
-    uint16_t DeviceId;		/**< Unique ID  of device */
+    uint16_t DeviceId; /**< Unique ID  of device */
     volatile char *BaseAddress; /**< Base address of the device */
-    int HasFifos;		/**< Does device have FIFOs? */
-    uint32_t SlaveOnly;		/**< Is the device slave only? */
-    uint8_t NumSlaveBits;	/**< Num of slave select bits on the device */
-    uint8_t DataWidth;		/**< Data transfer Width */
-    uint8_t SpiMode;		/**< Standard/Dual/Quad mode */
-    uint8_t AxiInterface;	/**< AXI-Lite/AXI Full Interface */
-    uint32_t AxiFullBaseAddress;	/**< AXI Full Interface Base address of
-                                           the device */
-    uint8_t XipMode;             /**< 0 if Non-XIP, 1 if XIP Mode */
-    uint8_t Use_Startup;		/**< 1 if Starup block is used in h/w */
+    int HasFifos; /**< Does device have FIFOs? */
+    uint32_t SlaveOnly; /**< Is the device slave only? */
+    uint8_t NumSlaveBits; /**< Num of slave select bits on the device */
+    uint8_t DataWidth;/**< Data transfer Width */
+    uint8_t SpiMode; /**< Standard/Dual/Quad mode */
+    uint8_t AxiInterface; /**< AXI-Lite/AXI Full Interface */
+    uint32_t AxiFullBaseAddress; /**< AXI Full Interface Base address of
+                                    the device */
+    uint8_t XipMode; /**< 0 if Non-XIP, 1 if XIP Mode */
+    uint8_t Use_Startup; /**< 1 if Starup block is used in h/w */
 } XSpi_Config;
 
 /**
@@ -441,15 +441,12 @@ typedef struct {
  *
  * @param	InstancePtr is a pointer to the XSpi instance to be worked on.
  *
- * @return	None.
- *
- * @note		C-Style signature:
- *		void XSpi_IntrGlobalEnable(XSpi *InstancePtr);
- *
  ******************************************************************************/
-#define XSpi_IntrGlobalEnable(InstancePtr)                      \
-    XSpi_WriteReg(((InstancePtr)->BaseAddr),  XSP_DGIER_OFFSET, \
-                  XSP_GINTR_ENABLE_MASK)
+static NACS_INLINE void
+XSpi_IntrGlobalEnable(XSpi *self)
+{
+    XSpi_WriteReg(self->BaseAddr,  XSP_DGIER_OFFSET, XSP_GINTR_ENABLE_MASK);
+}
 
 /******************************************************************************/
 /**
@@ -459,14 +456,12 @@ typedef struct {
  *
  * @param	InstancePtr is a pointer to the XSpi instance to be worked on.
  *
- * @return	None.
- *
- * @note		C-Style signature:
- *		void XSpi_IntrGlobalDisable(XSpi *InstancePtr);
- *
  ******************************************************************************/
-#define XSpi_IntrGlobalDisable(InstancePtr)                             \
-    XSpi_WriteReg(((InstancePtr)->BaseAddr),  XSP_DGIER_OFFSET, 0)
+static NACS_INLINE void
+XSpi_IntrGlobalDisable(XSpi *self)
+{
+    XSpi_WriteReg(self->BaseAddr,  XSP_DGIER_OFFSET, 0);
+}
 
 /*****************************************************************************/
 /**
@@ -480,13 +475,13 @@ typedef struct {
  *		- TRUE if global interrupts are enabled.
  *		- FALSE if global interrupts are disabled.
  *
- * @note		C-Style signature:
- *		int XSpi_IsIntrGlobalEnabled(XSpi *InstancePtr);
- *
  ******************************************************************************/
-#define XSpi_IsIntrGlobalEnabled(InstancePtr)				\
-    (XSpi_ReadReg(((InstancePtr)->BaseAddr), XSP_DGIER_OFFSET) ==       \
-     XSP_GINTR_ENABLE_MASK)
+static NACS_INLINE bool
+XSpi_IsIntrGlobalEnabled(XSpi *self)
+{
+    return XSpi_ReadReg(self->BaseAddr,
+                        XSP_DGIER_OFFSET) == XSP_GINTR_ENABLE_MASK;
+}
 
 /*****************************************************************************/
 /**
@@ -501,12 +496,12 @@ typedef struct {
  * @return	A status which contains the value read from the Interrupt
  *		Status Register.
  *
- * @note		C-Style signature:
- *		uint32_t XSpi_IntrGetStatus(XSpi *InstancePtr);
- *
  ******************************************************************************/
-#define XSpi_IntrGetStatus(InstancePtr)                         \
-    XSpi_ReadReg(((InstancePtr)->BaseAddr), XSP_IISR_OFFSET)
+static NACS_INLINE uint32_t
+XSpi_IntrGetStatus(XSpi *self)
+{
+    return XSpi_ReadReg(self->BaseAddr, XSP_IISR_OFFSET);
+}
 
 /*****************************************************************************/
 /**
@@ -527,16 +522,13 @@ typedef struct {
  *		will keep the previous setting. This mask is formed by OR'ing
  *		XSP_INTR_* bits defined in xspi_l.h.
  *
- * @return	None.
- *
- * @note		C-Style signature:
- *		void XSpi_IntrClear(XSpi *InstancePtr, uint32_t ClearMask);
- *
  ******************************************************************************/
-#define XSpi_IntrClear(InstancePtr, ClearMask) 			\
-    XSpi_WriteReg(((InstancePtr)->BaseAddr),  XSP_IISR_OFFSET,          \
-                  XSpi_IntrGetStatus(InstancePtr) | (ClearMask))
-
+static NACS_INLINE void
+XSpi_IntrClear(XSpi *self, uint32_t mask)
+{
+    XSpi_WriteReg(self->BaseAddr,  XSP_IISR_OFFSET,
+                  XSpi_IntrGetStatus(self) | mask);
+}
 
 /******************************************************************************/
 /**
@@ -549,16 +541,14 @@ typedef struct {
  *		keep the previous setting. This mask is formed by OR'ing
  *		XSP_INTR_* bits defined in xspi_l.h.
  *
- * @return 	None.
- *
- * @note		C-Style signature:
- *		void XSpi_IntrEnable(XSpi *InstancePtr, uint32_t EnableMask);
- *
  ******************************************************************************/
-#define XSpi_IntrEnable(InstancePtr, EnableMask)			\
-    XSpi_WriteReg(((InstancePtr)->BaseAddr), XSP_IIER_OFFSET,           \
-                  (XSpi_ReadReg(((InstancePtr)->BaseAddr), 		\
-                                XSP_IIER_OFFSET)) | (((EnableMask) & XSP_INTR_ALL )))
+static NACS_INLINE void
+XSpi_IntrEnable(XSpi *self, uint32_t mask)
+{
+    XSpi_WriteReg(self->BaseAddr, XSP_IIER_OFFSET,
+                  (XSpi_ReadReg(self->BaseAddr, XSP_IIER_OFFSET)) |
+                  (mask & XSP_INTR_ALL));
+}
 
 /****************************************************************************/
 /**
@@ -571,17 +561,14 @@ typedef struct {
  *		keep the previous setting. This mask is formed by OR'ing
  *		XSP_INTR_* bits defined in xspi_l.h.
  *
- * @return	None.
- *
- * @note		C-Style signature:
- *		void XSpi_IntrDisable(XSpi *InstancePtr, uint32_t DisableMask);
- *
  ******************************************************************************/
-#define XSpi_IntrDisable(InstancePtr, DisableMask) 			\
-    XSpi_WriteReg(((InstancePtr)->BaseAddr), XSP_IIER_OFFSET,           \
-                  XSpi_ReadReg(((InstancePtr)->BaseAddr), 		\
-                               XSP_IIER_OFFSET) & (~ ((DisableMask) & XSP_INTR_ALL )))
-
+static NACS_INLINE void
+XSpi_IntrDisable(XSpi *self, uint32_t mask)
+{
+    XSpi_WriteReg(self->BaseAddr, XSP_IIER_OFFSET,
+                  XSpi_ReadReg(self->BaseAddr, XSP_IIER_OFFSET) &
+                  ~(mask & XSP_INTR_ALL));
+}
 
 /*****************************************************************************/
 /**
@@ -592,12 +579,12 @@ typedef struct {
  *
  * @return	The contents read from the Interrupt Enable Register.
  *
- * @note		C-Style signature:
- *		uint32_t XSpi_IntrGetEnabled(XSpi *InstancePtr)
- *
  ******************************************************************************/
-#define XSpi_IntrGetEnabled(InstancePtr)                        \
-    XSpi_ReadReg(((InstancePtr)->BaseAddr),  XSP_IIER_OFFSET)
+static NACS_INLINE uint32_t
+XSpi_IntrGetEnabled(XSpi *self)
+{
+    return XSpi_ReadReg(self->BaseAddr,  XSP_IIER_OFFSET);
+}
 
 /****************************************************************************/
 /**
@@ -608,14 +595,12 @@ typedef struct {
  * @param	InstancePtr is a pointer to the XSpi instance to be worked on.
  * @param	Mask is the 32-bit value to write to the control register.
  *
- * @return	None.
- *
- * @note		C-Style signature:
- * 		void XSpi_SetControlReg(XSpi *InstancePtr, uint32_t Mask);
- *
  *****************************************************************************/
-#define XSpi_SetControlReg(InstancePtr, Mask)                           \
-    XSpi_WriteReg(((InstancePtr)->BaseAddr), XSP_CR_OFFSET, (Mask))
+static NACS_INLINE void
+XSpi_SetControlReg(XSpi *self, uint32_t mask)
+{
+    XSpi_WriteReg(self->BaseAddr, XSP_CR_OFFSET, mask);
+}
 
 /****************************************************************************/
 /**
@@ -628,12 +613,12 @@ typedef struct {
  * @return	A 32-bit value representing the contents of the control
  *		register.
  *
- * @note		C-Style signature:
- * 		uint32_t XSpi_GetControlReg(XSpi *InstancePtr);
- *
  *****************************************************************************/
-#define XSpi_GetControlReg(InstancePtr)                         \
-    XSpi_ReadReg(((InstancePtr)->BaseAddr), XSP_CR_OFFSET)
+static NACS_INLINE uint32_t
+XSpi_GetControlReg(XSpi *self)
+{
+    return XSpi_ReadReg(self->BaseAddr, XSP_CR_OFFSET);
+}
 
 /***************************************************************************/
 /**
@@ -646,12 +631,12 @@ typedef struct {
  * @return	An 32-bit value representing the contents of the status
  *		register.
  *
- * @note		C-Style signature:
- * 		uint8_t XSpi_GetStatusReg(XSpi *InstancePtr);
- *
  *****************************************************************************/
-#define XSpi_GetStatusReg(InstancePtr)                          \
-    XSpi_ReadReg(((InstancePtr)->BaseAddr), XSP_SR_OFFSET)
+static NACS_INLINE uint32_t
+XSpi_GetStatusReg(XSpi *self)
+{
+    return XSpi_ReadReg(self->BaseAddr, XSP_SR_OFFSET);
+}
 
 /****************************************************************************/
 /**
@@ -662,14 +647,12 @@ typedef struct {
  * @param	InstancePtr is a pointer to the XSpi instance to be worked on.
  * @param	Mask is the 32-bit value to write to the control register.
  *
- * @return	None.
- *
- * @note		C-Style signature:
- * 		void XSpi_SetXipControlReg(XSpi *InstancePtr, uint32_t Mask);
- *
  *****************************************************************************/
-#define XSpi_SetXipControlReg(InstancePtr, Mask)                        \
-    XSpi_WriteReg(((InstancePtr)->BaseAddr), XSP_CR_OFFSET, (Mask))
+static NACS_INLINE void
+XSpi_SetXipControlReg(XSpi *self, uint32_t mask)
+{
+    XSpi_WriteReg(self->BaseAddr, XSP_CR_OFFSET, mask);
+}
 
 /****************************************************************************/
 /**
@@ -682,12 +665,12 @@ typedef struct {
  * @return	A 32-bit value representing the contents of the control
  *		register.
  *
- * @note		C-Style signature:
- * 		uint32_t XSpi_GetXipControlReg(XSpi *InstancePtr);
- *
  *****************************************************************************/
-#define XSpi_GetXipControlReg(InstancePtr)                      \
-    XSpi_ReadReg(((InstancePtr)->BaseAddr), XSP_CR_OFFSET)
+static NACS_INLINE uint32_t
+XSpi_GetXipControlReg(XSpi *self)
+{
+    return XSpi_ReadReg(self->BaseAddr, XSP_CR_OFFSET);
+}
 
 /****************************************************************************/
 /**
@@ -700,12 +683,12 @@ typedef struct {
  * @return	An 32-bit value representing the contents of the status
  *		register.
  *
- * @note		C-Style signature:
- * 		uint8_t XSpi_GetXipStatusReg(XSpi *InstancePtr);
- *
  *****************************************************************************/
-#define XSpi_GetXipStatusReg(InstancePtr)                       \
-    XSpi_ReadReg(((InstancePtr)->BaseAddr), XSP_SR_OFFSET)
+static NACS_INLINE uint32_t
+XSpi_GetXipStatusReg(XSpi *self)
+{
+    return XSpi_ReadReg(self->BaseAddr, XSP_SR_OFFSET);
+}
 
 /****************************************************************************/
 /**
@@ -717,14 +700,12 @@ typedef struct {
  * @param	InstancePtr is a pointer to the XSpi instance to be worked on.
  * @param	Mask is the 32-bit value to write to the slave select register.
  *
- * @return	None.
- *
- * @note		C-Style signature:
- * 		void XSpi_SetSlaveSelectReg(XSpi *InstancePtr, uint32_t Mask);
- *
  *****************************************************************************/
-#define XSpi_SetSlaveSelectReg(InstancePtr, Mask)                       \
-    XSpi_WriteReg(((InstancePtr)->BaseAddr), XSP_SSR_OFFSET, (Mask))
+static NACS_INLINE void
+XSpi_SetSlaveSelectReg(XSpi *self, uint32_t mask)
+{
+    XSpi_WriteReg(self->BaseAddr, XSP_SSR_OFFSET, mask);
+}
 
 /****************************************************************************/
 /**
@@ -737,12 +718,12 @@ typedef struct {
  *
  * @return	The 32-bit value in the slave select register.
  *
- * @note		C-Style signature:
- * 		uint32_t XSpi_GetSlaveSelectReg(XSpi *InstancePtr);
- *
  *****************************************************************************/
-#define XSpi_GetSlaveSelectReg(InstancePtr) 			\
-    XSpi_ReadReg((InstancePtr)->BaseAddr, XSP_SSR_OFFSET)
+static NACS_INLINE uint32_t
+XSpi_GetSlaveSelectReg(XSpi *self)
+{
+    return XSpi_ReadReg(self->BaseAddr, XSP_SSR_OFFSET);
+}
 
 /****************************************************************************/
 /**
@@ -752,20 +733,16 @@ typedef struct {
  *
  * @param	InstancePtr is a pointer to the XSpi instance to be worked on.
  *
- * @return	None.
- *
- * @note		C-Style signature:
- * 		void XSpi_Enable(XSpi *InstancePtr);
- *
  *****************************************************************************/
-#define XSpi_Enable(InstancePtr)                        \
-    {                                                   \
-        uint16_t Control;                               \
-        Control = XSpi_GetControlReg((InstancePtr));    \
-        Control |= XSP_CR_ENABLE_MASK;                  \
-        Control &= ~XSP_CR_TRANS_INHIBIT_MASK;          \
-        XSpi_SetControlReg((InstancePtr), Control);     \
-    }
+static NACS_INLINE void
+XSpi_Enable(XSpi *self)
+{
+    uint16_t ctrl;
+    ctrl = XSpi_GetControlReg(self);
+    ctrl |= XSP_CR_ENABLE_MASK;
+    ctrl &= ~XSP_CR_TRANS_INHIBIT_MASK;
+    XSpi_SetControlReg(self, ctrl);
+}
 
 /****************************************************************************/
 /**
@@ -774,15 +751,15 @@ typedef struct {
  *
  * @param	InstancePtr is a pointer to the XSpi instance to be worked on.
  *
- * @return	None.
- *
  * @note        C-Style signature:
  *              void XSpi_Disable(XSpi *InstancePtr);
  *
  *****************************************************************************/
-#define XSpi_Disable(InstancePtr)                                       \
-    XSpi_SetControlReg((InstancePtr),                                   \
-                       XSpi_GetControlReg((InstancePtr)) & ~XSP_CR_ENABLE_MASK)
+static NACS_INLINE void
+XSpi_Disable(XSpi *self)
+{
+    XSpi_SetControlReg(self, XSpi_GetControlReg(self) & ~XSP_CR_ENABLE_MASK);
+}
 
 /************************** Function Prototypes ******************************/
 

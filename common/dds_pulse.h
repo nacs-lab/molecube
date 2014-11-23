@@ -22,7 +22,7 @@
 
 #include "AD9914.h"
 
-static inline const char*
+static NACS_INLINE const char*
 DDS_name(unsigned iDDS)
 {
     (void)iDDS;
@@ -50,56 +50,56 @@ int MHz2FTWI(double f);
 double dds_clk(int iDDS);
 
 //set FTW=frequency tuning word
-static inline void
+static NACS_INLINE void
 DDS_set_ftw(unsigned iDDS, unsigned ftw)
 {
     PULSER_set_dds_freq(pulser, iDDS, ftw);
 }
 
-static inline void
+static NACS_INLINE void
 DDS_set_freqHz(unsigned iDDS, unsigned Hz)
 {
     DDS_set_ftw(iDDS, Hz2FTW(Hz, dds_clk(iDDS)));
 }
 
-static inline unsigned
+static NACS_INLINE unsigned
 DDS_get_ftw(unsigned iDDS)
 {
     return PULSER_get_dds_freq(pulser, iDDS);
 }
 
-static inline double
+static NACS_INLINE double
 DDS_get_freqHz(unsigned iDDS) //get freq in Hz
 {
     return FTW2HzD(DDS_get_ftw(iDDS), AD9914_CLK);
 }
 
 //set PTW=phase tuning word
-static inline void
+static NACS_INLINE void
 DDS_set_ptw(unsigned iDDS, unsigned ptw)
 {
     PULSER_set_dds_phase(pulser, iDDS, ptw);
 }
 
-static inline void
+static NACS_INLINE void
 DDS_shift_ptw(unsigned iDDS, unsigned ptw)
 {
     PULSER_shift_dds_phase(pulser, iDDS, ptw);
 }
 
-static inline void
+static NACS_INLINE void
 DDS_set_phase_deg(unsigned iDDS, double phase)
 {
     DDS_set_ptw(iDDS, (int)(PHASE_360 * phase / 360.0 + 0.5));
 }
 
-static inline unsigned
+static NACS_INLINE unsigned
 DDS_get_ptw(unsigned iDDS)
 {
     return PULSER_get_dds_two_bytes(pulser, iDDS, 0x30);
 }
 
-static inline double
+static NACS_INLINE double
 DDS_get_phase_deg(unsigned iDDS)
 {
     unsigned u0 = DDS_get_ptw(iDDS);
@@ -107,25 +107,25 @@ DDS_get_phase_deg(unsigned iDDS)
 }
 
 //set ATW=amplitude tuning word
-static inline void
+static NACS_INLINE void
 DDS_set_atw(unsigned iDDS, unsigned atw)
 {
     PULSER_set_dds_amp(pulser, iDDS, atw);
 }
 
-static inline void
+static NACS_INLINE void
 DDS_set_amp(unsigned iDDS, double A)
 {
     DDS_set_atw(iDDS, (unsigned)(A * 4095.0 + 0.5));
 }
 
-static inline unsigned
+static NACS_INLINE unsigned
 DDS_get_atw(unsigned iDDS)
 {
     return PULSER_get_dds_two_bytes(pulser, iDDS, 0x32);
 }
 
-static inline double
+static NACS_INLINE double
 DDS_get_amp(unsigned iDDS)
 {
     unsigned u0 = DDS_get_atw(iDDS);

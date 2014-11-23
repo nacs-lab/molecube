@@ -243,7 +243,7 @@ get_channel_and_operand(std::string &arg1, std::istream &s, int *channel,
 }
 
 template <class C>
-static inline C*
+static NACS_INLINE C*
 parse_pulse(std::vector<pulse_cmd*>, unsigned t, std::string &arg1,
             std::istream &s)
 {

@@ -11,27 +11,27 @@ extern bool bDebugPulses;
 #define TTL_NOTHING     (0)
 
 #define TTL_START_EXP   (1 << 12)
-static inline const char*
+static NACS_INLINE const char*
 TTL_name(unsigned ttl)
 {
     (void)ttl;
     return "     wait";
 }
 
-static inline unsigned int
+static NACS_INLINE unsigned int
 us2TW(double t)
 {
     return static_cast<unsigned int>(t * 100);
 }
 
-static inline unsigned int
+static NACS_INLINE unsigned int
 ms2TW(double t)
 {
     return us2TW(t * 1e3);
 }
 
 //make an RF pulse of specified frequency and duration
-static inline void
+static NACS_INLINE void
 TTL_pulse(unsigned t, unsigned ttl)
 {
     if (t > 4) {
