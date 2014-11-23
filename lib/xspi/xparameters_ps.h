@@ -64,10 +64,6 @@
 #ifndef _XPARAMETERS_PS_H_
 #define _XPARAMETERS_PS_H_
 
-NACS_BEGIN_DECLS
-
-/************************** Constant Definitions *****************************/
-
 /*
  * This block contains constant declarations for the peripherals
  * within the hardblock
@@ -325,6 +321,4 @@ NACS_BEGIN_DECLS
 #define XPAR_SCUTIMER_DEVICE_ID		0
 #define XPAR_SCUWDT_DEVICE_ID		0
 
-NACS_END_DECLS
-
-#endif /* protection macro */
+#endif

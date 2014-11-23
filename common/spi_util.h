@@ -4,24 +4,10 @@
 #include "fpga.h"
 #include "common.h"
 
-#ifndef NO_XSPI
-#include <xspi.h>
+#include <nacs-xspi/xspi.h>
 
 typedef XSpi spi_struct;
 typedef XSpi* spi_p;
-
-#else
-
-struct spi_struct {
-    int fd;
-    int bits;
-    int speed;
-    int delay;
-};
-
-typedef spi_struct* spi_p;
-
-#endif
 
 //! wrapper for XSpi_Transfer
 void Spi_Transfer(spi_p spi, unsigned char* tx, unsigned char* rc, unsigned nBytes);

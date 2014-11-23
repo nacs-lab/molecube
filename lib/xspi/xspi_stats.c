@@ -98,6 +98,7 @@
 * @note		Statistics are not updated in polled mode of operation.
 *
 ******************************************************************************/
+#if 0
 void XSpi_GetStats(XSpi *InstancePtr, XSpi_Stats *StatsPtr)
 {
     assert(InstancePtr != NULL);
@@ -111,6 +112,7 @@ void XSpi_GetStats(XSpi *InstancePtr, XSpi_Stats *StatsPtr)
     StatsPtr->BytesTransferred = InstancePtr->Stats.BytesTransferred;
     StatsPtr->NumInterrupts = InstancePtr->Stats.NumInterrupts;
 }
+#endif
 
 /*****************************************************************************/
 /**
@@ -124,6 +126,7 @@ void XSpi_GetStats(XSpi *InstancePtr, XSpi_Stats *StatsPtr)
 * @note		Statistics are not updated in polled mode of operation.
 *
 ******************************************************************************/
+#if 0
 void XSpi_ClearStats(XSpi *InstancePtr)
 {
     assert(InstancePtr != NULL);
@@ -137,3 +140,4 @@ void XSpi_ClearStats(XSpi *InstancePtr)
     InstancePtr->Stats.NumInterrupts = 0;
 
 }
+#endif

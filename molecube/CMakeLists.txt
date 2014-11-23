@@ -1,8 +1,7 @@
 add_definitions(-DNSPI=2 -DNDDS=22 -DAD9914_CLK=3.5e9)
 
 # Current directory
-include_directories(include
-  zynq_linux)
+include_directories(include zynq_linux)
 
 set(SOURCES
   parser/parseMisc.cpp
@@ -11,17 +10,6 @@ set(SOURCES
   zynq_linux/init_platform.cpp
   zynq_linux/init_system.cpp
   zynq_linux/main.cpp)
-
-# Lib
-include_directories(../lib/xspi)
-
-set(SOURCES ${SOURCES}
-  ../lib/xspi/xspi_stats.c
-  ../lib/xspi/xspi_g.c
-  ../lib/xspi/xspi_sinit.c
-  ../lib/xspi/xspi_selftest.c
-  ../lib/xspi/xspi_options.c
-  ../lib/xspi/xspi.c)
 
 # Common
 include_directories(../common)
@@ -48,4 +36,4 @@ set(SOURCES ${SOURCES}
 
 add_executable(molecube ${SOURCES})
 
-target_link_libraries(molecube rt cgicc fcgi fcgi++ nacs-utils)
+target_link_libraries(molecube rt cgicc fcgi fcgi++ nacs-utils nacs-xspi)

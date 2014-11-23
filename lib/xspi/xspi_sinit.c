@@ -85,7 +85,7 @@
 * @note		None.
 *
 ******************************************************************************/
-XSpi_Config*
+static XSpi_Config*
 XSpi_LookupConfig(uint16_t DeviceId)
 {
     XSpi_Config *CfgPtr = NULL;
@@ -135,7 +135,8 @@ XSpi_LookupConfig(uint16_t DeviceId)
 * @note		None.
 *
 ******************************************************************************/
-int XSpi_Initialize(XSpi *InstancePtr, uint16_t DeviceId)
+NACS_EXPORT int
+XSpi_Initialize(XSpi *InstancePtr, uint16_t DeviceId)
 {
     XSpi_Config *ConfigPtr; /* Pointer to Configuration ROM data */
 

@@ -790,46 +790,48 @@ typedef struct {
  * Initialization functions in xspi_sinit.c
  */
 int XSpi_Initialize(XSpi *InstancePtr, uint16_t DeviceId);
-XSpi_Config *XSpi_LookupConfig(uint16_t DeviceId);
+// XSpi_Config *XSpi_LookupConfig(uint16_t DeviceId);
 
 /*
  * Functions, in xspi.c
  */
+// Internal
 int XSpi_CfgInitialize(XSpi *InstancePtr, XSpi_Config * Config,
                        volatile char *EffectiveAddr);
 
 int XSpi_Start(XSpi *InstancePtr);
 int XSpi_Stop(XSpi *InstancePtr);
 
+// Internal
 void XSpi_Reset(XSpi *InstancePtr);
 
-int XSpi_SetSlaveSelect(XSpi *InstancePtr, uint32_t SlaveMask);
-uint32_t XSpi_GetSlaveSelect(XSpi *InstancePtr);
+// int XSpi_SetSlaveSelect(XSpi *InstancePtr, uint32_t SlaveMask);
+// uint32_t XSpi_GetSlaveSelect(XSpi *InstancePtr);
 
 int XSpi_Transfer(XSpi *InstancePtr, uint8_t *SendBufPtr, uint8_t *RecvBufPtr,
                   unsigned int ByteCount);
 
-void XSpi_SetStatusHandler(XSpi *InstancePtr, void *CallBackRef,
-                           XSpi_StatusHandler FuncPtr);
-void XSpi_InterruptHandler(void *InstancePtr);
+// void XSpi_SetStatusHandler(XSpi *InstancePtr, void *CallBackRef,
+//                            XSpi_StatusHandler FuncPtr);
+// void XSpi_InterruptHandler(void *InstancePtr);
 
 
 /*
  * Functions for selftest, in xspi_selftest.c
  */
-int XSpi_SelfTest(XSpi *InstancePtr);
+// int XSpi_SelfTest(XSpi *InstancePtr);
 
 /*
  * Functions for statistics, in xspi_stats.c
  */
-void XSpi_GetStats(XSpi *InstancePtr, XSpi_Stats *StatsPtr);
-void XSpi_ClearStats(XSpi *InstancePtr);
+// void XSpi_GetStats(XSpi *InstancePtr, XSpi_Stats *StatsPtr);
+// void XSpi_ClearStats(XSpi *InstancePtr);
 
 /*
  * Functions for options, in xspi_options.c
  */
 int XSpi_SetOptions(XSpi *InstancePtr, uint32_t Options);
-uint32_t XSpi_GetOptions(XSpi *InstancePtr);
+// uint32_t XSpi_GetOptions(XSpi *InstancePtr);
 
 NACS_END_DECLS
 #endif

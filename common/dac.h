@@ -1,10 +1,9 @@
 #include <nacs-utils/utils.h>
+#include <nacs-xspi/xparameters.h>
+#include <nacs-xspi/xstatus.h>
 
 #ifndef DAC_H_
 #define DAC_H_
-
-#include <xparameters.h>
-#include <xstatus.h>
 
 #include "spi_util.h"
 

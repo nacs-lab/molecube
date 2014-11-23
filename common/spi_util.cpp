@@ -2,9 +2,7 @@
 
 #include <nacs-utils/log.h>
 
-#ifndef NO_XSPI
-
-#include <xspi_l.h>
+#include <nacs-xspi/xspi_l.h>
 #include <endian.h>
 
 unsigned SPI_Transmit16(spi_p spi, unsigned short *dataTX,
@@ -55,7 +53,6 @@ unsigned SPI_Transmit(spi_p spi, unsigned* dataTX, unsigned* dataRC, unsigned nB
 
     return s;
 }
-
 
 //optimized copy of the Xilinx driver function
 int SPI_SetSlaveSelect(spi_p  InstancePtr, unsigned SlaveMask)
@@ -212,4 +209,3 @@ void Spi_Transfer(spi_p spi, uint8_t* tx, uint8_t* rc, unsigned nBytes)
 {
     XSpi_Transfer(spi, tx, rc, nBytes);
 }
-#endif //NO_XSPI

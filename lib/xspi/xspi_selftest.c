@@ -89,10 +89,9 @@
 
 /************************** Function Prototypes ******************************/
 
+#if 0
 static int LoopbackTest(XSpi *InstancePtr);
-
-/************************** Variable Definitions *****************************/
-
+#endif
 
 /*****************************************************************************/
 /**
@@ -117,6 +116,7 @@ static int LoopbackTest(XSpi *InstancePtr);
  * @note		None.
  *
  ******************************************************************************/
+#if 0
 int XSpi_SelfTest(XSpi *InstancePtr)
 {
     int Result;
@@ -147,9 +147,6 @@ int XSpi_SelfTest(XSpi *InstancePtr)
             return XST_REGISTER_ERROR;
         }
     }
-
-
-
 
     /*
      * All the SPI registers should be in their default state right now.
@@ -210,6 +207,7 @@ int XSpi_SelfTest(XSpi *InstancePtr)
 
     return XST_SUCCESS;
 }
+#endif
 
 /*****************************************************************************/
 /*
@@ -232,6 +230,7 @@ int XSpi_SelfTest(XSpi *InstancePtr)
  * @note		None.
  *
  ******************************************************************************/
+#if 0
 static int LoopbackTest(XSpi *InstancePtr)
 {
     uint32_t StatusReg;
@@ -364,3 +363,4 @@ static int LoopbackTest(XSpi *InstancePtr)
 
     return XST_SUCCESS;
 }
+#endif

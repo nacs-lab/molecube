@@ -119,7 +119,8 @@ static OptionsMap OptionsTable[] = {
 * semaphore).
 *
 ******************************************************************************/
-int XSpi_SetOptions(XSpi *InstancePtr, uint32_t Options)
+NACS_EXPORT int
+XSpi_SetOptions(XSpi *InstancePtr, uint32_t Options)
 {
     uint32_t ControlReg;
     uint32_t Index;
@@ -192,6 +193,7 @@ int XSpi_SetOptions(XSpi *InstancePtr, uint32_t Options)
 * @note		None.
 *
 ******************************************************************************/
+#if 0
 uint32_t XSpi_GetOptions(XSpi *InstancePtr)
 {
     uint32_t OptionsFlag = 0;
@@ -218,3 +220,4 @@ uint32_t XSpi_GetOptions(XSpi *InstancePtr)
 
     return OptionsFlag;
 }
+#endif

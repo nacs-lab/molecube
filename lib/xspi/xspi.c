@@ -275,7 +275,8 @@ int XSpi_CfgInitialize(XSpi *InstancePtr, XSpi_Config *Config,
  * @note		None.
  *
  ******************************************************************************/
-int XSpi_Start(XSpi *InstancePtr)
+NACS_EXPORT int
+XSpi_Start(XSpi *InstancePtr)
 {
     uint32_t ControlReg;
 
@@ -353,7 +354,8 @@ int XSpi_Start(XSpi *InstancePtr)
  * semaphore).
  *
  ******************************************************************************/
-int XSpi_Stop(XSpi *InstancePtr)
+NACS_EXPORT int
+XSpi_Stop(XSpi *InstancePtr)
 {
     uint32_t ControlReg;
 
@@ -508,8 +510,9 @@ void XSpi_Reset(XSpi *InstancePtr)
  * no two threads are transferring data on the SPI bus at the same time.
  *
  ******************************************************************************/
-int XSpi_Transfer(XSpi *InstancePtr, uint8_t *SendBufPtr,
-                  uint8_t *RecvBufPtr, unsigned int ByteCount)
+NACS_EXPORT int
+XSpi_Transfer(XSpi *InstancePtr, uint8_t *SendBufPtr, uint8_t *RecvBufPtr,
+              unsigned int ByteCount)
 {
     uint32_t ControlReg;
     uint32_t GlobalIntrReg;
@@ -853,6 +856,7 @@ int XSpi_Transfer(XSpi *InstancePtr, uint8_t *SendBufPtr,
  * has no affect when the device is configured as a slave.
  *
  ******************************************************************************/
+#if 0
 int XSpi_SetSlaveSelect(XSpi *InstancePtr, uint32_t SlaveMask)
 {
     int NumAsserted;
@@ -901,6 +905,7 @@ int XSpi_SetSlaveSelect(XSpi *InstancePtr, uint32_t SlaveMask)
 
     return XST_SUCCESS;
 }
+#endif
 
 /*****************************************************************************/
 /**
@@ -919,6 +924,7 @@ int XSpi_SetSlaveSelect(XSpi *InstancePtr, uint32_t SlaveMask)
  *		the slave select register stored in the instance pointer.
  *
  ******************************************************************************/
+#if 0
 uint32_t XSpi_GetSlaveSelect(XSpi *InstancePtr)
 {
     assert(InstancePtr != NULL);
@@ -931,6 +937,7 @@ uint32_t XSpi_GetSlaveSelect(XSpi *InstancePtr)
      */
     return ~InstancePtr->SlaveSelectReg;
 }
+#endif
 
 /*****************************************************************************/
 /**
@@ -980,6 +987,7 @@ uint32_t XSpi_GetSlaveSelect(XSpi *InstancePtr)
  * quickly and queue potentially time-consuming work to a task-level thread.
  *
  ******************************************************************************/
+#if 0
 void XSpi_SetStatusHandler(XSpi *InstancePtr, void *CallBackRef,
                            XSpi_StatusHandler FuncPtr)
 {
@@ -990,6 +998,7 @@ void XSpi_SetStatusHandler(XSpi *InstancePtr, void *CallBackRef,
     InstancePtr->StatusHandler = FuncPtr;
     InstancePtr->StatusRef = CallBackRef;
 }
+#endif
 
 /*****************************************************************************/
 /**
@@ -1067,6 +1076,7 @@ StubStatusHandler(void *CallBackRef, uint32_t StatusEvent,
  * master since the hardware does not drive the slave select as a slave.
  *
  ******************************************************************************/
+#if 0
 void XSpi_InterruptHandler(void *InstancePtr)
 {
     XSpi *SpiPtr = (XSpi *)InstancePtr;
@@ -1312,6 +1322,7 @@ void XSpi_InterruptHandler(void *InstancePtr)
                               XST_SPI_COMMAND_ERROR, BytesDone);
     }
 }
+#endif
 
 /*****************************************************************************/
 /**

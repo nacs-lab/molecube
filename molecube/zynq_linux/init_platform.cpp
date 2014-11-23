@@ -1,6 +1,7 @@
 #include "init_platform.h"
 #include <nacs-utils/log.h>
 #include <nacs-utils/fd_utils.h>
+#include <nacs-xspi/xparameters.h>
 
 #include <common.h>
 #include <fcntl.h>
@@ -8,7 +9,6 @@
 #include <sched.h>
 #include <errno.h>
 
-#include <xparameters.h>
 
 // Platform specific initialization
 // Linux: get device addresses
