@@ -2,7 +2,7 @@ set(nacs_xspi_SRCS
   xspi_stats.c
   xspi_g.c
   xspi_sinit.c
-  xspi_selftest.c
+  # xspi_selftest.c
   xspi_options.c
   xspi.c)
 set(nacs_xspi_LINKS nacs-utils pthread)
