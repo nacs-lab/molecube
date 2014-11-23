@@ -16,5 +16,4 @@ set_target_properties(nacs-xspi PROPERTIES
   SOVERSION 0
   COMPILE_FLAGS "-fvisibility=hidden"
   LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
-# install(TARGETS nacs-xspi LIBRARY
-#   DESTINATION "${LIB_INSTALL_DIR}")
+install(TARGETS nacs-xspi LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}")

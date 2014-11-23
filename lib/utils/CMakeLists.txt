@@ -16,5 +16,4 @@ set_target_properties(nacs-utils PROPERTIES
   SOVERSION 0
   COMPILE_FLAGS "-fvisibility=hidden"
   LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
-# install(TARGETS nacs-utils LIBRARY
-#   DESTINATION "${LIB_INSTALL_DIR}")
+install(TARGETS nacs-utils LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}")

@@ -7,6 +7,7 @@ set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}"
 
 include(PythonMacros)
 include(CMakeCMacros)
+include(GNUInstallDirs)
 
 # Remove rdynamic
 set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS)

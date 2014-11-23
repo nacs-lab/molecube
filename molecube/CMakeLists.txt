@@ -16,7 +16,7 @@ include_directories(../common)
 
 set(SOURCES ${SOURCES}
   ../common/CmdLineArgs.cpp
-  ../common/dac.cpp
+  # ../common/dac.cpp
   ../common/linux_file_util.c
   ../common/dds_pulse.cpp
   ../common/verbosity.cpp
@@ -24,7 +24,7 @@ set(SOURCES ${SOURCES}
   ../common/dds_pulse_info.cpp
   ../common/fpga.c
   ../common/AD9914.cpp
-  ../common/self_test.cpp
+  # ../common/self_test.cpp
   ../common/string_func.cpp)
 
 # Drivers
@@ -37,3 +37,5 @@ set(SOURCES ${SOURCES}
 add_executable(molecube ${SOURCES})
 
 target_link_libraries(molecube rt cgicc fcgi fcgi++ nacs-utils nacs-xspi)
+
+install(TARGETS molecube DESTINATION "${CMAKE_INSTALL_BINDIR}")
