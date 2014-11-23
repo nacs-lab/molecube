@@ -18,6 +18,7 @@ add_definitions(-Wall -Wextra -g -pthread -fvisibility=hidden
 
 cmake_c_fix_include_path(lib/utils nacs-utils)
 cmake_c_fix_include_path(lib/xspi nacs-xspi)
+cmake_c_fix_include_path(lib/pulser nacs-pulser)
 
 set(LINKER_FLAGS -Wl,--as-needed -Wl,--no-undefined -Wl,--gc-sections
   -pthread -O2 -flto -fno-math-errno

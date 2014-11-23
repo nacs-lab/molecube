@@ -5,7 +5,6 @@
  * Date:              Sat Jul 14 14:34:13 2012 (by Create and Import Peripheral Wizard)
  *****************************************************************************/
 
-#include <nacs-utils/utils.h>
 #include <nacs-utils/mem.h>
 
 #ifndef PULSER_IO_H

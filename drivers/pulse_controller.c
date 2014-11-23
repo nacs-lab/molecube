@@ -6,9 +6,9 @@
  *****************************************************************************/
 
 #include <nacs-utils/log.h>
+#include <nacs-pulser/ctrl_io.h>
 
 #include "pulse_controller.h"
-#include "pulse_controller_io.h"
 
 static unsigned nDDS_boards = 0;
 static unsigned extra_flags = 0;
@@ -28,8 +28,11 @@ PULSER_unsafe_pulse(volatile void *base_addr, unsigned control,
     // does not check if there is space in buffer before writing.
     // but AXI bus will wait until space is available
 
-    //   PULSER_vacancy--;
-    //   __asm__ volatile ("stw %0,0(%2); stw %1,4(%2); eieio" : : "r" (control),  "r" (operand), "b" (base_addr + PULSER_WRFIFO_DATA_OFFSET));
+    /* PULSER_vacancy--; */
+    /* asm volatile ("stw %0,0(%2); stw %1,4(%2); eieio" : : */
+    /*               "r" (control), */
+    /*               "r" (operand), */
+    /*               "b" (base_addr + PULSER_WRFIFO_DATA_OFFSET)); */
     PULSER_mWriteSlaveReg31(base_addr, 0, operand);
     PULSER_mWriteSlaveReg31(base_addr, 0, control);
 }
@@ -70,7 +73,7 @@ PULSER_init(volatile void *base_addr, unsigned nDDS, unsigned bResetDDS)
     if (nacsCheckLogLevel(NACS_LOG_INFO)) {
         printf("PULSER_init... reset DDS\n");
     }
-    for (char iDDS = 0;iDDS < nDDS_boards;iDDS++) {
+    for (unsigned iDDS = 0;iDDS < nDDS_boards;iDDS++) {
         if (bResetDDS) {
             PULSER_dds_reset(base_addr, iDDS);
         }
@@ -88,36 +91,42 @@ PULSER_init(volatile void *base_addr, unsigned nDDS, unsigned bResetDDS)
 /* } */
 
 //! Is the read FIFO empty?.
-int PULSER_read_empty(volatile void *base_addr)
+int
+PULSER_read_empty(volatile void *base_addr)
 {
     return PULSER_num_results(base_addr) == 0;
 }
 
 //! TTL functions: pulse_io = (ttl_out | high_mask) & (~low_mask);
-void PULSER_set_ttl(volatile void *base_addr, unsigned high_mask, unsigned low_mask)
+void
+PULSER_set_ttl(volatile void *base_addr, unsigned high_mask, unsigned low_mask)
 {
     PULSER_mWriteSlaveReg0(base_addr, 0, high_mask);
     PULSER_mWriteSlaveReg1(base_addr, 0, low_mask);
 }
 
 //! TTL functions: pulse_io = (ttl_out | high_mask) & (~low_mask);
-void PULSER_get_ttl(volatile void *base_addr, unsigned* high_mask, unsigned* low_mask)
+void
+PULSER_get_ttl(volatile void *base_addr, unsigned *high_mask,
+               unsigned *low_mask)
 {
     *high_mask = PULSER_read_slave_reg(base_addr, 0, 0);
     *low_mask = PULSER_read_slave_reg(base_addr, 0, 4);
 }
 
 
-//! enable / disable clock_out
-//! divider = 0..254 means emit clock with period 2 x (divider+1) in pulse controller timing units (DT_ns)
-//! divider = 255 means disable
-void PULSER_enable_clock_out(volatile void *base_addr, unsigned divider)
+// enable / disable clock_out
+// divider = 0..254 means emit clock with period 2 x (divider + 1)
+// in pulse controller timing units (DT_ns)
+// divider = 255 means disable
+void
+PULSER_enable_clock_out(volatile void *base_addr, unsigned divider)
 {
     PULSER_short_pulse(base_addr, 0x50000000, divider & 0xFF);
 }
 
-//! If DDS i is present return non-zero, otherwise 0.
-int PULSER_dds_exists(volatile void *base_addr, char i)
+// If DDS i is present return non-zero, otherwise 0.
+int PULSER_dds_exists(volatile void *base_addr, int i)
 {
     unsigned addr = 0x68;
     //Check whether it's possible to set phase of profile 7 to 0 and 1
@@ -130,70 +139,78 @@ int PULSER_dds_exists(volatile void *base_addr, char i)
     return (u0 == 0) && (u1 == 1);
 }
 
-//! DDS functions - reset DDS i
+// reset DDS i
 void
-PULSER_dds_reset(volatile void *base_addr, char _i)
+PULSER_dds_reset(volatile void *base_addr, int i)
 {
-    int i = _i;
     PULSER_short_pulse(base_addr, 0x10000004 | (i << 4), 0);
-
     /* ddsFTW[i] = 0; */
     ddsPhase[i] = 0;
 }
 
-//! DDS functions - reset DDS selected by bitmask mask
-void PULSER_dds_reset_sel(volatile void *base_addr, unsigned mask)
+// reset DDS selected by bitmask mask
+void
+PULSER_dds_reset_sel(volatile void *base_addr, unsigned mask)
 {
     PULSER_short_pulse(base_addr, 0x10000005, mask);
 }
 
-//! DDS functions - select DDS (high bits in mask).  Remember to unselect (mask = 0)
-void PULSER_dds_set_sel(volatile void *base_addr, unsigned mask)
+// select DDS (high bits in mask).  Remember to unselect (mask = 0)
+void
+PULSER_dds_set_sel(volatile void *base_addr, unsigned mask)
 {
     PULSER_short_pulse(base_addr, 0x10000006, mask);
 }
 
-//! DDS functions - get byte from address on DDS i
-unsigned PULSER_get_dds_byte(volatile void *base_addr, char i, unsigned address)
+// get byte from address on DDS i
+unsigned
+PULSER_get_dds_byte(volatile void *base_addr, int i, unsigned address)
 {
-    PULSER_short_pulse(base_addr, 0x10000003 | (i << 4) | ((address) << 9), 0);
+    PULSER_short_pulse(base_addr, 0x10000003 | (i << 4) | (address << 9), 0);
     return (PULSER_pop_result(base_addr) >> 8) & 0x000000ff;
 }
 
-//! DDS functions - get two bytes from address+1 ... adress on DDS i
-unsigned PULSER_get_dds_two_bytes(volatile void *base_addr, char i, unsigned address)
+// get two bytes from address+1 ... adress on DDS i
+unsigned
+PULSER_get_dds_two_bytes(volatile void *base_addr, int i, unsigned address)
 {
-    PULSER_short_pulse(base_addr, 0x10000003 | (i << 4) | ((address+1) << 9), 0);
+    PULSER_short_pulse(base_addr,
+                       0x10000003 | (i << 4) | ((address + 1) << 9), 0);
     return PULSER_pop_result(base_addr) & 0x0000ffff;
 }
 
-//! DDS functions - get four bytes from address+3 ... adress on DDS i
-unsigned PULSER_get_dds_four_bytes(volatile void *base_addr, char i, unsigned address)
+// get four bytes from address+3 ... adress on DDS i
+unsigned
+PULSER_get_dds_four_bytes(volatile void *base_addr, int i, unsigned address)
 {
-    PULSER_short_pulse(base_addr, 0x1000000E | (i << 4) | ((address+1) << 9), 0);
+    PULSER_short_pulse(base_addr,
+                       0x1000000E | (i << 4) | ((address + 1) << 9), 0);
     return PULSER_pop_result(base_addr);
 }
 
-//! toggle init.  reset prior to new sequence
-void PULSER_toggle_init(volatile void *base_addr)
+//! toggle init. reset prior to new sequence
+void
+PULSER_toggle_init(volatile void *base_addr)
 {
     unsigned r3 = PULSER_read_slave_reg(base_addr, 3, 0);
-    PULSER_write_slave_reg(base_addr, 3, 0, r3 |   0x00000100);
-    PULSER_write_slave_reg(base_addr, 3, 0, r3 & ~(0x00000100));
+    PULSER_write_slave_reg(base_addr, 3, 0, r3 | 0x00000100);
+    PULSER_write_slave_reg(base_addr, 3, 0, r3 & ~0x00000100);
 }
 
-//! set hold.  pulses are stopped
-void PULSER_set_hold(volatile void *base_addr)
+//! set hold. pulses are stopped
+void
+PULSER_set_hold(volatile void *base_addr)
 {
     unsigned r3 = PULSER_read_slave_reg(base_addr, 3, 0);
     PULSER_write_slave_reg(base_addr, 3, 0, r3 | 0x00000080);
 }
 
 //! release hold.  pulses can run
-void PULSER_release_hold(volatile void *base_addr)
+void
+PULSER_release_hold(volatile void *base_addr)
 {
     unsigned r3 = PULSER_read_slave_reg(base_addr, 3, 0);
-    PULSER_write_slave_reg(base_addr, 3, 0, r3 & ~(0x00000080));
+    PULSER_write_slave_reg(base_addr, 3, 0, r3 & ~0x00000080);
 }
 
 //! enable timing check for pulses
@@ -205,20 +222,23 @@ PULSER_enable_timing_check(volatile void *base_addr)
 }
 
 //! disable timing check for pulses
-void PULSER_disable_timing_check(volatile void *base_addr)
+void
+PULSER_disable_timing_check(volatile void *base_addr)
 {
     (void)base_addr;
     extra_flags = extra_flags & ~ENABLE_TIMING_CHECK;
 }
 
 //! clear timing check (clear failures)
-void PULSER_clear_timing_check(volatile void *base_addr)
+void
+PULSER_clear_timing_check(volatile void *base_addr)
 {
     PULSER_short_pulse(base_addr, 0x30000000, 0);
 }
 
 //! were there any timing failures?
-int PULSER_timing_ok(volatile void *base_addr)
+int
+PULSER_timing_ok(volatile void *base_addr)
 {
     return !(PULSER_read_sr(base_addr, 2) & 0x1);
 }
@@ -252,18 +272,96 @@ PULSER_wait_for_finished(volatile void *base_addr)
 //   return PULSER_mReadReg(base_addr, PULSER_RDFIFO_SR_OFFSET);
 //}
 
-void PULSER_write_slave_reg(volatile void *base_addr, char n, unsigned offset, unsigned val)
-{
-    PULSER_mWriteSlaveReg0(base_addr, offset + 4*n, val);
-}
-
-unsigned PULSER_read_slave_reg(volatile void *base_addr, char n, unsigned offset)
-{
-    volatile unsigned u = PULSER_mReadSlaveReg0(base_addr, offset +4*n);
-    return u;
-}
-
 void
+PULSER_write_slave_reg(volatile void *base_addr, int n, unsigned offset,
+                       unsigned val)
+{
+    PULSER_mWriteSlaveReg0(base_addr, offset + 4 * n, val);
+}
+
+unsigned
+PULSER_read_slave_reg(volatile void *base_addr, int n, unsigned offset)
+{
+    return PULSER_mReadSlaveReg0(base_addr, offset + 4 * n);
+}
+
+#if 0
+static int
+PULSER_test_slave_registers(volatile void *base_addr)
+{
+    int sr_ok = 1;
+    for (int i = 0;i < 2;i++) {
+        unsigned test_val = 0;
+
+        for (int j = 0;j < 8;j++) {
+            test_val = test_val + ((i * 0xF) << (j * 4));
+        }
+
+        printf("Testing %08X   ", test_val);
+        for (int k = 0;k < 8;k++) {
+            PULSER_write_slave_reg(base_addr, k, 0, test_val);
+            unsigned read = PULSER_read_slave_reg(base_addr, k, 0);
+            printf("SR%d = %08X   ", k, read);
+            sr_ok = sr_ok && (read == test_val);
+        }
+
+        if (sr_ok) {
+            printf("OK\n");
+        } else {
+            printf("FAILED\n");
+        }
+    }
+    return sr_ok;
+}
+
+static int
+PULSER_test_dds(volatile void *base_addr, int nDDS)
+{
+    int ftw_ok = 1;
+    int phase_ok = 1;
+
+    printf("Testing DDS %d ... ", nDDS);
+    for (int i = 0;i < 2;i++) {
+        unsigned test_val = 0;
+
+        for (int j = 0;j < 8;j++) {
+            test_val = test_val + ((i * 0xF) << (j * 4));
+        }
+
+        PULSER_set_dds_freq(base_addr, nDDS, test_val);
+        unsigned read = PULSER_get_dds_freq(base_addr, nDDS);
+        ftw_ok = ftw_ok && (read == test_val);
+
+        if (read != test_val) {
+            printf("ERROR !\n");
+            printf("wrote FTW %08X\n", test_val);
+            printf(" read FTW %08X\n", read);
+        }
+    }
+
+    for (unsigned phase = 0;phase < 0x4000;phase++) {
+        PULSER_set_dds_phase(base_addr, nDDS, phase);
+        unsigned read = PULSER_get_dds_phase(base_addr, nDDS);
+
+        phase_ok = phase_ok && (read == phase);
+
+        if (read != phase) {
+            printf("ERROR on DDS %d !\n", nDDS);
+            printf("wrote PHASE %04X\n", phase);
+            printf(" read PHASE %04X\n", read);
+        }
+    }
+
+    if (ftw_ok && phase_ok) {
+        printf("DDS %d OK\n", nDDS);
+    } else {
+        printf("DDS %d FAILED\n", nDDS);
+    }
+
+    return ftw_ok && phase_ok;
+}
+
+NACS_EXPORT void
 PULSER_self_test(volatile void *base_addr, int nIO)
 {
     unsigned ftw[PULSER_MAX_NDDS];
@@ -273,7 +371,7 @@ PULSER_self_test(volatile void *base_addr, int nIO)
     printf("\n");
 
     if (nIO > 0) {
-        for (char iDDS = 0;iDDS < nDDS_boards;iDDS++) {
+        for (int iDDS = 0;iDDS < nDDS_boards;iDDS++) {
             PULSER_test_dds(base_addr, iDDS);
         }
 
@@ -281,31 +379,30 @@ PULSER_self_test(volatile void *base_addr, int nIO)
                nIO, nDDS_boards - 1);
 
         //initialize to 0 Hz
-        for (char iDDS = 0;iDDS < nDDS_boards;iDDS++) {
-            ftw[(int)iDDS] = 0;
+        for (int iDDS = 0;iDDS < nDDS_boards;iDDS++) {
+            ftw[iDDS] = 0;
             PULSER_set_dds_freq(base_addr, iDDS, 0);
         }
 
         int cycle = 0;
         while (cycle < nIO) {
-            char iDDS = rand() % nDDS_boards;
+            int iDDS = rand() % nDDS_boards;
             unsigned ftw_read = PULSER_get_dds_freq(base_addr, iDDS);
 
-            if(ftw_read != ftw[(int)iDDS]) {
+            if (ftw_read != ftw[iDDS]) {
                 printf("\n");
-                printf("ERROR on DDS %d : wrote FTW %08X\n", (int)iDDS,
-                       ftw[(int)iDDS]);
+                printf("ERROR on DDS %d : wrote FTW %08X\n", iDDS, ftw[iDDS]);
                 printf("                   read FTW %08X\n", ftw_read);
                 nBad++;
             }
 
-            ftw[(int)iDDS] = rand();
-            PULSER_set_dds_freq(base_addr, iDDS, ftw[(int)iDDS]);
+            ftw[iDDS] = rand();
+            PULSER_set_dds_freq(base_addr, iDDS, ftw[iDDS]);
 
             cycle++;
         }
 
-        for (char iDDS = 0;iDDS < nDDS_boards;iDDS++) {
+        for (int iDDS = 0;iDDS < nDDS_boards;iDDS++) {
             PULSER_set_dds_freq(base_addr, iDDS, 0);
         }
 
@@ -316,88 +413,7 @@ PULSER_self_test(volatile void *base_addr, int nIO)
         }
     }
 }
-
-int PULSER_test_slave_registers(volatile void *base_addr)
-{
-    int sr_ok = 1;
-    unsigned test_val, read;
-    int i, j, k;
-
-    for(i=0; i<2; i++) {
-        test_val = 0;
-
-        for(j=0; j<8; j++)
-            test_val = test_val + ((i*0xF) << (j*4));
-
-        printf("Testing %08X   ", test_val);
-        for(k=0; k<8; k++) {
-            PULSER_write_slave_reg(base_addr, k, 0, test_val);
-
-            read = PULSER_read_slave_reg(base_addr, k, 0);
-
-            printf("SR%d = %08X   ", k, read);
-
-            sr_ok = sr_ok && (read == test_val);
-        }
-
-        if(sr_ok)
-            printf("OK\n");
-        else
-            printf("FAILED\n");
-    }
-
-    return sr_ok;
-}
-
-int
-PULSER_test_dds(volatile void *base_addr, char nDDS)
-{
-    int ftw_ok = 1;
-    int phase_ok = 1;
-    unsigned phase = 0;
-    unsigned read, test_val;
-
-    printf("Testing DDS %d ... ", (int)nDDS);
-    for (int i = 0;i < 2;i++) {
-        test_val = 0;
-
-        for (int j = 0;j < 8;j++)
-            test_val = test_val + ((i * 0xF) << (j * 4));
-
-        PULSER_set_dds_freq(base_addr, nDDS, test_val);
-        read = PULSER_get_dds_freq(base_addr, nDDS);
-        ftw_ok = ftw_ok && (read == test_val);
-
-        if (read != test_val) {
-            printf("ERROR !\n");
-            printf("wrote FTW %08X\n", test_val);
-            printf(" read FTW %08X\n", read);
-        }
-    }
-
-    while (phase < 0x4000) {
-        PULSER_set_dds_phase(base_addr, nDDS, phase);
-        read = PULSER_get_dds_phase(base_addr, nDDS);
-
-        phase_ok = phase_ok && (read == phase);
-
-        if (read != phase) {
-            printf("ERROR on DDS %d !\n", (int)nDDS);
-            printf("wrote PHASE %04X\n", test_val);
-            printf(" read PHASE %04X\n", read);
-        }
-
-        phase++;
-    }
-
-    if (ftw_ok && phase_ok) {
-        printf("DDS %d OK\n", (int)nDDS);
-    } else {
-        printf("DDS %d FAILED\n", (int)nDDS);
-    }
-
-    return ftw_ok && phase_ok;
-}
+#endif
 
 unsigned PULSER_read_sr(volatile void *base_addr, unsigned i)
 {
@@ -446,7 +462,7 @@ PULSER_pop_result(volatile void *base_addr)
 // set bytes at addr+1 and addr
 // note that get_dds_two bytes also returns data at addr+1 and addr
 void
-PULSER_set_dds_two_bytes(volatile void *base_addr, char i,
+PULSER_set_dds_two_bytes(volatile void *base_addr, int i,
                          unsigned addr, unsigned data)
 {
     // put addr in bits 15...9 (maps to DDS opcode_reg[14:9] )?
@@ -459,7 +475,7 @@ PULSER_set_dds_two_bytes(volatile void *base_addr, char i,
 
 //! set bytes addr+3 ... addr
 void
-PULSER_set_dds_four_bytes(volatile void *base_addr, char i,
+PULSER_set_dds_four_bytes(volatile void *base_addr, int i,
                           unsigned addr, unsigned data)
 {
     //put addr in bits 15...9 (maps to DDS opcode_reg[14:9])?
@@ -469,54 +485,56 @@ PULSER_set_dds_four_bytes(volatile void *base_addr, char i,
 }
 
 void
-PULSER_set_dds_freq(volatile void *base_addr, char i, unsigned ftw)
+PULSER_set_dds_freq(volatile void *base_addr, int i, unsigned ftw)
 {
     PULSER_short_pulse(base_addr, 0x10000000 | (i << 4), ftw);
-    /* ddsFTW[(int)i] = ftw; */
+    /* ddsFTW[i] = ftw; */
 }
 
 void
-PULSER_set_dds_amp(volatile void *base_addr, char i, unsigned short A)
+PULSER_set_dds_amp(volatile void *base_addr, int i, unsigned short A)
 {
     PULSER_set_dds_two_bytes(base_addr, i, 0x32, A);
-    /* ddsAmp[(int)i] = A; */
+    /* ddsAmp[i] = A; */
 }
 
 void
-PULSER_set_dds_phase(volatile void *base_addr, char i, unsigned short phase)
+PULSER_set_dds_phase(volatile void *base_addr, int i, unsigned short phase)
 {
     PULSER_set_dds_two_bytes(base_addr, i, 0x30, phase);
-    ddsPhase[(int)i] = phase;
+    ddsPhase[i] = phase;
 }
 
 void
-PULSER_shift_dds_phase(volatile void *base_addr, char i, unsigned short phase)
+PULSER_shift_dds_phase(volatile void *base_addr, int i, unsigned short phase)
 {
-    PULSER_set_dds_phase(base_addr, i, phase + ddsPhase[(int)i]);
+    PULSER_set_dds_phase(base_addr, i, phase + ddsPhase[i]);
 }
 
-/* int */
-/* PULSER_check_all_dds(volatile void *base_addr) */
-/* { */
-/*     for (char i = 0;i < nDDS_boards;i++) { */
-/*         if (!PULSER_check_dds(base_addr, i)) { */
-/*             printf("ERROR on DDS %d !\n", (int)i); */
-/*             return 0; */
-/*         } */
-/*     } */
-/*     return 1; */
-/* } */
+#if 0
+int
+PULSER_check_dds(volatile void *base_addr, int i)
+{
+    return ((ddsFTW[i] == PULSER_get_dds_freq(base_addr, i)) &&
+            (ddsPhase[i] == PULSER_get_dds_phase(base_addr, i)) &&
+            (ddsAmp[i] == PULSER_get_dds_amp(base_addr, i)));
+}
 
-/* int */
-/* PULSER_check_dds(volatile void *base_addr, char i) */
-/* { */
-/*     return ((ddsFTW[(int)i] == PULSER_get_dds_freq(base_addr, i)) && */
-/*             (ddsPhase[(int)i] == PULSER_get_dds_phase(base_addr, i)) && */
-/*             (ddsAmp[(int)i] == PULSER_get_dds_amp(base_addr, i))); */
-/* } */
+int
+PULSER_check_all_dds(volatile void *base_addr)
+{
+    for (int i = 0;i < nDDS_boards;i++) {
+        if (!PULSER_check_dds(base_addr, i)) {
+            printf("ERROR on DDS %d !\n", i);
+            return 0;
+        }
+    }
+    return 1;
+}
+#endif
 
 unsigned
-PULSER_get_dds_freq(volatile void *base_addr, char i)
+PULSER_get_dds_freq(volatile void *base_addr, int i)
 {
     //PULSER_short_pulse(base_addr, 0x1000000E | (i << 4) | (0x2D << 9), 0);
     //return PULSER_pop_result(base_addr);
@@ -527,13 +545,13 @@ PULSER_get_dds_freq(volatile void *base_addr, char i)
 }
 
 unsigned
-PULSER_get_dds_phase(volatile void *base_addr, char i)
+PULSER_get_dds_phase(volatile void *base_addr, int i)
 {
     return PULSER_get_dds_two_bytes(base_addr, i, 0x30);
 }
 
 unsigned
-PULSER_get_dds_amp(volatile void *base_addr, char i)
+PULSER_get_dds_amp(volatile void *base_addr, int i)
 {
     return PULSER_get_dds_two_bytes(base_addr, i, 0x32);
 }

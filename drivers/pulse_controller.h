@@ -15,9 +15,9 @@
 
 NACS_BEGIN_DECLS
 
-//time resolution of pulse controller in ns, us, and 1/us
-#define PULSER_DT_ns     (10)
-#define PULSER_DT_us     (0.01)
+// time resolution of pulse controller in ns, us, and 1/us
+#define PULSER_DT_ns (10)
+#define PULSER_DT_us (0.01)
 #define PULSER_DT_per_us (100)
 
 #define PULSER_ENABLE_CLK_DURATION 5
@@ -32,8 +32,8 @@ NACS_BEGIN_DECLS
 #define PULSER_T_TTL_MIN (5)
 #define PULSER_T_DDS_MIN (30)
 
-#define PULSER_COUNTING_PULSE_FLAG    (0x04000000)
-#define PULSER_INVERT_SYNC            (0x02000000)
+#define PULSER_COUNTING_PULSE_FLAG (0x04000000)
+#define PULSER_INVERT_SYNC (0x02000000)
 
 //synchronize these parameters with N_BITS/N_BINS in the verilog files
 //I haven't figured out how to reuse them automatically in the Xilinx toolchain
@@ -41,26 +41,18 @@ NACS_BEGIN_DECLS
 #define PULSER_N_PMT_BITS (8)
 
 void PULSER_init(volatile void *base_addr, unsigned nDDS, unsigned bResetDDS);
-void PULSER_self_test(volatile void *base_addr, int nIO);
-int PULSER_test_slave_registers(volatile void *base_addr);
-int PULSER_test_dds(volatile void *base_addr, char nDDS);
+// void PULSER_self_test(volatile void *base_addr, int nIO);
 
 //! If DDS i is present return non-zero, otherwise 0.
-int PULSER_dds_exists(volatile void *base_addr, char i);
+int PULSER_dds_exists(volatile void *base_addr, int i);
 
-// int PULSER_check_dds(volatile void *base_addr, char i);
+// int PULSER_check_dds(volatile void *base_addr, int i);
 // int PULSER_check_all_dds(volatile void *base_addr);
 
-void PULSER_write_slave_reg(volatile void *base_addr, char n,
+void PULSER_write_slave_reg(volatile void *base_addr, int n,
                             unsigned offset, unsigned val);
-unsigned PULSER_read_slave_reg(volatile void *base_addr, char n,
+unsigned PULSER_read_slave_reg(volatile void *base_addr, int n,
                                unsigned offset);
-
-//! return whether current pulse sequence is finished
-unsigned PULSER_old_is_finished(volatile void *base_addr);
-
-//! return whether current pulse sequence is finished
-// unsigned PULSER_is_finished(volatile void *base_addr);
 
 //! wait for the current pulse sequence to finish
 void PULSER_wait_for_finished(volatile void *base_addr);
@@ -89,38 +81,39 @@ void PULSER_get_ttl(volatile void *base_addr, unsigned *high_mask,
                     unsigned *low_mask);
 
 //DDS functions
-void PULSER_dds_reset(volatile void *base_addr, char i);
+void PULSER_dds_reset(volatile void *base_addr, int i);
 void PULSER_dds_reset_sel(volatile void *base_addr, unsigned mask);
 void PULSER_dds_set_sel(volatile void *base_addr, unsigned mask);
 
-void PULSER_set_dds_freq(volatile void *base_addr, char i, unsigned freq);
-void PULSER_set_dds_phase(volatile void *base_addr,
-                          char i, unsigned short phase);
-void PULSER_set_dds_amp(volatile void *base_addr, char i, unsigned short amp);
+void PULSER_set_dds_freq(volatile void *base_addr, int i, unsigned freq);
+void PULSER_set_dds_phase(volatile void *base_addr, int i,
+                          unsigned short phase);
+void PULSER_set_dds_amp(volatile void *base_addr, int i, unsigned short amp);
 
 //shift phase.  Works only if DDS phase has been set via PULSER_set_dds_phase.
 //Setting phase via PULSER_set_dds_two_bytes will break this.
-void PULSER_shift_dds_phase(volatile void *base_addr, char i,
+void PULSER_shift_dds_phase(volatile void *base_addr, int i,
                             unsigned short phase);
 
-unsigned int PULSER_get_dds_freq(volatile void *base_addr, char i);
-unsigned int PULSER_get_dds_phase(volatile void *base_addr, char i);
-unsigned PULSER_get_dds_amp(volatile void *base_addr, char i);
+unsigned int PULSER_get_dds_freq(volatile void *base_addr, int i);
+unsigned int PULSER_get_dds_phase(volatile void *base_addr, int i);
+unsigned PULSER_get_dds_amp(volatile void *base_addr, int i);
 
 //! DDS functions - set bytes addr+1 ... addr
-void PULSER_set_dds_two_bytes(volatile void *base_addr, char i,
+void PULSER_set_dds_two_bytes(volatile void *base_addr, int i,
                               unsigned addr, unsigned data);
 
 //! DDS functions - set bytes addr+3 ... addr
-void PULSER_set_dds_four_bytes(volatile void *base_addr, char i,
+void PULSER_set_dds_four_bytes(volatile void *base_addr, int i,
                                unsigned addr, unsigned data);
 
-unsigned PULSER_get_dds_byte(volatile void *base_addr, char i, unsigned address);
-unsigned PULSER_get_dds_two_bytes(volatile void *base_addr, char i,
+unsigned PULSER_get_dds_byte(volatile void *base_addr, int i,
+                             unsigned address);
+unsigned PULSER_get_dds_two_bytes(volatile void *base_addr, int i,
                                   unsigned address);
 
 //! DDS functions - get four bytes from address+3 ... adress on DDS i
-unsigned PULSER_get_dds_four_bytes(volatile void *base_addr, char i,
+unsigned PULSER_get_dds_four_bytes(volatile void *base_addr, int i,
                                    unsigned address);
 
 /*
