@@ -2,7 +2,6 @@
 
 #include <nacs-utils/log.h>
 
-#include "common.h"
 #include "fpga.h"
 #include "dds_pulse.h"
 

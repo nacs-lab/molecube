@@ -2,7 +2,6 @@
 #define SPI_UTIL_H
 
 #include "fpga.h"
-#include "common.h"
 
 #include <nacs-xspi/xspi.h>
 

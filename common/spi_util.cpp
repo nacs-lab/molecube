@@ -1,7 +1,7 @@
 #include "spi_util.h"
+#include <common.h>
 
 #include <nacs-utils/log.h>
-
 #include <nacs-xspi/xspi_l.h>
 #include <endian.h>
 

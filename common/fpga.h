@@ -1,5 +1,3 @@
-#include "common.h"
-
 #include <nacs-utils/utils.h>
 #include <pulse_controller.h>
 

@@ -1,7 +1,7 @@
-#include "common.h"
 #include "dac.h"
-
 #include "fpga.h"
+
+#include <common.h>
 
 #include <string>
 #include <iostream>

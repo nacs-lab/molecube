@@ -9,30 +9,29 @@
 #include <string>
 #include <map>
 
-#include "common.h"
 #include "parseTxtSeq.h"
-
 #include "saveloadmap.h"
 #include "AD9914.h"
 #include "dds_pulse.h"
-#include <string_func.h>
 #include "verbosity.h"
-
 #include "pulse_controller.h"
 
-FILE* g_fPulserLock;
+#include <string_func.h>
+#include <common.h>
+
+int g_fPulserLock;
 std::vector<unsigned> active_dds; // all DDS that are available
 #include <sys/file.h>
 
-//flocker acquires exclusive file lock at creation and releases the lock at destruction
-flocker::flocker(FILE* f) : fd(fileno(f))
+flocker::flocker(int fd)
+    : m_fd(fd)
 {
-    flock(fd, LOCK_EX);
+    flock(m_fd, LOCK_EX);
 }
 
 flocker::~flocker()
 {
-    flock(fd, LOCK_UN);
+    flock(m_fd, LOCK_UN);
 }
 
 

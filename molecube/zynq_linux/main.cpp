@@ -196,7 +196,7 @@ main(int argc, char *argv[])
     //get command line args
     CmdLineArgs cla(argc, argv);
 
-    g_fPulserLock = fopen("/tmp/pulser.lock", "w");
+    g_fPulserLock = open("/tmp/pulser.lock", O_RDWR);
 
     if (cla.FindString("-h") >= 0 || cla.FindString("--help") >= 0) {
         printUsage();

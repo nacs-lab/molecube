@@ -52,15 +52,14 @@ std::string getStringParamCGI(cgicc::Cgicc& cgi, const std::string& name,
 //should not be interrupted by other PULSER operations.
 //Use flocker stack objects to automatically release the lock
 //as the stack variable goes out of scope.
-extern FILE* g_fPulserLock;
+extern int g_fPulserLock;
 
 //acquire exclusive file lock at creation and release at destruction
 class flocker {
+    int m_fd;
 public:
-    flocker(FILE* f);
+    flocker(int fd);
     ~flocker();
-
-    int fd;
 };
 
 extern std::vector<unsigned> active_dds; // all DDS that are available

@@ -1,8 +1,8 @@
 #ifndef TTL_PULSE_H_
 #define TTL_PULSE_H_
 
-#include <common.h>
 #include "fpga.h"
+#include <common.h>
 
 extern bool bDebugPulses;
 

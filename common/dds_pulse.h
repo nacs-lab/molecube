@@ -13,15 +13,13 @@
 #ifndef DDS_PULSE_H_
 #define DDS_PULSE_H_
 
-#include "common.h"
-#include "ttl_pulse.h"
 #include "fpga.h"
-#include <float.h>
+#include <common.h>
 
+#include <float.h>
 #include <math.h>
 #include <algorithm>
 
-//#include "common.h"
 #include "AD9914.h"
 
 static inline const char*
