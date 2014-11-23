@@ -1,5 +1,4 @@
-add_definitions(-DCONFIG_BB -DNSPI=2 -DNDDS=22 -DAD9914_CLK=3.5e9
-  -DNAD9914=8 -DN_SHIFT_SWITCHES=0)
+add_definitions(-DNSPI=2 -DNDDS=22 -DAD9914_CLK=3.5e9)
 
 # Current directory
 include_directories(include
@@ -14,15 +13,15 @@ set(SOURCES
   zynq_linux/main.cpp)
 
 # Lib
-include_directories(../lib/xilinx)
+include_directories(../lib/xspi)
 
 set(SOURCES ${SOURCES}
-  ../lib/xilinx/xspi_stats.c
-  ../lib/xilinx/xspi_g.c
-  ../lib/xilinx/xspi_sinit.c
-  ../lib/xilinx/xspi_selftest.c
-  ../lib/xilinx/xspi_options.c
-  ../lib/xilinx/xspi.c)
+  ../lib/xspi/xspi_stats.c
+  ../lib/xspi/xspi_g.c
+  ../lib/xspi/xspi_sinit.c
+  ../lib/xspi/xspi_selftest.c
+  ../lib/xspi/xspi_options.c
+  ../lib/xspi/xspi.c)
 
 # Common
 include_directories(../common)

@@ -10,19 +10,13 @@ extern bool bDebugPulses;
 
 #define TTL_NOTHING     (0)
 
-#ifdef CONFIG_BB
-
 #define TTL_START_EXP   (1 << 12)
 static inline const char*
 TTL_name(unsigned ttl)
 {
-    switch (ttl) {
-    default:
-        return "     wait";
-    }
+    (void)ttl;
+    return "     wait";
 }
-
-#endif
 
 static inline unsigned int
 us2TW(double t)

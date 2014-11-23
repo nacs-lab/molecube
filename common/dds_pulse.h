@@ -24,16 +24,12 @@
 //#include "common.h"
 #include "AD9914.h"
 
-#ifdef CONFIG_BB
 static inline const char*
 DDS_name(unsigned iDDS)
 {
-    switch (iDDS) {
-    default:
-        return "";
-    }
+    (void)iDDS;
+    return "";
 }
-#endif
 
 #define DDS_NONE     (100)
 
