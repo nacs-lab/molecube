@@ -89,12 +89,6 @@
 #define PULSER_SOFT_RST_SPACE_OFFSET (0x00000100)
 #define PULSER_RST_REG_OFFSET (PULSER_SOFT_RST_SPACE_OFFSET + 0x00000000)
 
-/**
- * Software Reset Masks
- * -- SOFT_RESET : software reset
- */
-#define SOFT_RESET (0x0000000A)
-
 /***************** Macros (Inline Functions) Definitions *******************/
 
 /**
@@ -107,15 +101,12 @@
  * @param   RegOffset is the register offset from the base to write to.
  * @param   Data is the data written to the register.
  *
- * @return  None.
- *
- * @note
- * C-style signature:
- * void PULSER_mWriteReg(unsigned BaseAddress, unsigned RegOffset, unsigned Data)
- *
  */
-#define PULSER_mWriteReg(BaseAddress, RegOffset, Data)          \
-    mem_write32((BaseAddress) + (RegOffset), (unsigned)(Data))
+static NACS_INLINE void
+PULSER_mWriteReg(volatile void *base, off_t offset, uint32_t data)
+{
+    mem_write32((volatile char*)base + offset, data);
+}
 
 /**
  *
@@ -129,13 +120,12 @@
  *
  * @return  Data is the data from the register.
  *
- * @note
- * C-style signature:
- * unsigned PULSER_mReadReg(unsigned BaseAddress, unsigned RegOffset)
- *
  */
-#define PULSER_mReadReg(BaseAddress, RegOffset) \
-    mem_read32((BaseAddress) + (RegOffset))
+static NACS_INLINE uint32_t
+PULSER_mReadReg(volatile void *base, off_t offset)
+{
+    return mem_read32((volatile char*)base + offset);
+}
 
 /**
  *
@@ -147,141 +137,55 @@
  *
  * @return  Data is the data from the user logic slave register.
  *
- * @note
- * C-style signature:
- * void PULSER_mWriteSlaveRegn(unsigned BaseAddress, unsigned RegOffset, unsigned Value)
- * unsigned PULSER_mReadSlaveRegn(unsigned BaseAddress, unsigned RegOffset)
- *
  */
-#define PULSER_mWriteSlaveReg0(BaseAddress, RegOffset, Value)           \
-    mem_write32((BaseAddress) + (PULSER_SLV_REG0_OFFSET) + (RegOffset), (unsigned)(Value))
-#define PULSER_mWriteSlaveReg1(BaseAddress, RegOffset, Value)           \
-    mem_write32((BaseAddress) + (PULSER_SLV_REG1_OFFSET) + (RegOffset), (unsigned)(Value))
-#define PULSER_mWriteSlaveReg2(BaseAddress, RegOffset, Value)           \
-    mem_write32((BaseAddress) + (PULSER_SLV_REG2_OFFSET) + (RegOffset), (unsigned)(Value))
-#define PULSER_mWriteSlaveReg3(BaseAddress, RegOffset, Value)           \
-    mem_write32((BaseAddress) + (PULSER_SLV_REG3_OFFSET) + (RegOffset), (unsigned)(Value))
-#define PULSER_mWriteSlaveReg4(BaseAddress, RegOffset, Value)           \
-    mem_write32((BaseAddress) + (PULSER_SLV_REG4_OFFSET) + (RegOffset), (unsigned)(Value))
-#define PULSER_mWriteSlaveReg5(BaseAddress, RegOffset, Value)           \
-    mem_write32((BaseAddress) + (PULSER_SLV_REG5_OFFSET) + (RegOffset), (unsigned)(Value))
-#define PULSER_mWriteSlaveReg6(BaseAddress, RegOffset, Value)           \
-    mem_write32((BaseAddress) + (PULSER_SLV_REG6_OFFSET) + (RegOffset), (unsigned)(Value))
-#define PULSER_mWriteSlaveReg7(BaseAddress, RegOffset, Value)           \
-    mem_write32((BaseAddress) + (PULSER_SLV_REG7_OFFSET) + (RegOffset), (unsigned)(Value))
-#define PULSER_mWriteSlaveReg8(BaseAddress, RegOffset, Value)           \
-    mem_write32((BaseAddress) + (PULSER_SLV_REG8_OFFSET) + (RegOffset), (unsigned)(Value))
-#define PULSER_mWriteSlaveReg9(BaseAddress, RegOffset, Value)           \
-    mem_write32((BaseAddress) + (PULSER_SLV_REG9_OFFSET) + (RegOffset), (unsigned)(Value))
-#define PULSER_mWriteSlaveReg10(BaseAddress, RegOffset, Value)          \
-    mem_write32((BaseAddress) + (PULSER_SLV_REG10_OFFSET) + (RegOffset), (unsigned)(Value))
-#define PULSER_mWriteSlaveReg11(BaseAddress, RegOffset, Value)          \
-    mem_write32((BaseAddress) + (PULSER_SLV_REG11_OFFSET) + (RegOffset), (unsigned)(Value))
-#define PULSER_mWriteSlaveReg12(BaseAddress, RegOffset, Value)          \
-    mem_write32((BaseAddress) + (PULSER_SLV_REG12_OFFSET) + (RegOffset), (unsigned)(Value))
-#define PULSER_mWriteSlaveReg13(BaseAddress, RegOffset, Value)          \
-    mem_write32((BaseAddress) + (PULSER_SLV_REG13_OFFSET) + (RegOffset), (unsigned)(Value))
-#define PULSER_mWriteSlaveReg14(BaseAddress, RegOffset, Value)          \
-    mem_write32((BaseAddress) + (PULSER_SLV_REG14_OFFSET) + (RegOffset), (unsigned)(Value))
-#define PULSER_mWriteSlaveReg15(BaseAddress, RegOffset, Value)          \
-    mem_write32((BaseAddress) + (PULSER_SLV_REG15_OFFSET) + (RegOffset), (unsigned)(Value))
-#define PULSER_mWriteSlaveReg16(BaseAddress, RegOffset, Value)          \
-    mem_write32((BaseAddress) + (PULSER_SLV_REG16_OFFSET) + (RegOffset), (unsigned)(Value))
-#define PULSER_mWriteSlaveReg17(BaseAddress, RegOffset, Value)          \
-    mem_write32((BaseAddress) + (PULSER_SLV_REG17_OFFSET) + (RegOffset), (unsigned)(Value))
-#define PULSER_mWriteSlaveReg18(BaseAddress, RegOffset, Value)          \
-    mem_write32((BaseAddress) + (PULSER_SLV_REG18_OFFSET) + (RegOffset), (unsigned)(Value))
-#define PULSER_mWriteSlaveReg19(BaseAddress, RegOffset, Value)          \
-    mem_write32((BaseAddress) + (PULSER_SLV_REG19_OFFSET) + (RegOffset), (unsigned)(Value))
-#define PULSER_mWriteSlaveReg20(BaseAddress, RegOffset, Value)          \
-    mem_write32((BaseAddress) + (PULSER_SLV_REG20_OFFSET) + (RegOffset), (unsigned)(Value))
-#define PULSER_mWriteSlaveReg21(BaseAddress, RegOffset, Value)          \
-    mem_write32((BaseAddress) + (PULSER_SLV_REG21_OFFSET) + (RegOffset), (unsigned)(Value))
-#define PULSER_mWriteSlaveReg22(BaseAddress, RegOffset, Value)          \
-    mem_write32((BaseAddress) + (PULSER_SLV_REG22_OFFSET) + (RegOffset), (unsigned)(Value))
-#define PULSER_mWriteSlaveReg23(BaseAddress, RegOffset, Value)          \
-    mem_write32((BaseAddress) + (PULSER_SLV_REG23_OFFSET) + (RegOffset), (unsigned)(Value))
-#define PULSER_mWriteSlaveReg24(BaseAddress, RegOffset, Value)          \
-    mem_write32((BaseAddress) + (PULSER_SLV_REG24_OFFSET) + (RegOffset), (unsigned)(Value))
-#define PULSER_mWriteSlaveReg25(BaseAddress, RegOffset, Value)          \
-    mem_write32((BaseAddress) + (PULSER_SLV_REG25_OFFSET) + (RegOffset), (unsigned)(Value))
-#define PULSER_mWriteSlaveReg26(BaseAddress, RegOffset, Value)          \
-    mem_write32((BaseAddress) + (PULSER_SLV_REG26_OFFSET) + (RegOffset), (unsigned)(Value))
-#define PULSER_mWriteSlaveReg27(BaseAddress, RegOffset, Value)          \
-    mem_write32((BaseAddress) + (PULSER_SLV_REG27_OFFSET) + (RegOffset), (unsigned)(Value))
-#define PULSER_mWriteSlaveReg28(BaseAddress, RegOffset, Value)          \
-    mem_write32((BaseAddress) + (PULSER_SLV_REG28_OFFSET) + (RegOffset), (unsigned)(Value))
-#define PULSER_mWriteSlaveReg29(BaseAddress, RegOffset, Value)          \
-    mem_write32((BaseAddress) + (PULSER_SLV_REG29_OFFSET) + (RegOffset), (unsigned)(Value))
-#define PULSER_mWriteSlaveReg30(BaseAddress, RegOffset, Value)          \
-    mem_write32((BaseAddress) + (PULSER_SLV_REG30_OFFSET) + (RegOffset), (unsigned)(Value))
-#define PULSER_mWriteSlaveReg31(BaseAddress, RegOffset, Value)          \
-    mem_write32((BaseAddress) + (PULSER_SLV_REG31_OFFSET) + (RegOffset), (unsigned)(Value))
+#define DEF_PULSER_RW_SLAVE(n)                                  \
+    static NACS_INLINE void                                     \
+    PULSER_mWriteSlaveReg##n(volatile void *base, off_t offset, \
+                             uint32_t data)                     \
+    {                                                           \
+        mem_write32((volatile char*)base +                      \
+                    PULSER_SLV_REG##n##_OFFSET + offset, data); \
+    }                                                           \
+    static NACS_INLINE uint32_t                                 \
+    PULSER_mReadSlaveReg##n(volatile void *base, off_t offset)  \
+    {                                                           \
+        return mem_read32((volatile char*)base +                \
+                          PULSER_SLV_REG##n##_OFFSET + offset); \
+    }
+DEF_PULSER_RW_SLAVE(0)
+DEF_PULSER_RW_SLAVE(1)
+DEF_PULSER_RW_SLAVE(2)
+DEF_PULSER_RW_SLAVE(3)
+DEF_PULSER_RW_SLAVE(4)
+DEF_PULSER_RW_SLAVE(5)
+DEF_PULSER_RW_SLAVE(6)
+DEF_PULSER_RW_SLAVE(7)
+DEF_PULSER_RW_SLAVE(8)
+DEF_PULSER_RW_SLAVE(9)
+DEF_PULSER_RW_SLAVE(10)
+DEF_PULSER_RW_SLAVE(11)
+DEF_PULSER_RW_SLAVE(12)
+DEF_PULSER_RW_SLAVE(13)
+DEF_PULSER_RW_SLAVE(14)
+DEF_PULSER_RW_SLAVE(15)
+DEF_PULSER_RW_SLAVE(16)
+DEF_PULSER_RW_SLAVE(17)
+DEF_PULSER_RW_SLAVE(18)
+DEF_PULSER_RW_SLAVE(19)
+DEF_PULSER_RW_SLAVE(20)
+DEF_PULSER_RW_SLAVE(21)
+DEF_PULSER_RW_SLAVE(22)
+DEF_PULSER_RW_SLAVE(23)
+DEF_PULSER_RW_SLAVE(24)
+DEF_PULSER_RW_SLAVE(25)
+DEF_PULSER_RW_SLAVE(26)
+DEF_PULSER_RW_SLAVE(27)
+DEF_PULSER_RW_SLAVE(28)
+DEF_PULSER_RW_SLAVE(29)
+DEF_PULSER_RW_SLAVE(30)
+DEF_PULSER_RW_SLAVE(31)
 
-#define PULSER_mReadSlaveReg0(BaseAddress, RegOffset)                   \
-    mem_read32((BaseAddress) + (PULSER_SLV_REG0_OFFSET) + (RegOffset))
-#define PULSER_mReadSlaveReg1(BaseAddress, RegOffset)                   \
-    mem_read32((BaseAddress) + (PULSER_SLV_REG1_OFFSET) + (RegOffset))
-#define PULSER_mReadSlaveReg2(BaseAddress, RegOffset)                   \
-    mem_read32((BaseAddress) + (PULSER_SLV_REG2_OFFSET) + (RegOffset))
-#define PULSER_mReadSlaveReg3(BaseAddress, RegOffset)                   \
-    mem_read32((BaseAddress) + (PULSER_SLV_REG3_OFFSET) + (RegOffset))
-#define PULSER_mReadSlaveReg4(BaseAddress, RegOffset)                   \
-    mem_read32((BaseAddress) + (PULSER_SLV_REG4_OFFSET) + (RegOffset))
-#define PULSER_mReadSlaveReg5(BaseAddress, RegOffset)                   \
-    mem_read32((BaseAddress) + (PULSER_SLV_REG5_OFFSET) + (RegOffset))
-#define PULSER_mReadSlaveReg6(BaseAddress, RegOffset)                   \
-    mem_read32((BaseAddress) + (PULSER_SLV_REG6_OFFSET) + (RegOffset))
-#define PULSER_mReadSlaveReg7(BaseAddress, RegOffset)                   \
-    mem_read32((BaseAddress) + (PULSER_SLV_REG7_OFFSET) + (RegOffset))
-#define PULSER_mReadSlaveReg8(BaseAddress, RegOffset)                   \
-    mem_read32((BaseAddress) + (PULSER_SLV_REG8_OFFSET) + (RegOffset))
-#define PULSER_mReadSlaveReg9(BaseAddress, RegOffset)                   \
-    mem_read32((BaseAddress) + (PULSER_SLV_REG9_OFFSET) + (RegOffset))
-#define PULSER_mReadSlaveReg10(BaseAddress, RegOffset)                  \
-    mem_read32((BaseAddress) + (PULSER_SLV_REG10_OFFSET) + (RegOffset))
-#define PULSER_mReadSlaveReg11(BaseAddress, RegOffset)                  \
-    mem_read32((BaseAddress) + (PULSER_SLV_REG11_OFFSET) + (RegOffset))
-#define PULSER_mReadSlaveReg12(BaseAddress, RegOffset)                  \
-    mem_read32((BaseAddress) + (PULSER_SLV_REG12_OFFSET) + (RegOffset))
-#define PULSER_mReadSlaveReg13(BaseAddress, RegOffset)                  \
-    mem_read32((BaseAddress) + (PULSER_SLV_REG13_OFFSET) + (RegOffset))
-#define PULSER_mReadSlaveReg14(BaseAddress, RegOffset)                  \
-    mem_read32((BaseAddress) + (PULSER_SLV_REG14_OFFSET) + (RegOffset))
-#define PULSER_mReadSlaveReg15(BaseAddress, RegOffset)                  \
-    mem_read32((BaseAddress) + (PULSER_SLV_REG15_OFFSET) + (RegOffset))
-#define PULSER_mReadSlaveReg16(BaseAddress, RegOffset)                  \
-    mem_read32((BaseAddress) + (PULSER_SLV_REG16_OFFSET) + (RegOffset))
-#define PULSER_mReadSlaveReg17(BaseAddress, RegOffset)                  \
-    mem_read32((BaseAddress) + (PULSER_SLV_REG17_OFFSET) + (RegOffset))
-#define PULSER_mReadSlaveReg18(BaseAddress, RegOffset)                  \
-    mem_read32((BaseAddress) + (PULSER_SLV_REG18_OFFSET) + (RegOffset))
-#define PULSER_mReadSlaveReg19(BaseAddress, RegOffset)                  \
-    mem_read32((BaseAddress) + (PULSER_SLV_REG19_OFFSET) + (RegOffset))
-#define PULSER_mReadSlaveReg20(BaseAddress, RegOffset)                  \
-    mem_read32((BaseAddress) + (PULSER_SLV_REG20_OFFSET) + (RegOffset))
-#define PULSER_mReadSlaveReg21(BaseAddress, RegOffset)                  \
-    mem_read32((BaseAddress) + (PULSER_SLV_REG21_OFFSET) + (RegOffset))
-#define PULSER_mReadSlaveReg22(BaseAddress, RegOffset)                  \
-    mem_read32((BaseAddress) + (PULSER_SLV_REG22_OFFSET) + (RegOffset))
-#define PULSER_mReadSlaveReg23(BaseAddress, RegOffset)                  \
-    mem_read32((BaseAddress) + (PULSER_SLV_REG23_OFFSET) + (RegOffset))
-#define PULSER_mReadSlaveReg24(BaseAddress, RegOffset)                  \
-    mem_read32((BaseAddress) + (PULSER_SLV_REG24_OFFSET) + (RegOffset))
-#define PULSER_mReadSlaveReg25(BaseAddress, RegOffset)                  \
-    mem_read32((BaseAddress) + (PULSER_SLV_REG25_OFFSET) + (RegOffset))
-#define PULSER_mReadSlaveReg26(BaseAddress, RegOffset)                  \
-    mem_read32((BaseAddress) + (PULSER_SLV_REG26_OFFSET) + (RegOffset))
-#define PULSER_mReadSlaveReg27(BaseAddress, RegOffset)                  \
-    mem_read32((BaseAddress) + (PULSER_SLV_REG27_OFFSET) + (RegOffset))
-#define PULSER_mReadSlaveReg28(BaseAddress, RegOffset)                  \
-    mem_read32((BaseAddress) + (PULSER_SLV_REG28_OFFSET) + (RegOffset))
-#define PULSER_mReadSlaveReg29(BaseAddress, RegOffset)                  \
-    mem_read32((BaseAddress) + (PULSER_SLV_REG29_OFFSET) + (RegOffset))
-#define PULSER_mReadSlaveReg30(BaseAddress, RegOffset)                  \
-    mem_read32((BaseAddress) + (PULSER_SLV_REG30_OFFSET) + (RegOffset))
-#define PULSER_mReadSlaveReg31(BaseAddress, RegOffset)                  \
-    mem_read32((BaseAddress) + (PULSER_SLV_REG31_OFFSET) + (RegOffset))
+#undef DEF_PULSER_RW_SLAVE
 
 /**
  *
@@ -291,13 +195,17 @@
  *
  * @return  None.
  *
- * @note
- * C-style signature:
- * void PULSER_mReset(unsigned BaseAddress)
- *
  */
-#define PULSER_mReset(BaseAddress)                                      \
-    mem_write32((BaseAddress)+(PULSER_RST_REG_OFFSET), SOFT_RESET)
+static NACS_INLINE void
+PULSER_mReset(volatile void *base)
+{
+    /**
+     * Software Reset Masks
+     * -- SOFT_RESET : software reset
+     */
+    static const uint32_t SOFT_RESET = 0x0000000A;
+    mem_write32((volatile char*)base + PULSER_RST_REG_OFFSET, SOFT_RESET);
+}
 
 /* Defines the number of registers available for read and write */
 #define PULSER_USER_NUM_REG 32
