@@ -33,8 +33,8 @@ PULSER_unsafe_pulse(volatile void *base_addr, unsigned control,
     /*               "r" (control), */
     /*               "r" (operand), */
     /*               "b" (base_addr + PULSER_WRFIFO_DATA_OFFSET)); */
-    PULSER_mWriteSlaveReg31(base_addr, 0, operand);
-    PULSER_mWriteSlaveReg31(base_addr, 0, control);
+    PULSER_mWriteSlaveReg(base_addr, 31, operand);
+    PULSER_mWriteSlaveReg(base_addr, 31, control);
 }
 
 static void
@@ -45,7 +45,7 @@ PULSER_debug_regs(volatile void *base_addr)
         if (i % 4 == 0) {
             printf("[%2d...%2d]: ", i, i + 3);
         }
-        printf("%08X ", PULSER_read_slave_reg(base_addr, i, 0));
+        printf("%08X ", PULSER_mReadSlaveReg(base_addr, i));
         if (i % 4 == 3) {
             printf("\n");
         }
@@ -101,8 +101,8 @@ PULSER_read_empty(volatile void *base_addr)
 void
 PULSER_set_ttl(volatile void *base_addr, unsigned high_mask, unsigned low_mask)
 {
-    PULSER_mWriteSlaveReg0(base_addr, 0, high_mask);
-    PULSER_mWriteSlaveReg1(base_addr, 0, low_mask);
+    PULSER_mWriteSlaveReg(base_addr, 0, high_mask);
+    PULSER_mWriteSlaveReg(base_addr, 1, low_mask);
 }
 
 //! TTL functions: pulse_io = (ttl_out | high_mask) & (~low_mask);
@@ -110,8 +110,8 @@ void
 PULSER_get_ttl(volatile void *base_addr, unsigned *high_mask,
                unsigned *low_mask)
 {
-    *high_mask = PULSER_read_slave_reg(base_addr, 0, 0);
-    *low_mask = PULSER_read_slave_reg(base_addr, 0, 4);
+    *high_mask = PULSER_mReadSlaveReg(base_addr, 0);
+    *low_mask = PULSER_mReadSlaveReg(base_addr, 1);
 }
 
 
@@ -192,25 +192,25 @@ PULSER_get_dds_four_bytes(volatile void *base_addr, int i, unsigned address)
 void
 PULSER_toggle_init(volatile void *base_addr)
 {
-    unsigned r3 = PULSER_read_slave_reg(base_addr, 3, 0);
-    PULSER_write_slave_reg(base_addr, 3, 0, r3 | 0x00000100);
-    PULSER_write_slave_reg(base_addr, 3, 0, r3 & ~0x00000100);
+    unsigned r3 = PULSER_mReadSlaveReg(base_addr, 3);
+    PULSER_mWriteSlaveReg(base_addr, 3, r3 | 0x00000100);
+    PULSER_mWriteSlaveReg(base_addr, 3, r3 & ~0x00000100);
 }
 
 //! set hold. pulses are stopped
 void
 PULSER_set_hold(volatile void *base_addr)
 {
-    unsigned r3 = PULSER_read_slave_reg(base_addr, 3, 0);
-    PULSER_write_slave_reg(base_addr, 3, 0, r3 | 0x00000080);
+    unsigned r3 = PULSER_mReadSlaveReg(base_addr, 3);
+    PULSER_mWriteSlaveReg(base_addr, 3, r3 | 0x00000080);
 }
 
 //! release hold.  pulses can run
 void
 PULSER_release_hold(volatile void *base_addr)
 {
-    unsigned r3 = PULSER_read_slave_reg(base_addr, 3, 0);
-    PULSER_write_slave_reg(base_addr, 3, 0, r3 & ~0x00000080);
+    unsigned r3 = PULSER_mReadSlaveReg(base_addr, 3);
+    PULSER_mWriteSlaveReg(base_addr, 3, r3 & ~0x00000080);
 }
 
 //! enable timing check for pulses
@@ -240,14 +240,14 @@ PULSER_clear_timing_check(volatile void *base_addr)
 int
 PULSER_timing_ok(volatile void *base_addr)
 {
-    return !(PULSER_read_sr(base_addr, 2) & 0x1);
+    return !(PULSER_mReadSlaveReg(base_addr, 2) & 0x1);
 }
 
 //! return whether current pulse sequence is finished
 static unsigned
 PULSER_is_finished(volatile void *base_addr)
 {
-    return PULSER_read_sr(base_addr, 2) & 0x4;
+    return PULSER_mReadSlaveReg(base_addr, 2) & 0x4;
 }
 
 //! wait for the current pulse sequence to finish
@@ -273,16 +273,15 @@ PULSER_wait_for_finished(volatile void *base_addr)
 //}
 
 void
-PULSER_write_slave_reg(volatile void *base_addr, int n, unsigned offset,
-                       unsigned val)
+PULSER_write_sr(volatile void *base_addr, int n, unsigned val)
 {
-    PULSER_mWriteSlaveReg0(base_addr, offset + 4 * n, val);
+    PULSER_mWriteSlaveReg(base_addr, n, val);
 }
 
 unsigned
-PULSER_read_slave_reg(volatile void *base_addr, int n, unsigned offset)
+PULSER_read_sr(volatile void *base_addr, int n)
 {
-    return PULSER_mReadSlaveReg0(base_addr, offset + 4 * n);
+    return PULSER_mReadSlaveReg(base_addr, n);
 }
 
 #if 0
@@ -299,8 +298,8 @@ PULSER_test_slave_registers(volatile void *base_addr)
 
         printf("Testing %08X   ", test_val);
         for (int k = 0;k < 8;k++) {
-            PULSER_write_slave_reg(base_addr, k, 0, test_val);
-            unsigned read = PULSER_read_slave_reg(base_addr, k, 0);
+            PULSER_mWriteSlaveReg(base_addr, k, test_val);
+            unsigned read = PULSER_mReadSlaveReg(base_addr, k);
             printf("SR%d = %08X   ", k, read);
             sr_ok = sr_ok && (read == test_val);
         }
@@ -415,11 +414,6 @@ PULSER_self_test(volatile void *base_addr, int nIO)
 }
 #endif
 
-unsigned PULSER_read_sr(volatile void *base_addr, unsigned i)
-{
-    return PULSER_mReadSlaveReg0(base_addr, 4 * i);
-}
-
 //make timed pulses
 //if t > t_max, subdivide into shorter pulses
 //returns number of pulses made
@@ -447,7 +441,7 @@ PULSER_short_pulse(volatile void *base_addr, const unsigned control,
 
 unsigned PULSER_num_results(volatile void *base_addr)
 {
-    unsigned r = PULSER_mReadSlaveReg2(base_addr, 0);
+    unsigned r = PULSER_mReadSlaveReg(base_addr, 2);
     return (r  >> 4) & 31;
 }
 
@@ -456,7 +450,7 @@ PULSER_pop_result(volatile void *base_addr)
 {
     while (PULSER_num_results(base_addr) == 0) {
     }
-    return PULSER_mReadSlaveReg31(base_addr, 0);
+    return PULSER_mReadSlaveReg(base_addr, 31);
 }
 
 // set bytes at addr+1 and addr

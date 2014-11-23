@@ -49,10 +49,8 @@ int PULSER_dds_exists(volatile void *base_addr, int i);
 // int PULSER_check_dds(volatile void *base_addr, int i);
 // int PULSER_check_all_dds(volatile void *base_addr);
 
-void PULSER_write_slave_reg(volatile void *base_addr, int n,
-                            unsigned offset, unsigned val);
-unsigned PULSER_read_slave_reg(volatile void *base_addr, int n,
-                               unsigned offset);
+void PULSER_write_sr(volatile void *base_addr, int n, unsigned val);
+unsigned PULSER_read_sr(volatile void *base_addr, int n);
 
 //! wait for the current pulse sequence to finish
 void PULSER_wait_for_finished(volatile void *base_addr);
@@ -61,7 +59,6 @@ void PULSER_wait_for_finished(volatile void *base_addr);
 int PULSER_read_empty(volatile void *base_addr);
 unsigned PULSER_num_results(volatile void *base_addr);
 
-unsigned PULSER_read_sr(volatile void *base_addr, unsigned i);
 void PULSER_pulse(volatile void *base_addr, unsigned t, const unsigned flags,
                   const unsigned operand);
 void PULSER_short_pulse(volatile void *base_addr, const unsigned control,

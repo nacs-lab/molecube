@@ -65,63 +65,16 @@ PULSER_mReadReg(volatile void *base, off_t offset)
  *
  */
 static NACS_INLINE void
-PULSER_mWriteSlaveReg(volatile void *base, int n, off_t offset, uint32_t val)
+PULSER_mWriteSlaveReg(volatile void *base, int n, uint32_t val)
 {
-    PULSER_mWriteReg(base, PULSER_SLV_REG_OFFSET(n) + offset, val);
+    PULSER_mWriteReg(base, PULSER_SLV_REG_OFFSET(n), val);
 }
 
 static NACS_INLINE uint32_t
-PULSER_mReadSlaveReg(volatile void *base, int n, off_t offset)
+PULSER_mReadSlaveReg(volatile void *base, int n)
 {
-    return PULSER_mReadReg(base, PULSER_SLV_REG_OFFSET(n) + offset);
+    return PULSER_mReadReg(base, PULSER_SLV_REG_OFFSET(n));
 }
-
-#define DEF_PULSER_RW_SLAVE(n)                                          \
-    static NACS_INLINE void                                             \
-    PULSER_mWriteSlaveReg##n(volatile void *base, off_t offset, uint32_t val) \
-    {                                                                   \
-        PULSER_mWriteSlaveReg(base, n, offset, val);                    \
-    }                                                                   \
-    static NACS_INLINE uint32_t                                         \
-    PULSER_mReadSlaveReg##n(volatile void *base, off_t offset)          \
-    {                                                                   \
-        return PULSER_mReadSlaveReg(base, n, offset);                   \
-    }
-
-DEF_PULSER_RW_SLAVE(0)
-DEF_PULSER_RW_SLAVE(1)
-DEF_PULSER_RW_SLAVE(2)
-DEF_PULSER_RW_SLAVE(3)
-DEF_PULSER_RW_SLAVE(4)
-DEF_PULSER_RW_SLAVE(5)
-DEF_PULSER_RW_SLAVE(6)
-DEF_PULSER_RW_SLAVE(7)
-DEF_PULSER_RW_SLAVE(8)
-DEF_PULSER_RW_SLAVE(9)
-DEF_PULSER_RW_SLAVE(10)
-DEF_PULSER_RW_SLAVE(11)
-DEF_PULSER_RW_SLAVE(12)
-DEF_PULSER_RW_SLAVE(13)
-DEF_PULSER_RW_SLAVE(14)
-DEF_PULSER_RW_SLAVE(15)
-DEF_PULSER_RW_SLAVE(16)
-DEF_PULSER_RW_SLAVE(17)
-DEF_PULSER_RW_SLAVE(18)
-DEF_PULSER_RW_SLAVE(19)
-DEF_PULSER_RW_SLAVE(20)
-DEF_PULSER_RW_SLAVE(21)
-DEF_PULSER_RW_SLAVE(22)
-DEF_PULSER_RW_SLAVE(23)
-DEF_PULSER_RW_SLAVE(24)
-DEF_PULSER_RW_SLAVE(25)
-DEF_PULSER_RW_SLAVE(26)
-DEF_PULSER_RW_SLAVE(27)
-DEF_PULSER_RW_SLAVE(28)
-DEF_PULSER_RW_SLAVE(29)
-DEF_PULSER_RW_SLAVE(30)
-DEF_PULSER_RW_SLAVE(31)
-
-#undef DEF_PULSER_RW_SLAVE
 
 /**
  * Software Reset Space Register Offsets

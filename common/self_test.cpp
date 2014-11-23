@@ -20,19 +20,19 @@ bool check_register(char n)
     unsigned r;
     bool bOK = true;
 
-    r = PULSER_read_slave_reg(pulser, n, 0);
+    r = PULSER_read_sr(pulser, n);
     printf("Register %d = %08X\n", (int) n, r);
     bOK = bOK && (r == 0);
 
-    PULSER_write_slave_reg(pulser, n, 0, 0xFFFFFFFF);
+    PULSER_write_sr(pulser, n, 0xFFFFFFFF);
     usleep(100);
-    r = PULSER_read_slave_reg(pulser, n, 0);
+    r = PULSER_read_sr(pulser, n);
     printf("Register %d = %08X (wrote 0xFFFFFFFF)\n", (int) n, r);
     bOK = bOK && (r == 0xFFFFFFFF);
 
-    PULSER_write_slave_reg(pulser, n, 0, 0);
+    PULSER_write_sr(pulser, n, 0);
     usleep(100);
-    r = PULSER_read_slave_reg(pulser, n, 0);
+    r = PULSER_read_sr(pulser, n);
     printf("Register %d = %08X (wrote 0x00000000)\n", (int) n, r);
 
     bOK = bOK && (r == 0);
@@ -48,7 +48,7 @@ bool check_timing()
     check_register(0);
     check_register(1);
 
-    unsigned r2 = PULSER_read_slave_reg(pulser, 2, 0);
+    unsigned r2 = PULSER_read_sr(pulser, 2);
     printf("Register 2 = %08X\n", r2);
 
     printf("Generating 1,000,000 x 1 us pulses + 10 x 100 ms pulses...\n");
@@ -69,7 +69,7 @@ bool check_timing()
         PULSER_pulse(pulser, 10000000, 0, 0x00000000);
     }
 
-    r2 = PULSER_read_slave_reg(pulser, 2, 0);
+    r2 = PULSER_read_sr(pulser, 2);
 
     uint64_t t1 = nacsGetTime();
     double dt = ((float) (t1 - t0)) / TICKS_PER_US;
@@ -82,7 +82,7 @@ bool check_timing()
 
     do {
         t1 = nacsGetTime();
-        r2 = PULSER_read_slave_reg(pulser, 2, 0);
+        r2 = PULSER_read_sr(pulser, 2);
     } while (((t1 - t0) < 3000 * TICKS_PER_MS) && !(r2 & 4));
 
     dt = ((float) (t1 - t0)) / TICKS_PER_US;
@@ -116,7 +116,7 @@ bool other_test()
         printf("DDS[%02i] frequency: %12.3f Hz\n", j, FTW2HzD(ftw, AD9914_CLK));
     }
 
-    r2 = PULSER_read_slave_reg(pulser, 2, 0);
+    r2 = PULSER_read_sr(pulser, 2);
     printf("Register 2 = %08X (%03d results available)\n", r2, r2 >> 4);
 
     //loop-back testing
@@ -133,14 +133,14 @@ bool other_test()
     unsigned nResults = 0;
     unsigned k = 0;
 
-    r2 = PULSER_read_slave_reg(pulser, 2, 0);
+    r2 = PULSER_read_sr(pulser, 2);
     nResults = r2 >> 4;
     printf("Register 2 = %08X (%03d results available)\n", r2, nResults);
 
     bool checkLoopback = true;
 
     do {
-        r2 = PULSER_read_slave_reg(pulser, 2, 0);
+        r2 = PULSER_read_sr(pulser, 2);
         nResults = r2 >> 4;
         //printf("Register 2 = %08X (%03d results available)\n", r2, nResults);
 
