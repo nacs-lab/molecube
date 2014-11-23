@@ -104,8 +104,7 @@ SPI_init(spi_p spi, unsigned id, bool bActiveLow, char clockPhase)
     }
     if (XST_SUCCESS == s) {
         nacsInfo("spi<%d> initialized successfully\n", id);
-        nacsInfo("spi<%d> base address: %08X\n",
-                 id, (unsigned)(spi->BaseAddr));
+        nacsInfo("spi<%d> base address: %p\n", id, spi->BaseAddr);
 
         if (bActiveLow) {
             nacsInfo("spi<%d> active low\n", id);

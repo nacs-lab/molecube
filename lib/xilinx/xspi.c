@@ -140,7 +140,7 @@ static void StubStatusHandler(void *CallBackRef, uint32_t StatusEvent,
  *
  ******************************************************************************/
 int XSpi_CfgInitialize(XSpi *InstancePtr, XSpi_Config *Config,
-                       uint32_t EffectiveAddr)
+                       volatile char *EffectiveAddr)
 {
     uint8_t  Buffer[3];
     uint32_t ControlReg;

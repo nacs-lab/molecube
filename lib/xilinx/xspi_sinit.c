@@ -96,8 +96,8 @@ XSpi_Config *XSpi_LookupConfig(uint16_t DeviceId)
         }
     }
     //remap physical address to virtual one
-    CfgPtr->BaseAddress = (intptr_t)nacsMapFile("/dev/mem",
-                                                CfgPtr->BaseAddress, 4096);
+    CfgPtr->BaseAddress = nacsMapFile("/dev/mem",
+                                      (intptr_t)CfgPtr->BaseAddress, 4096);
     if (nacsUnlikely(!CfgPtr->BaseAddress)) {
         nacsError("Can't map the memory to user space.\n");
         exit(0);
@@ -136,7 +136,7 @@ XSpi_Config *XSpi_LookupConfig(uint16_t DeviceId)
 ******************************************************************************/
 int XSpi_Initialize(XSpi *InstancePtr, uint16_t DeviceId)
 {
-    XSpi_Config *ConfigPtr;	/* Pointer to Configuration ROM data */
+    XSpi_Config *ConfigPtr; /* Pointer to Configuration ROM data */
 
     assert(InstancePtr != NULL);
 

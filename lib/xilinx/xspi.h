@@ -383,7 +383,7 @@ typedef struct {
  */
 typedef struct {
     uint16_t DeviceId;		/**< Unique ID  of device */
-    uint32_t BaseAddress;	/**< Base address of the device */
+    volatile char *BaseAddress; /**< Base address of the device */
     int HasFifos;		/**< Does device have FIFOs? */
     uint32_t SlaveOnly;		/**< Is the device slave only? */
     uint8_t NumSlaveBits;	/**< Num of slave select bits on the device */
@@ -403,8 +403,8 @@ typedef struct {
  */
 typedef struct {
     XSpi_Stats Stats;	/**< Statistics */
-    uint32_t BaseAddr;		/**< Base address of device (IPIF) */
-    int IsReady;		/**< Device is initialized and ready */
+    volatile char *BaseAddr;    /**< Base address of device (IPIF) */
+    int IsReady;                /**< Device is initialized and ready */
     int IsStarted;		/**< Device has been started */
     int HasFifos;		/**< Device is configured with FIFOs or not */
     uint32_t SlaveOnly;		/**< Device is configured to be slave only */
@@ -794,7 +794,7 @@ XSpi_Config *XSpi_LookupConfig(uint16_t DeviceId);
  * Functions, in xspi.c
  */
 int XSpi_CfgInitialize(XSpi *InstancePtr, XSpi_Config * Config,
-                       uint32_t EffectiveAddr);
+                       volatile char *EffectiveAddr);
 
 int XSpi_Start(XSpi *InstancePtr);
 int XSpi_Stop(XSpi *InstancePtr);
