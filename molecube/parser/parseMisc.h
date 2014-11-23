@@ -1,9 +1,10 @@
 #ifndef PARSE_MISC_H
 #define PARSE_MISC_H
 
+#include <nacs-utils/fd_utils.h>
+
 #include <string>
 #include <vector>
-
 #include <cgicc/Cgicc.h>
 
 //thrown when the token does not exist
@@ -40,27 +41,15 @@ template<class C> const C& getParamCGI(cgicc::Cgicc& cgi, const std::string& nam
 bool getCheckboxParamCGI(cgicc::Cgicc& cgi, const std::string& name,
                          bool defaultVal);
 
-
 unsigned getUnsignedParamCGI(cgicc::Cgicc& cgi, const std::string& name,
                              unsigned defaultVal);
-
 
 std::string getStringParamCGI(cgicc::Cgicc& cgi, const std::string& name,
                               const std::string& defaultVal);
 
-//lock file.  Set the lock when performing PULSER operations that
-//should not be interrupted by other PULSER operations.
-//Use flocker stack objects to automatically release the lock
-//as the stack variable goes out of scope.
-extern int g_fPulserLock;
-
-//acquire exclusive file lock at creation and release at destruction
-class flocker {
-    int m_fd;
-public:
-    flocker(int fd);
-    ~flocker();
-};
-
+// lock file. Set the lock when performing PULSER operations that
+// should not be interrupted by other PULSER operations.
+extern NaCs::FLock g_fPulserLock;
 extern std::vector<unsigned> active_dds; // all DDS that are available
+
 #endif //PARSE_MISC_H

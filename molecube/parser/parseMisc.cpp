@@ -8,6 +8,7 @@
 #include <sstream>
 #include <string>
 #include <map>
+#include <mutex>
 
 #include "parseTxtSeq.h"
 #include "saveloadmap.h"
@@ -19,21 +20,8 @@
 #include <string_func.h>
 #include <common.h>
 
-int g_fPulserLock;
+NaCs::FLock g_fPulserLock("/tmp/pulser.lock");
 std::vector<unsigned> active_dds; // all DDS that are available
-#include <sys/file.h>
-
-flocker::flocker(int fd)
-    : m_fd(fd)
-{
-    flock(m_fd, LOCK_EX);
-}
-
-flocker::~flocker()
-{
-    flock(m_fd, LOCK_UN);
-}
-
 
 void printPlainResponseHeader()
 {
@@ -78,9 +66,9 @@ parseParamsCGI(txtmap_t& params, cgicc::Cgicc& cgi)
 static void
 getDeviceParams(const std::string& page, txtmap_t& params)
 {
-    flocker fl(g_fPulserLock);
+    std::lock_guard<NaCs::FLock> fl(g_fPulserLock);
 
-    if(page == "dds") {
+    if (page == "dds") {
         char key[32];
         char val[32];
 
@@ -108,7 +96,7 @@ getDeviceParams(const std::string& page, txtmap_t& params)
 static void
 setDeviceParams(const std::string& page, const txtmap_t& params)
 {
-    flocker fl(g_fPulserLock);
+    std::lock_guard<NaCs::FLock> fl(g_fPulserLock);
 
     if(page == "dds") {
         // dumpMap(params, gLog);

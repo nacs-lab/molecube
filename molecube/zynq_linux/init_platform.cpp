@@ -4,11 +4,6 @@
 #include <nacs-xspi/xparameters.h>
 
 #include <common.h>
-#include <fcntl.h>
-#include <sys/mman.h>
-#include <sched.h>
-#include <errno.h>
-
 
 // Platform specific initialization
 // Linux: get device addresses

@@ -21,6 +21,7 @@
 #include <vector>
 #include <stdexcept>
 #include <cstring>
+#include <mutex>
 
 #include "ttl_pulse.h"
 #include "dds_pulse.h"
@@ -699,7 +700,7 @@ parseSeqTxt(unsigned reps, const std::string& seqTxt, bool bForever,
         {
             // new scope to automatically release file lock at scope
             // exit or exception
-            flocker fl(g_fPulserLock);
+            std::lock_guard<NaCs::FLock> fl(g_fPulserLock);
 
             setProgramStatus(0, buff);
 

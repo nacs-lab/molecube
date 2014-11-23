@@ -15,11 +15,13 @@
 #include <sys/resource.h>
 #include <errno.h>
 
+#include <mutex>
+
 static spi_struct g_spi[NSPI];
 
 void init_system()
 {
-    flocker fl(g_fPulserLock);
+    std::lock_guard<NaCs::FLock> fl(g_fPulserLock);
 
     nacsInfo("Processor clock frequency: %9.3f MHz\n", 1e-6 * CPU_FREQ_HZ);
     nacsLog("NDDS = %d  (REF_CLK = %u MHz)   NSPI = %d\n",
