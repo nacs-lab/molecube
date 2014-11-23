@@ -71,6 +71,7 @@
 
 #include "xspi.h"
 #include "xspi_i.h"
+#include <assert.h>
 
 /************************** Constant Definitions *****************************/
 
@@ -105,13 +106,13 @@ static int LoopbackTest(XSpi *InstancePtr);
  *
  * Upon successful return from the self-test, the device is reset.
  *
- * @param	InstancePtr is a pointer to the XSpi instance to be worked on.
+ * @param       InstancePtr is a pointer to the XSpi instance to be worked on.
  *
  * @return
- * 		- XST_SUCCESS if successful.
- *		- XST_REGISTER_ERROR indicates a register did not read or write
- *		  correctly.
- * 		- XST_LOOPBACK_ERROR if a loopback error occurred.
+ *              - XST_SUCCESS if successful.
+ *              - XST_REGISTER_ERROR indicates a register did not read or write
+ *                correctly.
+ *              - XST_LOOPBACK_ERROR if a loopback error occurred.
  *
  * @note		None.
  *
@@ -121,8 +122,8 @@ int XSpi_SelfTest(XSpi *InstancePtr)
     int Result;
     uint32_t Register;
 
-    Xil_AssertNonvoid(InstancePtr != NULL);
-    Xil_AssertNonvoid(InstancePtr->IsReady == XIL_COMPONENT_IS_READY);
+    assert(InstancePtr != NULL);
+    assert(InstancePtr->IsReady == XIL_COMPONENT_IS_READY);
 
 
     /* Return Success if XIP Mode */

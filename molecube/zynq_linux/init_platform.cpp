@@ -1,4 +1,6 @@
 #include "init_platform.h"
+#include <nacs-utils/log.h>
+#include <nacs-utils/fd_utils.h>
 
 #include <common.h>
 #include <fcntl.h>
@@ -6,19 +8,15 @@
 #include <sched.h>
 #include <errno.h>
 
-#include "remap_addr.h"
-
 #include <xparameters.h>
 
-//Platform specific initialization
-//Linux: get device addresses
+// Platform specific initialization
+// Linux: get device addresses
 
-static void*
+static intptr_t
 get_pulse_controller_phys_addr()
 {
-    void *addr = (void*)XPAR_PULSE_CONTROLLER_0_BASEADDR;
-
-    return addr;
+    return XPAR_PULSE_CONTROLLER_0_BASEADDR;
 
     //code below works too, but it is slow (20 ms or so)
 
@@ -61,6 +59,10 @@ void
 init_pulse_controller()
 {
     nacsInfo("Initializing pulse controller\n");
-    void* phys_addr = get_pulse_controller_phys_addr();
-    pulser = remap_device_addr(phys_addr);
+    pulser = nacsMapFile("/dev/mem",
+                         (intptr_t)get_pulse_controller_phys_addr(), 4096);
+    if (nacsUnlikely(!pulser)) {
+        nacsError("Can't map the memory to user space.\n");
+        exit(0);
+    }
 }

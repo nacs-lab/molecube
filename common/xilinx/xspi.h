@@ -830,19 +830,4 @@ int XSpi_SetOptions(XSpi *InstancePtr, uint32_t Options);
 uint32_t XSpi_GetOptions(XSpi *InstancePtr);
 
 NACS_END_DECLS
-
-#ifndef Xil_AssertNonvoid
-#define Xil_AssertNonvoid assert
-#endif
-
-#ifndef Xil_AssertVoid
-#define Xil_AssertVoid assert
-#endif
-
-#ifndef Xil_AssertVoidAlways
-#define Xil_AssertVoidAlways() assert(0)
-#endif
-
-#include <assert.h>
-
 #endif

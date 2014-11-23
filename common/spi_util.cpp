@@ -145,7 +145,7 @@ SPI_init(spi_p spi, unsigned id, bool bActiveLow, char clockPhase)
     ControlReg &= ~XSP_CR_TRANS_INHIBIT_MASK;
     XSpi_SetControlReg(spi,  ControlReg);
 
-///     SPI_SetSlaveSelect(spi, 1);
+    // SPI_SetSlaveSelect(spi, 1);
 
     return s;
 }
@@ -153,7 +153,7 @@ SPI_init(spi_p spi, unsigned id, bool bActiveLow, char clockPhase)
 /******************************************************************************/
 uint16_t SPI_Transfer2(spi_p InstancePtr, uint16_t tx)
 {
-    //printf("SPI_Transfer2\n");
+    // printf("SPI_Transfer2\n");
 
     uint16_t rcv;
     uint8_t StatusReg;
@@ -165,8 +165,8 @@ uint16_t SPI_Transfer2(spi_p InstancePtr, uint16_t tx)
     InstancePtr->IsBusy = true;
 
 
-    //TX should be empty from previous transmission
-    //transfer data to SPI transmitter
+    // TX should be empty from previous transmission
+    // transfer data to SPI transmitter
     XIo_Out16(InstancePtr->BaseAddr + XSP_DTR_OFFSET - 1, tx);
 
 
@@ -174,9 +174,9 @@ uint16_t SPI_Transfer2(spi_p InstancePtr, uint16_t tx)
      * Wait for the transfer to be done by polling the transmit
      * empty status bit
      */
-    do
+    do {
         StatusReg = XSpi_GetStatusReg(InstancePtr);
-    while ((StatusReg & XSP_SR_TX_EMPTY_MASK) == 0);
+    } while ((StatusReg & XSP_SR_TX_EMPTY_MASK) == 0);
 
 
     do {

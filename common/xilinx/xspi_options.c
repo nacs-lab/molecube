@@ -65,18 +65,7 @@
 
 #include "xspi.h"
 #include "xspi_i.h"
-
-/************************** Constant Definitions *****************************/
-
-
-/**************************** Type Definitions *******************************/
-
-
-/***************** Macros (Inline Functions) Definitions *********************/
-
-
-/************************** Function Prototypes ******************************/
-
+#include <assert.h>
 
 /************************** Variable Definitions *****************************/
 
@@ -135,8 +124,8 @@ int XSpi_SetOptions(XSpi *InstancePtr, uint32_t Options)
     uint32_t ControlReg;
     uint32_t Index;
 
-    Xil_AssertNonvoid(InstancePtr != NULL);
-    Xil_AssertNonvoid(InstancePtr->IsReady == XIL_COMPONENT_IS_READY);
+    assert(InstancePtr != NULL);
+    assert(InstancePtr->IsReady == XIL_COMPONENT_IS_READY);
 
     /*
      * Do not allow the slave select to change while a transfer is in
@@ -209,8 +198,8 @@ uint32_t XSpi_GetOptions(XSpi *InstancePtr)
     uint32_t ControlReg;
     uint32_t Index;
 
-    Xil_AssertNonvoid(InstancePtr != NULL);
-    Xil_AssertNonvoid(InstancePtr->IsReady == XIL_COMPONENT_IS_READY);
+    assert(InstancePtr != NULL);
+    assert(InstancePtr->IsReady == XIL_COMPONENT_IS_READY);
 
     /*
      * Get the control register to determine which options are currently

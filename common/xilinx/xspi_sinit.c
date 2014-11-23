@@ -61,11 +61,12 @@
 
 /***************************** Include Files *********************************/
 
-#include <nacs-utils/utils.h>
+#include <nacs-utils/log.h>
+#include <nacs-utils/fd_utils.h>
 #include "xparameters.h"
 #include "xspi.h"
 #include "xspi_i.h"
-#include "remap_addr.h"
+#include <assert.h>
 
 /*****************************************************************************/
 /**
@@ -95,8 +96,12 @@ XSpi_Config *XSpi_LookupConfig(uint16_t DeviceId)
         }
     }
     //remap physical address to virtual one
-    CfgPtr->BaseAddress =
-        (intptr_t)remap_device_addr((void*)CfgPtr->BaseAddress);
+    CfgPtr->BaseAddress = (intptr_t)nacsMapFile("/dev/mem",
+                                                CfgPtr->BaseAddress, 4096);
+    if (nacsUnlikely(!CfgPtr->BaseAddress)) {
+        nacsError("Can't map the memory to user space.\n");
+        exit(0);
+    }
     return CfgPtr;
 }
 
@@ -133,7 +138,7 @@ int XSpi_Initialize(XSpi *InstancePtr, uint16_t DeviceId)
 {
     XSpi_Config *ConfigPtr;	/* Pointer to Configuration ROM data */
 
-    Xil_AssertNonvoid(InstancePtr != NULL);
+    assert(InstancePtr != NULL);
 
     /*
      * Lookup the device configuration in the temporary CROM table. Use this

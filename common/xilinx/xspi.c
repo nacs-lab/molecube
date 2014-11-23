@@ -100,6 +100,7 @@
 
 #include "xspi.h"
 #include "xspi_i.h"
+#include <assert.h>
 
 static void StubStatusHandler(void *CallBackRef, uint32_t StatusEvent,
                               unsigned int ByteCount);
@@ -144,7 +145,7 @@ int XSpi_CfgInitialize(XSpi *InstancePtr, XSpi_Config *Config,
     uint8_t  Buffer[3];
     uint32_t ControlReg;
 
-    Xil_AssertNonvoid(InstancePtr != NULL);
+    assert(InstancePtr != NULL);
 
     /*
      * If the device is started, disallow the initialize and return a status
@@ -278,8 +279,8 @@ int XSpi_Start(XSpi *InstancePtr)
 {
     uint32_t ControlReg;
 
-    Xil_AssertNonvoid(InstancePtr != NULL);
-    Xil_AssertNonvoid(InstancePtr->IsReady == XIL_COMPONENT_IS_READY);
+    assert(InstancePtr != NULL);
+    assert(InstancePtr->IsReady == XIL_COMPONENT_IS_READY);
 
     /*
      * If it is already started, return a status indicating so.
@@ -356,8 +357,8 @@ int XSpi_Stop(XSpi *InstancePtr)
 {
     uint32_t ControlReg;
 
-    Xil_AssertNonvoid(InstancePtr != NULL);
-    Xil_AssertNonvoid(InstancePtr->IsReady == XIL_COMPONENT_IS_READY);
+    assert(InstancePtr != NULL);
+    assert(InstancePtr->IsReady == XIL_COMPONENT_IS_READY);
 
     /*
      * Do not allow the user to stop the device while a transfer is in
@@ -404,8 +405,8 @@ int XSpi_Stop(XSpi *InstancePtr)
  ******************************************************************************/
 void XSpi_Reset(XSpi *InstancePtr)
 {
-    Xil_AssertVoid(InstancePtr != NULL);
-    Xil_AssertVoid(InstancePtr->IsReady == XIL_COMPONENT_IS_READY);
+    assert(InstancePtr != NULL);
+    assert(InstancePtr->IsReady == XIL_COMPONENT_IS_READY);
 
     /*
      * Abort any transfer that is in progress.
@@ -519,10 +520,10 @@ int XSpi_Transfer(XSpi *InstancePtr, uint8_t *SendBufPtr,
     /*
      * The RecvBufPtr argument can be NULL.
      */
-    Xil_AssertNonvoid(InstancePtr != NULL);
-    Xil_AssertNonvoid(SendBufPtr != NULL);
-    Xil_AssertNonvoid(ByteCount > 0);
-    Xil_AssertNonvoid(InstancePtr->IsReady == XIL_COMPONENT_IS_READY);
+    assert(InstancePtr != NULL);
+    assert(SendBufPtr != NULL);
+    assert(ByteCount > 0);
+    assert(InstancePtr->IsReady == XIL_COMPONENT_IS_READY);
 
     if (InstancePtr->IsStarted != XIL_COMPONENT_IS_STARTED) {
         return XST_DEVICE_IS_STOPPED;
@@ -857,8 +858,8 @@ int XSpi_SetSlaveSelect(XSpi *InstancePtr, uint32_t SlaveMask)
     int NumAsserted;
     int Index;
 
-    Xil_AssertNonvoid(InstancePtr != NULL);
-    Xil_AssertNonvoid(InstancePtr->IsReady == XIL_COMPONENT_IS_READY);
+    assert(InstancePtr != NULL);
+    assert(InstancePtr->IsReady == XIL_COMPONENT_IS_READY);
 
     /*
      * Do not allow the slave select to change while a transfer is in
@@ -920,8 +921,8 @@ int XSpi_SetSlaveSelect(XSpi *InstancePtr, uint32_t SlaveMask)
  ******************************************************************************/
 uint32_t XSpi_GetSlaveSelect(XSpi *InstancePtr)
 {
-    Xil_AssertNonvoid(InstancePtr != NULL);
-    Xil_AssertNonvoid(InstancePtr->IsReady == XIL_COMPONENT_IS_READY);
+    assert(InstancePtr != NULL);
+    assert(InstancePtr->IsReady == XIL_COMPONENT_IS_READY);
 
     /*
      * Return the inverse of the value contained in
@@ -982,9 +983,9 @@ uint32_t XSpi_GetSlaveSelect(XSpi *InstancePtr)
 void XSpi_SetStatusHandler(XSpi *InstancePtr, void *CallBackRef,
                            XSpi_StatusHandler FuncPtr)
 {
-    Xil_AssertVoid(InstancePtr != NULL);
-    Xil_AssertVoid(FuncPtr != NULL);
-    Xil_AssertVoid(InstancePtr->IsReady == XIL_COMPONENT_IS_READY);
+    assert(InstancePtr != NULL);
+    assert(FuncPtr != NULL);
+    assert(InstancePtr->IsReady == XIL_COMPONENT_IS_READY);
 
     InstancePtr->StatusHandler = FuncPtr;
     InstancePtr->StatusRef = CallBackRef;
@@ -1013,7 +1014,7 @@ StubStatusHandler(void *CallBackRef, uint32_t StatusEvent,
     (void)CallBackRef;
     (void)StatusEvent;
     (void)ByteCount;
-    Xil_AssertVoidAlways();
+    assert(0);
 }
 
 /*****************************************************************************/
@@ -1076,7 +1077,7 @@ void XSpi_InterruptHandler(void *InstancePtr)
     uint32_t StatusReg;
     uint8_t  DataWidth;
 
-    Xil_AssertVoid(InstancePtr != NULL);
+    assert(InstancePtr != NULL);
 
     /*
      * Update the statistics for the number of interrupts.

@@ -67,6 +67,7 @@
 
 #include "xspi.h"
 #include "xspi_i.h"
+#include <assert.h>
 
 /************************** Constant Definitions *****************************/
 
@@ -99,9 +100,9 @@
 ******************************************************************************/
 void XSpi_GetStats(XSpi *InstancePtr, XSpi_Stats *StatsPtr)
 {
-    Xil_AssertVoid(InstancePtr != NULL);
-    Xil_AssertVoid(StatsPtr != NULL);
-    Xil_AssertVoid(InstancePtr->IsReady == XIL_COMPONENT_IS_READY);
+    assert(InstancePtr != NULL);
+    assert(StatsPtr != NULL);
+    assert(InstancePtr->IsReady == XIL_COMPONENT_IS_READY);
 
     StatsPtr->ModeFaults = InstancePtr->Stats.ModeFaults;
     StatsPtr->XmitUnderruns = InstancePtr->Stats.XmitUnderruns;
@@ -125,8 +126,8 @@ void XSpi_GetStats(XSpi *InstancePtr, XSpi_Stats *StatsPtr)
 ******************************************************************************/
 void XSpi_ClearStats(XSpi *InstancePtr)
 {
-    Xil_AssertVoid(InstancePtr != NULL);
-    Xil_AssertVoid(InstancePtr->IsReady == XIL_COMPONENT_IS_READY);
+    assert(InstancePtr != NULL);
+    assert(InstancePtr->IsReady == XIL_COMPONENT_IS_READY);
 
     InstancePtr->Stats.ModeFaults = 0;
     InstancePtr->Stats.XmitUnderruns = 0;
