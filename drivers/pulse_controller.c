@@ -10,8 +10,6 @@
 #include "pulse_controller.h"
 #include "pulse_controller_io.h"
 
-#include <xil_io.h>
-
 static unsigned nDDS_boards = 0;
 static unsigned extra_flags = 0;
 
@@ -43,15 +41,11 @@ static void
 PULSER_debug_regs(volatile void *base_addr)
 {
     printf("PULSE_CONTROLLER registers:\n");
-
-    unsigned i;
-
-    for (i = 0;i < 31;i++) {
+    for (unsigned i = 0;i < 31;i++) {
         if (i % 4 == 0) {
             printf("[%2d...%2d]: ", i, i + 3);
         }
         printf("%08X ", PULSER_read_slave_reg(base_addr, i, 0));
-
         if (i % 4 == 3) {
             printf("\n");
         }
@@ -62,8 +56,8 @@ PULSER_debug_regs(volatile void *base_addr)
 void
 PULSER_init(volatile void *base_addr, unsigned nDDS, unsigned bResetDDS)
 {
-    //soft reset
-    //PULSER_mReset(base_addr);
+    /* soft reset */
+    /* PULSER_mReset(base_addr); */
 
     if (nacsCheckLogLevel(NACS_LOG_INFO)) {
         PULSER_debug_regs(base_addr);
@@ -83,7 +77,7 @@ PULSER_init(volatile void *base_addr, unsigned nDDS, unsigned bResetDDS)
         if (bResetDDS) {
             PULSER_dds_reset(base_addr, iDDS);
         }
-        //TR: no div2 for AD9914 PULSER_set_dds_div2(base_addr, iDDS, 0);
+        /* TR: no div2 for AD9914 PULSER_set_dds_div2(base_addr, iDDS, 0); */
     }
 }
 

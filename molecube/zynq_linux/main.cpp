@@ -39,6 +39,8 @@
 //     so I'm pasting it here.  Removed pointers to stderr and stdout streams.
 //      This came from cgicc/contrib/FCgiIO.h , .cpp
 
+// Yichao Yu: this effectively makes the whole program LGPL LOOOOOOL
+
 // ============================================================
 // Class FCgiIO
 // ============================================================
@@ -53,8 +55,7 @@
  * It also provides access to the request's output and error streams, using a
  * similar interface.
  */
-class CGICC_API FCgiIO : public cgicc::CgiInput
-{
+class CGICC_API FCgiIO : public cgicc::CgiInput {
 public:
 
     // ============================================================

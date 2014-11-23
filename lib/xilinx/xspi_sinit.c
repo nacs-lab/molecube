@@ -85,7 +85,8 @@
 * @note		None.
 *
 ******************************************************************************/
-XSpi_Config *XSpi_LookupConfig(uint16_t DeviceId)
+XSpi_Config*
+XSpi_LookupConfig(uint16_t DeviceId)
 {
     XSpi_Config *CfgPtr = NULL;
 

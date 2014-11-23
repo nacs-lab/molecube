@@ -153,7 +153,7 @@ int XSpi_CfgInitialize(XSpi *InstancePtr, XSpi_Config *Config,
      * and reinitialize, but prevents a user from inadvertently
      * initializing.
      */
-    if (InstancePtr->IsStarted == XIL_COMPONENT_IS_STARTED) {
+    if (InstancePtr->IsStarted == XSPI_IS_STARTED) {
         return XST_DEVICE_IS_STARTED;
     }
 
@@ -184,7 +184,7 @@ int XSpi_CfgInitialize(XSpi *InstancePtr, XSpi_Config *Config,
     InstancePtr->FlashBaseAddr = Config->AxiFullBaseAddress;
     InstancePtr->XipMode = Config->XipMode;
 
-    InstancePtr->IsReady = XIL_COMPONENT_IS_READY;
+    InstancePtr->IsReady = XSPI_IS_READY;
 
     /*
      * Create a slave select mask based on the number of bits that can
@@ -280,12 +280,12 @@ int XSpi_Start(XSpi *InstancePtr)
     uint32_t ControlReg;
 
     assert(InstancePtr != NULL);
-    assert(InstancePtr->IsReady == XIL_COMPONENT_IS_READY);
+    assert(InstancePtr->IsReady == XSPI_IS_READY);
 
     /*
      * If it is already started, return a status indicating so.
      */
-    if (InstancePtr->IsStarted == XIL_COMPONENT_IS_STARTED) {
+    if (InstancePtr->IsStarted == XSPI_IS_STARTED) {
         return XST_DEVICE_IS_STARTED;
     }
 
@@ -298,7 +298,7 @@ int XSpi_Start(XSpi *InstancePtr)
      * Indicate that the device is started before we enable the transmitter
      * or receiver or interrupts.
      */
-    InstancePtr->IsStarted = XIL_COMPONENT_IS_STARTED;
+    InstancePtr->IsStarted = XSPI_IS_STARTED;
 
     /*
      * Reset the transmit and receive FIFOs if present. There is a critical
@@ -358,7 +358,7 @@ int XSpi_Stop(XSpi *InstancePtr)
     uint32_t ControlReg;
 
     assert(InstancePtr != NULL);
-    assert(InstancePtr->IsReady == XIL_COMPONENT_IS_READY);
+    assert(InstancePtr->IsReady == XSPI_IS_READY);
 
     /*
      * Do not allow the user to stop the device while a transfer is in
@@ -406,7 +406,7 @@ int XSpi_Stop(XSpi *InstancePtr)
 void XSpi_Reset(XSpi *InstancePtr)
 {
     assert(InstancePtr != NULL);
-    assert(InstancePtr->IsReady == XIL_COMPONENT_IS_READY);
+    assert(InstancePtr->IsReady == XSPI_IS_READY);
 
     /*
      * Abort any transfer that is in progress.
@@ -523,9 +523,9 @@ int XSpi_Transfer(XSpi *InstancePtr, uint8_t *SendBufPtr,
     assert(InstancePtr != NULL);
     assert(SendBufPtr != NULL);
     assert(ByteCount > 0);
-    assert(InstancePtr->IsReady == XIL_COMPONENT_IS_READY);
+    assert(InstancePtr->IsReady == XSPI_IS_READY);
 
-    if (InstancePtr->IsStarted != XIL_COMPONENT_IS_STARTED) {
+    if (InstancePtr->IsStarted != XSPI_IS_STARTED) {
         return XST_DEVICE_IS_STOPPED;
     }
 
@@ -859,7 +859,7 @@ int XSpi_SetSlaveSelect(XSpi *InstancePtr, uint32_t SlaveMask)
     int Index;
 
     assert(InstancePtr != NULL);
-    assert(InstancePtr->IsReady == XIL_COMPONENT_IS_READY);
+    assert(InstancePtr->IsReady == XSPI_IS_READY);
 
     /*
      * Do not allow the slave select to change while a transfer is in
@@ -922,7 +922,7 @@ int XSpi_SetSlaveSelect(XSpi *InstancePtr, uint32_t SlaveMask)
 uint32_t XSpi_GetSlaveSelect(XSpi *InstancePtr)
 {
     assert(InstancePtr != NULL);
-    assert(InstancePtr->IsReady == XIL_COMPONENT_IS_READY);
+    assert(InstancePtr->IsReady == XSPI_IS_READY);
 
     /*
      * Return the inverse of the value contained in
@@ -985,7 +985,7 @@ void XSpi_SetStatusHandler(XSpi *InstancePtr, void *CallBackRef,
 {
     assert(InstancePtr != NULL);
     assert(FuncPtr != NULL);
-    assert(InstancePtr->IsReady == XIL_COMPONENT_IS_READY);
+    assert(InstancePtr->IsReady == XSPI_IS_READY);
 
     InstancePtr->StatusHandler = FuncPtr;
     InstancePtr->StatusRef = CallBackRef;

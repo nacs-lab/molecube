@@ -123,7 +123,7 @@ int XSpi_SelfTest(XSpi *InstancePtr)
     uint32_t Register;
 
     assert(InstancePtr != NULL);
-    assert(InstancePtr->IsReady == XIL_COMPONENT_IS_READY);
+    assert(InstancePtr->IsReady == XSPI_IS_READY);
 
 
     /* Return Success if XIP Mode */

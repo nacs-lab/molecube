@@ -64,7 +64,6 @@
 ******************************************************************************/
 
 #include <nacs-utils/utils.h>
-#include "xil_types.h"
 #include "xspi_l.h"
 
 #ifndef XSPI_I_H

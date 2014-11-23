@@ -125,7 +125,7 @@ int XSpi_SetOptions(XSpi *InstancePtr, uint32_t Options)
     uint32_t Index;
 
     assert(InstancePtr != NULL);
-    assert(InstancePtr->IsReady == XIL_COMPONENT_IS_READY);
+    assert(InstancePtr->IsReady == XSPI_IS_READY);
 
     /*
      * Do not allow the slave select to change while a transfer is in
@@ -199,7 +199,7 @@ uint32_t XSpi_GetOptions(XSpi *InstancePtr)
     uint32_t Index;
 
     assert(InstancePtr != NULL);
-    assert(InstancePtr->IsReady == XIL_COMPONENT_IS_READY);
+    assert(InstancePtr->IsReady == XSPI_IS_READY);
 
     /*
      * Get the control register to determine which options are currently

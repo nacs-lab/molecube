@@ -102,7 +102,7 @@ void XSpi_GetStats(XSpi *InstancePtr, XSpi_Stats *StatsPtr)
 {
     assert(InstancePtr != NULL);
     assert(StatsPtr != NULL);
-    assert(InstancePtr->IsReady == XIL_COMPONENT_IS_READY);
+    assert(InstancePtr->IsReady == XSPI_IS_READY);
 
     StatsPtr->ModeFaults = InstancePtr->Stats.ModeFaults;
     StatsPtr->XmitUnderruns = InstancePtr->Stats.XmitUnderruns;
@@ -127,7 +127,7 @@ void XSpi_GetStats(XSpi *InstancePtr, XSpi_Stats *StatsPtr)
 void XSpi_ClearStats(XSpi *InstancePtr)
 {
     assert(InstancePtr != NULL);
-    assert(InstancePtr->IsReady == XIL_COMPONENT_IS_READY);
+    assert(InstancePtr->IsReady == XSPI_IS_READY);
 
     InstancePtr->Stats.ModeFaults = 0;
     InstancePtr->Stats.XmitUnderruns = 0;

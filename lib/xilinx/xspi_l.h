@@ -68,19 +68,12 @@
  * </pre>
  *
  ******************************************************************************/
-#include <nacs-utils/utils.h>
-#include "xil_types.h"
-#include "xil_io.h"
+#include <nacs-utils/mem.h>
 
 #ifndef XSPI_L_H
 #define XSPI_L_H
 
 NACS_BEGIN_DECLS
-
-/***************** Macros (Inline Functions) Definitions *********************/
-
-#define XSpi_In32 Xil_In32
-#define XSpi_Out32 Xil_Out32
 
 /****************************************************************************/
 /**
@@ -98,7 +91,7 @@ NACS_BEGIN_DECLS
  *
  ******************************************************************************/
 #define XSpi_ReadReg(BaseAddress, RegOffset)    \
-    XSpi_In32((BaseAddress) + (RegOffset))
+    mem_read32((BaseAddress) + (RegOffset))
 
 /***************************************************************************/
 /**
@@ -117,7 +110,7 @@ NACS_BEGIN_DECLS
  *                                        u32 RegisterValue);
  ******************************************************************************/
 #define XSpi_WriteReg(BaseAddress, RegOffset, RegisterValue)    \
-    XSpi_Out32((BaseAddress) + (RegOffset), (RegisterValue))
+    mem_write32((BaseAddress) + (RegOffset), (RegisterValue))
 
 /************************** Function Prototypes ******************************/
 

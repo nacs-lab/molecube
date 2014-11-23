@@ -7,22 +7,6 @@
 #include <xspi_l.h>
 #include <endian.h>
 
-#ifdef __arm__
-//Zynq uses Xil_, Virtex/PPC uses XIo_.
-#define XIo_In16  Xil_In16
-#define XIo_In32  Xil_In32
-#define XIo_Out16 Xil_Out16
-#define XIo_Out32 Xil_Out32
-#else
-//Deal with macro renaming at version 3.00a of xspi.h
-//Thank you, Xilinx!
-#define XSpi_SetSlaveSelectReg XSpi_mSetSlaveSelectReg
-#define XSpi_IntrGlobalDisable XSpi_mIntrGlobalDisable
-#define XSpi_GetControlReg XSpi_mGetControlReg
-#define XSpi_SetControlReg XSpi_mSetControlReg
-#define XSpi_GetStatusReg XSpi_mGetStatusReg
-#endif
-
 unsigned SPI_Transmit16(spi_p spi, unsigned short *dataTX,
                         unsigned short *dataRC)
 {
@@ -36,7 +20,7 @@ unsigned SPI_Transmit16(spi_p spi, unsigned short *dataTX,
         printf("spi <- tx =%08x\n", (unsigned)*dataTX);
 
     SPI_SetSlaveSelect(spi, 1);
-    XStatus s = XSpi_Transfer(spi, tx, rc, 2);
+    int s = XSpi_Transfer(spi, tx, rc, 2);
     SPI_SetSlaveSelect(spi, 0);
 
     *dataRC = be16toh(rc2);
@@ -57,7 +41,7 @@ unsigned SPI_Transmit(spi_p spi, unsigned* dataTX, unsigned* dataRC, unsigned nB
         printf("spi <- tx =%08x\n", *dataTX);
 
     SPI_SetSlaveSelect(spi, 1);
-    XStatus s = XSpi_Transfer(spi, tx, rc, nBytes);
+    int s = XSpi_Transfer(spi, tx, rc, nBytes);
     SPI_SetSlaveSelect(spi, 0);
     /*
       switch(s){
@@ -166,7 +150,7 @@ uint16_t SPI_Transfer2(spi_p InstancePtr, uint16_t tx)
 
     // TX should be empty from previous transmission
     // transfer data to SPI transmitter
-    XIo_Out16(InstancePtr->BaseAddr + XSP_DTR_OFFSET - 1, tx);
+    mem_write16(InstancePtr->BaseAddr + XSP_DTR_OFFSET - 1, tx);
 
 
     /*
@@ -179,7 +163,7 @@ uint16_t SPI_Transfer2(spi_p InstancePtr, uint16_t tx)
 
 
     do {
-        rcv = XIo_In16(InstancePtr->BaseAddr + XSP_DRR_OFFSET - 1);
+        rcv = mem_read16(InstancePtr->BaseAddr + XSP_DRR_OFFSET - 1);
         StatusReg = XSpi_GetStatusReg(InstancePtr);
     } while ((StatusReg & XSP_SR_RX_EMPTY_MASK) == 0);
 
@@ -202,7 +186,7 @@ uint16_t SPI_Transfer_ADS8361(spi_p  InstancePtr, unsigned tx)
 
     //TX should be empty from previous transmission
     //transfer data to SPI transmitter
-    XIo_Out32(InstancePtr->BaseAddr + XSP_DTR_OFFSET - 3, tx);
+    mem_write32(InstancePtr->BaseAddr + XSP_DTR_OFFSET - 3, tx);
 
     /*
      * Wait for the transfer to be done by polling the transmit
@@ -213,7 +197,7 @@ uint16_t SPI_Transfer_ADS8361(spi_p  InstancePtr, unsigned tx)
     } while ((StatusReg & XSP_SR_TX_EMPTY_MASK) == 0);
 
     do {
-        rcv = XIo_In32(InstancePtr->BaseAddr + XSP_DRR_OFFSET - 3);
+        rcv = mem_read32(InstancePtr->BaseAddr + XSP_DRR_OFFSET - 3);
         StatusReg = XSpi_GetStatusReg(InstancePtr);
     } while ((StatusReg & XSP_SR_RX_EMPTY_MASK) == 0);
 

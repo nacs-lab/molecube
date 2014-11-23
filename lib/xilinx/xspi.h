@@ -289,7 +289,6 @@
  *
  ******************************************************************************/
 
-#include "xil_types.h"
 #include "xstatus.h"
 #include "xspi_l.h"
 
@@ -402,29 +401,32 @@ typedef struct {
  * to a variable of this type is then passed to the driver API functions.
  */
 typedef struct {
-    XSpi_Stats Stats;	/**< Statistics */
-    volatile char *BaseAddr;    /**< Base address of device (IPIF) */
-    int IsReady;                /**< Device is initialized and ready */
-    int IsStarted;		/**< Device has been started */
-    int HasFifos;		/**< Device is configured with FIFOs or not */
-    uint32_t SlaveOnly;		/**< Device is configured to be slave only */
-    uint8_t NumSlaveBits;	/**< Number of slave selects for this device */
-    uint8_t DataWidth;		/**< Data Transfer Width 8 or 16 or 32 */
-    uint8_t SpiMode;		/**< Standard/Dual/Quad mode */
-    uint32_t SlaveSelectMask;	/**< Mask that matches the number of SS bits */
-    uint32_t SlaveSelectReg;	/**< Slave select register */
+    XSpi_Stats Stats; /**< Statistics */
+    volatile char *BaseAddr; /**< Base address of device (IPIF) */
+    volatile int IsReady; /**< Device is initialized and ready */
+    volatile int IsStarted; /**< Device has been started */
+    int HasFifos; /**< Device is configured with FIFOs or not */
+    uint32_t SlaveOnly; /**< Device is configured to be slave only */
+    uint8_t NumSlaveBits; /**< Number of slave selects for this device */
+    uint8_t DataWidth; /**< Data Transfer Width 8 or 16 or 32 */
+    uint8_t SpiMode; /**< Standard/Dual/Quad mode */
+    uint32_t SlaveSelectMask; /**< Mask that matches the number of SS bits */
+    uint32_t SlaveSelectReg; /**< Slave select register */
 
-    uint8_t *SendBufferPtr;	/**< Buffer to send  */
-    uint8_t *RecvBufferPtr;	/**< Buffer to receive */
+    uint8_t *SendBufferPtr; /**< Buffer to send  */
+    uint8_t *RecvBufferPtr; /**< Buffer to receive */
     unsigned int RequestedBytes; /**< Total bytes to transfer (state) */
     unsigned int RemainingBytes; /**< Bytes left to transfer (state) */
-    int IsBusy;		/**< A transfer is in progress (state) */
+    int IsBusy; /**< A transfer is in progress (state) */
 
     XSpi_StatusHandler StatusHandler; /**< Status Handler */
-    void *StatusRef;	/**< Callback reference for status handler */
-    uint32_t FlashBaseAddr;   /**< Used in XIP Mode */
-    uint8_t XipMode;             /**< 0 if Non-XIP, 1 if XIP Mode */
+    void *StatusRef; /**< Callback reference for status handler */
+    uint32_t FlashBaseAddr; /**< Used in XIP Mode */
+    uint8_t XipMode; /**< 0 if Non-XIP, 1 if XIP Mode */
 } XSpi;
+
+#define XSPI_IS_STARTED 0x22222222 /**< component has been started */
+#define XSPI_IS_READY 0x11111111 /**< component has been initialized */
 
 /***************** Macros (Inline Functions) Definitions *********************/
 
