@@ -64,17 +64,30 @@ PULSER_mReadReg(volatile void *base, off_t offset)
  * @return  The data from the user logic slave register.
  *
  */
+static NACS_INLINE void
+PULSER_mWriteSlaveReg(volatile void *base, int n, off_t offset, uint32_t val)
+{
+    PULSER_mWriteReg(base, PULSER_SLV_REG_OFFSET(n) + offset, val);
+}
+
+static NACS_INLINE uint32_t
+PULSER_mReadSlaveReg(volatile void *base, int n, off_t offset)
+{
+    return PULSER_mReadReg(base, PULSER_SLV_REG_OFFSET(n) + offset);
+}
+
 #define DEF_PULSER_RW_SLAVE(n)                                          \
     static NACS_INLINE void                                             \
     PULSER_mWriteSlaveReg##n(volatile void *base, off_t offset, uint32_t val) \
     {                                                                   \
-        PULSER_mWriteReg(base, PULSER_SLV_REG_OFFSET(n) + offset, val); \
+        PULSER_mWriteSlaveReg(base, n, offset, val);                    \
     }                                                                   \
     static NACS_INLINE uint32_t                                         \
     PULSER_mReadSlaveReg##n(volatile void *base, off_t offset)          \
     {                                                                   \
-        return PULSER_mReadReg(base, PULSER_SLV_REG_OFFSET(n) + offset); \
+        return PULSER_mReadSlaveReg(base, n, offset);                   \
     }
+
 DEF_PULSER_RW_SLAVE(0)
 DEF_PULSER_RW_SLAVE(1)
 DEF_PULSER_RW_SLAVE(2)
