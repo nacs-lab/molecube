@@ -95,7 +95,7 @@ public:
     virtual void
     makePulse()
     {
-        // PULSE_pulse
+        // multiple PULSER_short_pulse
         TTL_pulse(m_t, m_ttl);
     }
 };

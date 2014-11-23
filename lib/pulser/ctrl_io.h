@@ -7,8 +7,8 @@
 
 #include <nacs-utils/mem.h>
 
-#ifndef PULSER_IO_H
-#define PULSER_IO_H
+#ifndef __NACS_PULSER_CTRL_IO_H__
+#define __NACS_PULSER_CTRL_IO_H__
 
 /**
  *
@@ -104,4 +104,4 @@ PULSER_mReset(volatile void *base)
 /* Defines the number of registers available for read and write */
 #define PULSER_USER_NUM_REG 32
 
-#endif /** PULSER_IO_H */
+#endif
