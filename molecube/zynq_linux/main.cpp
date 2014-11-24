@@ -134,7 +134,6 @@ protected:
     std::map<std::string, std::string> fEnv;
 };
 
-bool g_debug_spi = false;
 bool g_stop_curr_seq = false;
 
 verbosity gvSTDOUT(nullptr);

@@ -5,6 +5,8 @@
 #include <nacs-xspi/xspi_l.h>
 #include <endian.h>
 
+#define DEBUG_SPI (0)
+
 unsigned SPI_Transmit16(spi_p spi, unsigned short *dataTX,
                         unsigned short *dataRC)
 {
@@ -14,7 +16,7 @@ unsigned SPI_Transmit16(spi_p spi, unsigned short *dataTX,
     uint8_t* tx = (uint8_t*)(&tx2);
     uint8_t* rc = (uint8_t*)(&rc2);
 
-    if (g_debug_spi)
+    if (DEBUG_SPI)
         printf("spi <- tx =%08x\n", (unsigned)*dataTX);
 
     SPI_SetSlaveSelect(spi, 1);
@@ -23,7 +25,7 @@ unsigned SPI_Transmit16(spi_p spi, unsigned short *dataTX,
 
     *dataRC = be16toh(rc2);
 
-    if (g_debug_spi)
+    if (DEBUG_SPI)
         printf("spi -> rc =%08x\n", (unsigned)*dataRC);
 
     return s;
@@ -35,7 +37,7 @@ unsigned SPI_Transmit(spi_p spi, unsigned* dataTX, unsigned* dataRC, unsigned nB
     uint8_t* tx = (uint8_t*)dataTX;
     uint8_t* rc = (uint8_t*)dataRC;
 
-    if (g_debug_spi)
+    if (DEBUG_SPI)
         printf("spi <- tx =%08x\n", *dataTX);
 
     SPI_SetSlaveSelect(spi, 1);
@@ -48,7 +50,7 @@ unsigned SPI_Transmit(spi_p spi, unsigned* dataTX, unsigned* dataRC, unsigned nB
       case XST_SPI_NO_SLAVE : printf("SPI failure.  XST_SPI_NO_SLAVE\n"); break;
       }
     */
-    if (g_debug_spi)
+    if (DEBUG_SPI)
         printf("spi -> rc =%08x\n", *dataRC);
 
     return s;
