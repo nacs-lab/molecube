@@ -73,7 +73,7 @@ public:
     makePulse()
     {
         // Change extra_flags
-        PULSER_disable_timing_check(pulser);
+        PULSER_disable_timing_check(g_pulser);
     }
 };
 
@@ -110,7 +110,7 @@ public:
     makePulse()
     {
         // PULSER_short_pulse
-        PULSER_enable_clock_out(pulser, m_divider);
+        PULSER_enable_clock_out(g_pulser, m_divider);
     }
     static const unsigned DURATION = 5;
 };
@@ -211,13 +211,13 @@ public:
     {
         // PULSER_short_pulse
         // Set ddsPhase
-        PULSER_dds_reset(pulser, m_dds);
+        PULSER_dds_reset(g_pulser, m_dds);
 
         //disable programmable modulus, enable profile 0, enable SYNC_CLK output
-        PULSER_set_dds_two_bytes(pulser, m_dds, 0x05, 0x840B);
+        PULSER_set_dds_two_bytes(g_pulser, m_dds, 0x05, 0x840B);
 
         //enable amplitude control (OSK)
-        PULSER_set_dds_two_bytes(pulser, m_dds, 0x0, 0x0108);
+        PULSER_set_dds_two_bytes(g_pulser, m_dds, 0x0, 0x0108);
     }
 
     static const unsigned DURATION = 90;
@@ -708,20 +708,20 @@ parseSeqTxt(unsigned reps, const std::string& seqTxt, bool bForever,
 
             // hold the sequnce until pulse buffer is full or
             // PULSER_wait_for_finished is called
-            PULSER_set_hold(pulser);
+            PULSER_set_hold(g_pulser);
 
-            PULSER_toggle_init(pulser);
-            PULSER_enable_timing_check(pulser);
+            PULSER_toggle_init(g_pulser);
+            PULSER_enable_timing_check(g_pulser);
 
             for (pulse_cmd *p : pulses) {
                 p->makePulse();
             }
 
             // wait for pulses finished.
-            PULSER_wait_for_finished(pulser);
+            PULSER_wait_for_finished(g_pulser);
 
-            if (!PULSER_timing_ok(pulser)) {
-                PULSER_clear_timing_check(pulser);
+            if (!PULSER_timing_ok(g_pulser)) {
+                PULSER_clear_timing_check(g_pulser);
                 nTimingErrors++;
             }
         }

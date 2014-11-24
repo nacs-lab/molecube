@@ -54,9 +54,9 @@ void
 init_pulse_controller()
 {
     nacsInfo("Initializing pulse controller\n");
-    pulser = nacsMapFile("/dev/mem",
+    g_pulser = nacsMapFile("/dev/mem",
                          (intptr_t)get_pulse_controller_phys_addr(), 4096);
-    if (nacsUnlikely(!pulser)) {
+    if (nacsUnlikely(!g_pulser)) {
         nacsError("Can't map the memory to user space.\n");
         exit(0);
     }

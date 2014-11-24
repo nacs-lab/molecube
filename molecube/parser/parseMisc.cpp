@@ -139,9 +139,9 @@ setDeviceParams(const std::string& page, const txtmap_t& params)
             pos = params.find(buff);
             if(pos != params.end()) {
                 nacsLog("DDS reset/init (%d)\n", iDDS);
-                init_AD9914(pulser, iDDS, true);
+                init_AD9914(g_pulser, iDDS, true);
                 //fprintf(gLog, "DDS test (%d)\n", iDDS);
-                //print_AD9914_registers(pulser, iDDS, gLog);
+                //print_AD9914_registers(g_pulser, iDDS, gLog);
             }
         }
     }
@@ -157,7 +157,7 @@ setDeviceParams(const std::string& page, const txtmap_t& params)
             unsigned lo = 0;
             sscanf(posLo->second.c_str(), "%x", &lo);
 
-            PULSER_set_ttl(pulser, hi, lo);
+            PULSER_set_ttl(g_pulser, hi, lo);
             nacsLog("set TTL ttlHiMask=%08X  ttlLoMask=%08X\n", hi, lo);
         }
     }
@@ -189,7 +189,7 @@ parseQueryCGI(cgicc::Cgicc &cgi)
         if ((**cmd) == "getTTL") {
             printJSONResponseHeader();
             unsigned lo, hi;
-            PULSER_get_ttl(pulser, &hi, &lo);
+            PULSER_get_ttl(g_pulser, &hi, &lo);
 
             char buff[64];
             sprintf(buff, "{\"lo\":%u, \"hi\":%u}", lo, hi);

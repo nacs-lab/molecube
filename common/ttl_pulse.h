@@ -35,7 +35,7 @@ static NACS_INLINE void
 TTL_pulse(unsigned t, unsigned ttl)
 {
     if (t > 4) {
-        PULSER_pulse(pulser, t, 0, ttl);
+        PULSER_pulse(g_pulser, t, 0, ttl);
     }
 }
 

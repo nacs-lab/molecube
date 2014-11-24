@@ -53,7 +53,7 @@ double dds_clk(int iDDS);
 static NACS_INLINE void
 DDS_set_ftw(unsigned iDDS, unsigned ftw)
 {
-    PULSER_set_dds_freq(pulser, iDDS, ftw);
+    PULSER_set_dds_freq(g_pulser, iDDS, ftw);
 }
 
 static NACS_INLINE void
@@ -65,7 +65,7 @@ DDS_set_freqHz(unsigned iDDS, unsigned Hz)
 static NACS_INLINE unsigned
 DDS_get_ftw(unsigned iDDS)
 {
-    return PULSER_get_dds_freq(pulser, iDDS);
+    return PULSER_get_dds_freq(g_pulser, iDDS);
 }
 
 static NACS_INLINE double
@@ -78,13 +78,13 @@ DDS_get_freqHz(unsigned iDDS) //get freq in Hz
 static NACS_INLINE void
 DDS_set_ptw(unsigned iDDS, unsigned ptw)
 {
-    PULSER_set_dds_phase(pulser, iDDS, ptw);
+    PULSER_set_dds_phase(g_pulser, iDDS, ptw);
 }
 
 static NACS_INLINE void
 DDS_shift_ptw(unsigned iDDS, unsigned ptw)
 {
-    PULSER_shift_dds_phase(pulser, iDDS, ptw);
+    PULSER_shift_dds_phase(g_pulser, iDDS, ptw);
 }
 
 static NACS_INLINE void
@@ -96,7 +96,7 @@ DDS_set_phase_deg(unsigned iDDS, double phase)
 static NACS_INLINE unsigned
 DDS_get_ptw(unsigned iDDS)
 {
-    return PULSER_get_dds_two_bytes(pulser, iDDS, 0x30);
+    return PULSER_get_dds_two_bytes(g_pulser, iDDS, 0x30);
 }
 
 static NACS_INLINE double
@@ -110,7 +110,7 @@ DDS_get_phase_deg(unsigned iDDS)
 static NACS_INLINE void
 DDS_set_atw(unsigned iDDS, unsigned atw)
 {
-    PULSER_set_dds_amp(pulser, iDDS, atw);
+    PULSER_set_dds_amp(g_pulser, iDDS, atw);
 }
 
 static NACS_INLINE void
@@ -122,7 +122,7 @@ DDS_set_amp(unsigned iDDS, double A)
 static NACS_INLINE unsigned
 DDS_get_atw(unsigned iDDS)
 {
-    return PULSER_get_dds_two_bytes(pulser, iDDS, 0x32);
+    return PULSER_get_dds_two_bytes(g_pulser, iDDS, 0x32);
 }
 
 static NACS_INLINE double

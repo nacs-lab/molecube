@@ -134,7 +134,7 @@ protected:
     std::map<std::string, std::string> fEnv;
 };
 
-volatile void *pulser = 0;
+volatile void *g_pulser = 0;
 
 bool g_debug_spi = false;
 bool g_stop_curr_seq = false;

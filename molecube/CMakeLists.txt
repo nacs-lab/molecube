@@ -35,6 +35,7 @@ set(SOURCES ${SOURCES}
 
 add_executable(molecube ${SOURCES})
 
-target_link_libraries(molecube rt cgicc fcgi fcgi++ nacs-utils nacs-xspi)
+target_link_libraries(molecube rt cgicc fcgi fcgi++
+  nacs-utils nacs-xspi nacs-pulser)
 
 install(TARGETS molecube DESTINATION "${CMAKE_INSTALL_BINDIR}")
