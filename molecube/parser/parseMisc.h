@@ -18,7 +18,7 @@ public:
 void printPlainResponseHeader();
 void printJSONResponseHeader();
 
-bool parseQueryCGI(cgicc::Cgicc& cgi);
+bool parseQueryCGI(volatile void *pulse_addr, cgicc::Cgicc& cgi);
 
 unsigned getUnsignedParam(const std::string& seq, const std::string& name,
                           unsigned defaultVal);

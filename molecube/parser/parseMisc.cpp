@@ -64,7 +64,8 @@ parseParamsCGI(txtmap_t& params, cgicc::Cgicc& cgi)
 }
 
 static void
-getDeviceParams(const std::string& page, txtmap_t& params)
+getDeviceParams(volatile void *pulse_addr, const std::string &page,
+                txtmap_t &params)
 {
     std::lock_guard<NaCs::FLock> fl(g_fPulserLock);
 
@@ -74,18 +75,18 @@ getDeviceParams(const std::string& page, txtmap_t& params)
 
 
 
-        for(unsigned iDDS=0; iDDS<NDDS; iDDS++) {
-            double f = 1e-6*DDS_get_freqHz(iDDS);
+        for (unsigned iDDS = 0;iDDS < NDDS;iDDS++) {
+            double f = 1e-6 * DDS_get_freqHz(pulse_addr, iDDS);
             snprintf(key, 32, "freq%d", iDDS);
             snprintf(val, 32, "%.6f MHz", f);
             params[key] = val;
 
-            double A = DDS_get_amp(iDDS);
+            double A = DDS_get_amp(pulse_addr, iDDS);
             snprintf(key, 32, "tude%d", iDDS);
             snprintf(val, 32, "%.4f", A);
             params[key] = val;
 
-            double phase = DDS_get_phase_deg(iDDS);
+            double phase = DDS_get_phase_deg(pulse_addr, iDDS);
             snprintf(key, 32, "phase%d", iDDS);
             snprintf(val, 32, "%.3f deg", phase);
             params[key] = val;
@@ -94,7 +95,8 @@ getDeviceParams(const std::string& page, txtmap_t& params)
 }
 
 static void
-setDeviceParams(const std::string& page, const txtmap_t& params)
+setDeviceParams(volatile void *pulse_addr, const std::string &page,
+                const txtmap_t &params)
 {
     std::lock_guard<NaCs::FLock> fl(g_fPulserLock);
 
@@ -111,8 +113,8 @@ setDeviceParams(const std::string& page, const txtmap_t& params)
             if (pos != params.end()) {
                 double f = 1e6 * atof(pos->second.c_str());
                 nacsLog("DDS setfreq(%d): %12.3f\n", iDDS, f);
-                DDS_set_freqHz(iDDS, f);
-                unsigned ftw = DDS_get_ftw(iDDS);
+                DDS_set_freqHz(pulse_addr, iDDS, f);
+                unsigned ftw = DDS_get_ftw(pulse_addr, iDDS);
                 nacsLog("DDS getfreq(%d): %12.3f  (ftw = %08X)\n",
                         iDDS, FTW2HzD(ftw, dds_clk(iDDS)), ftw);
             }
@@ -124,7 +126,7 @@ setDeviceParams(const std::string& page, const txtmap_t& params)
                 double A = atof(pos->second.c_str());
                 A = nacsBound(0, A, 1);
                 nacsLog("DDS setamp (%d): %6.3f %%\n", iDDS, A*100);
-                DDS_set_amp(iDDS, A);
+                DDS_set_amp(pulse_addr, iDDS, A);
             }
 
             sprintf(buff, "phase%d", iDDS);
@@ -132,21 +134,21 @@ setDeviceParams(const std::string& page, const txtmap_t& params)
             if(pos != params.end()) {
                 double phase = atof(pos->second.c_str());
                 nacsLog("DDS setphase(%d): %9.3f degrees\n", iDDS, phase);
-                DDS_set_phase_deg(iDDS, phase);
+                DDS_set_phase_deg(pulse_addr, iDDS, phase);
             }
 
             sprintf(buff, "reset%d", iDDS);
             pos = params.find(buff);
             if(pos != params.end()) {
                 nacsLog("DDS reset/init (%d)\n", iDDS);
-                init_AD9914(g_pulser, iDDS, true);
+                init_AD9914(pulse_addr, iDDS, true);
                 //fprintf(gLog, "DDS test (%d)\n", iDDS);
-                //print_AD9914_registers(g_pulser, iDDS, gLog);
+                //print_AD9914_registers(pulse_addr, iDDS, gLog);
             }
         }
     }
 
-    if(page == "ttl") {
+    if (page == "ttl") {
         txtmap_t::const_iterator posHi = params.find("ttlHiMask");
         txtmap_t::const_iterator posLo = params.find("ttlLoMask");
 
@@ -157,7 +159,7 @@ setDeviceParams(const std::string& page, const txtmap_t& params)
             unsigned lo = 0;
             sscanf(posLo->second.c_str(), "%x", &lo);
 
-            PULSER_set_ttl(g_pulser, hi, lo);
+            PULSER_set_ttl(pulse_addr, hi, lo);
             nacsLog("set TTL ttlHiMask=%08X  ttlLoMask=%08X\n", hi, lo);
         }
     }
@@ -178,7 +180,7 @@ stream_vect_to_JSON_array(std::ostream& os, const V& v)
 }
 
 bool
-parseQueryCGI(cgicc::Cgicc &cgi)
+parseQueryCGI(volatile void *pulse_addr, cgicc::Cgicc &cgi)
 {
     cgicc::form_iterator cmd = cgi.getElement("command");
     cgicc::form_iterator page = cgi.getElement("page");
@@ -189,7 +191,7 @@ parseQueryCGI(cgicc::Cgicc &cgi)
         if ((**cmd) == "getTTL") {
             printJSONResponseHeader();
             unsigned lo, hi;
-            PULSER_get_ttl(g_pulser, &hi, &lo);
+            PULSER_get_ttl(pulse_addr, &hi, &lo);
 
             char buff[64];
             sprintf(buff, "{\"lo\":%u, \"hi\":%u}", lo, hi);
@@ -234,7 +236,7 @@ parseQueryCGI(cgicc::Cgicc &cgi)
             if (sPage.length()) {
                 txtmap_t params;
                 loadMap(params, "/home/www/userdata/params_" + sPage);
-                getDeviceParams(sPage, params);
+                getDeviceParams(pulse_addr, sPage, params);
                 //dumpMap(params, gLog); fflush(gLog);
                 dumpMapHTML(params, std::cout);
                 return true;
@@ -249,10 +251,10 @@ parseQueryCGI(cgicc::Cgicc &cgi)
             std::string sPage = **page;
             removeNonAlphaNum(sPage);
 
-            if(sPage.length()) {
+            if (sPage.length()) {
                 txtmap_t params;
-                if(parseParamsCGI(params, cgi)) {
-                    setDeviceParams(sPage, params);
+                if (parseParamsCGI(params, cgi)) {
+                    setDeviceParams(pulse_addr, sPage, params);
                     return true;
                 }
             } else {
@@ -261,7 +263,7 @@ parseQueryCGI(cgicc::Cgicc &cgi)
         }
 
         if ((**cmd) == "runseq") {
-            parseSeqCGI(cgi);
+            parseSeqCGI(pulse_addr, cgi);
             return true;
         }
         return false;

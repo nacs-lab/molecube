@@ -50,14 +50,15 @@ get_pulse_controller_phys_addr()
     // return addr;
 }
 
-void
+volatile void*
 init_pulse_controller()
 {
     nacsInfo("Initializing pulse controller\n");
-    g_pulser = nacsMapFile("/dev/mem",
-                         (intptr_t)get_pulse_controller_phys_addr(), 4096);
-    if (nacsUnlikely(!g_pulser)) {
+    volatile void *pulse_addr =
+        nacsMapFile("/dev/mem", get_pulse_controller_phys_addr(), 4096);
+    if (nacsUnlikely(!pulse_addr)) {
         nacsError("Can't map the memory to user space.\n");
         exit(0);
     }
+    return pulse_addr;
 }

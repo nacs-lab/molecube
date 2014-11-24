@@ -6,9 +6,9 @@
 
 //parse URL-encoded pulse sequence in string
 // should only be used for shorter sequence (< 100 pulses)
-bool parseSeqURL(std::string& seq);
+bool parseSeqURL(volatile void *pulse_addr, std::string& seq);
 
-bool parseSeqCGI(cgicc::Cgicc& cgi);
+bool parseSeqCGI(volatile void *pulse_addr, cgicc::Cgicc& cgi);
 
 //parse sequence in multipart format
 // more efficient for long sequences because no decoding from URL format is needed

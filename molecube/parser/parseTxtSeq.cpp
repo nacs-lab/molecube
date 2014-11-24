@@ -47,15 +47,21 @@ unsigned g_lineNum = 0;
 //make sure any TTLs that were spec'd previously are still active
 // tNewPulse = spec'd time for new pulse
 // tMinPulse = minimum duration of new pulse *before* update
-static void dealWithCurrentTTL(unsigned tNewPulse, unsigned tMinPulse);
+static void dealWithCurrentTTL(volatile void *pulse_addr, unsigned tNewPulse,
+                               unsigned tMinPulse);
 
 //parse text-encoded pulse sequence
-static bool parseSeqTxt(unsigned reps, const std::string& seqTxt,
-                        bool bForever, bool bDebugPulses);
+static bool parseSeqTxt(volatile void *pulse_addr, unsigned reps,
+                        const std::string &seqTxt, bool bForever,
+                        bool bDebugPulses);
 
 //abstract base class for different types of pulse commands
 class pulse_cmd {
+protected:
+    volatile void *m_pulse_addr;
+    pulse_cmd() = delete;
 public:
+    pulse_cmd(volatile void *pulse_addr) : m_pulse_addr(pulse_addr) {}
     virtual ~pulse_cmd() {}
     virtual void makePulse() = 0;
 };
@@ -67,13 +73,14 @@ std::vector<pulse_cmd*> pulses;
 // takes 0 time in the sequence.
 class disable_timing_check_cmd  : public pulse_cmd {
 public:
+    using pulse_cmd::pulse_cmd;
     virtual ~disable_timing_check_cmd() {}
 
     virtual void
     makePulse()
     {
         // Change extra_flags
-        PULSER_disable_timing_check(g_pulser);
+        PULSER_disable_timing_check(m_pulse_addr);
     }
 };
 
@@ -81,7 +88,8 @@ class ttl_pulse_cmd : public pulse_cmd {
     unsigned m_t, m_ttl;
 public:
     virtual ~ttl_pulse_cmd() {}
-    ttl_pulse_cmd(unsigned t, unsigned ttl) : m_t(t), m_ttl(ttl)
+    ttl_pulse_cmd(volatile void *pulse_addr, unsigned t, unsigned ttl) :
+        pulse_cmd(pulse_addr), m_t(t), m_ttl(ttl)
     {
         if (m_t < PULSER_T_TTL_MIN) {
             gvSTDOUT.printf("TTL pulse 0x%08X too short: %.2f us\n",
@@ -96,7 +104,7 @@ public:
     makePulse()
     {
         // multiple PULSER_short_pulse
-        TTL_pulse(m_t, m_ttl);
+        TTL_pulse(m_pulse_addr, m_t, m_ttl);
     }
 };
 
@@ -104,13 +112,16 @@ class clock_out_cmd : public pulse_cmd {
     unsigned m_divider;
 public:
     virtual ~clock_out_cmd() {}
-    clock_out_cmd(unsigned divider) : m_divider(divider) {}
+    clock_out_cmd(volatile void *pulse_addr, unsigned divider)
+        : pulse_cmd(pulse_addr),
+          m_divider(divider)
+    {}
 
     virtual void
     makePulse()
     {
         // PULSER_short_pulse
-        PULSER_enable_clock_out(g_pulser, m_divider);
+        PULSER_enable_clock_out(m_pulse_addr, m_divider);
     }
     static const unsigned DURATION = 5;
 };
@@ -120,7 +131,8 @@ protected:
     unsigned m_dds, m_operand;
 public:
     virtual ~dds_cmd() {}
-    dds_cmd(unsigned dds, unsigned operand) : m_dds(dds), m_operand(operand)
+    dds_cmd(volatile void *pulse_addr, unsigned dds, unsigned operand)
+        : pulse_cmd(pulse_addr), m_dds(dds), m_operand(operand)
     {
         if (dds > NDDS - 1) {
             throw std::runtime_error("Line " + std::to_string(g_lineNum) +
@@ -134,9 +146,10 @@ public:
 class set_freq_cmd : public dds_cmd {
 public:
     virtual ~set_freq_cmd() {}
-    set_freq_cmd(unsigned dds, unsigned ftw) : dds_cmd(dds, ftw) {}
-    set_freq_cmd(unsigned dds, double f) :
-        dds_cmd(dds, Hz2FTW(f, dds_clk(dds)))
+    set_freq_cmd(volatile void *pulse_addr, unsigned dds, unsigned ftw) :
+        dds_cmd(pulse_addr, dds, ftw) {}
+    set_freq_cmd(volatile void *pulse_addr, unsigned dds, double f) :
+        dds_cmd(pulse_addr, dds, Hz2FTW(f, dds_clk(dds)))
     {
     }
 
@@ -144,39 +157,42 @@ public:
     makePulse()
     {
         // PULSER_short_pulse
-        DDS_set_ftw(m_dds, m_operand);
+        DDS_set_ftw(m_pulse_addr, m_dds, m_operand);
     }
 };
 
 class set_amp_cmd : public dds_cmd {
 public:
     virtual ~set_amp_cmd() {}
-    set_amp_cmd(unsigned dds, unsigned atw) : dds_cmd(dds, atw) {}
-    set_amp_cmd(unsigned dds, double A) :
-        dds_cmd(dds, 0x0FFF & (int)(A * 4095 + 0.5))
+    set_amp_cmd(volatile void *pulse_addr, unsigned dds, unsigned atw) :
+        dds_cmd(pulse_addr, dds, atw) {}
+    set_amp_cmd(volatile void *pulse_addr, unsigned dds, double A) :
+        dds_cmd(pulse_addr, dds, 0x0FFF & (int)(A * 4095 + 0.5))
     {}
 
     virtual void
     makePulse()
     {
         // PULSER_short_pulse
-        DDS_set_atw(m_dds, m_operand);
+        DDS_set_atw(m_pulse_addr, m_dds, m_operand);
     }
 };
 
 class set_phase_cmd : public dds_cmd {
 public:
     virtual ~set_phase_cmd() {}
-    set_phase_cmd(unsigned dds, unsigned ptw) : dds_cmd(dds, ptw) {}
-    set_phase_cmd(unsigned dds, double phi) :
-        dds_cmd(dds, 0xFFFF & (int)(phi * 65536 / 360.0 + 0.5)) {}
+    set_phase_cmd(volatile void *pulse_addr, unsigned dds, unsigned ptw) :
+        dds_cmd(pulse_addr, dds, ptw) {}
+    set_phase_cmd(volatile void *pulse_addr, unsigned dds, double phi) :
+        dds_cmd(pulse_addr, dds, 0xFFFF & (int)(phi * 65536 / 360.0 + 0.5))
+    {}
 
     virtual void
     makePulse()
     {
         // PULSER_short_pulse
         // Set ddsPhase
-        DDS_set_ptw(m_dds, m_operand);
+        DDS_set_ptw(m_pulse_addr, m_dds, m_operand);
     }
 };
 
@@ -184,11 +200,11 @@ class shift_phase_cmd : public dds_cmd {
 public:
     virtual ~shift_phase_cmd()
     {}
-    shift_phase_cmd(unsigned dds, unsigned ptw) :
-        dds_cmd(dds, ptw)
+    shift_phase_cmd(volatile void *pulse_addr, unsigned dds, unsigned ptw) :
+        dds_cmd(pulse_addr, dds, ptw)
     {}
-    shift_phase_cmd(unsigned dds, double phi) :
-        dds_cmd(dds, 0xFFFF & (int)(phi * 65536 / 360.0 + 0.5))
+    shift_phase_cmd(volatile void *pulse_addr, unsigned dds, double phi) :
+        dds_cmd(pulse_addr, dds, 0xFFFF & (int)(phi * 65536 / 360.0 + 0.5))
     {}
 
     virtual void
@@ -196,7 +212,7 @@ public:
     {
         // PULSER_short_pulse
         // use ddsPhase
-        DDS_shift_ptw(m_dds, m_operand);
+        DDS_shift_ptw(m_pulse_addr, m_dds, m_operand);
     }
 };
 
@@ -204,20 +220,22 @@ class dds_reset_cmd : public pulse_cmd {
     unsigned m_dds;
 public:
     virtual ~dds_reset_cmd() {}
-    dds_reset_cmd(unsigned dds) : m_dds(dds) {}
+    dds_reset_cmd(volatile void *pulse_addr, unsigned dds)
+        : pulse_cmd(pulse_addr), m_dds(dds)
+    {}
 
     virtual void
     makePulse()
     {
         // PULSER_short_pulse
         // Set ddsPhase
-        PULSER_dds_reset(g_pulser, m_dds);
+        PULSER_dds_reset(m_pulse_addr, m_dds);
 
         //disable programmable modulus, enable profile 0, enable SYNC_CLK output
-        PULSER_set_dds_two_bytes(g_pulser, m_dds, 0x05, 0x840B);
+        PULSER_set_dds_two_bytes(m_pulse_addr, m_dds, 0x05, 0x840B);
 
         //enable amplitude control (OSK)
-        PULSER_set_dds_two_bytes(g_pulser, m_dds, 0x0, 0x0108);
+        PULSER_set_dds_two_bytes(m_pulse_addr, m_dds, 0x0, 0x0108);
     }
 
     static const unsigned DURATION = 90;
@@ -246,8 +264,8 @@ get_channel_and_operand(std::string &arg1, std::istream &s, int *channel,
 
 template <class C>
 static NACS_INLINE C*
-parse_pulse(std::vector<pulse_cmd*>, unsigned t, std::string &arg1,
-            std::istream &s)
+parse_pulse(volatile void *pulse_addr, std::vector<pulse_cmd*>, unsigned t,
+            std::string &arg1, std::istream &s)
 {
     int channel = -1;
     double operand = 0;
@@ -255,8 +273,8 @@ parse_pulse(std::vector<pulse_cmd*>, unsigned t, std::string &arg1,
     C *pulse = 0;
 
     if (get_channel_and_operand(arg1, s, &channel, &operand)) {
-        dealWithCurrentTTL(t, C::DURATION);
-        pulse = new C(channel, operand);
+        dealWithCurrentTTL(pulse_addr, t, C::DURATION);
+        pulse = new C(pulse_addr, channel, operand);
         pulses.push_back(pulse);
         tCurr = t;
     }
@@ -266,7 +284,7 @@ parse_pulse(std::vector<pulse_cmd*>, unsigned t, std::string &arg1,
 
 //setup "current" TTL, now that the end time is known
 static void
-makeCurrTTL(unsigned tEnd)
+makeCurrTTL(volatile void *pulse_addr, unsigned tEnd)
 {
     if (hasTTL) {
         if (tEnd < tCurr + PULSER_T_TTL_MIN) {
@@ -281,15 +299,15 @@ makeCurrTTL(unsigned tEnd)
                                      " us is too early.  What's the big hurry?");
         }
 
-        pulses.push_back(new ttl_pulse_cmd(tEnd - tCurr, nextTTL));
+        pulses.push_back(new ttl_pulse_cmd(pulse_addr, tEnd - tCurr, nextTTL));
         currTTL = nextTTL;
     }
 }
 
 static void
-setTTL(unsigned t, unsigned channel, unsigned value)
+setTTL(volatile void *pulse_addr, unsigned t, unsigned channel, unsigned value)
 {
-    makeCurrTTL(t);
+    makeCurrTTL(pulse_addr, t);
 
     if (value) {
         nextTTL |= 1 << channel;
@@ -301,9 +319,9 @@ setTTL(unsigned t, unsigned channel, unsigned value)
 }
 
 static void
-setTTLall(unsigned t, unsigned value)
+setTTLall(volatile void *pulse_addr, unsigned t, unsigned value)
 {
-    makeCurrTTL(t);
+    makeCurrTTL(pulse_addr, t);
 
     nextTTL = value;
     tCurr = t;
@@ -311,12 +329,13 @@ setTTLall(unsigned t, unsigned value)
 }
 
 static void
-finishTTL()
+finishTTL(volatile void *pulse_addr)
 {
     if (hasTTL) {
         //disable timing check prior to last pulse
-        pulses.push_back(new disable_timing_check_cmd());
-        pulses.push_back(new ttl_pulse_cmd(PULSER_T_TTL_MIN, nextTTL));
+        pulses.push_back(new disable_timing_check_cmd(pulse_addr));
+        pulses.push_back(new ttl_pulse_cmd(pulse_addr,
+                                           PULSER_T_TTL_MIN, nextTTL));
     }
 
     currTTL = nextTTL;
@@ -346,7 +365,8 @@ eatStreamTo(std::istream &is, char to, std::string &strPrior)
 // tNewPulse = spec'd time for new pulse
 // tMinPulse = minimum duration of new pulse *before* update
 static void
-dealWithCurrentTTL(unsigned tNewPulse, unsigned tMinPulse)
+dealWithCurrentTTL(volatile void *pulse_addr, unsigned tNewPulse,
+                   unsigned tMinPulse)
 {
     if (hasTTL) {
         unsigned tMin = tCurr + tMinPulse;
@@ -367,7 +387,9 @@ dealWithCurrentTTL(unsigned tNewPulse, unsigned tMinPulse)
                                      std::to_string(tNewPulse * PULSER_DT_us) +
                                      " us is too early.  What's the big hurry?");
         } else {
-            pulses.push_back(new ttl_pulse_cmd(tNewPulse-tCurr-tMinPulse, nextTTL));
+            pulses.push_back(new ttl_pulse_cmd(pulse_addr,
+                                               tNewPulse - tCurr - tMinPulse,
+                                               nextTTL));
             tCurr = tNewPulse - tMinPulse;
             currTTL = nextTTL;
         }
@@ -379,7 +401,8 @@ dealWithCurrentTTL(unsigned tNewPulse, unsigned tMinPulse)
 
 
 static bool
-parseReset(unsigned t, std::string& arg1, std::istream& s)
+parseReset(volatile void *pulse_addr, unsigned t, std::string &arg1,
+           std::istream &s)
 {
     std::string line;
     getline(s, line);
@@ -389,10 +412,10 @@ parseReset(unsigned t, std::string& arg1, std::istream& s)
 
 
     int channel = -1;
-    if(sscanf(arg1.c_str(), " %d", &channel)) {
-        dealWithCurrentTTL(t, dds_reset_cmd::DURATION);
+    if (sscanf(arg1.c_str(), " %d", &channel)) {
+        dealWithCurrentTTL(pulse_addr, t, dds_reset_cmd::DURATION);
 
-        pulses.push_back(new dds_reset_cmd(channel));
+        pulses.push_back(new dds_reset_cmd(pulse_addr, channel));
         tCurr = t;
 
         return true;
@@ -402,7 +425,8 @@ parseReset(unsigned t, std::string& arg1, std::istream& s)
 }
 
 static bool
-parseTTL(unsigned t, std::string &arg1, std::istream &s)
+parseTTL(volatile void *pulse_addr, unsigned t, std::string &arg1,
+         std::istream &s)
 {
     std::string line;
     getline(s, line);
@@ -416,11 +440,11 @@ parseTTL(unsigned t, std::string &arg1, std::istream &s)
 
     int channel = -1;
     if (sscanf(arg1.c_str(), " %d", &channel)) {
-        setTTL(t, channel, ttl);
+        setTTL(pulse_addr, t, channel, ttl);
         return true;
     } else {
         if (arg1.find("all") != std::string::npos) {
-            setTTLall(t, ttl);
+            setTTLall(pulse_addr, t, ttl);
             return true;
         }
     }
@@ -429,7 +453,8 @@ parseTTL(unsigned t, std::string &arg1, std::istream &s)
 }
 
 static bool
-parseClockOut(unsigned t, std::string &arg1, std::istream&)
+parseClockOut(volatile void *pulse_addr, unsigned t, std::string &arg1,
+              std::istream&)
 {
     int divider = 0;
 
@@ -446,44 +471,45 @@ parseClockOut(unsigned t, std::string &arg1, std::istream&)
         throw std::runtime_error("There was a very bad parameter.");
     }
 
-    dealWithCurrentTTL(t, 0);
+    dealWithCurrentTTL(pulse_addr, t, 0);
     tCurr += PULSER_T_TTL_MIN;
 
-    pulses.push_back(new clock_out_cmd(divider));
+    pulses.push_back(new clock_out_cmd(pulse_addr, divider));
 
     return true;
 }
 
 static bool
-parseCommand(unsigned t, std::string &cmd, std::string &arg1, std::istream &s)
+parseCommand(volatile void *pulse_addr, unsigned t, std::string &cmd,
+             std::string &arg1, std::istream &s)
 {
     if (cmd.find("TTL") != std::string::npos)
-        return parseTTL(t, arg1, s);
+        return parseTTL(pulse_addr, t, arg1, s);
 
     if (cmd.find("freq") != std::string::npos)
-        return 0 != parse_pulse<set_freq_cmd>(pulses, t, arg1, s);
+        return 0 != parse_pulse<set_freq_cmd>(pulse_addr, pulses, t, arg1, s);
 
     if (cmd.find("amp") != std::string::npos)
-        return 0 != parse_pulse<set_amp_cmd>(pulses, t, arg1, s);
+        return 0 != parse_pulse<set_amp_cmd>(pulse_addr, pulses, t, arg1, s);
 
     if (cmd.find("phase") != std::string::npos)
-        return 0 != parse_pulse<set_phase_cmd>(pulses, t, arg1, s);
+        return 0 != parse_pulse<set_phase_cmd>(pulse_addr, pulses, t, arg1, s);
 
     if (cmd.find("shiftp") != std::string::npos)
-        return 0 != parse_pulse<shift_phase_cmd>(pulses, t, arg1, s);
+        return 0 != parse_pulse<shift_phase_cmd>(pulse_addr, pulses, t, arg1, s);
 
     if (cmd.find("reset") != std::string::npos)
-        return parseReset(t, arg1, s);
+        return parseReset(pulse_addr, t, arg1, s);
 
     if (cmd.find("CLOCK_OUT") != std::string::npos)
-        return parseClockOut(t, arg1, s);
+        return parseClockOut(pulse_addr, t, arg1, s);
 
     return false;
 }
 
 //parse URL-encoded pulse sequence
 bool
-parseSeqURL(std::string &seq)
+parseSeqURL(volatile void *pulse_addr, std::string &seq)
 {
     unsigned reps = getUnsignedParam(seq, "reps=", 1);
     bool bDebugPulses = getCheckboxParam(seq, "debugPulses=", false);
@@ -497,20 +523,20 @@ parseSeqURL(std::string &seq)
     }
 
     size_t end_pos = seq.find("&", start_pos+L);
-    if(end_pos == std::string::npos)
+    if (end_pos == std::string::npos)
         end_pos = seq.length();
 
     std::string seqTxt = seq.substr(start_pos + L, end_pos - start_pos - L);
     html2txt(seqTxt, 1); //this is a slow function
 
-    parseSeqTxt(reps, seqTxt, bForever, bDebugPulses);
+    parseSeqTxt(pulse_addr, reps, seqTxt, bForever, bDebugPulses);
 
     return true;
 }
 
 //parse pulse sequence via CGICC
 bool
-parseSeqCGI(cgicc::Cgicc& cgi)
+parseSeqCGI(volatile void *pulse_addr, cgicc::Cgicc& cgi)
 {
     unsigned reps = getUnsignedParamCGI(cgi, "reps", 1);
     bool bDebugPulses = getCheckboxParamCGI(cgi, "debugPulses", false);
@@ -531,7 +557,7 @@ parseSeqCGI(cgicc::Cgicc& cgi)
         }
     }
 
-    parseSeqTxt(reps, seqTxt, bForever, bDebugPulses);
+    parseSeqTxt(pulse_addr, reps, seqTxt, bForever, bDebugPulses);
 
     return true;
 }
@@ -558,8 +584,8 @@ parseSeqCGI(cgicc::Cgicc& cgi)
 
 //parse text-encoded pulse sequence
 static bool
-parseSeqTxt(unsigned reps, const std::string& seqTxt, bool bForever,
-            bool bDebugPulses)
+parseSeqTxt(volatile void *pulse_addr, unsigned reps,
+            const std::string& seqTxt, bool bForever, bool bDebugPulses)
 {
     printPlainResponseHeader();
 
@@ -656,7 +682,7 @@ parseSeqTxt(unsigned reps, const std::string& seqTxt, bool bForever,
         if (!use_dt) {
             tSoFar = new_t;
         }
-        if (parseCommand(floor(tSoFar * PULSER_DT_per_us + 0.5),
+        if (parseCommand(pulse_addr, floor(tSoFar * PULSER_DT_per_us + 0.5),
                          cmd, arg1, ssL)) {
             tSoFar = new_t;
         } else {
@@ -666,10 +692,10 @@ parseSeqTxt(unsigned reps, const std::string& seqTxt, bool bForever,
     }
     if (use_dt) {
         unsigned new_tcurr = floor(tSoFar * PULSER_DT_per_us + 0.5);
-        dealWithCurrentTTL(new_tcurr, 0);
+        dealWithCurrentTTL(pulse_addr, new_tcurr, 0);
         tCurr = new_tcurr;
     }
-    finishTTL();
+    finishTTL(pulse_addr);
 
     gvSTDOUT.printf("Parsed sequence into %d pulse commands.\n", pulses.size());
 
@@ -708,20 +734,20 @@ parseSeqTxt(unsigned reps, const std::string& seqTxt, bool bForever,
 
             // hold the sequnce until pulse buffer is full or
             // PULSER_wait_for_finished is called
-            PULSER_set_hold(g_pulser);
+            PULSER_set_hold(pulse_addr);
 
-            PULSER_toggle_init(g_pulser);
-            PULSER_enable_timing_check(g_pulser);
+            PULSER_toggle_init(pulse_addr);
+            PULSER_enable_timing_check(pulse_addr);
 
             for (pulse_cmd *p : pulses) {
                 p->makePulse();
             }
 
             // wait for pulses finished.
-            PULSER_wait_for_finished(g_pulser);
+            PULSER_wait_for_finished(pulse_addr);
 
-            if (!PULSER_timing_ok(g_pulser)) {
-                PULSER_clear_timing_check(g_pulser);
+            if (!PULSER_timing_ok(pulse_addr)) {
+                PULSER_clear_timing_check(pulse_addr);
                 nTimingErrors++;
             }
         }

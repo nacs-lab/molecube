@@ -134,8 +134,6 @@ protected:
     std::map<std::string, std::string> fEnv;
 };
 
-volatile void *g_pulser = 0;
-
 bool g_debug_spi = false;
 bool g_stop_curr_seq = false;
 
@@ -221,7 +219,7 @@ main(int argc, char *argv[])
     timeinfo = localtime(&rawtime);
     nacsInfo("Current time: (UTC) %s\n", asctime(timeinfo));
 
-    init_system();
+    volatile void *pulse_addr = init_system();
 
     FCGX_Request request;
 
@@ -251,7 +249,7 @@ main(int argc, char *argv[])
             }
 
             try {
-                parseSeqURL(sStartupSeq);
+                parseSeqURL(pulse_addr, sStartupSeq);
             } catch (std::runtime_error e) {
                 nacsError("Startup sequence error:   %s\n", e.what());
             }
@@ -287,7 +285,7 @@ main(int argc, char *argv[])
         gvSTDOUT = verbosity(&std::cout);
 
         try {
-            if (!parseQueryCGI(cgi)) {
+            if (!parseQueryCGI(pulse_addr, cgi)) {
                 nacsError("Couldn't understand HTTP request.\n");
             }
         } catch (std::runtime_error e) {

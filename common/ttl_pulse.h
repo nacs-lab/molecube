@@ -32,10 +32,10 @@ ms2TW(double t)
 
 //make an RF pulse of specified frequency and duration
 static NACS_INLINE void
-TTL_pulse(unsigned t, unsigned ttl)
+TTL_pulse(volatile void *pulse_addr, unsigned t, unsigned ttl)
 {
     if (t > 4) {
-        PULSER_pulse(g_pulser, t, 0, ttl);
+        PULSER_pulse(pulse_addr, t, 0, ttl);
     }
 }
 

@@ -18,7 +18,8 @@ void SetDAC_AD5535(spi_p spi, unsigned channel, unsigned dacWord);
 void SetDAC_AD5668(spi_p spi, unsigned channel, unsigned dacWord);
 
 //set DDS frequency and phase (28-bit via 2 consecutive 16-bit transfers)
-void SetDDS_AD9833(spi_p spi, unsigned setType, unsigned ddsPhase, unsigned ddsFreq);
+void SetDDS_AD9833(spi_p spi, volatile void *pulse_addr, unsigned setType,
+                   unsigned ddsPhase, unsigned ddsFreq);
 
 //set DAC voltage for channels 0-39 (16-bit)
 void SetDAC_AD5370(spi_p spi, unsigned channel, unsigned dacWord);

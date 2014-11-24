@@ -9,9 +9,10 @@
 #define SELF_TEST_H_
 
 namespace self_test {
-bool check_register(char n); //check pulse controller register n
-bool check_timing();
-bool other_test();
+//check pulse controller register n
+bool check_register(volatile void *pulse_addr, char n);
+bool check_timing(volatile void *pulse_addr);
+bool other_test(volatile void *pulse_addr);
 };
 
 #endif /* SELF_TEST_H_ */

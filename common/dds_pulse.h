@@ -51,84 +51,84 @@ double dds_clk(int iDDS);
 
 //set FTW=frequency tuning word
 static NACS_INLINE void
-DDS_set_ftw(unsigned iDDS, unsigned ftw)
+DDS_set_ftw(volatile void *pulse_addr, unsigned iDDS, unsigned ftw)
 {
-    PULSER_set_dds_freq(g_pulser, iDDS, ftw);
+    PULSER_set_dds_freq(pulse_addr, iDDS, ftw);
 }
 
 static NACS_INLINE void
-DDS_set_freqHz(unsigned iDDS, unsigned Hz)
+DDS_set_freqHz(volatile void *pulse_addr, unsigned iDDS, unsigned Hz)
 {
-    DDS_set_ftw(iDDS, Hz2FTW(Hz, dds_clk(iDDS)));
+    DDS_set_ftw(pulse_addr, iDDS, Hz2FTW(Hz, dds_clk(iDDS)));
 }
 
 static NACS_INLINE unsigned
-DDS_get_ftw(unsigned iDDS)
+DDS_get_ftw(volatile void *pulse_addr, unsigned iDDS)
 {
-    return PULSER_get_dds_freq(g_pulser, iDDS);
+    return PULSER_get_dds_freq(pulse_addr, iDDS);
 }
 
 static NACS_INLINE double
-DDS_get_freqHz(unsigned iDDS) //get freq in Hz
+DDS_get_freqHz(volatile void *pulse_addr, unsigned iDDS) //get freq in Hz
 {
-    return FTW2HzD(DDS_get_ftw(iDDS), AD9914_CLK);
+    return FTW2HzD(DDS_get_ftw(pulse_addr, iDDS), AD9914_CLK);
 }
 
 //set PTW=phase tuning word
 static NACS_INLINE void
-DDS_set_ptw(unsigned iDDS, unsigned ptw)
+DDS_set_ptw(volatile void *pulse_addr, unsigned iDDS, unsigned ptw)
 {
-    PULSER_set_dds_phase(g_pulser, iDDS, ptw);
+    PULSER_set_dds_phase(pulse_addr, iDDS, ptw);
 }
 
 static NACS_INLINE void
-DDS_shift_ptw(unsigned iDDS, unsigned ptw)
+DDS_shift_ptw(volatile void *pulse_addr, unsigned iDDS, unsigned ptw)
 {
-    PULSER_shift_dds_phase(g_pulser, iDDS, ptw);
+    PULSER_shift_dds_phase(pulse_addr, iDDS, ptw);
 }
 
 static NACS_INLINE void
-DDS_set_phase_deg(unsigned iDDS, double phase)
+DDS_set_phase_deg(volatile void *pulse_addr, unsigned iDDS, double phase)
 {
-    DDS_set_ptw(iDDS, (int)(PHASE_360 * phase / 360.0 + 0.5));
+    DDS_set_ptw(pulse_addr, iDDS, (int)(PHASE_360 * phase / 360.0 + 0.5));
 }
 
 static NACS_INLINE unsigned
-DDS_get_ptw(unsigned iDDS)
+DDS_get_ptw(volatile void *pulse_addr, unsigned iDDS)
 {
-    return PULSER_get_dds_two_bytes(g_pulser, iDDS, 0x30);
+    return PULSER_get_dds_two_bytes(pulse_addr, iDDS, 0x30);
 }
 
 static NACS_INLINE double
-DDS_get_phase_deg(unsigned iDDS)
+DDS_get_phase_deg(volatile void *pulse_addr, unsigned iDDS)
 {
-    unsigned u0 = DDS_get_ptw(iDDS);
+    unsigned u0 = DDS_get_ptw(pulse_addr, iDDS);
     return u0 * 360.0 / 65536.0;
 }
 
 //set ATW=amplitude tuning word
 static NACS_INLINE void
-DDS_set_atw(unsigned iDDS, unsigned atw)
+DDS_set_atw(volatile void *pulse_addr, unsigned iDDS, unsigned atw)
 {
-    PULSER_set_dds_amp(g_pulser, iDDS, atw);
+    PULSER_set_dds_amp(pulse_addr, iDDS, atw);
 }
 
 static NACS_INLINE void
-DDS_set_amp(unsigned iDDS, double A)
+DDS_set_amp(volatile void *pulse_addr, unsigned iDDS, double A)
 {
-    DDS_set_atw(iDDS, (unsigned)(A * 4095.0 + 0.5));
+    DDS_set_atw(pulse_addr, iDDS, (unsigned)(A * 4095.0 + 0.5));
 }
 
 static NACS_INLINE unsigned
-DDS_get_atw(unsigned iDDS)
+DDS_get_atw(volatile void *pulse_addr, unsigned iDDS)
 {
-    return PULSER_get_dds_two_bytes(g_pulser, iDDS, 0x32);
+    return PULSER_get_dds_two_bytes(pulse_addr, iDDS, 0x32);
 }
 
 static NACS_INLINE double
-DDS_get_amp(unsigned iDDS)
+DDS_get_amp(volatile void *pulse_addr, unsigned iDDS)
 {
-    unsigned u0 = DDS_get_atw(iDDS);
+    unsigned u0 = DDS_get_atw(pulse_addr, iDDS);
     return u0 / 4095.0;
 }
 
