@@ -1,5 +1,6 @@
 set(nacs_pulser_SRCS
-  pulser.cpp)
+  pulser.cpp
+  program.cpp)
 set(nacs_pulser_LINKS nacs-utils pthread)
 
 add_library(nacs-pulser SHARED ${nacs_pulser_SRCS})

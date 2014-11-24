@@ -433,8 +433,8 @@ PULSER_pulse(volatile void *base_addr, unsigned t, const unsigned flags,
 //make short timed pulses
 //FPGA can only handle pulse lengths up to t_max = 0x001FFFFF (about 40 ms)
 void
-PULSER_short_pulse(volatile void *base_addr, const unsigned control,
-                   const unsigned operand)
+PULSER_short_pulse(volatile void *base_addr, unsigned control,
+                   unsigned operand)
 {
     PULSER_unsafe_pulse(base_addr, control | extra_flags, operand);
 }
