@@ -8,12 +8,25 @@
 
 // const double ad9914_clk_MHz = 3500.0;
 
-void set_freq_AD9914PM(volatile void *base_addr, char i, unsigned ftw,
-                       unsigned a, unsigned b, FILE *f)
+static void
+set_dds_four_bytes(volatile void *base_addr, int i,
+                   unsigned addr, unsigned data)
+{
+    // printf("AD9914 board=%i set byte [0x%02X] = 0x%02X\n", addr, data);
+
+    // put addr in bits 14...9 (maps to DDS opcode_reg[14:9] )?
+    unsigned dds_addr = (addr & 0x3F) << 9;
+    PULSER_short_pulse(base_addr, 0x1000000F | (i << 4) |
+                       (dds_addr << 9), data); // takes 0.3 us
+}
+
+void
+set_freq_AD9914PM(volatile void *base_addr, int i, unsigned ftw,
+                  unsigned a, unsigned b, FILE *f)
 {
     if (f) {
         fprintf(f, "AD9914 board=%i set frequency FTW=0x%08X  A=0x%08X  "
-                "B=0x%08X\n", (unsigned)i, ftw, a, b);
+                "B=0x%08X\n", i, ftw, a, b);
         fflush(f);
     }
 
@@ -24,8 +37,8 @@ void set_freq_AD9914PM(volatile void *base_addr, char i, unsigned ftw,
 }
 
 
-bool
-test_val_AD9914(volatile void *base_addr, char i, unsigned addr, unsigned val)
+static bool
+test_val_AD9914(volatile void *base_addr, int i, unsigned addr, unsigned val)
 {
     PULSER_set_dds_two_bytes(base_addr, i, addr, val);
 
@@ -33,7 +46,7 @@ test_val_AD9914(volatile void *base_addr, char i, unsigned addr, unsigned val)
 }
 
 bool
-test_AD9914(volatile void *base_addr, char i)
+test_AD9914(volatile void *base_addr, int i)
 {
     unsigned addr = 0x34; //FTW for profile 1, shouldn't affect the signal
     bool pass = true;
@@ -44,22 +57,23 @@ test_AD9914(volatile void *base_addr, char i)
         if (!test_val_AD9914(base_addr, i, addr, val)) {
             pass = false;
             nacsError("Error on DDS %2d at bit %2d (addr = 0x%02X)\n",
-                      (int)i, bit, addr);
+                      i, bit, addr);
         }
     }
 
     PULSER_set_dds_two_bytes(base_addr, i, addr, 0);
 
     if (pass) {
-        nacsLog("DDS %d passed digital I/O test.\n", (int)i);
+        nacsLog("DDS %d passed digital I/O test.\n", i);
     } else {
-        nacsError("DDS %d failed digital I/O test.\n", (int)i);
+        nacsError("DDS %d failed digital I/O test.\n", i);
     }
     return pass;
 }
 
-void test_dds_addr(volatile void* base_addr, char i, unsigned low_addr,
-                   unsigned high_addr, unsigned ntest, FILE *f)
+void
+test_dds_addr(volatile void* base_addr, int i, unsigned low_addr,
+              unsigned high_addr, unsigned ntest, FILE *f)
 {
     unsigned nerrors = 0;
     unsigned ntested = 0;
@@ -75,12 +89,14 @@ void test_dds_addr(volatile void* base_addr, char i, unsigned low_addr,
             unsigned b = PULSER_get_dds_byte(base_addr, i, addr);
 
             if( r!= b) {
-                fprintf(f, "Error on DDS %d, address 0x%02x.  Wrote 0x%02X.  Read 0x%02X.\n",
+                fprintf(f, "Error on DDS %d, address 0x%02x.  Wrote 0x%02X."
+                        "  Read 0x%02X.\n",
                         i, addr, r, b);
                 nerrors++;
 
-                if(nerrors > 100)
+                if (nerrors > 100) {
                     break;
+                }
             }
 
             ntested++;
@@ -89,12 +105,13 @@ void test_dds_addr(volatile void* base_addr, char i, unsigned low_addr,
         PULSER_set_dds_two_bytes(base_addr, i, addr, d0 | (d1 << 8));
     }
 
-    fprintf(f, "Tested %d read/writes in address range 0x%02x to 0x%02x.  %d errors.\n",
+    fprintf(f, "Tested %d read/writes in address range 0x%02x to 0x%02x."
+            "  %d errors.\n",
             ntested, low_addr, high_addr, nerrors);
 }
 
 void
-print_AD9914_registers(volatile void *base_addr, char i)
+print_AD9914_registers(volatile void *base_addr, int i)
 {
     bool bNonZeroOnly = true;
 
@@ -110,58 +127,9 @@ print_AD9914_registers(volatile void *base_addr, char i)
 
         if ((bNonZeroOnly && u) || !bNonZeroOnly)
             nacsLog("AD9914 board=%i addr=0x%02X...%02X = %08X\n",
-                     (unsigned)i, addr + 3, addr, u);
+                    i, addr + 3, addr, u);
     }
     nacsLog("*******************************\n");
-}
-
-
-
-void
-set_dds_four_bytes(volatile void *base_addr, char i,
-                   unsigned addr, unsigned data)
-{
-    // printf("AD9914 board=%i set byte [0x%02X] = 0x%02X\n", addr, data);
-
-    // put addr in bits 14...9 (maps to DDS opcode_reg[14:9] )?
-    unsigned dds_addr = (addr & 0x3F) << 9;
-    PULSER_short_pulse(base_addr, 0x1000000F | (i << 4) |
-                       (dds_addr << 9), data); // takes 0.3 us
-}
-
-// void set_freq_AD9914(volatile void *base_addr, char i, double Hz, bool bPrintInfo)
-// {
-//     //convert Hz to FTW, a, and b
-//     unsigned ftw = static_cast<unsigned int>(floor(0.5 + (Hz * pow(2., 32.) / AD9914_CLK)));
-//     unsigned b = static_cast<unsigned int>(pow(2., 32.) - 1.);
-//     unsigned a = static_cast<unsigned int>(floor((Hz * pow(2., 32.) / AD9914_CLK - static_cast<double>(ftw)) * static_cast<double>(b) + 0.5));
-
-//     // convert Hz to FTW
-//     // unsigned ftw = Hz2FTW(Hz, ad9914_clk_MHz);
-
-//     unsigned n = gcd(a, b);
-//     a /= n;
-//     b /= n;
-
-//     if (bPrintInfo) {
-//         printf("AD9914 board=%i set frequency %9d Hz  FTW=0x%08X  "
-//                "A=0x%08X  B=0x%08X\n", (unsigned)i, (unsigned)Hz, ftw, a, b);
-//         fflush(stdout);
-//     }
-
-//     //set_freq_AD9914PM(base_addr, i, ftw, a, b);
-
-//     PULSER_set_dds_freq(base_addr, i, ftw);
-// }
-
-// TODO use a faster implementation
-unsigned
-gcd(unsigned x, unsigned y)
-{
-    if (y == 0)
-        return x; // base case, return x when y equals 0
-
-    return gcd(y, x % y); // recursive call by using arithmetic rules
 }
 
 //Initialize the DDS.
@@ -169,7 +137,7 @@ gcd(unsigned x, unsigned y)
 //           false: init only if not previopusly initialized
 // return true if init was performed
 
-bool init_AD9914(volatile void *base_addr, char i, bool bForce)
+bool init_AD9914(volatile void *base_addr, int i, bool bForce)
 {
     bool bInit = bForce; //init needed?
     const unsigned magic_bytes = 0xF00F0000;
@@ -183,7 +151,7 @@ bool init_AD9914(volatile void *base_addr, char i, bool bForce)
         unsigned u0 = PULSER_get_dds_four_bytes(base_addr, i, 0x64);
         bInit = (u0 != magic_bytes);
 
-        nacsLog("AD9914 board=%i  FTW7 = %08X\n", (int)i, u0);
+        nacsLog("AD9914 board=%i  FTW7 = %08X\n", i, u0);
         if (bInit) {
             nacsLog("Initialization required\n");
         } else {
@@ -196,7 +164,7 @@ bool init_AD9914(volatile void *base_addr, char i, bool bForce)
 
         //calibrate internal timing.  required at power-up
         PULSER_set_dds_two_bytes(base_addr, i, 0x0E, 0x0105);
-        usleep(1000U);
+        usleep(1000);
         //finish cal. disble sync_out
         PULSER_set_dds_two_bytes(base_addr, i, 0x0E, 0x0405);
 
@@ -233,7 +201,7 @@ bool init_AD9914(volatile void *base_addr, char i, bool bForce)
 
         PULSER_set_dds_four_bytes(base_addr, i, 0x64, magic_bytes);
 
-        nacsLog("Initialized AD9914 board=%i\n", (int)i);
+        nacsLog("Initialized AD9914 board=%i\n", i);
     }
 
     return bInit;
