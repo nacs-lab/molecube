@@ -108,7 +108,7 @@ setDeviceParams(volatile void *pulse_addr, const std::string &page,
                 double f = 1e6 * atof(pos->second.c_str());
                 nacsLog("DDS setfreq(%d): %12.3f\n", iDDS, f);
                 DDS_set_freqHz(pulse_addr, iDDS, f);
-                unsigned ftw = DDS_get_ftw(pulse_addr, iDDS);
+                unsigned ftw = PULSER_get_dds_freq(pulse_addr, iDDS);
                 nacsLog("DDS getfreq(%d): %12.3f  (ftw = %08X)\n",
                         iDDS, FTW2HzD(ftw, dds_clk(iDDS)), ftw);
             }

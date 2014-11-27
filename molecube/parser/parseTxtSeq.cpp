@@ -159,7 +159,7 @@ public:
     makePulse()
     {
         // PULSER_short_pulse
-        DDS_set_ftw(m_pulse_addr, m_dds, m_operand);
+        PULSER_set_dds_freq(m_pulse_addr, m_dds, m_operand);
     }
 };
 
@@ -176,7 +176,7 @@ public:
     makePulse()
     {
         // PULSER_short_pulse
-        DDS_set_atw(m_pulse_addr, m_dds, m_operand);
+        PULSER_set_dds_amp(m_pulse_addr, m_dds, m_operand);
     }
 };
 
@@ -194,7 +194,7 @@ public:
     {
         // PULSER_short_pulse
         // Set ddsPhase
-        DDS_set_ptw(m_pulse_addr, m_dds, m_operand);
+        PULSER_set_dds_phase(m_pulse_addr, m_dds, m_operand);
     }
 };
 
@@ -214,7 +214,7 @@ public:
     {
         // PULSER_short_pulse
         // use ddsPhase
-        DDS_shift_ptw(m_pulse_addr, m_dds, m_operand);
+        PULSER_shift_dds_phase(m_pulse_addr, m_dds, m_operand);
     }
 };
 
