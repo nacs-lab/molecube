@@ -20,10 +20,10 @@ public:
     void dds_reset(int i);
     void set_dds_phase(int i, uint16_t phase);
     void set_ttl_mask(uint32_t high_mask, uint32_t low_mask);
+    virtual void short_pulse(uint32_t control, uint32_t operand);
 protected:
     void raw_pulse(uint32_t control, uint32_t operand);
     void dds_reset(unsigned i);
-    virtual void short_pulse(uint32_t control, uint32_t operand);
 private:
     virtual void write_reg(unsigned reg, uint32_t val) = 0;
 };
