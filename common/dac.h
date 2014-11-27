@@ -1,6 +1,4 @@
 #include <nacs-utils/utils.h>
-#include <nacs-xspi/xparameters.h>
-#include <nacs-xspi/xstatus.h>
 
 #ifndef DAC_H_
 #define DAC_H_
@@ -38,7 +36,6 @@ unsigned short getResult_AD7656(spi_p spi, unsigned num_channels, short* pValues
 unsigned short getResult_AD7656i(spi_p spi, unsigned num_channels, int* pValues);
 unsigned short getAddResult_AD7656(spi_p spi, unsigned num_channels, int* pValues);
 
-
 void Init_ADS8361(spi_p spi);
 
-#endif /*DAC_H_*/
+#endif

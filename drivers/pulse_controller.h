@@ -144,4 +144,4 @@ void PULSER_release_hold(volatile void *base_addr);
 
 NACS_END_DECLS
 
-#endif /** PULSER_H */
+#endif

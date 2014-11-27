@@ -1,11 +1,4 @@
 #include "dac.h"
-#include "fpga.h"
-
-#include <common.h>
-
-#include <string>
-#include <iostream>
-
 
 //set DAC voltage for channels 0-31
 //if channel > 31, set offset voltage
@@ -360,4 +353,3 @@ unsigned short getAddResult_AD7656(spi_p spi, unsigned num_channels, int* pValue
     SPI_SetSlaveSelect(spi,1);
     return pValues[0];
 }
-
