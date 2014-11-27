@@ -1,10 +1,8 @@
 #include <nacs-utils/timer.h>
 #include <nacs-utils/log.h>
 
-#include "init_platform.h"
 #include "init_system.h"
 
-#include "fpga.h"
 #include "linux_file_util.h"
 
 #include "../parser/parseTxtSeq.h"
@@ -14,10 +12,7 @@
 #include <CmdLineArgs.h>
 #include <common.h>
 
-#include <cstdio>
 #include <stdexcept>
-#include <cassert>
-#include <iostream>
 #include <fstream>
 #include <map>
 
@@ -30,10 +25,7 @@
 
 #include <fcgi/fcgio.h>
 #include <fcgi/fcgi_config.h>
-
-#include "fcgi/fcgio.h"
-
-#include "cgicc/CgiInput.h"
+#include <cgicc/CgiInput.h>
 
 // TR: Linker failed when FCgiIO was in a separate header (undefined ref to vtable),
 //     so I'm pasting it here.  Removed pointers to stderr and stdout streams.
