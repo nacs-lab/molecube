@@ -28,7 +28,7 @@ NACS_BEGIN_DECLS
 //maximum number of DDS available
 #define PULSER_MAX_NDDS 32
 
-//minimum pulse durations in units of the time resolution
+// minimum pulse durations in units of the time resolution
 #define PULSER_T_TTL_MIN (5)
 #define PULSER_T_DDS_MIN (30)
 
@@ -59,10 +59,10 @@ void PULSER_wait_for_finished(volatile void *base_addr);
 int PULSER_read_empty(volatile void *base_addr);
 unsigned PULSER_num_results(volatile void *base_addr);
 
-void PULSER_pulse(volatile void *base_addr, unsigned t, const unsigned flags,
-                  const unsigned operand);
-void PULSER_short_pulse(volatile void *base_addr, const unsigned control,
-                        const unsigned operand);
+void PULSER_pulse(volatile void *base_addr, unsigned t, unsigned flags,
+                  unsigned operand);
+void PULSER_short_pulse(volatile void *base_addr, unsigned control,
+                        unsigned operand);
 unsigned PULSER_pop_result(volatile void *base_addr);
 
 unsigned PULSER_get_write_status(volatile void *base_addr);

@@ -418,8 +418,8 @@ PULSER_self_test(volatile void *base_addr, int nIO)
 //if t > t_max, subdivide into shorter pulses
 //returns number of pulses made
 void
-PULSER_pulse(volatile void *base_addr, unsigned t, const unsigned flags,
-             const unsigned operand)
+PULSER_pulse(volatile void *base_addr, unsigned t, unsigned flags,
+             unsigned operand)
 {
     static const unsigned t_max = 0x001FFFFF;
     static const unsigned t_big = 0x001FFFF0;
