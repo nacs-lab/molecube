@@ -1,5 +1,7 @@
 #include "dac.h"
 
+namespace NaCs {
+
 //set DAC voltage for channels 0-31
 //if channel > 31, set offset voltage
 void
@@ -352,4 +354,6 @@ unsigned short getAddResult_AD7656(spi_p spi, unsigned num_channels, int* pValue
     //printf("ADC0 value = %i\n ADC1 value = %i\n", unsigned(pValues[0]), unsigned(pValues[1]));
     SPI_SetSlaveSelect(spi,1);
     return pValues[0];
+}
+
 }

@@ -5,6 +5,8 @@
 
 #include "spi_util.h"
 
+namespace NaCs {
+
 //set DAC voltage for channels 0-31 (14-bit)
 //if channel > 31, set offset voltage
 void SetDAC_AD5532(spi_p spi, unsigned channel, unsigned dacWord);
@@ -37,5 +39,7 @@ unsigned short getResult_AD7656i(spi_p spi, unsigned num_channels, int* pValues)
 unsigned short getAddResult_AD7656(spi_p spi, unsigned num_channels, int* pValues);
 
 void Init_ADS8361(spi_p spi);
+
+}
 
 #endif
