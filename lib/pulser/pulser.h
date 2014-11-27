@@ -4,6 +4,9 @@
 #ifndef __NACS_PULSER_PULSER_H__
 #define __NACS_PULSER_PULSER_H__
 
+#include "converter.h"
+#include <nacs-pulser/pulser-config.h>
+
 namespace NaCs {
 namespace Pulser {
 
@@ -19,16 +22,38 @@ public:
     void clear_timing_check();
     void set_dds_freq(int i, uint32_t ftw);
     void set_dds_amp(int i, uint32_t amp);
-    void dds_reset(int i);
     void set_dds_phase(int i, uint16_t phase);
+    void dds_reset(int i);
     void set_ttl_mask(uint32_t high_mask, uint32_t low_mask);
     virtual void short_pulse(uint32_t control, uint32_t operand);
+
+    void set_dds_freq_f(int i, double f);
+    void set_dds_amp_f(int i, double f);
+    void set_dds_phase_f(int i, double f);
 protected:
     void raw_pulse(uint32_t control, uint32_t operand);
     void dds_reset(unsigned i);
 private:
     virtual void write_reg(unsigned reg, uint32_t val) = 0;
 };
+
+NACS_INLINE void
+PulserBase::set_dds_freq_f(int i, double f)
+{
+    set_dds_freq(i, DDSConverter::freq2num(f, PULSER_AD9914_CLK));
+}
+
+NACS_INLINE void
+PulserBase::set_dds_amp_f(int i, double amp)
+{
+    set_dds_amp(i, DDSConverter::amp2num(amp));
+}
+
+NACS_INLINE void
+PulserBase::set_dds_phase_f(int i, double p)
+{
+    set_dds_phase(i, DDSConverter::phase2num(p));
+}
 
 class NACS_EXPORT Pulser : public PulserBase {
     volatile void *m_base;
@@ -39,14 +64,14 @@ class NACS_EXPORT Pulser : public PulserBase {
 public:
     Pulser(Pulser &&other)
         : m_base(other.m_base),
-          m_running(other.m_running.exchange(false))
-    {
-    }
+        m_running(other.m_running.exchange(false))
+        {
+        }
     Pulser(volatile void *base)
         : m_base(base),
-          m_running(false)
-    {
-    }
+        m_running(false)
+        {
+        }
     ~Pulser() {}
     void init(unsigned ndds, bool reset);
     void run(const BaseProgram &prog);
@@ -66,7 +91,7 @@ public:
     uint32_t get_dds_phase(int i);
     uint32_t get_dds_amp(int i);
     volatile void*
-    get_base() const
+        get_base() const
     {
         return m_base;
     }

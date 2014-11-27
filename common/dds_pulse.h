@@ -15,16 +15,11 @@
 
 #include <pulse_controller.h>
 
-#define PHASE_90     (1 << 14)
-#define PHASE_360    (PHASE_90 * 4)
+#define PHASE_90 (1 << 14)
+#define PHASE_360 (PHASE_90 * 4)
 
-unsigned FTW2Hz(unsigned ftw, double fClock);
 double FTW2HzD(unsigned ftw, double fClock);
-int FTW2HzI(int ftw);
-unsigned int Hz2FTW(double f, double fClock);
-int Hz2FTWI(double f);
-unsigned int MHz2FTW(double f, double fClock);
-int MHz2FTWI(double f);
+unsigned Hz2FTW(double f, double fClock);
 
 // Get clock freq. for iDDS.
 // Ueful when the DDS do not all have the same clock.
@@ -52,7 +47,7 @@ DDS_set_phase_deg(volatile void *pulse_addr, unsigned iDDS, double phase)
 static NACS_INLINE double
 DDS_get_phase_deg(volatile void *pulse_addr, unsigned iDDS)
 {
-    unsigned u0 = PULSER_get_dds_two_bytes(pulse_addr, iDDS, 0x30);
+    unsigned u0 = PULSER_get_dds_phase(pulse_addr, iDDS);
     return u0 * 360.0 / 65536.0;
 }
 
@@ -65,7 +60,7 @@ DDS_set_amp(volatile void *pulse_addr, unsigned iDDS, double A)
 static NACS_INLINE double
 DDS_get_amp(volatile void *pulse_addr, unsigned iDDS)
 {
-    unsigned u0 = PULSER_get_dds_two_bytes(pulse_addr, iDDS, 0x32);
+    unsigned u0 = PULSER_get_dds_amp(pulse_addr, iDDS);
     return u0 / 4095.0;
 }
 

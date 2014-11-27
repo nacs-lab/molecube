@@ -19,6 +19,8 @@ add_definitions(-Wall -Wextra -g -pthread -fvisibility=hidden
 cmake_c_fix_include_path(lib/utils nacs-utils)
 cmake_c_fix_include_path(lib/xspi nacs-xspi)
 cmake_c_fix_include_path(lib/pulser nacs-pulser)
+cmake_c_fix_include_path("${CMAKE_CURRENT_BINARY_DIR}/lib/pulser"
+  nacs-pulser bin)
 
 set(LINKER_FLAGS -Wl,--as-needed -Wl,--no-undefined -Wl,--gc-sections
   -pthread -O2 -flto -fno-math-errno
@@ -36,5 +38,6 @@ cmake_c_add_flags(CMAKE_MODULE_LINKER_FLAGS ${LINKER_FLAGS})
 include_directories(tmp_include)
 
 cmake_c_include_fix_path()
+cmake_c_include_fix_path(bin)
 add_subdirectory(lib)
 add_subdirectory(molecube)
