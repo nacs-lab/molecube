@@ -18,7 +18,6 @@
 #include "pulse_controller.h"
 
 #include <string_func.h>
-#include <common.h>
 
 namespace NaCs {
 
@@ -102,7 +101,7 @@ setDeviceParams(volatile void *pulse_addr, const std::string &page,
 {
     std::lock_guard<FLock> fl(g_fPulserLock);
 
-    if(page == "dds") {
+    if (page == "dds") {
         // dumpMap(params, gLog);
 
         txtmap_t::const_iterator pos;
@@ -239,7 +238,6 @@ parseQueryCGI(volatile void *pulse_addr, cgicc::Cgicc &cgi)
                 txtmap_t params;
                 loadMap(params, "/home/www/userdata/params_" + sPage);
                 getDeviceParams(pulse_addr, sPage, params);
-                //dumpMap(params, gLog); fflush(gLog);
                 dumpMapHTML(params, std::cout);
                 return true;
             } else {

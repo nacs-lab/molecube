@@ -6,20 +6,18 @@
  * {name2} = {value2};
  * ...
  *
- * */
+ **/
 
 #include "saveloadmap.h"
 
 #include <nacs-utils/log.h>
-
-#include <common.h>
 
 #include <sstream>
 #include <iostream>
 #include <iomanip>
 
 void
-saveMap(const txtmap_t& params, const std::string& fname)
+saveMap(const txtmap_t &params, const std::string &fname)
 {
     std::ofstream os(fname.c_str());
 
@@ -35,7 +33,7 @@ saveMap(const txtmap_t& params, const std::string& fname)
 }
 
 static bool
-processLine(const std::string& sLine, std::string& sName, std::string& sValue)
+processLine(const std::string &sLine, std::string &sName, std::string &sValue)
 {
     std::string sWhite("\r\n ");
 
@@ -61,7 +59,7 @@ processLine(const std::string& sLine, std::string& sName, std::string& sValue)
     return true;
 }
 
-void loadMap(txtmap_t& m, const std::string& fname)
+void loadMap(txtmap_t &m, const std::string &fname)
 {
     std::ifstream is(fname.c_str());
 
@@ -89,13 +87,13 @@ void loadMap(txtmap_t& m, const std::string& fname)
 }
 
 //merge maps.  copy all entries from new to old
-void mergeMaps(txtmap_t& mOld, const txtmap_t& mNew)
+void mergeMaps(txtmap_t &mOld, const txtmap_t &mNew)
 {
     for (txtmap_t::const_iterator i = mNew.begin(); i != mNew.end(); i++)
         mOld[ i->first ] = i->second;
 }
 
-void dumpMapHTML(const txtmap_t& m, std::ostream& os)
+void dumpMapHTML(const txtmap_t &m, std::ostream &os)
 {
     bool notFirst = false;
     for (txtmap_t::const_iterator i = m.begin(); i != m.end(); i++) {
@@ -128,8 +126,8 @@ dumpMap(const txtmap_t &m, FILE *f)
 //replace next string in str matching from with to.  start at next
 //return next positon after replacment or string::npos if no match
 static size_t
-replace(std::string& str, const std::string& from,
-        const std::string& to, size_t next)
+replace(std::string &str, const std::string &from,
+        const std::string &to, size_t next)
 {
     size_t start_pos = str.find(from, next);
 
@@ -140,7 +138,8 @@ replace(std::string& str, const std::string& from,
     return start_pos+to.length();
 }
 
-void replaceAll(std::string& str, const std::string& from, const std::string& to, int dir)
+void replaceAll(std::string &str, const std::string &from,
+                const std::string &to, int dir)
 {
     size_t next = 0;
 

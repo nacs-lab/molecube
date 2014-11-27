@@ -3,8 +3,6 @@
 #include <nacs-utils/fd_utils.h>
 #include <nacs-xspi/xparameters.h>
 
-#include <common.h>
-
 // Platform specific initialization
 // Linux: get device addresses
 

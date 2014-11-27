@@ -4,7 +4,6 @@
 #include <nacs-utils/log.h>
 
 #include "fpga.h"
-#include "common.h"
 #include "dac.h"
 #include "self_test.h"
 #include "AD9914.h"
