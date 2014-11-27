@@ -16,31 +16,6 @@
 
 NACS_BEGIN_DECLS
 
-// time resolution of pulse controller in ns, us, and 1/us
-#define PULSER_DT_ns (10)
-#define PULSER_DT_us (0.01)
-#define PULSER_DT_per_us (100)
-
-#define PULSER_ENABLE_CLK_DURATION 5
-#define PULSER_DDS_SET_FTW_DURATION 30
-#define PULSER_DDS_SET_PTW_DURATION 30
-#define PULSER_DDS_SET_ATW_DURATION 30
-
-//maximum number of DDS available
-#define PULSER_MAX_NDDS 32
-
-// minimum pulse durations in units of the time resolution
-#define PULSER_T_TTL_MIN (5)
-#define PULSER_T_DDS_MIN (30)
-
-#define PULSER_COUNTING_PULSE_FLAG (0x04000000)
-#define PULSER_INVERT_SYNC (0x02000000)
-
-//synchronize these parameters with N_BITS/N_BINS in the verilog files
-//I haven't figured out how to reuse them automatically in the Xilinx toolchain
-#define PULSER_N_PMT_BINS (16)
-#define PULSER_N_PMT_BITS (8)
-
 void PULSER_init(volatile void *base_addr, unsigned nDDS, unsigned bResetDDS);
 // void PULSER_self_test(volatile void *base_addr, int nIO);
 

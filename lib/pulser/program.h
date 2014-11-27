@@ -6,7 +6,7 @@
 namespace NaCs {
 namespace Pulser {
 
-class BaseProgram {
+class NACS_EXPORT BaseProgram {
     uint32_t *m_prog;
     size_t m_len;
     size_t m_alloc_len;
@@ -43,7 +43,7 @@ private:
     void reserve_space(size_t len);
 };
 
-class Program : public BaseProgram, public PulserBase {
+class NACS_EXPORT Program : public BaseProgram, public PulserBase {
     uint32_t m_flags;
     uint16_t m_phases[32];
 public:
