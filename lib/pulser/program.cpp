@@ -1,4 +1,4 @@
-#include "pulser.h"
+#include "program.h"
 #include "ctrl_io.h"
 
 #include <nacs-utils/number.h>
