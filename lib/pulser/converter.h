@@ -12,9 +12,7 @@ c_sqr(double v)
     return v * v;
 }
 
-class DDSConverter {
-    friend class PulserBase;
-    friend class Pulser;
+struct DDSConverter {
     static constexpr double pow2_2 = 1. / 4.;
     static constexpr double pow2_4 = c_sqr(pow2_2);
     static constexpr double pow2_8 = c_sqr(pow2_4);
