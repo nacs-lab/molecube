@@ -1,4 +1,4 @@
-add_definitions(-DNSPI=2 -DNDDS=22)
+add_definitions(-DNSPI=2)
 
 # Current directory
 include_directories(include zynq_linux)

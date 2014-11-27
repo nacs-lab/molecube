@@ -69,7 +69,7 @@ getDeviceParams(volatile void *pulse_addr, const std::string &page,
 
 
 
-        for (unsigned iDDS = 0;iDDS < NDDS;iDDS++) {
+        for (unsigned iDDS = 0;iDDS < PULSER_NDDS;iDDS++) {
             double f = 1e-6 * DDS_get_freqHz(pulse_addr, iDDS);
             snprintf(key, 32, "freq%d", iDDS);
             snprintf(val, 32, "%.6f MHz", f);
@@ -100,7 +100,7 @@ setDeviceParams(volatile void *pulse_addr, const std::string &page,
         txtmap_t::const_iterator pos;
         char buff[32];
 
-        for (unsigned iDDS = 0;iDDS < NDDS;iDDS++) {
+        for (unsigned iDDS = 0;iDDS < PULSER_NDDS;iDDS++) {
             sprintf(buff, "freq%d", iDDS);
 
             pos = params.find(buff);

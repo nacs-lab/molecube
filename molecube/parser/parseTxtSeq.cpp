@@ -136,7 +136,7 @@ public:
     dds_cmd(volatile void *pulse_addr, unsigned dds, unsigned operand)
         : pulse_cmd(pulse_addr), m_dds(dds), m_operand(operand)
     {
-        if (dds > NDDS - 1) {
+        if (dds > PULSER_NDDS - 1) {
             throw std::runtime_error("Line " + std::to_string(g_lineNum) +
                                      ", Invalid DDS: " +
                                      std::to_string(m_dds));

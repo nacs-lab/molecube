@@ -9,6 +9,9 @@ include(PythonMacros)
 include(CMakeCMacros)
 include(GNUInstallDirs)
 
+set(PULSER_AD9914_CLK 3.5e9)
+set(PULSER_NDDS 22)
+
 # Remove rdynamic
 set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS)
 set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS)

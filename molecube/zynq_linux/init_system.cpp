@@ -26,7 +26,7 @@ init_system()
 
     nacsInfo("Processor clock frequency: %9.3f MHz\n", 1e-6 * CPU_FREQ_HZ);
     nacsLog("NDDS = %d  (REF_CLK = %u MHz)   NSPI = %d\n",
-            (int)NDDS, (unsigned)(PULSER_AD9914_CLK * 1e-6), (int)NSPI);
+            PULSER_NDDS, (unsigned)(PULSER_AD9914_CLK * 1e-6), (int)NSPI);
 
     // set priority
     // -20 = highest priority, 0 = default, 19 = lowest priority
@@ -41,7 +41,7 @@ init_system()
 
     volatile void *pulse_addr = init_pulse_controller();
     nacsInfo("Initializing pulse controller at address %p...\n", pulse_addr);
-    PULSER_init(pulse_addr, NDDS, false);
+    PULSER_init(pulse_addr, PULSER_NDDS, false);
     nacsLog("Initializing pulse controller...done.\n");
 
     PULSER_disable_timing_check();

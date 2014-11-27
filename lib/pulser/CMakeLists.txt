@@ -3,8 +3,6 @@ set(nacs_pulser_SRCS
   program.cpp)
 set(nacs_pulser_LINKS nacs-utils pthread)
 
-set(PULSER_AD9914_CLK 3.5e9)
-
 configure_file(pulser-config.h.in pulser-config.h @ONLY)
 
 add_library(nacs-pulser SHARED ${nacs_pulser_SRCS})
