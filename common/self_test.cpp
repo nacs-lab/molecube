@@ -8,10 +8,14 @@
  *  Functions are probably called at startup.
  */
 
+#include "self_test.h"
+
 #include <nacs-utils/timer.h>
 
-#include "fpga.h"
+#include <pulse_controller.h>
 #include "dds_pulse.h"
+
+#include <math.h>
 
 namespace self_test {
 

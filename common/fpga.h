@@ -1,5 +1,4 @@
 #include <nacs-utils/utils.h>
-#include <pulse_controller.h>
 
 #ifndef FPGA_H
 #define FPGA_H

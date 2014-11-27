@@ -1,9 +1,8 @@
 #include "AD9914.h"
 
-#include <nacs-utils/log.h>
+#include <pulse_controller.h>
 
-#include "fpga.h"
-#include "dds_pulse.h"
+#include <nacs-utils/log.h>
 
 namespace NaCs {
 
