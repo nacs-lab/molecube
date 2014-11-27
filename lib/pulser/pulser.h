@@ -7,7 +7,7 @@
 namespace NaCs {
 namespace Pulser {
 
-class PulserBase {
+class NACS_EXPORT PulserBase {
 public:
     virtual ~PulserBase() {};
     void clock_out(unsigned divider);
@@ -19,6 +19,7 @@ public:
     void set_dds_amp(int i, uint32_t amp);
     void dds_reset(int i);
     void set_dds_phase(int i, uint16_t phase);
+    void set_ttl_mask(uint32_t high_mask, uint32_t low_mask);
 protected:
     void raw_pulse(uint32_t control, uint32_t operand);
     void dds_reset(unsigned i);
@@ -64,10 +65,18 @@ private:
     void reserve_space(size_t len);
 };
 
-class Pulser : public PulserBase {
+class NACS_EXPORT Pulser : public PulserBase {
     volatile void *m_base;
     std::atomic_bool m_running;
+    Pulser() = delete;
+    Pulser(const Pulser&) = delete;
+    Pulser &operator=(const Pulser&) = delete;
 public:
+    Pulser(Pulser &&other)
+        : m_base(other.m_base),
+          m_running(other.m_running.exchange(false))
+    {
+    }
     Pulser(volatile void *base)
         : m_base(base),
           m_running(false)
@@ -77,7 +86,6 @@ public:
     void init(unsigned ndds, bool reset);
     void run(const BaseProgram &prog);
     void wait();
-    void set_ttl_mask(uint32_t high_mask, uint32_t low_mask);
     void get_ttl_mask(uint32_t *high_mask, uint32_t *low_mask);
     void write_reg(unsigned reg, uint32_t val) override;
     uint32_t read_reg(unsigned reg);
@@ -92,6 +100,11 @@ public:
     uint32_t get_dds_freq(int i);
     uint32_t get_dds_phase(int i);
     uint32_t get_dds_amp(int i);
+    volatile void*
+    get_base() const
+    {
+        return m_base;
+    }
 private:
     uint32_t num_results();
     void debug_regs();

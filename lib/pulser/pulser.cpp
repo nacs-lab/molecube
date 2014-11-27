@@ -53,20 +53,20 @@ run_program(volatile void *base, const uint32_t *prog, size_t len) noexcept
     return 0;
 }
 
-NACS_EXPORT void
+void
 PulserBase::raw_pulse(uint32_t control, uint32_t operand)
 {
     write_reg(31, operand);
     write_reg(31, control);
 }
 
-NACS_EXPORT void
+void
 PulserBase::dds_reset(unsigned i)
 {
     short_pulse(0x10000004 | (i << 4), 0);
 }
 
-NACS_EXPORT void
+void
 PulserBase::short_pulse(uint32_t control, uint32_t operand)
 {
     raw_pulse(control, operand);
@@ -76,7 +76,7 @@ PulserBase::short_pulse(uint32_t control, uint32_t operand)
 // divider = 0..254 means emit clock with period 2 x (divider + 1)
 // in pulse controller timing units (DT_ns)
 // divider = 255 means disable
-NACS_EXPORT void
+void
 PulserBase::clock_out(unsigned divider)
 {
     short_pulse(0x50000000, divider & 0xFF);
@@ -84,7 +84,7 @@ PulserBase::clock_out(unsigned divider)
 
 // set bytes at addr + 1 and addr
 // note that get_dds_two bytes also returns data at addr+1 and addr
-NACS_EXPORT void
+void
 PulserBase::set_dds_two_bytes(int i, uint32_t addr, uint32_t data)
 {
     // put addr in bits 15...9 (maps to DDS opcode_reg[14:9] )?
@@ -95,7 +95,7 @@ PulserBase::set_dds_two_bytes(int i, uint32_t addr, uint32_t data)
 }
 
 // set bytes addr + 3 ... addr
-NACS_EXPORT void
+void
 PulserBase::set_dds_four_bytes(int i, uint32_t addr, uint32_t data)
 {
     //put addr in bits 15...9 (maps to DDS opcode_reg[14:9])?
@@ -106,7 +106,7 @@ PulserBase::set_dds_four_bytes(int i, uint32_t addr, uint32_t data)
 //make timed pulses
 //if t > t_max, subdivide into shorter pulses
 //returns number of pulses made
-NACS_EXPORT void
+void
 PulserBase::pulse(unsigned t, unsigned flags, unsigned operand)
 {
     static const unsigned t_max = 0x001FFFFF;
@@ -118,35 +118,43 @@ PulserBase::pulse(unsigned t, unsigned flags, unsigned operand)
 }
 
 // clear timing check (clear failures)
-NACS_EXPORT void
+void
 PulserBase::clear_timing_check()
 {
     short_pulse(0x30000000, 0);
 }
 
-NACS_EXPORT void
+void
 PulserBase::set_dds_freq(int i, uint32_t ftw)
 {
     short_pulse(0x10000000 | (i << 4), ftw);
 }
 
-NACS_EXPORT void
+void
 PulserBase::set_dds_amp(int i, uint32_t amp)
 {
     set_dds_two_bytes(i, 0x32, amp);
 }
 
 // reset DDS i
-NACS_EXPORT void
+void
 PulserBase::dds_reset(int i)
 {
     short_pulse(0x10000004 | (i << 4), 0);
 }
 
-NACS_EXPORT void
+void
 PulserBase::set_dds_phase(int i, uint16_t phase)
 {
     set_dds_two_bytes(i, 0x30, phase);
+}
+
+// TTL functions: pulse_io = (ttl_out | high_mask) & (~low_mask);
+void
+PulserBase::set_ttl_mask(uint32_t high_mask, uint32_t low_mask)
+{
+    write_reg(0, high_mask);
+    write_reg(1, low_mask);
 }
 
 void
@@ -171,13 +179,13 @@ Pulser::write_reg(unsigned reg, uint32_t val)
     PULSER_mWriteSlaveReg(m_base, reg, val);
 }
 
-NACS_EXPORT uint32_t
+uint32_t
 Pulser::read_reg(unsigned reg)
 {
     return PULSER_mReadSlaveReg(m_base, reg);
 }
 
-NACS_EXPORT void
+void
 Pulser::init(unsigned ndds, bool reset)
 {
     if (nacsCheckLogLevel(NACS_LOG_INFO)) {
@@ -192,7 +200,7 @@ Pulser::init(unsigned ndds, bool reset)
     }
 }
 
-NACS_EXPORT void
+void
 Pulser::run(const BaseProgram &prog)
 {
     if (m_running.exchange(true)) {
@@ -209,21 +217,21 @@ Pulser::is_finished()
     return read_reg(2) & 0x4;
 }
 
-//! release hold.  pulses can run
+// release hold.  pulses can run
 void
 Pulser::release_hold()
 {
     write_reg(3, read_reg(3) & ~0x00000080);
 }
 
-//! set hold. pulses are stopped
-NACS_EXPORT void
+// set hold. pulses are stopped
+void
 Pulser::set_hold()
 {
     write_reg(3, read_reg(3) | 0x00000080);
 }
 
-NACS_EXPORT void
+void
 Pulser::wait()
 {
     if (!m_running.exchange(false)) {
@@ -234,16 +242,8 @@ Pulser::wait()
     }
 }
 
-//! TTL functions: pulse_io = (ttl_out | high_mask) & (~low_mask);
-NACS_EXPORT void
-Pulser::set_ttl_mask(uint32_t high_mask, uint32_t low_mask)
-{
-    write_reg(0, high_mask);
-    write_reg(1, low_mask);
-}
-
-//! TTL functions: pulse_io = (ttl_out | high_mask) & (~low_mask);
-NACS_EXPORT void
+// TTL functions: pulse_io = (ttl_out | high_mask) & (~low_mask);
+void
 Pulser::get_ttl_mask(uint32_t *high_mask, uint32_t *low_mask)
 {
     *high_mask = read_reg(0);
@@ -256,7 +256,7 @@ Pulser::num_results()
     return (read_reg(2) >> 4) & 31;
 }
 
-NACS_EXPORT uint32_t
+uint32_t
 Pulser::pop_result()
 {
     while (num_results() == 0) {
@@ -265,14 +265,14 @@ Pulser::pop_result()
 }
 
 // were there any timing failures?
-NACS_EXPORT bool
+bool
 Pulser::timing_ok()
 {
     return !(read_reg(2) & 0x1);
 }
 
 // get byte from address on DDS i
-NACS_EXPORT uint32_t
+uint32_t
 Pulser::get_dds_byte(int i, uint32_t address)
 {
     short_pulse(0x10000003 | (i << 4) | (address << 9), 0);
@@ -280,7 +280,7 @@ Pulser::get_dds_byte(int i, uint32_t address)
 }
 
 // get two bytes from address + 1 ... adress on DDS i
-NACS_EXPORT uint32_t
+uint32_t
 Pulser::get_dds_two_bytes(int i, unsigned address)
 {
     short_pulse(0x10000003 | (i << 4) | ((address + 1) << 9), 0);
@@ -288,7 +288,7 @@ Pulser::get_dds_two_bytes(int i, unsigned address)
 }
 
 // get four bytes from address + 3 ... adress on DDS i
-NACS_EXPORT uint32_t
+uint32_t
 Pulser::get_dds_four_bytes(int i, unsigned address)
 {
     short_pulse(0x1000000E | (i << 4) | ((address + 1) << 9), 0);
@@ -296,7 +296,7 @@ Pulser::get_dds_four_bytes(int i, unsigned address)
 }
 
 // toggle init. reset prior to new sequence
-NACS_EXPORT void
+void
 Pulser::toggle_init()
 {
     unsigned r3 = read_reg(3);
@@ -305,7 +305,7 @@ Pulser::toggle_init()
 }
 
 // If DDS i is present return non-zero, otherwise 0.
-NACS_EXPORT bool
+bool
 Pulser::dds_exists(int i)
 {
     unsigned addr = 0x68;
@@ -319,7 +319,7 @@ Pulser::dds_exists(int i)
     return (u0 == 0) && (u1 == 1);
 }
 
-NACS_EXPORT uint32_t
+uint32_t
 Pulser::get_dds_freq(int i)
 {
     // short_pulse(0x1000000E | (i << 4) | (0x2D << 9), 0);
@@ -330,13 +330,13 @@ Pulser::get_dds_freq(int i)
     return u0 | (u2 << 16);
 }
 
-NACS_EXPORT uint32_t
+uint32_t
 Pulser::get_dds_phase(int i)
 {
     return get_dds_two_bytes(i, 0x30);
 }
 
-NACS_EXPORT uint32_t
+uint32_t
 Pulser::get_dds_amp(int i)
 {
     return get_dds_two_bytes(i, 0x32);
