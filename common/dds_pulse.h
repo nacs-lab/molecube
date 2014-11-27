@@ -21,20 +21,16 @@
 double FTW2HzD(unsigned ftw, double fClock);
 unsigned Hz2FTW(double f, double fClock);
 
-// Get clock freq. for iDDS.
-// Ueful when the DDS do not all have the same clock.
-double dds_clk(int iDDS);
-
 static NACS_INLINE void
 DDS_set_freqHz(volatile void *pulse_addr, unsigned iDDS, unsigned Hz)
 {
-    PULSER_set_dds_freq(pulse_addr, iDDS, Hz2FTW(Hz, dds_clk(iDDS)));
+    PULSER_set_dds_freq(pulse_addr, iDDS, Hz2FTW(Hz, PULSER_AD9914_CLK));
 }
 
 static NACS_INLINE double
 DDS_get_freqHz(volatile void *pulse_addr, unsigned iDDS) //get freq in Hz
 {
-    return FTW2HzD(PULSER_get_dds_freq(pulse_addr, iDDS), AD9914_CLK);
+    return FTW2HzD(PULSER_get_dds_freq(pulse_addr, iDDS), PULSER_AD9914_CLK);
 }
 
 static NACS_INLINE void

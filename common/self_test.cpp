@@ -120,7 +120,8 @@ other_test(volatile void *pulse_addr)
 
     for (j = 0; j < NDDS; j++) {
         unsigned ftw = PULSER_get_dds_freq(pulse_addr, j);
-        printf("DDS[%02i] frequency: %12.3f Hz\n", j, FTW2HzD(ftw, AD9914_CLK));
+        printf("DDS[%02i] frequency: %12.3f Hz\n",
+               j, FTW2HzD(ftw, PULSER_AD9914_CLK));
     }
 
     r2 = PULSER_read_sr(pulse_addr, 2);

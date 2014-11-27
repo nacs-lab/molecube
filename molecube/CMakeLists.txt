@@ -1,4 +1,4 @@
-add_definitions(-DNSPI=2 -DNDDS=22 -DAD9914_CLK=3.5e9)
+add_definitions(-DNSPI=2 -DNDDS=22)
 
 # Current directory
 include_directories(include zynq_linux)

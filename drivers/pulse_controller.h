@@ -9,6 +9,7 @@
  * pulse generator while doing his PhD research at NIST */
 
 #include <nacs-utils/utils.h>
+#include <nacs-pulser/pulser-config.h>
 
 #ifndef PULSER_H
 #define PULSER_H

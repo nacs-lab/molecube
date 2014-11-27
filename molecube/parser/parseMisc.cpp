@@ -110,7 +110,7 @@ setDeviceParams(volatile void *pulse_addr, const std::string &page,
                 DDS_set_freqHz(pulse_addr, iDDS, f);
                 unsigned ftw = PULSER_get_dds_freq(pulse_addr, iDDS);
                 nacsLog("DDS getfreq(%d): %12.3f  (ftw = %08X)\n",
-                        iDDS, FTW2HzD(ftw, dds_clk(iDDS)), ftw);
+                        iDDS, FTW2HzD(ftw, PULSER_AD9914_CLK), ftw);
             }
 
             // "amp" doesn't work with jQuery (special meaning? jQuery bug?)

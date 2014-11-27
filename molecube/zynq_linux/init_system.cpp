@@ -26,7 +26,7 @@ init_system()
 
     nacsInfo("Processor clock frequency: %9.3f MHz\n", 1e-6 * CPU_FREQ_HZ);
     nacsLog("NDDS = %d  (REF_CLK = %u MHz)   NSPI = %d\n",
-            (int)NDDS, (unsigned)(AD9914_CLK * 1e-6), (int)NSPI);
+            (int)NDDS, (unsigned)(PULSER_AD9914_CLK * 1e-6), (int)NSPI);
 
     // set priority
     // -20 = highest priority, 0 = default, 19 = lowest priority
