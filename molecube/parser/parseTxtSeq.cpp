@@ -95,7 +95,7 @@ public:
     {
         if (m_t < PULSER_T_TTL_MIN) {
             gvSTDOUT.printf("TTL pulse 0x%08X too short: %.2f us\n",
-                            m_t * PULSER_DT_us, m_ttl);
+                            m_ttl, m_t * PULSER_DT_us);
             throw std::runtime_error("The pulse at t = " +
                                      std::to_string(m_t * PULSER_DT_us) +
                                      " us is too short or early.");

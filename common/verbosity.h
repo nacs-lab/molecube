@@ -11,6 +11,7 @@ class verbosity {
     verbosity(const verbosity&) = delete;
 public:
     verbosity(std::ostream *pos) : m_pos(pos) {}
+    __attribute__((format(printf, 2, 3)))
     int printf(const char *format, ...);
 private:
     std::ostream *m_pos;
