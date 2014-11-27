@@ -4,10 +4,6 @@
 #include <nacs-utils/log.h>
 
 #include <iostream>
-#include <fstream>
-#include <sstream>
-#include <string>
-#include <map>
 #include <mutex>
 
 #include "parseTxtSeq.h"
@@ -15,9 +11,6 @@
 #include "AD9914.h"
 #include "dds_pulse.h"
 #include "verbosity.h"
-#include "pulse_controller.h"
-
-#include <string_func.h>
 
 namespace NaCs {
 

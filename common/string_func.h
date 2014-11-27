@@ -31,4 +31,4 @@ template<class V> V extract_val(const std::string& s, const std::string& name);
 //! Turn a comma-delimeted string into a vector of strings
 std::vector<std::string> commaDelimStrings2Vector(const std::string& s);
 
-#endif // STRING_FUNC_H
+#endif
