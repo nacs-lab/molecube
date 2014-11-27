@@ -136,7 +136,7 @@ protected:
 
 namespace NaCs {
 
-bool g_stop_curr_seq = false;
+volatile bool g_stop_curr_seq = false;
 
 verbosity gvSTDOUT(nullptr);
 
