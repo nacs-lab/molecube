@@ -3,14 +3,13 @@
 
 #include <nacs-utils/log.h>
 
-#include "fpga.h"
-#include "dac.h"
-#include "self_test.h"
-#include "AD9914.h"
-#include "dds_pulse.h"
 #include "../parser/parseMisc.h"
 
-#include <sys/time.h>
+#include "spi_util.h"
+#include "AD9914.h"
+#include "fpga.h"
+#include <pulse_controller.h>
+
 #include <sys/resource.h>
 #include <errno.h>
 
