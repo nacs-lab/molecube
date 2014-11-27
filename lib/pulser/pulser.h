@@ -73,7 +73,7 @@ public:
         {
         }
     ~Pulser() {}
-    void init(unsigned ndds, bool reset);
+    void init(bool reset);
     void run(const BaseProgram &prog);
     void wait();
     void get_ttl_mask(uint32_t *high_mask, uint32_t *low_mask);
@@ -95,12 +95,34 @@ public:
     {
         return m_base;
     }
+
+    double get_dds_freq_f(int i);
+    double get_dds_phase_f(int i);
+    double get_dds_amp_f(int i);
 private:
     uint32_t num_results();
     void debug_regs();
     bool is_finished();
     void release_hold();
 };
+
+NACS_INLINE double
+Pulser::get_dds_freq_f(int i)
+{
+    return DDSConverter::num2freq(get_dds_freq(i), PULSER_AD9914_CLK);
+}
+
+NACS_INLINE double
+Pulser::get_dds_phase_f(int i)
+{
+    return DDSConverter::num2phase(get_dds_phase(i));
+}
+
+NACS_INLINE double
+Pulser::get_dds_amp_f(int i)
+{
+    return DDSConverter::num2amp(get_dds_amp(i));
+}
 
 }
 }

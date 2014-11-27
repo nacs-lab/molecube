@@ -188,7 +188,7 @@ Pulser::read_reg(unsigned reg)
 }
 
 void
-Pulser::init(unsigned ndds, bool reset)
+Pulser::init(bool reset)
 {
     if (nacsCheckLogLevel(NACS_LOG_INFO)) {
         debug_regs();
@@ -196,7 +196,7 @@ Pulser::init(unsigned ndds, bool reset)
 
     if (reset) {
         nacsInfo("PULSER_init... reset DDS\n");
-        for (unsigned i = 0;i < ndds;i++) {
+        for (unsigned i = 0;i < PULSER_NDDS;i++) {
             dds_reset(i);
         }
     }
