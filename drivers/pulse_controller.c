@@ -68,7 +68,7 @@ PULSER_init(volatile void *base_addr, unsigned nDDS, unsigned bResetDDS)
     if (nacsCheckLogLevel(NACS_LOG_INFO)) {
         printf("PULSER_init... disable timing check\n");
     }
-    PULSER_disable_timing_check(base_addr);
+    PULSER_disable_timing_check();
 
     if (nacsCheckLogLevel(NACS_LOG_INFO)) {
         printf("PULSER_init... reset DDS\n");
@@ -215,17 +215,15 @@ PULSER_release_hold(volatile void *base_addr)
 
 //! enable timing check for pulses
 void
-PULSER_enable_timing_check(volatile void *base_addr)
+PULSER_enable_timing_check()
 {
-    (void)base_addr;
     extra_flags = extra_flags | ENABLE_TIMING_CHECK;
 }
 
 //! disable timing check for pulses
 void
-PULSER_disable_timing_check(volatile void *base_addr)
+PULSER_disable_timing_check()
 {
-    (void)base_addr;
     extra_flags = extra_flags & ~ENABLE_TIMING_CHECK;
 }
 

@@ -46,7 +46,7 @@ init_system()
     PULSER_init(pulse_addr, NDDS, false);
     nacsLog("Initializing pulse controller...done.\n");
 
-    PULSER_disable_timing_check(pulse_addr);
+    PULSER_disable_timing_check();
     PULSER_clear_timing_check(pulse_addr);
 
     bool spi_active_low[4] = {true, true, false, false};

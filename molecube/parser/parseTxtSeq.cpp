@@ -80,7 +80,7 @@ public:
     makePulse()
     {
         // Change extra_flags
-        PULSER_disable_timing_check(m_pulse_addr);
+        PULSER_disable_timing_check();
     }
 };
 
@@ -737,7 +737,7 @@ parseSeqTxt(volatile void *pulse_addr, unsigned reps,
             PULSER_set_hold(pulse_addr);
 
             PULSER_toggle_init(pulse_addr);
-            PULSER_enable_timing_check(pulse_addr);
+            PULSER_enable_timing_check();
 
             for (pulse_cmd *p : pulses) {
                 p->makePulse();

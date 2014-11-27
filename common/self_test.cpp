@@ -55,11 +55,11 @@ check_timing(volatile void *pulse_addr)
 
     printf("Generating 1,000,000 x 1 us pulses + 10 x 100 ms pulses...\n");
 
-    PULSER_disable_timing_check(pulse_addr);
+    PULSER_disable_timing_check();
     PULSER_clear_timing_check(pulse_addr);
 
     PULSER_pulse(pulse_addr, 100, 0, 0);
-    PULSER_enable_timing_check(pulse_addr);
+    PULSER_enable_timing_check();
     uint64_t t0 = nacsGetTime();
 
     for (j = 0; j < 1000000; j++) {
@@ -106,7 +106,7 @@ other_test(volatile void *pulse_addr)
 {
     unsigned j, r2;
 
-    PULSER_disable_timing_check(pulse_addr);
+    PULSER_disable_timing_check();
     PULSER_clear_timing_check(pulse_addr);
 
     //	PULSER_short_pulse(pulse_addr, (0x20000000), 0); //push PMT counter value onto result FIFO

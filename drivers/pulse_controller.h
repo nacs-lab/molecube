@@ -124,8 +124,8 @@ This can be detected by calling PULSER_timing_ok (returns false if
 a timing error occured).  The error status can be cleared by calling PULSER_clear_timing_check.
 */
 
-void PULSER_enable_timing_check(volatile void *base_addr);
-void PULSER_disable_timing_check(volatile void *base_addr);
+void PULSER_enable_timing_check();
+void PULSER_disable_timing_check();
 
 void PULSER_clear_timing_check(volatile void *base_addr);
 int  PULSER_timing_ok(volatile void *base_addr);
