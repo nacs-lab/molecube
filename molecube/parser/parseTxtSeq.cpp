@@ -23,7 +23,6 @@
 #include <cstring>
 #include <mutex>
 
-#include "ttl_pulse.h"
 #include "dds_pulse.h"
 #include "AD9914.h"
 #include "string_func.h"
@@ -104,7 +103,7 @@ public:
     makePulse()
     {
         // multiple PULSER_short_pulse
-        TTL_pulse(m_pulse_addr, m_t, m_ttl);
+        PULSER_pulse(m_pulse_addr, m_t, 0, m_ttl);
     }
 };
 

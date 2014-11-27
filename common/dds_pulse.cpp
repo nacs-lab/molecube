@@ -1,4 +1,3 @@
-#include "ttl_pulse.h"
 #include "dds_pulse.h"
 
 unsigned
