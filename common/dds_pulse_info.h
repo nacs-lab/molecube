@@ -3,8 +3,7 @@
 
 #include <string>
 
-unsigned extract_flags(const std::string& s);
-
+unsigned extract_flags(const std::string &s);
 
 class pulse_info {
 public:
@@ -27,7 +26,7 @@ public:
 class ttl_pulse_info : public pulse_info {
 public:
     ttl_pulse_info();
-    ttl_pulse_info(const std::string& s);
+    ttl_pulse_info(const std::string &s);
 
     void updateFromString(const char* s);
 
@@ -42,7 +41,7 @@ bool operator!=(const ttl_pulse_info&, const ttl_pulse_info&);
 class dds_pulse_info : public pulse_info {
 public:
     dds_pulse_info();
-    dds_pulse_info(const std::string& s);
+    dds_pulse_info(const std::string &s);
 
     void updateFromString(const char* s);
 
@@ -70,7 +69,7 @@ bool operator!=(const dds_pulse_info&, const dds_pulse_info&);
 class dds_pulse3_info : public pulse_info {
 public:
     dds_pulse3_info();
-    dds_pulse3_info(const std::string& s);
+    dds_pulse3_info(const std::string &s);
 
     void updateFromString(const char* s);
 
@@ -91,11 +90,11 @@ bool operator==(const dds_pulse3_info&, const dds_pulse3_info&);
 bool operator!=(const dds_pulse3_info&, const dds_pulse3_info&);
 
 
-/******** Some shared functions for FPGA and PC programs that should really go somewhere else ********/
-//TODO
+/******** Some shared functions for FPGA and PC programs that should really
+          go somewhere else ********/
+// TODO
 
-//! returns number of occurences of string s2 in s1
-unsigned numOccurences(const std::string& s1, const std::string& s2);
+// returns number of occurences of string s2 in s1
+unsigned numOccurences(const std::string &s1, const std::string &s2);
 
-#endif // DDS_PULSE_INFO_H
-
+#endif

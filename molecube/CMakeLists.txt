@@ -21,7 +21,7 @@ set(SOURCES ${SOURCES}
   ../common/dds_pulse.cpp
   ../common/verbosity.cpp
   ../common/spi_util.cpp
-  ../common/dds_pulse_info.cpp
+  # ../common/dds_pulse_info.cpp
   ../common/fpga.c
   ../common/AD9914.cpp
   # ../common/self_test.cpp
