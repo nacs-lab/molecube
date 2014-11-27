@@ -22,6 +22,7 @@
 #include <stdexcept>
 #include <cstring>
 #include <mutex>
+#include <algorithm>
 
 #include "dds_pulse.h"
 #include "AD9914.h"
@@ -31,6 +32,8 @@
 #include "saveloadmap.h"
 #include "verbosity.h"
 #include "linux_file_util.h"
+
+#include <common.h>
 
 // keep track of "current" TTL state and elapsed time
 // "current" refers to parsing the pulse sequence (not generating it)

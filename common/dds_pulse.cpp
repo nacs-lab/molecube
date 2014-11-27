@@ -1,5 +1,7 @@
 #include "dds_pulse.h"
 
+#include <algorithm>
+
 unsigned
 FTW2Hz(unsigned ftw, double fClock)
 {

@@ -13,14 +13,7 @@
 #ifndef DDS_PULSE_H_
 #define DDS_PULSE_H_
 
-#include "fpga.h"
-#include <common.h>
-
-#include <float.h>
-#include <math.h>
-#include <algorithm>
-
-#include "AD9914.h"
+#include <pulse_controller.h>
 
 static NACS_INLINE const char*
 DDS_name(unsigned iDDS)
@@ -132,4 +125,4 @@ DDS_get_amp(volatile void *pulse_addr, unsigned iDDS)
     return u0 / 4095.0;
 }
 
-#endif /*DDS_PULSE_H_*/
+#endif
