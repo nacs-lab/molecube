@@ -34,9 +34,12 @@ unsigned short getResult_AD7689(spi_p spi, unsigned next_channel);
 unsigned getResult_ADS8361(spi_p spi, unsigned next_channel);
 
 //get ADC conversion result and configure for next conversion
-unsigned short getResult_AD7656(spi_p spi, unsigned num_channels, short* pValues);
-unsigned short getResult_AD7656i(spi_p spi, unsigned num_channels, int* pValues);
-unsigned short getAddResult_AD7656(spi_p spi, unsigned num_channels, int* pValues);
+unsigned short getResult_AD7656(spi_p spi, unsigned num_channels,
+                                short *pValues);
+unsigned short getResult_AD7656i(spi_p spi, unsigned num_channels,
+                                 int *pValues);
+unsigned short getAddResult_AD7656(spi_p spi, unsigned num_channels,
+                                   int *pValues);
 
 void Init_ADS8361(spi_p spi);
 

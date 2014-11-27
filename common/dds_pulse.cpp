@@ -47,6 +47,6 @@ MHz2FTWI(double f)
 double
 dds_clk(int)
 {
-    //return iDDS < NDDS ? 1e9 : AD9914_CLK;
+    // return iDDS < NDDS ? 1e9 : AD9914_CLK;
     return AD9914_CLK;
 }
