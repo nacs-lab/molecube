@@ -17,12 +17,14 @@
 
 #include <mutex>
 
+namespace NaCs {
+
 static spi_struct g_spi[NSPI];
 
 volatile void*
 init_system()
 {
-    std::lock_guard<NaCs::FLock> fl(g_fPulserLock);
+    std::lock_guard<FLock> fl(g_fPulserLock);
 
     nacsInfo("Processor clock frequency: %9.3f MHz\n", 1e-6 * CPU_FREQ_HZ);
     nacsLog("NDDS = %d  (REF_CLK = %u MHz)   NSPI = %d\n",
@@ -74,4 +76,6 @@ init_system()
     }
 
     return pulse_addr;
+}
+
 }

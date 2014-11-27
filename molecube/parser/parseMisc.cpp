@@ -20,7 +20,9 @@
 #include <string_func.h>
 #include <common.h>
 
-NaCs::FLock g_fPulserLock("/tmp/pulser.lock");
+namespace NaCs {
+
+FLock g_fPulserLock("/tmp/pulser.lock");
 std::vector<unsigned> active_dds; // all DDS that are available
 
 void printPlainResponseHeader()
@@ -67,7 +69,7 @@ static void
 getDeviceParams(volatile void *pulse_addr, const std::string &page,
                 txtmap_t &params)
 {
-    std::lock_guard<NaCs::FLock> fl(g_fPulserLock);
+    std::lock_guard<FLock> fl(g_fPulserLock);
 
     if (page == "dds") {
         char key[32];
@@ -98,7 +100,7 @@ static void
 setDeviceParams(volatile void *pulse_addr, const std::string &page,
                 const txtmap_t &params)
 {
-    std::lock_guard<NaCs::FLock> fl(g_fPulserLock);
+    std::lock_guard<FLock> fl(g_fPulserLock);
 
     if(page == "dds") {
         // dumpMap(params, gLog);
@@ -372,10 +374,11 @@ getUnsignedParamCGI(cgicc::Cgicc& cgi, const std::string& name,
 {
     cgicc::form_iterator i = cgi.getElement(name);
 
-    if(i != cgi.getElements().end())
+    if (i != cgi.getElements().end()) {
         return i->getIntegerValue(0);
-    else
+    } else {
         return defaultVal;
+    }
 }
 
 std::string
@@ -384,8 +387,11 @@ getStringParamCGI(cgicc::Cgicc& cgi, const std::string& name,
 {
     cgicc::form_iterator i = cgi.getElement(name);
 
-    if(i != cgi.getElements().end())
+    if (i != cgi.getElements().end()) {
         return i->getValue();
-    else
+    } else {
         return defaultVal;
+    }
+}
+
 }

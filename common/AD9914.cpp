@@ -5,6 +5,7 @@
 #include "fpga.h"
 #include "dds_pulse.h"
 
+namespace NaCs {
 
 // const double ad9914_clk_MHz = 3500.0;
 
@@ -205,4 +206,6 @@ bool init_AD9914(volatile void *base_addr, int i, bool bForce)
     }
 
     return bInit;
+}
+
 }

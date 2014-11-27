@@ -4,6 +4,8 @@
 #include <istream>
 #include <cgicc/Cgicc.h>
 
+namespace NaCs {
+
 //parse URL-encoded pulse sequence in string
 // should only be used for shorter sequence (< 100 pulses)
 bool parseSeqURL(volatile void *pulse_addr, std::string& seq);
@@ -15,5 +17,7 @@ bool parseSeqCGI(volatile void *pulse_addr, cgicc::Cgicc& cgi);
 bool parseSeqMultiPart(std::istream& is, const std::string& line1);
 
 std::string getQuote(const char* fname, const char* divider);
+
+}
 
 #endif //PARSE_TXT_SEQ_H

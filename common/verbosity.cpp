@@ -3,6 +3,8 @@
 #include <stdarg.h>
 #include <nacs-utils/log.h>
 
+namespace NaCs {
+
 int
 verbosity::printf(const char *format, ...)
 {
@@ -24,4 +26,6 @@ verbosity::printf(const char *format, ...)
         *m_pos << buff;
     }
     return ret;
+}
+
 }

@@ -134,6 +134,8 @@ protected:
     std::map<std::string, std::string> fEnv;
 };
 
+namespace NaCs {
+
 bool g_stop_curr_seq = false;
 
 verbosity gvSTDOUT(nullptr);
@@ -180,6 +182,10 @@ printUsage()
     printf(" -h or --help : Print help / usage info.\n");
     printf("\n\n");
 }
+
+}
+
+using namespace NaCs;
 
 int
 main(int argc, char *argv[])

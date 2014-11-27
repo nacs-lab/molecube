@@ -33,18 +33,18 @@
 #include "verbosity.h"
 #include "linux_file_util.h"
 
-// using namespace std;
-
 // keep track of "current" TTL state and elapsed time
 // "current" refers to parsing the pulse sequence (not generating it)
 
-bool hasTTL;
-unsigned tCurr;
-unsigned nextTTL = 0;
-unsigned currTTL = 0;
-unsigned g_lineNum = 0;
+namespace NaCs {
 
-//make sure any TTLs that were spec'd previously are still active
+static bool hasTTL;
+static unsigned tCurr;
+static unsigned nextTTL = 0;
+static unsigned currTTL = 0;
+static unsigned g_lineNum = 0;
+
+// make sure any TTLs that were spec'd previously are still active
 // tNewPulse = spec'd time for new pulse
 // tMinPulse = minimum duration of new pulse *before* update
 static void dealWithCurrentTTL(volatile void *pulse_addr, unsigned tNewPulse,
@@ -728,7 +728,7 @@ parseSeqTxt(volatile void *pulse_addr, unsigned reps,
         {
             // new scope to automatically release file lock at scope
             // exit or exception
-            std::lock_guard<NaCs::FLock> fl(g_fPulserLock);
+            std::lock_guard<FLock> fl(g_fPulserLock);
 
             setProgramStatus(0, buff);
 
@@ -782,7 +782,7 @@ parseSeqTxt(volatile void *pulse_addr, unsigned reps,
 //advance file to end of next delimeter
 //return false if EOF
 static bool
-findNextDelim(FILE* f, const char* delim)
+findNextDelim(FILE *f, const char *delim)
 {
     int nMatch = 0;
     int delimLen = strlen(delim);
@@ -847,4 +847,6 @@ getQuote(const char *fname, const char *delim)
         }
     }
     return "";
+}
+
 }

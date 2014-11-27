@@ -7,13 +7,7 @@
 #include <vector>
 #include <cgicc/Cgicc.h>
 
-//thrown when the token does not exist
-class noSuchToken {
-public:
-    noSuchToken(const std::string& token) : token(token) {}
-
-    std::string token;
-};
+namespace NaCs {
 
 void printPlainResponseHeader();
 void printJSONResponseHeader();
@@ -49,7 +43,9 @@ std::string getStringParamCGI(cgicc::Cgicc& cgi, const std::string& name,
 
 // lock file. Set the lock when performing PULSER operations that
 // should not be interrupted by other PULSER operations.
-extern NaCs::FLock g_fPulserLock;
+extern FLock g_fPulserLock;
 extern std::vector<unsigned> active_dds; // all DDS that are available
+
+}
 
 #endif //PARSE_MISC_H

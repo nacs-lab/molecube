@@ -4,6 +4,10 @@
 //Platform specific initialization
 //Linux: get device addresses
 
+namespace NaCs {
+
 volatile void *init_pulse_controller();
+
+}
 
 #endif

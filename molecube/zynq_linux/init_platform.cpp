@@ -8,6 +8,8 @@
 // Platform specific initialization
 // Linux: get device addresses
 
+namespace NaCs {
+
 static intptr_t
 get_pulse_controller_phys_addr()
 {
@@ -61,4 +63,6 @@ init_pulse_controller()
         exit(0);
     }
     return pulse_addr;
+}
+
 }

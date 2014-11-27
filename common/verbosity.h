@@ -3,9 +3,10 @@
 
 #include <ostream>
 
+namespace NaCs {
+
 // Flexible logging via C++ ostream and printf
-// if ostream* pos != 0, any printf calls are echoed to *pos
-// if FILE* f != 0 , any printf calls are echoed to f
+// if ostream *pos != 0, any printf calls are echoed to *pos
 class verbosity {
     verbosity(const verbosity&) = delete;
 public:
@@ -16,5 +17,7 @@ private:
 };
 
 extern verbosity gvSTDOUT; //printf goes to log and stdout
+
+}
 
 #endif //VERBOSITY_H
