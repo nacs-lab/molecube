@@ -151,7 +151,8 @@ public:
     set_freq_cmd(volatile void *pulse_addr, unsigned dds, unsigned ftw) :
         dds_cmd(pulse_addr, dds, ftw) {}
     set_freq_cmd(volatile void *pulse_addr, unsigned dds, double f) :
-        dds_cmd(pulse_addr, dds, Hz2FTW(f, PULSER_AD9914_CLK))
+        dds_cmd(pulse_addr, dds,
+                NaCs::Pulser::DDSConverter::freq2num(f, PULSER_AD9914_CLK))
     {
     }
 

@@ -18,7 +18,6 @@ set(SOURCES ${SOURCES}
   ../common/CmdLineArgs.cpp
   # ../common/dac.cpp
   ../common/linux_file_util.c
-  ../common/dds_pulse.cpp
   ../common/verbosity.cpp
   ../common/spi_util.cpp
   # ../common/dds_pulse_info.cpp

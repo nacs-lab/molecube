@@ -19,12 +19,11 @@
 #define PHASE_90 (1 << 14)
 #define PHASE_360 (PHASE_90 * 4)
 
-unsigned Hz2FTW(double f, double fClock);
-
 static NACS_INLINE void
-DDS_set_freqHz(volatile void *pulse_addr, unsigned iDDS, unsigned Hz)
+DDS_set_freqHz(volatile void *pulse_addr, unsigned iDDS, double Hz)
 {
-    PULSER_set_dds_freq(pulse_addr, iDDS, Hz2FTW(Hz, PULSER_AD9914_CLK));
+    auto fnum = NaCs::Pulser::DDSConverter::freq2num(Hz, PULSER_AD9914_CLK);
+    PULSER_set_dds_freq(pulse_addr, iDDS, fnum);
 }
 
 static NACS_INLINE double
