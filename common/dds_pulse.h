@@ -14,11 +14,11 @@
 #define DDS_PULSE_H_
 
 #include <pulse_controller.h>
+#include <nacs-pulser/pulser.h>
 
 #define PHASE_90 (1 << 14)
 #define PHASE_360 (PHASE_90 * 4)
 
-double FTW2HzD(unsigned ftw, double fClock);
 unsigned Hz2FTW(double f, double fClock);
 
 static NACS_INLINE void
@@ -30,7 +30,8 @@ DDS_set_freqHz(volatile void *pulse_addr, unsigned iDDS, unsigned Hz)
 static NACS_INLINE double
 DDS_get_freqHz(volatile void *pulse_addr, unsigned iDDS) //get freq in Hz
 {
-    return FTW2HzD(PULSER_get_dds_freq(pulse_addr, iDDS), PULSER_AD9914_CLK);
+    auto fnum = PULSER_get_dds_freq(pulse_addr, iDDS);
+    return NaCs::Pulser::DDSConverter::num2freq(fnum, PULSER_AD9914_CLK);
 }
 
 static NACS_INLINE void

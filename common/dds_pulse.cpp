@@ -2,12 +2,6 @@
 
 #include <algorithm>
 
-double
-FTW2HzD(unsigned ftw, double fClock)
-{
-    return ftw * fClock * pow(2., -32);
-}
-
 unsigned
 Hz2FTW(double f, double fClock)
 {
