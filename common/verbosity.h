@@ -12,13 +12,11 @@ class verbosity {
 public:
     verbosity(std::ostream *pos) : m_pos(pos) {}
     __attribute__((format(printf, 2, 3)))
-    int printf(const char *format, ...);
+    int printf(const char *format, ...) const;
 private:
     std::ostream *m_pos;
 };
 
-extern verbosity gvSTDOUT; //printf goes to log and stdout
-
 }
 
-#endif //VERBOSITY_H
+#endif

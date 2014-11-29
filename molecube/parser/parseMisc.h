@@ -4,6 +4,8 @@
 #include <nacs-utils/fd_utils.h>
 #include <nacs-pulser/pulser.h>
 
+#include <verbosity.h>
+
 #include <string>
 #include <vector>
 #include <cgicc/Cgicc.h>
@@ -13,7 +15,8 @@ namespace NaCs {
 void printPlainResponseHeader();
 void printJSONResponseHeader();
 
-bool parseQueryCGI(NaCs::Pulser::Pulser &pulser, cgicc::Cgicc& cgi);
+bool parseQueryCGI(NaCs::Pulser::Pulser &pulser, cgicc::Cgicc& cgi,
+                   const verbosity &reply);
 
 unsigned getUnsignedParam(const std::string &seq, const std::string &name,
                           unsigned defaultVal);

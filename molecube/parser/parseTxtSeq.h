@@ -3,6 +3,8 @@
 
 #include <nacs-pulser/pulser.h>
 
+#include <verbosity.h>
+
 #include <istream>
 #include <cgicc/Cgicc.h>
 
@@ -10,9 +12,11 @@ namespace NaCs {
 
 //parse URL-encoded pulse sequence in string
 // should only be used for shorter sequence (< 100 pulses)
-bool parseSeqURL(Pulser::Pulser &pulser, std::string &seq);
+bool parseSeqURL(Pulser::Pulser &pulser, std::string &seq,
+                 const verbosity &reply);
 
-bool parseSeqCGI(Pulser::Pulser &pulser, cgicc::Cgicc &cgi);
+bool parseSeqCGI(Pulser::Pulser &pulser, cgicc::Cgicc &cgi,
+                 const verbosity &reply);
 
 // parse sequence in multipart format
 // more efficient for long sequences because no decoding

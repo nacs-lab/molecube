@@ -6,7 +6,7 @@
 namespace NaCs {
 
 int
-verbosity::printf(const char *format, ...)
+verbosity::printf(const char *format, ...) const
 {
     int ret = 0;
 

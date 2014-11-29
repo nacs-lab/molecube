@@ -9,7 +9,6 @@
 #include "parseTxtSeq.h"
 #include "saveloadmap.h"
 #include "AD9914.h"
-#include "verbosity.h"
 
 namespace NaCs {
 
@@ -175,13 +174,14 @@ stream_vect_to_JSON_array(std::ostream& os, const V& v)
 }
 
 bool
-parseQueryCGI(NaCs::Pulser::Pulser &pulser, cgicc::Cgicc &cgi)
+parseQueryCGI(NaCs::Pulser::Pulser &pulser, cgicc::Cgicc &cgi,
+              const verbosity &reply)
 {
     cgicc::form_iterator cmd = cgi.getElement("command");
     cgicc::form_iterator page = cgi.getElement("page");
 
     if (cmd != cgi.getElements().end()) {
-        gvSTDOUT.printf("Command = %s\n", (**cmd).c_str());
+        reply.printf("Command = %s\n", (**cmd).c_str());
 
         if ((**cmd) == "getTTL") {
             printJSONResponseHeader();
@@ -257,12 +257,12 @@ parseQueryCGI(NaCs::Pulser::Pulser &pulser, cgicc::Cgicc &cgi)
         }
 
         if ((**cmd) == "runseq") {
-            parseSeqCGI(pulser, cgi);
+            parseSeqCGI(pulser, cgi, reply);
             return true;
         }
         return false;
     } else {
-        gvSTDOUT.printf("No Command\n");
+        reply.printf("No Command\n");
         return false;
     }
 

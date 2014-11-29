@@ -27,7 +27,6 @@
 
 #include "parseMisc.h"
 #include "saveloadmap.h"
-#include "verbosity.h"
 #include "linux_file_util.h"
 
 #include <common.h>
@@ -40,7 +39,7 @@ namespace NaCs {
 //parse text-encoded pulse sequence
 static bool parseSeqTxt(Pulser::Pulser &pulser, unsigned reps,
                         const std::string &seqTxt, bool bForever,
-                        bool debugPulses);
+                        bool debugPulses, const verbosity &reply);
 
 static bool
 get_channel_and_operand(std::string &arg1, std::istream &s, int *channel,
@@ -226,7 +225,7 @@ parseCommand(Pulser::SequenceBuilder &builder, uint64_t t, std::string &cmd,
 
 //parse URL-encoded pulse sequence
 bool
-parseSeqURL(Pulser::Pulser &pulser, std::string &seq)
+parseSeqURL(Pulser::Pulser &pulser, std::string &seq, const verbosity &reply)
 {
     unsigned reps = getUnsignedParam(seq, "reps=", 1);
     bool debugPulses = getCheckboxParam(seq, "debugPulses=", false);
@@ -246,14 +245,14 @@ parseSeqURL(Pulser::Pulser &pulser, std::string &seq)
     std::string seqTxt = seq.substr(start_pos + L, end_pos - start_pos - L);
     html2txt(seqTxt, 1); //this is a slow function
 
-    parseSeqTxt(pulser, reps, seqTxt, bForever, debugPulses);
+    parseSeqTxt(pulser, reps, seqTxt, bForever, debugPulses, reply);
 
     return true;
 }
 
 //parse pulse sequence via CGICC
 bool
-parseSeqCGI(Pulser::Pulser &pulser, cgicc::Cgicc& cgi)
+parseSeqCGI(Pulser::Pulser &pulser, cgicc::Cgicc &cgi, const verbosity &reply)
 {
     unsigned reps = getUnsignedParamCGI(cgi, "reps", 1);
     bool debugPulses = getCheckboxParamCGI(cgi, "debugPulses", false);
@@ -274,7 +273,7 @@ parseSeqCGI(Pulser::Pulser &pulser, cgicc::Cgicc& cgi)
         }
     }
 
-    parseSeqTxt(pulser, reps, seqTxt, bForever, debugPulses);
+    parseSeqTxt(pulser, reps, seqTxt, bForever, debugPulses, reply);
 
     return true;
 }
@@ -302,7 +301,8 @@ parseSeqCGI(Pulser::Pulser &pulser, cgicc::Cgicc& cgi)
 //parse text-encoded pulse sequence
 static bool
 parseSeqTxt(Pulser::Pulser &pulser, unsigned reps,
-            const std::string &seqTxt, bool bForever, bool debugPulses)
+            const std::string &seqTxt, bool bForever, bool debugPulses,
+            const verbosity &reply)
 {
     printPlainResponseHeader();
 
@@ -414,7 +414,7 @@ parseSeqTxt(Pulser::Pulser &pulser, unsigned reps,
 
     auto parse_time = nacsToc();
 
-    gvSTDOUT.printf("Parsed sequence into %zu long program.\n", builder.len());
+    reply.printf("Parsed sequence into %zu long program.\n", builder.len());
 
     if (bForever) {
         nacsLog("Start continuous run.\n");
@@ -465,7 +465,7 @@ parseSeqTxt(Pulser::Pulser &pulser, unsigned reps,
         }
 
         if (g_stop_curr_seq) {
-            gvSTDOUT.printf("Received stop pulse sequences signal.\n");
+            reply.printf("Received stop pulse sequences signal.\n");
             g_stop_curr_seq = false;
             break;
         }
@@ -473,21 +473,20 @@ parseSeqTxt(Pulser::Pulser &pulser, unsigned reps,
 
     auto run_time = nacsToc();
 
-    gvSTDOUT.printf("Finished %d/%d pulse sequences.\n", iRep, reps);
+    reply.printf("Finished %d/%d pulse sequences.\n", iRep, reps);
 
     if (nTimingErrors == 0) {
-        gvSTDOUT.printf("Timing OK\n");
+        reply.printf("Timing OK\n");
     } else {
-        gvSTDOUT.printf("Warning: %d timing failures.\n", nTimingErrors);
+        reply.printf("Warning: %d timing failures.\n", nTimingErrors);
     }
 
-    gvSTDOUT.printf("          Parser time: %9.3Lf ms\n",
-                    (long double)parse_time * 1e-6);
-    gvSTDOUT.printf("       Execution time: %9.3Lf ms\n",
+    reply.printf("          Parser time: %9.3Lf ms\n",
+                 (long double)parse_time * 1e-6);
+    reply.printf("       Execution time: %9.3Lf ms\n",
                     (long double)run_time * 1e-6);
-    gvSTDOUT.printf("Duration of sequences: %9.3Lf ms\n",
-                    iRep * ((long double)builder.curr_t() *
-                            PULSER_DT_ns) * 1e-6);
+    reply.printf("Duration of sequences: %9.3Lf ms\n",
+                 iRep * ((long double)builder.curr_t() * PULSER_DT_ns) * 1e-6);
     return true;
 }
 

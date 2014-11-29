@@ -129,17 +129,6 @@ namespace NaCs {
 
 volatile bool g_stop_curr_seq = false;
 
-verbosity gvSTDOUT(nullptr);
-
-static const char PROG_NAME[] = "molecube";
-
-//atexit handler
-static void
-bye()
-{
-    nacsInfo("bye\n\n");
-}
-
 static void
 handleINT(int)
 {
@@ -185,7 +174,6 @@ main(int argc, char *argv[])
     signal(SIGINT, &handleINT);
     // USR1: stop current pulse sequence
     signal(SIGUSR1, &handleUSR1);
-    atexit(bye); // bye gets called from exit()
 
     //get command line args
     CmdLineArgs cla(argc, argv);
@@ -202,11 +190,9 @@ main(int argc, char *argv[])
         nacsSetLog(fopen(sLogFileName.c_str(), "a"));
     }
 
-    gvSTDOUT = verbosity(&std::cout);
-
     printHeader(nacsGetLog());
 
-    setProgramStatus(PROG_NAME, "Initializing");
+    setProgramStatus("molecube", "Initializing");
 
     time_t rawtime;
     struct tm *timeinfo;
@@ -245,7 +231,7 @@ main(int argc, char *argv[])
             }
 
             try {
-                parseSeqURL(pulser, sStartupSeq);
+                parseSeqURL(pulser, sStartupSeq, verbosity(&std::cout));
             } catch (std::runtime_error e) {
                 nacsError("Startup sequence error:   %s\n", e.what());
             }
@@ -278,16 +264,16 @@ main(int argc, char *argv[])
         FCgiIO IO(request);
         cgicc::Cgicc cgi(&IO);
 
-        gvSTDOUT = verbosity(&std::cout);
+        verbosity reply(&std::cout);
 
         try {
-            if (!parseQueryCGI(pulser, cgi)) {
+            if (!parseQueryCGI(pulser, cgi, reply)) {
                 nacsError("Couldn't understand HTTP request.\n");
             }
         } catch (std::runtime_error e) {
-            gvSTDOUT.printf("Oh noes! \n   %s\n", e.what());
-            gvSTDOUT.printf("%s", getQuote("/usr/local/quotes.frt",
-                                           "%%").c_str());
+            reply.printf("Oh noes! \n   %s\n", e.what());
+            reply.printf("%s", getQuote("/usr/local/quotes.frt",
+                                        "%%").c_str());
         }
 
         nacsLog("================ Finish FastCGI request %d "
