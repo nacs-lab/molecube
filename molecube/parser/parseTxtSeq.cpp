@@ -128,7 +128,7 @@ parseClockOut(Pulser::SequenceBuilder &builder, uint64_t t, std::string &arg1)
         throw std::runtime_error("Bad CLOCK_OUT parameter.");
     }
     builder.handle_curr_ttl(t, 0);
-    builder.curr_t() += PULSER_T_TTL_MIN;
+    builder.curr_t() += PULSER_ENABLE_CLK_DURATION;
     builder.clock_out(divider);
     return true;
 }
