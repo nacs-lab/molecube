@@ -17,7 +17,7 @@ protected:
     bool m_debug;
 public:
     PulserBase(bool debug=false);
-    virtual ~PulserBase() {};
+    virtual ~PulserBase() {}
     void clock_out(unsigned divider);
     void set_dds_two_bytes(int i, uint32_t addr, uint32_t data);
     void set_dds_four_bytes(int i, uint32_t addr, uint32_t data);
@@ -34,9 +34,9 @@ public:
     void set_dds_amp_f(int i, double f);
     void set_dds_phase_f(int i, double f);
 private:
+    static thread_local bool pulser_logging;
     virtual void write_reg(unsigned reg, uint32_t val) = 0;
 protected:
-    static thread_local bool pulser_logging;
     bool log_on();
     ScopeSwap<bool> log_holder();
 };

@@ -48,7 +48,7 @@ Program::short_pulse(uint32_t control, uint32_t operand)
 
 #define ENABLE_TIMING_CHECK (0x08000000)
 
-//! enable timing check for pulses
+// enable timing check for pulses
 NACS_EXPORT void
 Program::enable_timing_check()
 {
@@ -58,7 +58,7 @@ Program::enable_timing_check()
     m_flags = m_flags | ENABLE_TIMING_CHECK;
 }
 
-//! disable timing check for pulses
+// disable timing check for pulses
 NACS_EXPORT void
 Program::disable_timing_check()
 {

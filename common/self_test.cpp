@@ -63,7 +63,7 @@ check_timing(Pulser::Pulser &pulser)
 
     pulser.pulse(100, 0, 0);
 
-    Pulser::Program prog;
+    Pulser::Program prog(true);
     prog.enable_timing_check();
 
     for (j = 0; j < 1000000; j++) {

@@ -301,7 +301,7 @@ parseSeqCGI(Pulser::Pulser &pulser, cgicc::Cgicc& cgi)
 //parse text-encoded pulse sequence
 static bool
 parseSeqTxt(Pulser::Pulser &pulser, unsigned reps,
-            const std::string& seqTxt, bool bForever, bool debugPulses)
+            const std::string &seqTxt, bool bForever, bool debugPulses)
 {
     printPlainResponseHeader();
 
@@ -311,7 +311,7 @@ parseSeqTxt(Pulser::Pulser &pulser, unsigned reps,
 
     clock_t tClock0 = clock();
 
-    Pulser::SequenceBuilder builder;
+    Pulser::SequenceBuilder builder(debugPulses);
     builder.enable_timing_check();
 
     // first parse and load up the pulses vector
