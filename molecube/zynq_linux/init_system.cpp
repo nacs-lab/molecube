@@ -8,7 +8,6 @@
 #include "spi_util.h"
 #include "AD9914.h"
 #include "fpga.h"
-#include <pulse_controller.h>
 
 #include <sys/resource.h>
 #include <errno.h>
@@ -19,7 +18,7 @@ namespace NaCs {
 
 static spi_struct g_spi[NSPI];
 
-volatile void*
+Pulser::Pulser
 init_system()
 {
     std::lock_guard<FLock> fl(g_fPulserLock);
@@ -39,13 +38,13 @@ init_system()
                   nice, errno);
     }
 
-    volatile void *pulse_addr = init_pulse_controller();
-    nacsInfo("Initializing pulse controller at address %p...\n", pulse_addr);
-    PULSER_init(pulse_addr, PULSER_NDDS, false);
+    Pulser::Pulser pulser = get_pulser();
+    nacsInfo("Initializing pulse controller at address %p...\n",
+             pulser.get_base());
+    pulser.init(false);
     nacsLog("Initializing pulse controller...done.\n");
 
-    PULSER_disable_timing_check();
-    PULSER_clear_timing_check(pulse_addr);
+    pulser.clear_timing_check();
 
     bool spi_active_low[4] = {true, true, false, false};
     char spi_clock_phase[4] = {0, 0, 0, 0};
@@ -61,7 +60,7 @@ init_system()
 
     // detect active DDS
     for (unsigned j = 0;j < PULSER_MAX_NDDS;j++) {
-        if (PULSER_dds_exists(pulse_addr, j)) {
+        if (pulser.dds_exists(j)) {
             active_dds.push_back(j);
         }
     }
@@ -69,11 +68,11 @@ init_system()
     // initialize active DDS if necessary
     for (unsigned j = 0;j < active_dds.size();j++) {
         unsigned i = active_dds[j];
-        init_AD9914(pulse_addr, i, false);
-        print_AD9914_registers(pulse_addr, i);
+        init_AD9914(pulser, i, false);
+        print_AD9914_registers(pulser, i);
     }
 
-    return pulse_addr;
+    return pulser;
 }
 
 }

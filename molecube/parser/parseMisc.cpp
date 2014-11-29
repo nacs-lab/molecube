@@ -9,7 +9,6 @@
 #include "parseTxtSeq.h"
 #include "saveloadmap.h"
 #include "AD9914.h"
-#include "dds_pulse.h"
 #include "verbosity.h"
 
 namespace NaCs {
@@ -58,7 +57,7 @@ parseParamsCGI(txtmap_t& params, cgicc::Cgicc& cgi)
 }
 
 static void
-getDeviceParams(volatile void *pulse_addr, const std::string &page,
+getDeviceParams(NaCs::Pulser::Pulser &pulser, const std::string &page,
                 txtmap_t &params)
 {
     std::lock_guard<FLock> fl(g_fPulserLock);
@@ -70,17 +69,17 @@ getDeviceParams(volatile void *pulse_addr, const std::string &page,
 
 
         for (unsigned iDDS = 0;iDDS < PULSER_NDDS;iDDS++) {
-            double f = 1e-6 * DDS_get_freqHz(pulse_addr, iDDS);
+            double f = 1e-6 * pulser.get_dds_freq_f(iDDS);
             snprintf(key, 32, "freq%d", iDDS);
             snprintf(val, 32, "%.6f MHz", f);
             params[key] = val;
 
-            double A = DDS_get_amp(pulse_addr, iDDS);
+            double A = pulser.get_dds_amp_f(iDDS);
             snprintf(key, 32, "tude%d", iDDS);
             snprintf(val, 32, "%.4f", A);
             params[key] = val;
 
-            double phase = DDS_get_phase_deg(pulse_addr, iDDS);
+            double phase = pulser.get_dds_phase_f(iDDS);
             snprintf(key, 32, "phase%d", iDDS);
             snprintf(val, 32, "%.3f deg", phase);
             params[key] = val;
@@ -89,7 +88,7 @@ getDeviceParams(volatile void *pulse_addr, const std::string &page,
 }
 
 static void
-setDeviceParams(volatile void *pulse_addr, const std::string &page,
+setDeviceParams(NaCs::Pulser::Pulser &pulser, const std::string &page,
                 const txtmap_t &params)
 {
     std::lock_guard<FLock> fl(g_fPulserLock);
@@ -107,38 +106,39 @@ setDeviceParams(volatile void *pulse_addr, const std::string &page,
             if (pos != params.end()) {
                 double f = 1e6 * atof(pos->second.c_str());
                 nacsLog("DDS setfreq(%d): %12.3f\n", iDDS, f);
-                DDS_set_freqHz(pulse_addr, iDDS, f);
-                unsigned ftw = PULSER_get_dds_freq(pulse_addr, iDDS);
+                pulser.set_dds_freq_f(iDDS, f);
+                unsigned ftw = pulser.get_dds_freq(iDDS);
+                double freq_get =
+                    Pulser::DDSConverter::num2freq(ftw, PULSER_AD9914_CLK);
                 nacsLog("DDS getfreq(%d): %12.3f  (ftw = %08X)\n",
-                        iDDS, Pulser::DDSConverter::num2freq(
-                            ftw, PULSER_AD9914_CLK), ftw);
+                        iDDS, freq_get, ftw);
             }
 
             // "amp" doesn't work with jQuery (special meaning? jQuery bug?)
             sprintf(buff, "tude%d", iDDS);
             pos = params.find(buff);
-            if(pos != params.end()) {
+            if (pos != params.end()) {
                 double A = atof(pos->second.c_str());
                 A = nacsBound(0, A, 1);
                 nacsLog("DDS setamp (%d): %6.3f %%\n", iDDS, A*100);
-                DDS_set_amp(pulse_addr, iDDS, A);
+                pulser.set_dds_amp_f(iDDS, A);
             }
 
             sprintf(buff, "phase%d", iDDS);
             pos = params.find(buff);
-            if(pos != params.end()) {
+            if (pos != params.end()) {
                 double phase = atof(pos->second.c_str());
                 nacsLog("DDS setphase(%d): %9.3f degrees\n", iDDS, phase);
-                DDS_set_phase_deg(pulse_addr, iDDS, phase);
+                pulser.set_dds_phase_f(iDDS, phase);
             }
 
             sprintf(buff, "reset%d", iDDS);
             pos = params.find(buff);
             if(pos != params.end()) {
                 nacsLog("DDS reset/init (%d)\n", iDDS);
-                init_AD9914(pulse_addr, iDDS, true);
-                //fprintf(gLog, "DDS test (%d)\n", iDDS);
-                //print_AD9914_registers(pulse_addr, iDDS, gLog);
+                NaCs::init_AD9914(pulser, iDDS, true);
+                // fprintf(gLog, "DDS test (%d)\n", iDDS);
+                // print_AD9914_registers(pulser, iDDS, gLog);
             }
         }
     }
@@ -154,7 +154,7 @@ setDeviceParams(volatile void *pulse_addr, const std::string &page,
             unsigned lo = 0;
             sscanf(posLo->second.c_str(), "%x", &lo);
 
-            PULSER_set_ttl(pulse_addr, hi, lo);
+            pulser.set_ttl_mask(hi, lo);
             nacsLog("set TTL ttlHiMask=%08X  ttlLoMask=%08X\n", hi, lo);
         }
     }
@@ -175,7 +175,7 @@ stream_vect_to_JSON_array(std::ostream& os, const V& v)
 }
 
 bool
-parseQueryCGI(volatile void *pulse_addr, cgicc::Cgicc &cgi)
+parseQueryCGI(NaCs::Pulser::Pulser &pulser, cgicc::Cgicc &cgi)
 {
     cgicc::form_iterator cmd = cgi.getElement("command");
     cgicc::form_iterator page = cgi.getElement("page");
@@ -186,7 +186,7 @@ parseQueryCGI(volatile void *pulse_addr, cgicc::Cgicc &cgi)
         if ((**cmd) == "getTTL") {
             printJSONResponseHeader();
             unsigned lo, hi;
-            PULSER_get_ttl(pulse_addr, &hi, &lo);
+            pulser.get_ttl_mask(&hi, &lo);
 
             char buff[64];
             sprintf(buff, "{\"lo\":%u, \"hi\":%u}", lo, hi);
@@ -231,7 +231,7 @@ parseQueryCGI(volatile void *pulse_addr, cgicc::Cgicc &cgi)
             if (sPage.length()) {
                 txtmap_t params;
                 loadMap(params, "/home/www/userdata/params_" + sPage);
-                getDeviceParams(pulse_addr, sPage, params);
+                getDeviceParams(pulser, sPage, params);
                 dumpMapHTML(params, std::cout);
                 return true;
             } else {
@@ -239,7 +239,7 @@ parseQueryCGI(volatile void *pulse_addr, cgicc::Cgicc &cgi)
             }
         }
 
-        if ((**cmd) == "setDeviceParams" &&  page != cgi.getElements().end()) {
+        if ((**cmd) == "setDeviceParams" && page != cgi.getElements().end()) {
             printPlainResponseHeader();
 
             std::string sPage = **page;
@@ -248,7 +248,7 @@ parseQueryCGI(volatile void *pulse_addr, cgicc::Cgicc &cgi)
             if (sPage.length()) {
                 txtmap_t params;
                 if (parseParamsCGI(params, cgi)) {
-                    setDeviceParams(pulse_addr, sPage, params);
+                    setDeviceParams(pulser, sPage, params);
                     return true;
                 }
             } else {
@@ -257,7 +257,7 @@ parseQueryCGI(volatile void *pulse_addr, cgicc::Cgicc &cgi)
         }
 
         if ((**cmd) == "runseq") {
-            parseSeqCGI(pulse_addr, cgi);
+            parseSeqCGI(pulser, cgi);
             return true;
         }
         return false;

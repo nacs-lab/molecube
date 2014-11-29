@@ -216,7 +216,7 @@ main(int argc, char *argv[])
     timeinfo = localtime(&rawtime);
     nacsInfo("Current time: (UTC) %s\n", asctime(timeinfo));
 
-    volatile void *pulse_addr = init_system();
+    auto pulser = init_system();
 
     FCGX_Request request;
 
@@ -246,7 +246,7 @@ main(int argc, char *argv[])
             }
 
             try {
-                parseSeqURL(pulse_addr, sStartupSeq);
+                parseSeqURL(pulser, sStartupSeq);
             } catch (std::runtime_error e) {
                 nacsError("Startup sequence error:   %s\n", e.what());
             }
@@ -282,7 +282,7 @@ main(int argc, char *argv[])
         gvSTDOUT = verbosity(&std::cout);
 
         try {
-            if (!parseQueryCGI(pulse_addr, cgi)) {
+            if (!parseQueryCGI(pulser, cgi)) {
                 nacsError("Couldn't understand HTTP request.\n");
             }
         } catch (std::runtime_error e) {

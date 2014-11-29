@@ -7,6 +7,7 @@
 #include <nacs-utils/log.h>
 
 #include <stdexcept>
+#include <inttypes.h>
 
 namespace NaCs {
 namespace Pulser {
@@ -15,11 +16,13 @@ static bool
 check_program(const uint32_t *prog, size_t len) noexcept
 {
     if (!prog || !len || len % 2 != 0) {
+        nacsError("prog: %p, len: %zu", prog, len);
         return false;
     }
-    for (size_t i = 0;i < len;i++) {
+    for (size_t i = 0;i < len;i += 2) {
         int32_t offset = prog[i] - PULSER_USER_SLV_SPACE_OFFSET;
         if (nacsUnlikely(offset < 0 || offset >= 32 * 4)) {
+            nacsError("i: %zu, offset: %" PRIi32, i, offset);
             return false;
         }
     }

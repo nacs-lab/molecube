@@ -22,7 +22,7 @@ public:
     void clear_timing_check();
     void set_dds_freq(int i, uint32_t ftw);
     void set_dds_amp(int i, uint32_t amp);
-    void set_dds_phase(int i, uint16_t phase);
+    virtual void set_dds_phase(int i, uint16_t phase);
     void dds_reset(int i);
     void set_ttl_mask(uint32_t high_mask, uint32_t low_mask);
     virtual void short_pulse(uint32_t control, uint32_t operand);

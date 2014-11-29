@@ -26,11 +26,11 @@ set(SOURCES ${SOURCES}
   # ../common/self_test.cpp
   ../common/string_func.cpp)
 
-# Drivers
-include_directories(../drivers)
+# # Drivers
+# include_directories(../drivers)
 
-set(SOURCES ${SOURCES}
-  ../drivers/pulse_controller.c)
+# set(SOURCES ${SOURCES}
+#   ../drivers/pulse_controller.c)
 
 add_executable(molecube ${SOURCES})
 

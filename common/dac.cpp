@@ -86,14 +86,14 @@ void SetDAC_AD5668(spi_p spi, unsigned channel, unsigned dacWord)
 // set DDS phase and frequnecy (28-bit register set via two consecutive
 // 16-bit transfers)
 void
-SetDDS_AD9833(spi_p spi, volatile void *pulse_addr, unsigned setType,
+SetDDS_AD9833(spi_p spi, Pulser::Pulser &pulser, unsigned setType,
               unsigned ddsPhase, unsigned ddsFreq)
 {
     unsigned tx = 0;
     unsigned rc = 0;
     unsigned short temp = 0;
     bool useSB(0), resetSB(0), setFreq(0);
-    //bool setPhase(0);
+    // bool setPhase(0);
     unsigned high_mask0, low_mask0, low_mask(0), updateDDS(0);
 
     // extract boolean values from input arguments
@@ -103,64 +103,67 @@ SetDDS_AD9833(spi_p spi, volatile void *pulse_addr, unsigned setType,
     //setPhase = bool((setType >> 1) & 1);
     updateDDS = (setType & 12) << 4 ;
 
-    //set TTL mask to control which DDSs get updated (TTLs control the FSYNC pin for the serial communication)
-    PULSER_get_ttl(pulse_addr, &high_mask0, &low_mask0);  // get current TTL mask
+    // set TTL mask to control which DDSs get updated
+    // (TTLs control the FSYNC pin for the serial communication)
+    pulser.get_ttl_mask(&high_mask0, &low_mask0); // get current TTL mask
     low_mask = low_mask0;
     low_mask = low_mask | updateDDS;
 
-
-    if(useSB) { // use DDS
+    if (useSB) { // use DDS
         if(resetSB) { // reset DDS phase to value stored in the phase register
             tx = (0x100) << 16;
 
-            PULSER_set_ttl(pulse_addr, high_mask0, low_mask);
+            pulser.set_ttl_mask(high_mask0, low_mask);
             usleep(1);
             SPI_Transmit(spi, &tx, &rc, 2); //write the reset command
-            PULSER_set_ttl(pulse_addr, high_mask0, low_mask0);
+            pulser.set_ttl_mask(high_mask0, low_mask0);
 
             usleep(3);  //reset needs 7 to 8 clock cycles to take effect
             tx = 0;
 
-            PULSER_set_ttl(pulse_addr, high_mask0, low_mask);
+            pulser.set_ttl_mask(high_mask0, low_mask);
             usleep(1);
             SPI_Transmit(spi, &tx, &rc, 2); //take AD9833 out of reset mode
-            PULSER_set_ttl(pulse_addr, high_mask0, low_mask0);
+            pulser.set_ttl_mask(high_mask0, low_mask0);
         }
         if (setFreq) { //update the DDS phase and frequency
 
             tx |= (0x2000) << 16; // write a full 28-bit frequency word
 
-            PULSER_set_ttl(pulse_addr, high_mask0, low_mask);
+            pulser.set_ttl_mask(high_mask0, low_mask);
             SPI_Transmit(spi, &tx, &rc, 2);
-            PULSER_set_ttl(pulse_addr, high_mask0, low_mask0);
+            pulser.set_ttl_mask(high_mask0, low_mask0);
 
             temp = ddsFreq;
             temp = temp << 2;
             tx = (0x01) << 30; // write to frequency register 0
             tx |= (temp) << 14; // 14-bit DAC word
 
-            PULSER_set_ttl(pulse_addr, high_mask0, low_mask);
-            SPI_Transmit(spi, &tx, &rc, 2); //write the 14 least significant frequency bits
-            PULSER_set_ttl(pulse_addr, high_mask0, low_mask0);
+            pulser.set_ttl_mask(high_mask0, low_mask);
+            //write the 14 least significant frequency bits
+            SPI_Transmit(spi, &tx, &rc, 2);
+            pulser.set_ttl_mask(high_mask0, low_mask0);
 
             temp = ddsFreq >> 14;
             temp = temp << 2;
             tx = (0x01) << 30; // write to frequency register 0
             tx |= (temp) << 14; // 14-bit DAC word
 
-            PULSER_set_ttl(pulse_addr, high_mask0, low_mask);
-            SPI_Transmit(spi, &tx, &rc, 2); //write the 14 most significant frequnecy bits
-            PULSER_set_ttl(pulse_addr, high_mask0, low_mask0);
+            pulser.set_ttl_mask(high_mask0, low_mask);
+            //write the 14 most significant frequnecy bits
+            SPI_Transmit(spi, &tx, &rc, 2);
+            pulser.set_ttl_mask(high_mask0, low_mask0);
 
             temp = ddsPhase;
             temp = temp << 4;
             tx = (0x03) << 30;
             tx |= (temp) << 12;
-            //printf("Phase transmit = %i\n", unsigned(tx));
+            // printf("Phase transmit = %i\n", unsigned(tx));
 
-            PULSER_set_ttl(pulse_addr, high_mask0, low_mask);
-            SPI_Transmit(spi, &tx, &rc, 2); //write 12 bits to the phase register
-            PULSER_set_ttl(pulse_addr, high_mask0, low_mask0);
+            pulser.set_ttl_mask(high_mask0, low_mask);
+            //write 12 bits to the phase register
+            SPI_Transmit(spi, &tx, &rc, 2);
+            pulser.set_ttl_mask(high_mask0, low_mask0);
         }
     } else { // turn off DDS
         tx = (0x100) << 16;

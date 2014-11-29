@@ -5,14 +5,22 @@
  *      Author: trosen
  */
 
+#include <nacs-pulser/pulser.h>
+
 #ifndef SELF_TEST_H_
 #define SELF_TEST_H_
 
-namespace self_test {
-//check pulse controller register n
-bool check_register(volatile void *pulse_addr, char n);
-bool check_timing(volatile void *pulse_addr);
-bool other_test(volatile void *pulse_addr);
-};
+namespace NaCs {
 
-#endif /* SELF_TEST_H_ */
+namespace self_test {
+
+//check pulse controller register n
+bool check_register(Pulser::Pulser &pulser, int n);
+bool check_timing(Pulser::Pulser &pulser);
+bool other_test(Pulser::Pulser &pulser);
+
+}
+
+}
+
+#endif
