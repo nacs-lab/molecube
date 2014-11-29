@@ -28,7 +28,7 @@ struct DDSConverter {
     static NACS_INLINE constexpr uint32_t
     freq2num(double f, double clock)
     {
-        return static_cast<uint32_t>(0.5 + f * pow2_32 / clock);
+        return static_cast<uint32_t>(0.5 + f / clock * (1 / pow2_32));
     }
 
     static constexpr double phase_num = (1 << 14) / 90.0;
@@ -36,7 +36,7 @@ struct DDSConverter {
     static NACS_INLINE constexpr uint16_t
     phase2num(double phase)
     {
-        return static_cast<uint16_t>(phase * phase_num + 0.5);
+        return 0xFFFF & static_cast<uint16_t>(phase * phase_num + 0.5);
     }
 
     static NACS_INLINE constexpr double
@@ -48,7 +48,7 @@ struct DDSConverter {
     static NACS_INLINE constexpr uint32_t
     amp2num(double amp)
     {
-        return static_cast<uint32_t>(amp * 4095.0 + 0.5);
+        return 0x0FFF & static_cast<uint32_t>(amp * 4095.0 + 0.5);
     }
 
     static NACS_INLINE constexpr double
