@@ -317,6 +317,8 @@ parseSeqTxt(Pulser::Pulser &pulser, unsigned reps,
     // first parse and load up the pulses vector
     std::stringstream ss0(seqTxt);
 
+    // long double and double are the same on ARM
+    // Both should be precise enough (2^-52 or ~1 ps in 1 hour)
     long double tSoFar = 0;
     bool use_dt = true;
 
