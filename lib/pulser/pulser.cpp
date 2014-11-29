@@ -63,6 +63,8 @@ run_program(volatile void *base, const uint32_t *prog, size_t len) noexcept
     return 0;
 }
 
+// make short timed pulses
+// FPGA can only handle pulse lengths up to t_max = 0x001FFFFF (about 40 ms)
 void
 PulserBase::short_pulse(uint32_t control, uint32_t operand)
 {
