@@ -204,17 +204,18 @@ PulserBase::set_ttl_mask(uint32_t high_mask, uint32_t low_mask)
 void
 Pulser::debug_regs()
 {
-    fprintf(stderr, "PULSE_CONTROLLER registers:\n");
+    FILE *logf = nacsGetLog();
+    fprintf(logf, "PULSE_CONTROLLER registers:\n");
     for (unsigned i = 0;i < 31;i++) {
         if (i % 4 == 0) {
-            fprintf(stderr, "[%2d...%2d]: ", i, i + 3);
+            fprintf(logf, "[%2d...%2d]: ", i, i + 3);
         }
-        fprintf(stderr, "%08X ", read_reg(i));
+        fprintf(logf, "%08X ", read_reg(i));
         if (i % 4 == 3) {
-            printf("\n");
+            fprintf(logf, "\n");
         }
     }
-    printf("\n");
+    fprintf(logf, "\n");
 }
 
 void
