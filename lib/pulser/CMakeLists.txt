@@ -1,6 +1,7 @@
 set(nacs_pulser_SRCS
   pulser.cpp
-  program.cpp)
+  program.cpp
+  sequence.cpp)
 set(nacs_pulser_LINKS nacs-utils pthread)
 
 configure_file(pulser-config.h.in pulser-config.h @ONLY)
