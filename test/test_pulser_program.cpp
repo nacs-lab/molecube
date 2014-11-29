@@ -1,16 +1,13 @@
 #include <nacs-utils/timer.h>
-
 #include <nacs-pulser/pulser.h>
 #include <nacs-pulser/sequence.h>
-
-#include <init_platform.h>
 
 using namespace NaCs;
 
 int
 main()
 {
-    Pulser::Pulser pulser = get_pulser();
+    auto pulser = Pulser::get_pulser();
     Pulser::SequenceBuilder builder;
     builder.enable_timing_check();
 

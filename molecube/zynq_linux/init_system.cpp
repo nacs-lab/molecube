@@ -1,5 +1,4 @@
 #include "init_system.h"
-#include "init_platform.h"
 
 #include <nacs-utils/log.h>
 
@@ -38,7 +37,7 @@ init_system()
                   nice, errno);
     }
 
-    Pulser::Pulser pulser = get_pulser();
+    auto pulser = Pulser::get_pulser();
     nacsInfo("Initializing pulse controller at address %p...\n",
              pulser.get_base());
     pulser.init(false);

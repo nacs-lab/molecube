@@ -5,6 +5,8 @@
 
 #include <nacs-utils/number.h>
 #include <nacs-utils/log.h>
+#include <nacs-utils/fd_utils.h>
+#include <nacs-xspi/xparameters.h>
 
 #include <stdexcept>
 #include <inttypes.h>
@@ -345,6 +347,28 @@ uint32_t
 Pulser::get_dds_amp(int i)
 {
     return get_dds_two_bytes(i, 0x32);
+}
+
+static intptr_t
+get_phys_addr()
+{
+    // Can also be determined by looking for
+    // /proc/device-tree/amba@0/pulse-controller@73000000
+    // with propery device tree file.
+
+    return XPAR_PULSE_CONTROLLER_0_BASEADDR;
+}
+
+NACS_EXPORT Pulser
+get_pulser()
+{
+    nacsInfo("Initializing pulse controller\n");
+    auto addr = nacsMapFile("/dev/mem", get_phys_addr(), 4096);
+    if (nacsUnlikely(!addr)) {
+        nacsError("Can't map the memory to user space.\n");
+        exit(0);
+    }
+    return Pulser(addr);
 }
 
 }

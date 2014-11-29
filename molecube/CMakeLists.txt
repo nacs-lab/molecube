@@ -7,7 +7,6 @@ set(SOURCES
   parser/parseMisc.cpp
   parser/parseTxtSeq.cpp
   parser/saveloadmap.cpp
-  zynq_linux/init_platform.cpp
   zynq_linux/init_system.cpp
   zynq_linux/main.cpp)
 

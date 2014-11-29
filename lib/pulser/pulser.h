@@ -106,6 +106,8 @@ private:
     void release_hold();
 };
 
+Pulser get_pulser();
+
 NACS_INLINE double
 Pulser::get_dds_freq_f(int i)
 {
