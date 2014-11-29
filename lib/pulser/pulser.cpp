@@ -43,7 +43,7 @@ run_program_real(volatile void *base, const uint32_t *__restrict__ prog,
         auto addr = *p;
         p++;
         auto val = *p;
-        __builtin_prefetch(p + 1);
+        __builtin_prefetch(p + 3);
         PULSER_mWriteReg(base, addr, val);
     }
 }

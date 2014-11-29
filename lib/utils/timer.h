@@ -30,7 +30,7 @@ uint64_t nacsGetElapse(uint64_t prev);
 void nacsTic();
 uint64_t nacsToc();
 
-#define nacsPrintTime(time) nacsForceLog("Time: %" PRTime "\n", time)
+#define nacsPrintTime(time) nacsLog("Time: %" PRTime "\n", time)
 #define nacsPrintElapse(prev) nacsPrintTime(nacsGetElapse(prev))
 #define nacsPrintToc() nacsPrintTime(nacsToc())
 
