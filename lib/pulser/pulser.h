@@ -13,12 +13,15 @@ namespace Pulser {
 class BaseProgram;
 
 class NACS_EXPORT PulserBase {
+protected:
+    bool m_debug;
 public:
+    PulserBase(bool debug=false);
     virtual ~PulserBase() {};
     void clock_out(unsigned divider);
     void set_dds_two_bytes(int i, uint32_t addr, uint32_t data);
     void set_dds_four_bytes(int i, uint32_t addr, uint32_t data);
-    void pulse(unsigned t, unsigned flags, unsigned operand);
+    void pulse(uint64_t t, unsigned flags, unsigned operand);
     void clear_timing_check();
     void set_dds_freq(int i, uint32_t ftw);
     void set_dds_amp(int i, uint32_t amp);
@@ -30,12 +33,31 @@ public:
     void set_dds_freq_f(int i, double f);
     void set_dds_amp_f(int i, double f);
     void set_dds_phase_f(int i, double f);
-protected:
-    void raw_pulse(uint32_t control, uint32_t operand);
-    void dds_reset(unsigned i);
 private:
     virtual void write_reg(unsigned reg, uint32_t val) = 0;
+protected:
+    static thread_local bool pulser_logging;
+    bool log_on();
+    ScopeSwap<bool> log_holder();
 };
+
+NACS_INLINE ScopeSwap<bool>
+PulserBase::log_holder()
+{
+    return make_scope_swap(pulser_logging, true);
+}
+
+NACS_INLINE bool
+PulserBase::log_on()
+{
+    return m_debug && !pulser_logging;
+}
+
+NACS_INLINE
+PulserBase::PulserBase(bool debug)
+    : m_debug(debug)
+{
+}
 
 NACS_INLINE void
 PulserBase::set_dds_freq_f(int i, double f)
@@ -60,18 +82,10 @@ class NACS_EXPORT Pulser : public PulserBase {
     std::atomic_bool m_running;
     Pulser() = delete;
     Pulser(const Pulser&) = delete;
-    Pulser &operator=(const Pulser&) = delete;
+    void operator=(const Pulser&) = delete;
 public:
-    Pulser(Pulser &&other)
-        : m_base(other.m_base),
-        m_running(other.m_running.exchange(false))
-        {
-        }
-    Pulser(volatile void *base)
-        : m_base(base),
-        m_running(false)
-        {
-        }
+    Pulser(Pulser &&other);
+    Pulser(volatile void *base, bool debug=false);
     ~Pulser() {}
     void init(bool reset);
     void run(const BaseProgram &prog);
@@ -90,21 +104,47 @@ public:
     uint32_t get_dds_freq(int i);
     uint32_t get_dds_phase(int i);
     uint32_t get_dds_amp(int i);
-    volatile void*
-        get_base() const
-    {
-        return m_base;
-    }
+    volatile void *get_base() const;
 
     double get_dds_freq_f(int i);
     double get_dds_phase_f(int i);
     double get_dds_amp_f(int i);
+
+    bool &debug();
 private:
     uint32_t num_results();
     void debug_regs();
     bool is_finished();
     void release_hold();
 };
+
+NACS_INLINE bool&
+Pulser::debug()
+{
+    return m_debug;
+}
+
+NACS_INLINE
+Pulser::Pulser(Pulser &&other)
+    : PulserBase(static_cast<PulserBase&&>(other)),
+      m_base(other.m_base),
+      m_running(other.m_running.exchange(false))
+{
+}
+
+NACS_INLINE
+Pulser::Pulser(volatile void *base, bool debug)
+    : PulserBase(debug),
+      m_base(base),
+      m_running(false)
+{
+}
+
+NACS_INLINE volatile void*
+Pulser::get_base() const
+{
+    return m_base;
+}
 
 Pulser get_pulser();
 

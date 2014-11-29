@@ -5,6 +5,7 @@
 
 #include <nacs-utils/number.h>
 #include <nacs-utils/log.h>
+#include <nacs-utils/timer.h>
 #include <nacs-utils/fd_utils.h>
 #include <nacs-xspi/xparameters.h>
 
@@ -13,6 +14,8 @@
 
 namespace NaCs {
 namespace Pulser {
+
+thread_local bool PulserBase::pulser_logging = false;
 
 static bool
 check_program(const uint32_t *prog, size_t len) noexcept
@@ -61,22 +64,14 @@ run_program(volatile void *base, const uint32_t *prog, size_t len) noexcept
 }
 
 void
-PulserBase::raw_pulse(uint32_t control, uint32_t operand)
-{
-    write_reg(31, operand);
-    write_reg(31, control);
-}
-
-void
-PulserBase::dds_reset(unsigned i)
-{
-    short_pulse(0x10000004 | (i << 4), 0);
-}
-
-void
 PulserBase::short_pulse(uint32_t control, uint32_t operand)
 {
-    raw_pulse(control, operand);
+    if (log_on()) {
+        nacsLog("Short Pulse control=%x, operand=%x\n", control, operand);
+    }
+    auto holder = log_holder();
+    write_reg(31, operand);
+    write_reg(31, control);
 }
 
 // enable / disable clock_out
@@ -86,6 +81,10 @@ PulserBase::short_pulse(uint32_t control, uint32_t operand)
 void
 PulserBase::clock_out(unsigned divider)
 {
+    if (log_on()) {
+        nacsLog("Clock out %u\n", divider);
+    }
+    auto holder = log_holder();
     short_pulse(0x50000000, divider & 0xFF);
 }
 
@@ -94,6 +93,10 @@ PulserBase::clock_out(unsigned divider)
 void
 PulserBase::set_dds_two_bytes(int i, uint32_t addr, uint32_t data)
 {
+    if (log_on()) {
+        nacsLog("Set DDS(%d) two bytes addr=%x, data=%x\n", i, addr, data);
+    }
+    auto holder = log_holder();
     // put addr in bits 15...9 (maps to DDS opcode_reg[14:9] )?
     uint32_t dds_addr = (addr + 1) & 0x7F;
     // put data in bits 15...0 (maps to DDS operand_reg[15:0] )?
@@ -105,6 +108,10 @@ PulserBase::set_dds_two_bytes(int i, uint32_t addr, uint32_t data)
 void
 PulserBase::set_dds_four_bytes(int i, uint32_t addr, uint32_t data)
 {
+    if (log_on()) {
+        nacsLog("Set DDS(%d) four bytes addr=%x, data=%x\n", i, addr, data);
+    }
+    auto holder = log_holder();
     //put addr in bits 15...9 (maps to DDS opcode_reg[14:9])?
     uint32_t dds_addr = (addr + 1) & 0x7F;
     short_pulse(0x1000000F | (i << 4) | (dds_addr << 9), data);
@@ -114,8 +121,13 @@ PulserBase::set_dds_four_bytes(int i, uint32_t addr, uint32_t data)
 //if t > t_max, subdivide into shorter pulses
 //returns number of pulses made
 void
-PulserBase::pulse(unsigned t, unsigned flags, unsigned operand)
+PulserBase::pulse(uint64_t t, unsigned flags, unsigned operand)
 {
+    if (log_on()) {
+        nacsLog("Long pulse t=%" PRTime ", flags=%x, operand=%x\n",
+                t, flags, operand);
+    }
+    auto holder = log_holder();
     static const unsigned t_max = 0x001FFFFF;
     do {
         unsigned t_step = nacsMin(t, t_max);
@@ -128,18 +140,30 @@ PulserBase::pulse(unsigned t, unsigned flags, unsigned operand)
 void
 PulserBase::clear_timing_check()
 {
+    if (log_on()) {
+        nacsLog("Clear timing check");
+    }
+    auto holder = log_holder();
     short_pulse(0x30000000, 0);
 }
 
 void
 PulserBase::set_dds_freq(int i, uint32_t ftw)
 {
+    if (log_on()) {
+        nacsLog("Set DDS(%d) frequency %x", i, ftw);
+    }
+    auto holder = log_holder();
     short_pulse(0x10000000 | (i << 4), ftw);
 }
 
 void
 PulserBase::set_dds_amp(int i, uint32_t amp)
 {
+    if (log_on()) {
+        nacsLog("Set DDS(%d) amplitude %x", i, amp);
+    }
+    auto holder = log_holder();
     set_dds_two_bytes(i, 0x32, amp);
 }
 
@@ -147,12 +171,20 @@ PulserBase::set_dds_amp(int i, uint32_t amp)
 void
 PulserBase::dds_reset(int i)
 {
+    if (log_on()) {
+        nacsLog("Reset DDS(%i)\n", i);
+    }
+    auto holder = log_holder();
     short_pulse(0x10000004 | (i << 4), 0);
 }
 
 void
 PulserBase::set_dds_phase(int i, uint16_t phase)
 {
+    if (log_on()) {
+        nacsLog("Set DDS(%i) phase %" PRId16 "\n", i, phase);
+    }
+    auto holder = log_holder();
     set_dds_two_bytes(i, 0x30, phase);
 }
 
@@ -160,6 +192,11 @@ PulserBase::set_dds_phase(int i, uint16_t phase)
 void
 PulserBase::set_ttl_mask(uint32_t high_mask, uint32_t low_mask)
 {
+    if (log_on()) {
+        nacsLog("Set TTL mask low=%" PRIx32 ", high=%" PRIx32 "\n",
+                low_mask, high_mask);
+    }
+    auto holder = log_holder();
     write_reg(0, high_mask);
     write_reg(1, low_mask);
 }
@@ -183,6 +220,9 @@ Pulser::debug_regs()
 void
 Pulser::write_reg(unsigned reg, uint32_t val)
 {
+    if (log_on()) {
+        nacsLog("Write Register(%u), %" PRIx32 "\n", reg, val);
+    }
     PULSER_mWriteSlaveReg(m_base, reg, val);
 }
 
@@ -195,7 +235,8 @@ Pulser::read_reg(unsigned reg)
 void
 Pulser::init(bool reset)
 {
-    if (nacsCheckLogLevel(NACS_LOG_INFO)) {
+    if (log_on()) {
+        auto holder = log_holder();
         debug_regs();
     }
 

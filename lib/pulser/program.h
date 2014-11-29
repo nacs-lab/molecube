@@ -51,11 +51,7 @@ class NACS_EXPORT Program : public BaseProgram, public PulserBase {
     uint32_t m_flags;
     uint16_t m_phases[32];
 public:
-    Program()
-        : BaseProgram(),
-          m_flags(0)
-    {
-    }
+    Program(bool debug=false);
     void short_pulse(uint32_t control, uint32_t operand) override;
     void enable_timing_check();
     void disable_timing_check();
@@ -66,6 +62,14 @@ public:
 private:
     void write_reg(unsigned reg, uint32_t val) override;
 };
+
+NACS_INLINE
+Program::Program(bool debug)
+    : BaseProgram(),
+      PulserBase(debug),
+      m_flags(0)
+{
+}
 
 NACS_INLINE void
 Program::shift_dds_phase_f(int i, double p)

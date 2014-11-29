@@ -3,6 +3,7 @@
 
 #include <nacs-utils/number.h>
 #include <nacs-utils/log.h>
+#include <nacs-utils/timer.h>
 
 #include <stdexcept>
 
@@ -33,6 +34,9 @@ Program::write_reg(unsigned reg, uint32_t val)
     if (reg >= 32) {
         throw std::runtime_error("Register number out of range.");
     }
+    if (log_on()) {
+        nacsLog("Write Register(%u), %" PRIx32 "\n", reg, val);
+    }
     writes(PULSER_SLV_REG_OFFSET(reg), val);
 }
 
@@ -48,6 +52,9 @@ Program::short_pulse(uint32_t control, uint32_t operand)
 NACS_EXPORT void
 Program::enable_timing_check()
 {
+    if (log_on()) {
+        nacsLog("Enable timing check\n");
+    }
     m_flags = m_flags | ENABLE_TIMING_CHECK;
 }
 
@@ -55,6 +62,9 @@ Program::enable_timing_check()
 NACS_EXPORT void
 Program::disable_timing_check()
 {
+    if (log_on()) {
+        nacsLog("Disable timing check\n");
+    }
     m_flags = m_flags & ~ENABLE_TIMING_CHECK;
 }
 
@@ -75,6 +85,10 @@ Program::set_dds_phase(int i, uint16_t phase)
 NACS_EXPORT void
 Program::shift_dds_phase(int i, uint16_t phase)
 {
+    if (log_on()) {
+        nacsLog("Shift DDS(%i) phase %" PRId16 "\n", i, phase);
+    }
+    auto holder = log_holder();
     // TODO: let's see what is the ``documented'' behavior of the set
     // phase command
     m_phases[i] += phase;
