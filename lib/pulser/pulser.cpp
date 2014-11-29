@@ -143,7 +143,7 @@ void
 PulserBase::clear_timing_check()
 {
     if (log_on()) {
-        nacsLog("Clear timing check");
+        nacsLog("Clear timing check\n");
     }
     auto holder = log_holder();
     short_pulse(0x30000000, 0);
@@ -153,7 +153,7 @@ void
 PulserBase::set_dds_freq(int i, uint32_t ftw)
 {
     if (log_on()) {
-        nacsLog("Set DDS(%d) frequency %x", i, ftw);
+        nacsLog("Set DDS(%d) frequency %x\n", i, ftw);
     }
     auto holder = log_holder();
     short_pulse(0x10000000 | (i << 4), ftw);
@@ -163,7 +163,7 @@ void
 PulserBase::set_dds_amp(int i, uint32_t amp)
 {
     if (log_on()) {
-        nacsLog("Set DDS(%d) amplitude %x", i, amp);
+        nacsLog("Set DDS(%d) amplitude %x\n", i, amp);
     }
     auto holder = log_holder();
     set_dds_two_bytes(i, 0x32, amp);
@@ -425,11 +425,11 @@ Pulser::test_regs()
             test_val = test_val + ((i * 0xF) << (j * 4));
         }
 
-        nacsLog("Testing %08X   ", test_val);
+        nacsLog("Testing %08X ...\n", test_val);
         for (int k = 0;k < 8;k++) {
             write_reg(k, test_val);
             unsigned read = read_reg(k);
-            nacsLog("SR%d = %08X   ", k, read);
+            nacsLog("    SR%d = %08X\n", k, read);
             sr_ok = sr_ok && (read == test_val);
         }
 
@@ -459,10 +459,10 @@ Pulser::self_test(int ndds, int cycle)
             test_pass = test_pass && test_dds(i);
         }
 
-        nacsLog("Testing %d random read/writes on DDS boards 0-%d ... ",
+        nacsLog("Testing %d random read/writes on DDS boards 0-%d ...\n",
                 cycle, ndds - 1);
 
-        //initialize to 0 Hz
+        // initialize to 0 Hz
         for (int i = 0;i < ndds;i++) {
             ftw[i] = 0;
             set_dds_freq(i, 0);
