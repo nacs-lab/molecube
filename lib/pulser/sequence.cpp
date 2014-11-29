@@ -1,6 +1,7 @@
 #include "sequence.h"
 
 #include <nacs-utils/log.h>
+#include <nacs-utils/timer.h>
 
 #include <stdexcept>
 
@@ -10,6 +11,10 @@ namespace Pulser {
 NACS_EXPORT void
 SequenceBuilder::finish_ttl()
 {
+    if (log_on()) {
+        nacsLog("Finish TTL\n");
+    }
+    auto holder = log_holder();
     if (m_has_ttl) {
         //disable timing check prior to last pulse
         disable_timing_check();
@@ -21,6 +26,10 @@ SequenceBuilder::finish_ttl()
 NACS_EXPORT void
 SequenceBuilder::push_ttl_all(uint64_t t, uint32_t val)
 {
+    if (log_on()) {
+        nacsLog("Push TTL all t=%" PRTime ", val=%" PRIx32 "\n", t, val);
+    }
+    auto holder = log_holder();
     if (m_has_ttl) {
         make_curr_ttl(t);
     }
@@ -33,6 +42,11 @@ SequenceBuilder::push_ttl_all(uint64_t t, uint32_t val)
 NACS_EXPORT void
 SequenceBuilder::push_ttl(uint64_t t, unsigned chn, bool val)
 {
+    if (log_on()) {
+        nacsLog("Push TTL(%u) t=%" PRTime ", val=%s\n", chn, t,
+                val ? "true" : "false");
+    }
+    auto holder = log_holder();
     push_ttl_all(t, nacsSetBit(m_next_ttl, chn, val));
 }
 
