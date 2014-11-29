@@ -10,7 +10,7 @@ typedef XSpi *spi_p;
 void Spi_Transfer(spi_p spi, unsigned char *tx, unsigned char *rc,
                   unsigned nBytes);
 
-int SPI_init(spi_p spi, unsigned id, bool bActiveLow, char clockPhase);
+int SPI_init(spi_p spi, uint16_t id, bool bActiveLow, char clockPhase);
 unsigned SPI_Transmit(spi_p spi, unsigned *dataTX, unsigned *dataRC,
                       unsigned nBytes);
 

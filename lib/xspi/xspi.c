@@ -143,7 +143,6 @@ int XSpi_CfgInitialize(XSpi *InstancePtr, XSpi_Config *Config,
                        volatile char *EffectiveAddr)
 {
     uint8_t  Buffer[3];
-    uint32_t ControlReg;
 
     assert(InstancePtr != NULL);
 
@@ -191,7 +190,7 @@ int XSpi_CfgInitialize(XSpi *InstancePtr, XSpi_Config *Config,
      * be used to deselect all slaves, initialize the value to put into
      * the slave select register to this value.
      */
-    InstancePtr->SlaveSelectMask = (1 << InstancePtr->NumSlaveBits) - 1;
+    InstancePtr->SlaveSelectMask = (1u << InstancePtr->NumSlaveBits) - 1;
     InstancePtr->SlaveSelectReg = InstancePtr->SlaveSelectMask;
 
     /*
@@ -204,12 +203,12 @@ int XSpi_CfgInitialize(XSpi *InstancePtr, XSpi_Config *Config,
     InstancePtr->Stats.BytesTransferred = 0;
     InstancePtr->Stats.NumInterrupts = 0;
 
-    if(Config->Use_Startup == 1) {
+    if (Config->Use_Startup == 1) {
         /*
          * Perform a dummy read this is used when startup block is
          * enabled in the hardware to fix CR #721229.
          */
-        ControlReg = XSpi_GetControlReg(InstancePtr);
+        uint32_t ControlReg = XSpi_GetControlReg(InstancePtr);
         ControlReg |= XSP_CR_TXFIFO_RESET_MASK | XSP_CR_RXFIFO_RESET_MASK |
             XSP_CR_ENABLE_MASK | XSP_CR_MASTER_MODE_MASK ;
         XSpi_SetControlReg(InstancePtr, ControlReg);
@@ -278,8 +277,6 @@ int XSpi_CfgInitialize(XSpi *InstancePtr, XSpi_Config *Config,
 NACS_EXPORT int
 XSpi_Start(XSpi *InstancePtr)
 {
-    uint32_t ControlReg;
-
     assert(InstancePtr != NULL);
     assert(InstancePtr->IsReady == XSPI_IS_READY);
 
@@ -307,9 +304,9 @@ XSpi_Start(XSpi *InstancePtr)
      * context. So we wait until after the r/m/w of the control register to
      * enable the Global Interrupt Enable.
      */
-    ControlReg = XSpi_GetControlReg(InstancePtr);
-    ControlReg |= XSP_CR_TXFIFO_RESET_MASK | XSP_CR_RXFIFO_RESET_MASK |
-        XSP_CR_ENABLE_MASK;
+    uint32_t ControlReg = XSpi_GetControlReg(InstancePtr);
+    ControlReg |= (XSP_CR_TXFIFO_RESET_MASK | XSP_CR_RXFIFO_RESET_MASK |
+                   XSP_CR_ENABLE_MASK);
     XSpi_SetControlReg(InstancePtr, ControlReg);
 
     /*
@@ -341,9 +338,9 @@ XSpi_Start(XSpi *InstancePtr)
  * @param	InstancePtr is a pointer to the XSpi instance to be worked on.
  *
  * @return
- * 		- XST_SUCCESS if the device is successfully started.
- *		- XST_DEVICE_BUSY if a transfer is in progress and cannot be
- *		  stopped.
+ *              - XST_SUCCESS if the device is successfully started.
+ *              - XST_DEVICE_BUSY if a transfer is in progress and cannot be
+ *                stopped.
  *
  * @note
  *
@@ -514,12 +511,6 @@ NACS_EXPORT int
 XSpi_Transfer(XSpi *InstancePtr, uint8_t *SendBufPtr, uint8_t *RecvBufPtr,
               unsigned int ByteCount)
 {
-    uint32_t ControlReg;
-    uint32_t GlobalIntrReg;
-    uint32_t StatusReg;
-    uint32_t Data = 0;
-    uint8_t  DataWidth;
-
     /*
      * The RecvBufPtr argument can be NULL.
      */
@@ -546,7 +537,7 @@ XSpi_Transfer(XSpi *InstancePtr, uint8_t *SendBufPtr, uint8_t *RecvBufPtr,
     /*
      * Save the Global Interrupt Enable Register.
      */
-    GlobalIntrReg = XSpi_IsIntrGlobalEnabled(InstancePtr);
+    uint32_t GlobalIntrReg = XSpi_IsIntrGlobalEnabled(InstancePtr);
 
     /*
      * Enter a critical section from here to the end of the function since
@@ -555,7 +546,7 @@ XSpi_Transfer(XSpi *InstancePtr, uint8_t *SendBufPtr, uint8_t *RecvBufPtr,
      */
     XSpi_IntrGlobalDisable(InstancePtr);
 
-    ControlReg = XSpi_GetControlReg(InstancePtr);
+    uint32_t ControlReg = XSpi_GetControlReg(InstancePtr);
 
     /*
      * If configured as a master, be sure there is a slave select bit set
@@ -597,7 +588,7 @@ XSpi_Transfer(XSpi *InstancePtr, uint8_t *SendBufPtr, uint8_t *RecvBufPtr,
     InstancePtr->RequestedBytes = ByteCount;
     InstancePtr->RemainingBytes = ByteCount;
 
-    DataWidth = InstancePtr->DataWidth;
+    uint8_t DataWidth = InstancePtr->DataWidth;
 
     /*
      * Fill the DTR/FIFO with as many bytes as it will take (or as many as
@@ -606,8 +597,8 @@ XSpi_Transfer(XSpi *InstancePtr, uint8_t *SendBufPtr, uint8_t *RecvBufPtr,
      * the size of the FIFO or that there even is a FIFO. The downside is
      * that the status register must be read each loop iteration.
      */
-    StatusReg = XSpi_GetStatusReg(InstancePtr);
-
+    uint32_t StatusReg = XSpi_GetStatusReg(InstancePtr);
+    uint32_t Data = 0;
     while (((StatusReg & XSP_SR_TX_FULL_MASK) == 0) &&
            (InstancePtr->RemainingBytes > 0)) {
         if (DataWidth == XSP_DATAWIDTH_BYTE) {
@@ -1083,7 +1074,6 @@ void XSpi_InterruptHandler(void *InstancePtr)
     uint32_t IntrStatus;
     unsigned int BytesDone;	/* number of bytes done so far */
     uint32_t Data = 0;
-    uint32_t ControlReg;
     uint32_t StatusReg;
     uint8_t  DataWidth;
 
@@ -1142,9 +1132,8 @@ void XSpi_InterruptHandler(void *InstancePtr)
          * transmitter while the Isr re-fills the transmit
          * register/FIFO, or make sure it is stopped if we're done.
          */
-        ControlReg = XSpi_GetControlReg(SpiPtr);
-        XSpi_SetControlReg(SpiPtr, ControlReg |
-                           XSP_CR_TRANS_INHIBIT_MASK);
+        uint32_t ControlReg = XSpi_GetControlReg(SpiPtr);
+        XSpi_SetControlReg(SpiPtr, ControlReg | XSP_CR_TRANS_INHIBIT_MASK);
 
         /*
          * First get the data received as a result of the transmit that
@@ -1343,8 +1332,6 @@ void XSpi_InterruptHandler(void *InstancePtr)
  ******************************************************************************/
 void XSpi_Abort(XSpi *InstancePtr)
 {
-    uint16_t ControlReg;
-
     /*
      * Deselect the slave on the SPI bus to abort a transfer, this must be
      * done before the device is disabled such that the signals which are
@@ -1357,7 +1344,7 @@ void XSpi_Abort(XSpi *InstancePtr)
      * fault condition by reading the status register (done) then
      * writing the control register.
      */
-    ControlReg = XSpi_GetControlReg(InstancePtr);
+    uint32_t ControlReg = XSpi_GetControlReg(InstancePtr);
 
     /*
      * Stop any transmit in progress and reset the FIFOs if they exist,

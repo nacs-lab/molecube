@@ -146,14 +146,15 @@ template<> bool from_string<bool>(const std::string& s)
 }
 
 static void
-eat_non_numeric_or_zero(std::istream* i)
+eat_non_numeric_or_zero(std::istream *i)
 {
     while (1) {
-        char c = i->peek();
-        if (strchr("123456789", c))
+        char c = char(i->peek());
+        if (strchr("123456789", c)) {
             break;
-        else
+        } else {
             i->get(c);
+        }
     }
 }
 

@@ -737,7 +737,7 @@ XSpi_GetSlaveSelectReg(XSpi *self)
 static NACS_INLINE void
 XSpi_Enable(XSpi *self)
 {
-    uint16_t ctrl;
+    uint32_t ctrl;
     ctrl = XSpi_GetControlReg(self);
     ctrl |= XSP_CR_ENABLE_MASK;
     ctrl &= ~XSP_CR_TRANS_INHIBIT_MASK;

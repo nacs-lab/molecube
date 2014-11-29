@@ -130,9 +130,9 @@ PulserBase::pulse(uint64_t t, unsigned flags, unsigned operand)
                 t, flags, operand);
     }
     auto holder = log_holder();
-    static const unsigned t_max = 0x001FFFFF;
+    static const uint32_t t_max = 0x001FFFFF;
     do {
-        unsigned t_step = nacsMin(t, t_max);
+        uint32_t t_step = uint32_t(nacsMin(t, t_max));
         short_pulse(t_step | flags, operand);
         t -= t_step;
     } while (t > 0);
@@ -520,14 +520,14 @@ Pulser::test_dds(int i)
         }
     }
 
-    for (unsigned phase = 0;phase < 0x4000;phase++) {
+    for (uint16_t phase = 0;phase < 0x4000;phase++) {
         set_dds_phase(i, phase);
         unsigned read = get_dds_phase(i);
 
         phase_ok = phase_ok && (read == phase);
 
         if (read != phase) {
-            nacsError("DDS(%d) wrote PHASE %04X\n", i, phase);
+            nacsError("DDS(%d) wrote PHASE %04X\n", i, (unsigned)phase);
             nacsError("DDS(%d)  read PHASE %04X\n", i, read);
         }
     }

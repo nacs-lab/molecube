@@ -48,7 +48,7 @@ init_system()
     bool spi_active_low[4] = {true, true, false, false};
     char spi_clock_phase[4] = {0, 0, 0, 0};
 
-    for (int i = 0; i < NSPI; i++) {
+    for (uint16_t i = 0; i < NSPI; i++) {
         nacsInfo("Initializing SPI %d.\n", i);
         SPI_init(g_spi + i, i, spi_active_low[i], spi_clock_phase[i]);
     }

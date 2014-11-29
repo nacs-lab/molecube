@@ -2,7 +2,9 @@
 
 #include <nacs-utils/log.h>
 #include <nacs-xspi/xspi_l.h>
+
 #include <endian.h>
+#include <inttypes.h>
 
 #define DEBUG_SPI (0)
 
@@ -72,31 +74,31 @@ int SPI_SetSlaveSelect(spi_p  InstancePtr, unsigned SlaveMask)
 }
 
 int
-SPI_init(spi_p spi, unsigned id, bool bActiveLow, char clockPhase)
+SPI_init(spi_p spi, uint16_t id, bool bActiveLow, char clockPhase)
 {
     int s = XSpi_Initialize(spi, id);
 
     //not sure why the driver sometimes returns XST_DEVICE_IS_STARTED on startup
     if (XST_DEVICE_IS_STARTED == s) {
-        nacsLog("spi<%d> already started. Stopping...\n", id);
+        nacsLog("spi<%" PRIu16 "> already started. Stopping...\n", id);
 
         //Xilinx docs say to stop device and re-initialize
         XSpi_Stop(spi);
         s = XSpi_Initialize(spi, id);
     }
     if (XST_SUCCESS == s) {
-        nacsInfo("spi<%d> initialized successfully\n", id);
-        nacsInfo("spi<%d> base address: %p\n", id, spi->BaseAddr);
+        nacsInfo("spi<%" PRIu16 "> initialized successfully\n", id);
+        nacsInfo("spi<%" PRIu16 "> base address: %p\n", id, spi->BaseAddr);
 
         if (bActiveLow) {
-            nacsInfo("spi<%d> active low\n", id);
+            nacsInfo("spi<%" PRIu16 "> active low\n", id);
         } else {
-            nacsInfo("spi<%d> active high\n", id);
+            nacsInfo("spi<%" PRIu16 "> active high\n", id);
         }
 
-        nacsInfo("spi<%d> clock phase = %d\n", id, (int)clockPhase);
+        nacsInfo("spi<%" PRIu16 "> clock phase = %d\n", id, (int)clockPhase);
     } else {
-        nacsError("spi<%d> failed to initialize\n", id);
+        nacsError("spi<%" PRIu16 "> failed to initialize\n", id);
     }
 
     /*
@@ -121,8 +123,7 @@ SPI_init(spi_p spi, unsigned id, bool bActiveLow, char clockPhase)
     XSpi_IntrGlobalDisable(spi);
 
     //turn off inhibit
-    uint16_t ControlReg;
-    ControlReg = XSpi_GetControlReg(spi);
+    uint32_t ControlReg = XSpi_GetControlReg(spi);
     ControlReg &= ~XSP_CR_TRANS_INHIBIT_MASK;
     XSpi_SetControlReg(spi,  ControlReg);
 
@@ -137,7 +138,6 @@ uint16_t SPI_Transfer2(spi_p InstancePtr, uint16_t tx)
     // printf("SPI_Transfer2\n");
 
     uint16_t rcv;
-    uint8_t StatusReg;
 
     /*
      * Set the busy flag, which will be cleared when the transfer
@@ -155,6 +155,7 @@ uint16_t SPI_Transfer2(spi_p InstancePtr, uint16_t tx)
      * Wait for the transfer to be done by polling the transmit
      * empty status bit
      */
+    uint32_t StatusReg;
     do {
         StatusReg = XSpi_GetStatusReg(InstancePtr);
     } while ((StatusReg & XSP_SR_TX_EMPTY_MASK) == 0);
@@ -173,8 +174,6 @@ uint16_t SPI_Transfer2(spi_p InstancePtr, uint16_t tx)
 uint16_t SPI_Transfer_ADS8361(spi_p  InstancePtr, unsigned tx)
 {
     uint32_t rcv;
-    uint16_t out;
-    uint8_t StatusReg;
 
     /*
      * Set the busy flag, which will be cleared when the transfer
@@ -190,6 +189,7 @@ uint16_t SPI_Transfer_ADS8361(spi_p  InstancePtr, unsigned tx)
      * Wait for the transfer to be done by polling the transmit
      * empty status bit
      */
+    uint32_t StatusReg;
     do {
         StatusReg = XSpi_GetStatusReg(InstancePtr);
     } while ((StatusReg & XSP_SR_TX_EMPTY_MASK) == 0);
@@ -201,9 +201,7 @@ uint16_t SPI_Transfer_ADS8361(spi_p  InstancePtr, unsigned tx)
 
     InstancePtr->IsBusy = false;
 
-    out = (rcv >> 12) + 32768;
-
-    return out;
+    return uint16_t((rcv >> 12) + 32768);
 }
 
 void Spi_Transfer(spi_p spi, uint8_t* tx, uint8_t* rc, unsigned nBytes)

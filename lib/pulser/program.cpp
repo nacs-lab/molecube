@@ -91,7 +91,7 @@ Program::shift_dds_phase(int i, uint16_t phase)
     auto holder = log_holder();
     // TODO: let's see what is the ``documented'' behavior of the set
     // phase command
-    m_phases[i] += phase;
+    m_phases[i] = uint16_t(m_phases[i] + phase);
     set_dds_phase(i, m_phases[i]);
 }
 

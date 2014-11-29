@@ -47,7 +47,7 @@ SequenceBuilder::push_ttl(uint64_t t, unsigned chn, bool val)
                 val ? "true" : "false");
     }
     auto holder = log_holder();
-    push_ttl_all(t, nacsSetBit(m_next_ttl, chn, val));
+    push_ttl_all(t, nacsSetBit(m_next_ttl, uint8_t(chn), val));
 }
 
 /**
@@ -68,16 +68,15 @@ SequenceBuilder::handle_curr_ttl(uint64_t t_new, uint64_t t_min)
         }
 
         if (t_new < t_start) {
-            nacsError("Pulse too short @ t = %.2f us.\n",
-                      t_new * PULSER_DT_us);
-            nacsError("Previous t = %.2f us.  Earliest is t = %.2f us.\n",
-                      m_curr_t * PULSER_DT_us, t_start * PULSER_DT_us);
+            nacsError("Pulse too short @ t = %.2Lf us.\n",
+                      (long double)t_new * PULSER_DT_us);
+            nacsError("Previous t = %.2Lf us.  Earliest is t = %.2Lf us.\n",
+                      (long double)m_curr_t * PULSER_DT_us,
+                      (long double)t_start * PULSER_DT_us);
             throw std::runtime_error("The pulse at t = " +
-                                     std::to_string(t_new * PULSER_DT_us) +
+                                     std::to_string((long double)t_new *
+                                                    PULSER_DT_us) +
                                      " us is too early.  ");
-        } else if (t_new > UINT32_MAX) {
-            nacsError("timer overflow @ t = %.2f us.\n", t_new * PULSER_DT_us);
-            throw std::runtime_error("Sequence too long.");
         }
 
         ttl_pulse(t_new - m_curr_t - t_min, m_next_ttl);
@@ -92,10 +91,11 @@ NACS_EXPORT void
 SequenceBuilder::ttl_pulse(uint64_t t, uint32_t ttl)
 {
     if (t < PULSER_T_TTL_MIN) {
-        nacsError("TTL pulse 0x%08X too short: %.2f us\n",
-                  ttl, t * PULSER_DT_us);
+        nacsError("TTL pulse 0x%08X too short: %.2Lf us\n",
+                  ttl, (long double)t * PULSER_DT_us);
         throw std::runtime_error("The pulse at t = " +
-                                 std::to_string(t * PULSER_DT_us) +
+                                 std::to_string((long double)t *
+                                                PULSER_DT_us) +
                                  " us is too short or early.");
     }
     pulse(t, 0, ttl);
@@ -105,13 +105,14 @@ NACS_EXPORT void
 SequenceBuilder::make_curr_ttl(uint64_t t_end)
 {
     if (t_end < m_curr_t + PULSER_T_TTL_MIN) {
-        nacsError("TTL pulse too short at t_end = %.2f us.\n",
-                  t_end * PULSER_DT_us);
-        nacsError("Previous t = %.2f us.  Earliest is %.2f us.\n",
-                  m_curr_t * PULSER_DT_us,
-                  (PULSER_T_TTL_MIN + m_curr_t) * PULSER_DT_us);
+        nacsError("TTL pulse too short at t_end = %.2Lf us.\n",
+                  (long double)t_end * PULSER_DT_us);
+        nacsError("Previous t = %.2Lf us.  Earliest is %.2Lf us.\n",
+                  (long double)m_curr_t * PULSER_DT_us,
+                  (long double)(PULSER_T_TTL_MIN + m_curr_t) * PULSER_DT_us);
         throw std::runtime_error("The pulse at t = " +
-                                 std::to_string(t_end * PULSER_DT_us) +
+                                 std::to_string((long double)t_end *
+                                                PULSER_DT_us) +
                                  " us is too early.");
     }
     ttl_pulse(t_end - m_curr_t, m_next_ttl);

@@ -40,7 +40,7 @@ struct DDSConverter {
     }
 
     static NACS_INLINE constexpr double
-    num2phase(uint16_t num)
+    num2phase(uint32_t num)
     {
         return num * (1 / phase_num);
     }

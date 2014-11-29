@@ -121,9 +121,9 @@ parseClockOut(Pulser::SequenceBuilder &builder, uint64_t t, std::string &arg1)
     }
 
     if (divider < 0 || divider > 255) {
-        nacsError("Error at t = %6.3f us.  "
+        nacsError("Error at t = %6.3Lf us.  "
                   "CLOCK_OUT accepts parameter off or 1 ... 255\n",
-                  t * PULSER_DT_us);
+                  (long double)t * PULSER_DT_us);
         throw std::runtime_error("Bad CLOCK_OUT parameter.");
     }
     builder.handle_curr_ttl(t, 0);
@@ -317,7 +317,7 @@ parseSeqTxt(Pulser::Pulser &pulser, unsigned reps,
     // first parse and load up the pulses vector
     std::stringstream ss0(seqTxt);
 
-    double tSoFar = 0;
+    long double tSoFar = 0;
     bool use_dt = true;
 
     while (!ss0.eof()) {
@@ -339,7 +339,7 @@ parseSeqTxt(Pulser::Pulser &pulser, unsigned reps,
         // otherwise parse the line
         std::stringstream ssL(line);
 
-        double new_t;
+        long double new_t;
         std::string strPrior;
 
         // valid lines will start with "dt = " or "t = "
@@ -424,7 +424,7 @@ parseSeqTxt(Pulser::Pulser &pulser, unsigned reps,
     // now run the pulses
     // update status string every 500 ms
     const unsigned updateStatusModulo =
-        500000000 / (builder.curr_t() * PULSER_DT_ns);
+        500000000 / unsigned((long double)builder.curr_t() * PULSER_DT_ns);
     unsigned nTimingErrors = 0;
 
     for (iRep = 0;iRep < reps || bForever;iRep++) {
@@ -482,8 +482,9 @@ parseSeqTxt(Pulser::Pulser &pulser, unsigned reps,
                     (tClock1 - tClock0) * 0.001);
     gvSTDOUT.printf("       Execution time: %9.3f ms\n",
                     (tClock2 - tClock1) * 0.001);
-    gvSTDOUT.printf("Duration of sequences: %9.3f ms\n",
-                    iRep * (builder.curr_t() * PULSER_DT_ns) * 1e-6);
+    gvSTDOUT.printf("Duration of sequences: %9.3Lf ms\n",
+                    iRep * ((long double)builder.curr_t() *
+                            PULSER_DT_ns) * 1e-6);
     return true;
 }
 

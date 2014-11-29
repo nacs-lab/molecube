@@ -17,7 +17,7 @@ set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS)
 set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS)
 
 add_definitions(-Wall -Wextra -g -pthread -fvisibility=hidden
-  -O2 -flto -fno-math-errno)
+  -O2 -flto -fno-math-errno -Wconversion)
 
 cmake_c_fix_include_path(lib/utils nacs-utils)
 cmake_c_fix_include_path(lib/xspi nacs-xspi)
