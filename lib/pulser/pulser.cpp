@@ -201,6 +201,27 @@ PulserBase::set_ttl_mask(uint32_t high_mask, uint32_t low_mask)
     write_reg(1, low_mask);
 }
 
+// reset DDS selected by bitmask mask
+void
+PulserBase::reset_dds_sel(uint32_t mask)
+{
+    if (log_on()) {
+        nacsLog("Reset DDS selection mask %" PRIx32 "\n", mask);
+    }
+    auto holder = log_holder();
+    short_pulse(0x10000005, mask);
+}
+
+void
+PulserBase::set_dds_sel(uint32_t mask)
+{
+    if (log_on()) {
+        nacsLog("Set DDS selection mask %" PRIx32 "\n", mask);
+    }
+    auto holder = log_holder();
+    short_pulse(0x10000006, mask);
+}
+
 void
 Pulser::debug_regs()
 {

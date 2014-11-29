@@ -33,6 +33,9 @@ public:
     void set_dds_freq_f(int i, double f);
     void set_dds_amp_f(int i, double f);
     void set_dds_phase_f(int i, double f);
+
+    void reset_dds_sel(uint32_t mask);
+    void set_dds_sel(uint32_t mask);
 private:
     static thread_local bool pulser_logging;
     virtual void write_reg(unsigned reg, uint32_t val) = 0;
