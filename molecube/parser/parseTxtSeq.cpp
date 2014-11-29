@@ -15,6 +15,7 @@
 
 #include <nacs-pulser/sequence.h>
 #include <nacs-utils/log.h>
+#include <nacs-utils/timer.h>
 
 #include <sstream>
 #include <string>
@@ -309,7 +310,7 @@ parseSeqTxt(Pulser::Pulser &pulser, unsigned reps,
         nacsLog("Parsing pulse sequence:%s\n", seqTxt.c_str());
     }
 
-    clock_t tClock0 = clock();
+    nacsTic();
 
     Pulser::SequenceBuilder builder(debugPulses);
     builder.enable_timing_check();
@@ -411,6 +412,8 @@ parseSeqTxt(Pulser::Pulser &pulser, unsigned reps,
     }
     builder.finish_ttl();
 
+    auto parse_time = nacsToc();
+
     gvSTDOUT.printf("Parsed sequence into %zu long program.\n", builder.len());
 
     if (bForever) {
@@ -419,16 +422,14 @@ parseSeqTxt(Pulser::Pulser &pulser, unsigned reps,
         nacsLog("Run %d sequences.\n", reps);
     }
 
-    unsigned iRep;
-
-    clock_t tClock1 = clock();
+    nacsTic();
 
     // now run the pulses
     // update status string every 500 ms
     const unsigned updateStatusModulo =
         500000000 / unsigned((long double)builder.curr_t() * PULSER_DT_ns);
     unsigned nTimingErrors = 0;
-
+    unsigned iRep;
     for (iRep = 0;iRep < reps || bForever;iRep++) {
         char buff[64];
 
@@ -470,7 +471,7 @@ parseSeqTxt(Pulser::Pulser &pulser, unsigned reps,
         }
     }
 
-    clock_t tClock2 = clock();
+    auto run_time = nacsToc();
 
     gvSTDOUT.printf("Finished %d/%d pulse sequences.\n", iRep, reps);
 
@@ -480,10 +481,10 @@ parseSeqTxt(Pulser::Pulser &pulser, unsigned reps,
         gvSTDOUT.printf("Warning: %d timing failures.\n", nTimingErrors);
     }
 
-    gvSTDOUT.printf("          Parser time: %9.3f ms\n",
-                    (tClock1 - tClock0) * 0.001);
-    gvSTDOUT.printf("       Execution time: %9.3f ms\n",
-                    (tClock2 - tClock1) * 0.001);
+    gvSTDOUT.printf("          Parser time: %9.3Lf ms\n",
+                    (long double)parse_time * 1e-6);
+    gvSTDOUT.printf("       Execution time: %9.3Lf ms\n",
+                    (long double)run_time * 1e-6);
     gvSTDOUT.printf("Duration of sequences: %9.3Lf ms\n",
                     iRep * ((long double)builder.curr_t() *
                             PULSER_DT_ns) * 1e-6);

@@ -19,7 +19,6 @@
 #include <unistd.h>
 #include <errno.h>
 #include <sys/types.h>
-#include <time.h>
 #include <signal.h>
 #include <fcntl.h>
 

@@ -1,12 +1,10 @@
-#include <string>
+#include "string_func.h"
+
 #include <stdexcept>
 #include <cstring>
 #include <sstream>
-#include <time.h>
 #include <cstdlib>
 #include <cstdio>
-
-#include "string_func.h"
 
 const char* polName(int p)
 {
