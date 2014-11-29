@@ -391,6 +391,133 @@ Pulser::get_dds_amp(int i)
     return get_dds_two_bytes(i, 0x32);
 }
 
+bool
+Pulser::test_regs()
+{
+    bool sr_ok = 1;
+    for (int i = 0;i < 2;i++) {
+        unsigned test_val = 0;
+
+        for (int j = 0;j < 8;j++) {
+            test_val = test_val + ((i * 0xF) << (j * 4));
+        }
+
+        nacsLog("Testing %08X   ", test_val);
+        for (int k = 0;k < 8;k++) {
+            write_reg(k, test_val);
+            unsigned read = read_reg(k);
+            nacsLog("SR%d = %08X   ", k, read);
+            sr_ok = sr_ok && (read == test_val);
+        }
+
+        if (sr_ok) {
+            nacsLog("OK\n");
+        } else {
+            nacsError("FAILED\n");
+        }
+    }
+    return sr_ok;
+}
+
+bool
+Pulser::self_test(int ndds, int cycle)
+{
+    if (nacsUnlikely(ndds <= 0)) {
+        return true;
+    }
+    unsigned ftw[ndds];
+    unsigned nBad = 0;
+
+    bool test_pass = test_regs();
+    nacsLog("\n");
+
+    if (cycle > 0) {
+        for (int i = 0;i < ndds;i++) {
+            test_pass = test_pass && test_dds(i);
+        }
+
+        nacsLog("Testing %d random read/writes on DDS boards 0-%d ... ",
+                cycle, ndds - 1);
+
+        //initialize to 0 Hz
+        for (int i = 0;i < ndds;i++) {
+            ftw[i] = 0;
+            set_dds_freq(i, 0);
+        }
+
+        for (int j = 0;j < cycle;j++) {
+            int i = rand() % ndds;
+            unsigned ftw_read = get_dds_freq(i);
+
+            if (ftw_read != ftw[i]) {
+                test_pass = false;
+                nacsError("DDS %d : wrote FTW %08X\n", i, ftw[i]);
+                nacsError("          read FTW %08X\n", ftw_read);
+                nBad++;
+            }
+
+            ftw[i] = rand();
+            set_dds_freq(i, ftw[i]);
+        }
+
+        for (int i = 0;i < ndds;i++) {
+            set_dds_freq(i, 0);
+        }
+
+        if (nBad == 0) {
+            nacsLog("OK\n");
+        } else {
+            nacsError("FAILURE: %d errors\n", nBad);
+        }
+    }
+    return test_pass;
+}
+
+bool
+Pulser::test_dds(int i)
+{
+    int freq_ok = 1;
+    int phase_ok = 1;
+
+    nacsLog("Testing DDS(%d) ...\n", i);
+    for (int i = 0;i < 2;i++) {
+        unsigned test_val = 0;
+
+        for (int j = 0;j < 8;j++) {
+            test_val = test_val + ((i * 0xF) << (j * 4));
+        }
+
+        set_dds_freq(i, test_val);
+        unsigned read = get_dds_freq(i);
+        freq_ok = freq_ok && (read == test_val);
+
+        if (read != test_val) {
+            nacsError("DDS(%d) wrote FTW %08X\n", i, test_val);
+            nacsError("DDS(%d)  read FTW %08X\n", i, read);
+        }
+    }
+
+    for (unsigned phase = 0;phase < 0x4000;phase++) {
+        set_dds_phase(i, phase);
+        unsigned read = get_dds_phase(i);
+
+        phase_ok = phase_ok && (read == phase);
+
+        if (read != phase) {
+            nacsError("DDS(%d) wrote PHASE %04X\n", i, phase);
+            nacsError("DDS(%d)  read PHASE %04X\n", i, read);
+        }
+    }
+
+    if (freq_ok && phase_ok) {
+        nacsLog("DDS %d OK\n", i);
+    } else {
+        nacsError("DDS %d FAILED\n", i);
+    }
+
+    return freq_ok && phase_ok;
+}
+
 static intptr_t
 get_phys_addr()
 {
