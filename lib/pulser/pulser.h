@@ -94,6 +94,18 @@ public:
     void write_reg(unsigned reg, uint32_t val) override;
     uint32_t read_reg(unsigned reg);
     uint32_t pop_result();
+
+    /**
+     * Timing-check functions to help figure out if experiment timing is being
+     * met. Timing failure will occur if the pulse buffer underflows.
+     *
+     * While timing_check flag is enabled, all pulses that are sent to the
+     * Pulser are considered time-critical.  If a pulse finishes, and there is
+     * not another pulse waiting in the buffer, a timing error is stored in one
+     * of the status registers. This can be detected by calling timing_ok
+     * (returns false if a timing error occured). The error status can be
+     * cleared by calling clear_timing_check.
+     */
     bool timing_ok();
     void set_hold();
     uint32_t get_dds_byte(int i, uint32_t address);
