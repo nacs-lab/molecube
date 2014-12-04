@@ -257,7 +257,7 @@ main(int argc, char *argv[])
         fcgi_streambuf cout_fcgi_streambuf(request.out);
         fcgi_streambuf cerr_fcgi_streambuf(request.err);
 
-        //   cin.rdbuf(&cin_fcgi_streambuf);
+        // std::cin.rdbuf(&cin_fcgi_streambuf);
         std::cout.rdbuf(&cout_fcgi_streambuf);
         std::cerr.rdbuf(&cerr_fcgi_streambuf);
 
