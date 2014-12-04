@@ -68,6 +68,7 @@ run_program(volatile void *base, const uint32_t *prog, size_t len) noexcept
 void
 PulserBase::short_pulse(uint32_t control, uint32_t operand)
 {
+    PulserLocker lock(this);
     if (log_on()) {
         nacsLog("Short Pulse control=%x, operand=%x\n", control, operand);
     }
@@ -131,6 +132,7 @@ PulserBase::pulse(uint64_t t, unsigned flags, unsigned operand)
     }
     auto holder = log_holder();
     static const uint32_t t_max = 0x001FFFFF;
+    PulserLocker lock(this);
     do {
         uint32_t t_step = uint32_t(nacsMin(t, t_max));
         short_pulse(t_step | flags, operand);
@@ -199,6 +201,7 @@ PulserBase::set_ttl_mask(uint32_t high_mask, uint32_t low_mask)
                 low_mask, high_mask);
     }
     auto holder = log_holder();
+    PulserLocker lock(this);
     write_reg(0, high_mask);
     write_reg(1, low_mask);
 }
@@ -227,6 +230,7 @@ PulserBase::set_dds_sel(uint32_t mask)
 void
 Pulser::debug_regs()
 {
+    PulserLocker lock(this);
     FILE *logf = nacsGetLog();
     fprintf(logf, "PULSE_CONTROLLER registers:\n");
     for (unsigned i = 0;i < 31;i++) {
@@ -278,6 +282,7 @@ Pulser::run(const BaseProgram &prog)
     if (m_running.exchange(true)) {
         throw std::runtime_error("Already running.");
     }
+    PulserLocker lock(this);
     if (run_program(m_base, prog.program(), prog.len()) != 0) {
         throw std::runtime_error("Invalid program.");
     }
@@ -293,6 +298,7 @@ Pulser::is_finished()
 void
 Pulser::release_hold()
 {
+    PulserLocker lock(this);
     write_reg(3, read_reg(3) & ~0x00000080);
 }
 
@@ -300,6 +306,7 @@ Pulser::release_hold()
 void
 Pulser::set_hold()
 {
+    PulserLocker lock(this);
     write_reg(3, read_reg(3) | 0x00000080);
 }
 
@@ -309,6 +316,7 @@ Pulser::wait()
     if (!m_running.exchange(false)) {
         throw std::runtime_error("Not running.");
     }
+    PulserLocker lock(this);
     release_hold();
     while (!is_finished()) {
     }
@@ -318,6 +326,7 @@ Pulser::wait()
 void
 Pulser::get_ttl_mask(uint32_t *high_mask, uint32_t *low_mask)
 {
+    PulserLocker lock(this);
     *high_mask = read_reg(0);
     *low_mask = read_reg(1);
 }
@@ -331,6 +340,7 @@ Pulser::num_results()
 uint32_t
 Pulser::pop_result()
 {
+    PulserLocker lock(this);
     while (num_results() == 0) {
     }
     return read_reg(31);
@@ -347,6 +357,7 @@ Pulser::timing_ok()
 uint32_t
 Pulser::get_dds_byte(int i, uint32_t address)
 {
+    PulserLocker lock(this);
     short_pulse(0x10000003 | (i << 4) | (address << 9), 0);
     return (pop_result() >> 8) & 0x000000ff;
 }
@@ -355,6 +366,7 @@ Pulser::get_dds_byte(int i, uint32_t address)
 uint32_t
 Pulser::get_dds_two_bytes(int i, unsigned address)
 {
+    PulserLocker lock(this);
     short_pulse(0x10000003 | (i << 4) | ((address + 1) << 9), 0);
     return pop_result() & 0x0000ffff;
 }
@@ -363,6 +375,7 @@ Pulser::get_dds_two_bytes(int i, unsigned address)
 uint32_t
 Pulser::get_dds_four_bytes(int i, unsigned address)
 {
+    PulserLocker lock(this);
     short_pulse(0x1000000E | (i << 4) | ((address + 1) << 9), 0);
     return pop_result();
 }
@@ -371,6 +384,7 @@ Pulser::get_dds_four_bytes(int i, unsigned address)
 void
 Pulser::toggle_init()
 {
+    PulserLocker lock(this);
     unsigned r3 = read_reg(3);
     write_reg(3, r3 | 0x00000100);
     write_reg(3, r3 & ~0x00000100);
@@ -380,6 +394,7 @@ Pulser::toggle_init()
 bool
 Pulser::dds_exists(int i)
 {
+    PulserLocker lock(this);
     unsigned addr = 0x68;
     // Check whether it's possible to set phase of profile 7 to 0 and 1
     set_dds_two_bytes(i, addr, 0);
@@ -394,6 +409,7 @@ Pulser::dds_exists(int i)
 uint32_t
 Pulser::get_dds_freq(int i)
 {
+    PulserLocker lock(this);
     // short_pulse(0x1000000E | (i << 4) | (0x2D << 9), 0);
     // return pop_result();
     uint32_t u0 = get_dds_two_bytes(i, 0x2C);
@@ -417,6 +433,7 @@ Pulser::get_dds_amp(int i)
 bool
 Pulser::test_regs()
 {
+    PulserLocker lock(this);
     bool sr_ok = 1;
     for (int i = 0;i < 2;i++) {
         unsigned test_val = 0;
@@ -445,6 +462,7 @@ Pulser::test_regs()
 bool
 Pulser::self_test(int ndds, int cycle)
 {
+    PulserLocker lock(this);
     if (nacsUnlikely(ndds <= 0)) {
         return true;
     }
@@ -499,6 +517,7 @@ Pulser::self_test(int ndds, int cycle)
 bool
 Pulser::test_dds(int i)
 {
+    PulserLocker lock(this);
     int freq_ok = 1;
     int phase_ok = 1;
 

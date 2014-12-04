@@ -9,6 +9,7 @@
 #include <atomic>
 #include <memory>
 #include <mutex>
+#include <chrono>
 
 namespace NaCs {
 namespace Pulser {
@@ -49,7 +50,21 @@ private:
 protected:
     bool log_on();
     ScopeSwap<bool> log_holder();
+
+    class PulserLocker : std::unique_lock<std::recursive_timed_mutex> {
+    public:
+        PulserLocker(PulserBase *pulser);
+    };
 };
+
+NACS_INLINE
+PulserBase::PulserLocker::PulserLocker(PulserBase *pulser)
+    : std::unique_lock<std::recursive_timed_mutex>(*pulser->m_lock)
+{
+    if (!try_lock_for(std::chrono::milliseconds(1))) {
+        throw std::runtime_error("Cannot acquire pulser lock.");
+    }
+}
 
 NACS_INLINE ScopeSwap<bool>
 PulserBase::log_holder()
@@ -76,7 +91,6 @@ PulserBase::PulserBase(PulserBase &&other)
       m_debug(other.m_debug)
 {
 }
-
 
 NACS_INLINE void
 PulserBase::set_dds_freq_f(int i, double f)

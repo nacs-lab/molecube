@@ -37,6 +37,7 @@ Program::write_reg(unsigned reg, uint32_t val)
     if (log_on()) {
         nacsLog("Write Register(%u), %" PRIx32 "\n", reg, val);
     }
+    PulserLocker lock(this);
     writes(PULSER_SLV_REG_OFFSET(reg), val);
 }
 
@@ -55,6 +56,7 @@ Program::enable_timing_check()
     if (log_on()) {
         nacsLog("Enable timing check\n");
     }
+    PulserLocker lock(this);
     m_flags = m_flags | ENABLE_TIMING_CHECK;
 }
 
@@ -65,12 +67,14 @@ Program::disable_timing_check()
     if (log_on()) {
         nacsLog("Disable timing check\n");
     }
+    PulserLocker lock(this);
     m_flags = m_flags & ~ENABLE_TIMING_CHECK;
 }
 
 NACS_EXPORT void
 Program::dds_reset(int i)
 {
+    PulserLocker lock(this);
     PulserBase::dds_reset(i);
     m_phases[i] = 0;
 }
@@ -78,6 +82,7 @@ Program::dds_reset(int i)
 NACS_EXPORT void
 Program::set_dds_phase(int i, uint16_t phase)
 {
+    PulserLocker lock(this);
     PulserBase::set_dds_phase(i, phase);
     m_phases[i] = phase;
 }
@@ -91,6 +96,7 @@ Program::shift_dds_phase(int i, uint16_t phase)
     auto holder = log_holder();
     // TODO: let's see what is the ``documented'' behavior of the set
     // phase command
+    PulserLocker lock(this);
     m_phases[i] = uint16_t(m_phases[i] + phase);
     set_dds_phase(i, m_phases[i]);
 }
