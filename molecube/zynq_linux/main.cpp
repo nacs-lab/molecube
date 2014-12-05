@@ -128,6 +128,8 @@ protected:
 namespace NaCs {
 
 volatile bool g_stop_curr_seq = false;
+FLock g_fPulserLock("/tmp/pulser.lock");
+std::vector<unsigned> active_dds; // all DDS that are available
 
 static void
 handleINT(int)
@@ -195,10 +197,8 @@ main(int argc, char *argv[])
     setProgramStatus("molecube", "Initializing");
 
     time_t rawtime;
-    struct tm *timeinfo;
-
     time(&rawtime);
-    timeinfo = localtime(&rawtime);
+    struct tm *timeinfo = localtime(&rawtime);
     nacsInfo("Current time: (UTC) %s\n", asctime(timeinfo));
 
     auto &pulser = init_system();

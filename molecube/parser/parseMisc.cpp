@@ -9,11 +9,9 @@
 #include "parseTxtSeq.h"
 #include "saveloadmap.h"
 #include "AD9914.h"
+#include "common.h"
 
 namespace NaCs {
-
-FLock g_fPulserLock("/tmp/pulser.lock");
-std::vector<unsigned> active_dds; // all DDS that are available
 
 void
 printPlainResponseHeader()

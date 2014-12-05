@@ -3,11 +3,10 @@
 #include <nacs-utils/log.h>
 #include <nacs-utils/number.h>
 
-#include "../parser/parseMisc.h"
-
 #include "spi_util.h"
 #include "AD9914.h"
 #include "fpga.h"
+#include "common.h"
 
 #include <sys/resource.h>
 #include <errno.h>
