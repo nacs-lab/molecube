@@ -12,7 +12,7 @@ class verbosity {
 public:
     verbosity(std::ostream *pos) : m_pos(pos) {}
     __attribute__((format(printf, 2, 3)))
-    int printf(const char *format, ...) const;
+    const verbosity &printf(const char *format, ...) const;
 private:
     std::ostream *m_pos;
 };

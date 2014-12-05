@@ -15,13 +15,15 @@ namespace NaCs {
 FLock g_fPulserLock("/tmp/pulser.lock");
 std::vector<unsigned> active_dds; // all DDS that are available
 
-void printPlainResponseHeader()
+void
+printPlainResponseHeader()
 {
     // std::cout << "HTTP/1.1 200 OK\n";
     std::cout << "Content-type: text/plain; charset=UTF-8\r\n\r\n";
 }
 
-void printJSONResponseHeader()
+static void
+printJSONResponseHeader()
 {
     // std::cout << "HTTP/1.1 200 OK\n";
     std::cout << "Content-type: application/json; charset=UTF-8\r\n\r\n";
@@ -284,39 +286,6 @@ getUnsignedParam(const std::string& seq, const std::string& name,
     return defaultVal;
 }
 
-unsigned
-getHexParam(const std::string &seq, const std::string &name,
-            unsigned defaultVal)
-{
-    size_t pos = seq.find(name);
-
-    if(pos != std::string::npos) {
-        unsigned val;
-
-        if(sscanf(seq.substr(pos).c_str()+name.length(), "%x", &val))
-            return val;
-    }
-
-    return defaultVal;
-}
-
-double
-getDoubleParam(const std::string& seq, const std::string& name,
-               double defaultVal)
-{
-    size_t pos = seq.find(name);
-
-    if (pos != std::string::npos) {
-        double val;
-
-        //this may not be working.  glibc bug?
-        if(sscanf(seq.substr(pos).c_str()+name.length(), "%lf", &val))
-            return val;
-    }
-
-    return defaultVal;
-}
-
 bool
 getCheckboxParam(const std::string& seq, const std::string& name,
                  bool defaultVal)
@@ -324,25 +293,6 @@ getCheckboxParam(const std::string& seq, const std::string& name,
     size_t pos = seq.find(name+"on");
     if (pos != std::string::npos) {
         return true;
-    }
-    return defaultVal;
-}
-
-std::string
-getStringParam(const std::string &seq, const std::string &token,
-               const std::string &defaultVal, const std::string&)
-{
-    size_t pos = seq.find(token);
-    if (pos != std::string::npos) {
-        pos += token.length();
-        std::string val;
-
-        size_t pos2 = seq.substr(pos).find("&");
-        if (pos2 != std::string::npos) {
-            return seq.substr(pos).substr(0, pos2);
-        } else {
-            return seq.substr(pos);
-        }
     }
     return defaultVal;
 }

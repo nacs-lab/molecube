@@ -13,7 +13,6 @@
 namespace NaCs {
 
 void printPlainResponseHeader();
-void printJSONResponseHeader();
 
 bool parseQueryCGI(NaCs::Pulser::Pulser &pulser, cgicc::Cgicc& cgi,
                    const verbosity &reply);
@@ -21,22 +20,8 @@ bool parseQueryCGI(NaCs::Pulser::Pulser &pulser, cgicc::Cgicc& cgi,
 unsigned getUnsignedParam(const std::string &seq, const std::string &name,
                           unsigned defaultVal);
 
-unsigned getHexParam(const std::string &seq, const std::string &name,
-                     unsigned defaultVal);
-
-double getDoubleParam(const std::string &seq, const std::string &name,
-                      double defaultVal);
-
 bool getCheckboxParam(const std::string &seq, const std::string &name,
                       bool defaultVal);
-
-std::string getStringParam(const std::string &seq, const std::string &name,
-                           const std::string &defaultVal,
-                           const std::string &sep);
-
-template<class C> const C &getParamCGI(cgicc::Cgicc &cgi,
-                                       const std::string &name,
-                                       C defaultVal);
 
 bool getCheckboxParamCGI(cgicc::Cgicc &cgi, const std::string &name,
                          bool defaultVal);
@@ -54,4 +39,4 @@ extern std::vector<unsigned> active_dds; // all DDS that are available
 
 }
 
-#endif //PARSE_MISC_H
+#endif

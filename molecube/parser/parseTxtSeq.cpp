@@ -482,11 +482,11 @@ parseSeqTxt(Pulser::Pulser &pulser, unsigned reps,
     }
 
     reply.printf("          Parser time: %9.3Lf ms\n",
-                 (long double)parse_time * 1e-6);
-    reply.printf("       Execution time: %9.3Lf ms\n",
-                    (long double)run_time * 1e-6);
-    reply.printf("Duration of sequences: %9.3Lf ms\n",
-                 iRep * ((long double)builder.curr_t() * PULSER_DT_ns) * 1e-6);
+                 (long double)parse_time * 1e-6)
+        .printf("       Execution time: %9.3Lf ms\n",
+                (long double)run_time * 1e-6)
+        .printf("Duration of sequences: %9.3Lf ms\n",
+                iRep * ((long double)builder.curr_t() * PULSER_DT_ns) * 1e-6);
     return true;
 }
 

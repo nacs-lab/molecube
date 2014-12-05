@@ -14,6 +14,8 @@
 namespace NaCs {
 namespace Pulser {
 
+using namespace std::literals::chrono_literals;
+
 class BaseProgram;
 
 class NACS_EXPORT PulserBase {
@@ -51,18 +53,22 @@ protected:
     bool log_on();
     ScopeSwap<bool> log_holder();
 
-    class PulserLocker : std::unique_lock<std::recursive_timed_mutex> {
-    public:
-        PulserLocker(PulserBase *pulser);
-    };
+    friend class PulserLocker;
 };
 
+class PulserLocker : std::unique_lock<std::recursive_timed_mutex> {
+public:
+    template<class DurationT=decltype(1ms)>
+    PulserLocker(PulserBase *pulser, const DurationT &timeout=1ms);
+};
+
+template<class DurationT>
 NACS_INLINE
-PulserBase::PulserLocker::PulserLocker(PulserBase *pulser)
+PulserLocker::PulserLocker(PulserBase *pulser, const DurationT &timeout)
     : std::unique_lock<std::recursive_timed_mutex>(*pulser->m_lock,
                                                    std::defer_lock)
 {
-    if (!try_lock_for(std::chrono::milliseconds(1))) {
+    if (!try_lock_for(timeout)) {
         throw std::runtime_error("Cannot acquire pulser lock.");
     }
 }

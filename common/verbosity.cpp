@@ -5,11 +5,9 @@
 
 namespace NaCs {
 
-int
+const verbosity&
 verbosity::printf(const char *format, ...) const
 {
-    int ret = 0;
-
     va_list ap;
     va_start(ap, format);
     nacsLogV(format, ap);
@@ -20,12 +18,12 @@ verbosity::printf(const char *format, ...) const
 
         va_list vl;
         va_start(vl, format);
-        ret = vsnprintf(buff, 1024, format, vl);
+        vsnprintf(buff, 1024, format, vl);
         va_end(vl);
 
         *m_pos << buff;
     }
-    return ret;
+    return *this;
 }
 
 }
