@@ -1,6 +1,7 @@
 #include "init_system.h"
 
 #include <nacs-utils/log.h>
+#include <nacs-utils/number.h>
 
 #include "../parser/parseMisc.h"
 
@@ -17,7 +18,7 @@ namespace NaCs {
 
 static spi_struct g_spi[NSPI];
 
-Pulser::Pulser
+Pulser::Pulser&
 init_system()
 {
     std::lock_guard<FLock> fl(g_fPulserLock);
@@ -37,7 +38,7 @@ init_system()
                   nice, errno);
     }
 
-    auto pulser = Pulser::get_pulser();
+    auto &pulser = Pulser::get_pulser();
     nacsInfo("Initializing pulse controller at address %p...\n",
              pulser.get_base());
     pulser.init(false);
@@ -45,8 +46,8 @@ init_system()
 
     pulser.clear_timing_check();
 
-    bool spi_active_low[4] = {true, true, false, false};
-    char spi_clock_phase[4] = {0, 0, 0, 0};
+    const bool spi_active_low[nacsMax(4, NSPI)] = {true, true, false, false};
+    const char spi_clock_phase[nacsMax(4, NSPI)] = {0, 0, 0, 0};
 
     for (uint16_t i = 0; i < NSPI; i++) {
         nacsInfo("Initializing SPI %d.\n", i);
@@ -65,8 +66,7 @@ init_system()
     }
 
     // initialize active DDS if necessary
-    for (unsigned j = 0;j < active_dds.size();j++) {
-        unsigned i = active_dds[j];
+    for (auto i: active_dds) {
         init_AD9914(pulser, i, false);
         print_AD9914_registers(pulser, i);
     }

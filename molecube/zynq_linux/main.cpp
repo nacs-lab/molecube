@@ -201,7 +201,7 @@ main(int argc, char *argv[])
     timeinfo = localtime(&rawtime);
     nacsInfo("Current time: (UTC) %s\n", asctime(timeinfo));
 
-    auto pulser = init_system();
+    auto &pulser = init_system();
 
     FCGX_Request request;
 

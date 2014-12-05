@@ -7,7 +7,7 @@ using namespace NaCs;
 int
 main()
 {
-    auto pulser = Pulser::get_pulser();
+    auto &pulser = Pulser::get_pulser();
     Pulser::SequenceBuilder builder;
     builder.enable_timing_check();
 

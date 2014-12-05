@@ -21,6 +21,7 @@ class BaseProgram;
 class NACS_EXPORT PulserBase {
     std::unique_ptr<std::recursive_timed_mutex> m_lock;
     PulserBase(const PulserBase&) = delete;
+    void operator=(const PulserBase&) = delete;
 protected:
     bool m_debug;
 public:
@@ -127,6 +128,7 @@ class NACS_EXPORT Pulser : public PulserBase {
 public:
     Pulser(Pulser &&other);
     Pulser(volatile void *base, bool debug=false);
+
     ~Pulser() {}
     void init(bool reset);
     void run(const BaseProgram &prog);
@@ -187,6 +189,7 @@ Pulser::Pulser(Pulser &&other)
       m_base(other.m_base),
       m_running(other.m_running.exchange(false))
 {
+    other.m_base = nullptr;
 }
 
 NACS_INLINE
@@ -203,7 +206,7 @@ Pulser::get_base() const
     return m_base;
 }
 
-Pulser get_pulser();
+Pulser &get_pulser();
 
 NACS_INLINE double
 Pulser::get_dds_freq_f(int i)

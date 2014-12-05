@@ -10,6 +10,7 @@
 #include <nacs-xspi/xparameters.h>
 
 #include <stdexcept>
+#include <mutex>
 #include <inttypes.h>
 
 namespace NaCs {
@@ -560,7 +561,7 @@ Pulser::test_dds(int i)
     return freq_ok && phase_ok;
 }
 
-static intptr_t
+static inline auto
 get_phys_addr()
 {
     // Can also be determined by looking for
@@ -570,8 +571,8 @@ get_phys_addr()
     return XPAR_PULSE_CONTROLLER_0_BASEADDR;
 }
 
-NACS_EXPORT Pulser
-get_pulser()
+static inline auto
+map_pulser_addr()
 {
     nacsInfo("Initializing pulse controller\n");
     auto addr = nacsMapFile("/dev/mem", get_phys_addr(), 4096);
@@ -579,7 +580,18 @@ get_pulser()
         nacsError("Can't map the memory to user space.\n");
         exit(0);
     }
-    return Pulser(addr);
+    return addr;
+}
+
+NACS_EXPORT Pulser&
+get_pulser()
+{
+    static std::mutex pulser_create_lock;
+    // C++ standard is fuzzy about whether initialization of function-scope
+    // static variable is thread-safe.
+    std::lock_guard<std::mutex> locker(pulser_create_lock);
+    static Pulser pulser(map_pulser_addr());
+    return pulser;
 }
 
 }
