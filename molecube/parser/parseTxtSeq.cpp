@@ -278,27 +278,7 @@ parseSeqCGI(Pulser::Pulser &pulser, cgicc::Cgicc &cgi, const verbosity &reply)
     return true;
 }
 
-// 7/21/2014: no longer using this code
-// keeping it in case CGICC causes trouble
-
-// #include "parseMultiPart.h"
-
-// bool parseSeqMultiPart(std::istream& is, const std::string& line1)
-// {
-//     txtmap_t m;
-//     if (!parseMultiPart(is, line1, m))
-//         return false;
-
-//     unsigned reps = atoi(m["reps"].c_str());
-//     bool debugPulses = (string::npos != m["debugPulses"].find("on"));
-//     bool bForever = string::npos != m["forever"].find("on");
-
-//     parseSeqTxt(reps, m["sequence.txt"], bForever, debugPulses);
-
-//     return true;
-// }
-
-//parse text-encoded pulse sequence
+// parse text-encoded pulse sequence
 static bool
 parseSeqTxt(Pulser::Pulser &pulser, unsigned reps,
             const std::string &seqTxt, bool bForever, bool debugPulses,
@@ -426,42 +406,31 @@ parseSeqTxt(Pulser::Pulser &pulser, unsigned reps,
 
     // now run the pulses
     // update status string every 500 ms
-    const unsigned updateStatusModulo =
-        500000000 / unsigned((long double)builder.curr_t() * PULSER_DT_ns);
+    auto seq_len_ms = (long double)builder.curr_t() * PULSER_DT_us * 1e-3l;
     unsigned nTimingErrors = 0;
     unsigned iRep;
+    char buff[64] = {'\0'};
     for (iRep = 0;iRep < reps || bForever;iRep++) {
-        char buff[64];
-
-        // updateStatusModulo can be 0 if the sequence is longer than 0.5s.
-        if (!updateStatusModulo || iRep % updateStatusModulo == 0) {
-            if (bForever) {
-                snprintf(buff, 64, "Running sequence %d", iRep);
-            } else {
-                snprintf(buff, 64, "Running sequence %d / %d", iRep, reps);
-            }
+        if (bForever) {
+            snprintf(buff, 64, "Running sequence %d", iRep);
+        } else {
+            snprintf(buff, 64, "Running sequence %d / %d", iRep, reps);
         }
+        setProgramStatus(0, buff);
 
-        {
-            // new scope to automatically release file lock at scope
-            // exit or exception
-            std::lock_guard<FLock> fl(g_fPulserLock);
+        std::lock_guard<FLock> fl(g_fPulserLock);
+        // hold the sequnce until pulse buffer is full or
+        // pulser.wait() is called
+        pulser.set_hold();
+        pulser.toggle_init();
+        pulser.run(builder);
 
-            setProgramStatus(0, buff);
+        // wait for pulses finished.
+        pulser.wait();
 
-            // hold the sequnce until pulse buffer is full or
-            // PULSER_wait_for_finished is called
-            pulser.set_hold();
-            pulser.toggle_init();
-            pulser.run(builder);
-
-            // wait for pulses finished.
-            pulser.wait();
-
-            if (!pulser.timing_ok()) {
-                pulser.clear_timing_check();
-                nTimingErrors++;
-            }
+        if (!pulser.timing_ok()) {
+            pulser.clear_timing_check();
+            nTimingErrors++;
         }
 
         if (g_stop_curr_seq) {
@@ -485,8 +454,7 @@ parseSeqTxt(Pulser::Pulser &pulser, unsigned reps,
                  (long double)parse_time * 1e-6)
         .printf("       Execution time: %9.3Lf ms\n",
                 (long double)run_time * 1e-6)
-        .printf("Duration of sequences: %9.3Lf ms\n",
-                iRep * ((long double)builder.curr_t() * PULSER_DT_ns) * 1e-6);
+        .printf("Duration of sequences: %9.3Lf ms\n", iRep * seq_len_ms);
     return true;
 }
 

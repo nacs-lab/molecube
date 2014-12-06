@@ -181,7 +181,7 @@ parseQueryCGI(NaCs::Pulser::Pulser &pulser, cgicc::Cgicc &cgi,
     cgicc::form_iterator page = cgi.getElement("page");
 
     if (cmd != cgi.getElements().end()) {
-        reply.printf("Command = %s\n", (**cmd).c_str());
+        nacsLog("Command = %s\n", (**cmd).c_str());
 
         if ((**cmd) == "getTTL") {
             printJSONResponseHeader();
@@ -211,11 +211,10 @@ parseQueryCGI(NaCs::Pulser::Pulser &pulser, cgicc::Cgicc &cgi,
                 txtmap_t params;
                 std::string fname = "/home/www/userdata/params_" + sPage;
 
-                //load existing params
+                // load existing params
                 loadMap(params, fname);
 
                 if (parseParamsCGI(params, cgi)) {
-                    //save
                     saveMap(params, fname);
                     return true;
                 }
@@ -262,7 +261,7 @@ parseQueryCGI(NaCs::Pulser::Pulser &pulser, cgicc::Cgicc &cgi,
         }
         return false;
     } else {
-        reply.printf("No Command\n");
+        nacsLog("No Command\n");
         return false;
     }
 
