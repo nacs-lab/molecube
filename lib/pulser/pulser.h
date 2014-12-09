@@ -59,7 +59,8 @@ protected:
 
 NACS_INLINE
 PulserBase::PulserLocker::PulserLocker(PulserBase *pulser)
-    : std::unique_lock<std::recursive_timed_mutex>(*pulser->m_lock)
+    : std::unique_lock<std::recursive_timed_mutex>(*pulser->m_lock,
+                                                   std::defer_lock)
 {
     if (!try_lock_for(std::chrono::milliseconds(1))) {
         throw std::runtime_error("Cannot acquire pulser lock.");
