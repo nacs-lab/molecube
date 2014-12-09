@@ -16,11 +16,10 @@ public:
     double t;
     unsigned flags;
 
-    static const unsigned flag_disabled		= 0x00000001;
-    static const unsigned flag_scan			= 0x00000002;
-    static const unsigned flag_ramsey		= 0x00000004;
-    static const unsigned flag_composite   = 0x00000008;
-
+    static const unsigned flag_disabled = 0x00000001;
+    static const unsigned flag_scan = 0x00000002;
+    static const unsigned flag_ramsey = 0x00000004;
+    static const unsigned flag_composite = 0x00000008;
 };
 
 class ttl_pulse_info : public pulse_info {
