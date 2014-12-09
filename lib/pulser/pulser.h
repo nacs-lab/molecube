@@ -1,5 +1,4 @@
 #include <nacs-utils/utils.h>
-#include <atomic>
 
 #ifndef __NACS_PULSER_PULSER_H__
 #define __NACS_PULSER_PULSER_H__
@@ -7,16 +6,24 @@
 #include "converter.h"
 #include <nacs-pulser/pulser-config.h>
 
+#include <atomic>
+#include <memory>
+#include <mutex>
+
 namespace NaCs {
 namespace Pulser {
 
 class BaseProgram;
 
 class NACS_EXPORT PulserBase {
+    std::unique_ptr<std::recursive_timed_mutex> m_lock;
+    PulserBase(const PulserBase&) = delete;
 protected:
     bool m_debug;
 public:
     PulserBase(bool debug=false);
+    PulserBase(PulserBase &&other);
+
     virtual ~PulserBase() {}
     void clock_out(unsigned divider);
     void set_dds_two_bytes(int i, uint32_t addr, uint32_t data);
@@ -58,9 +65,18 @@ PulserBase::log_on()
 
 NACS_INLINE
 PulserBase::PulserBase(bool debug)
-    : m_debug(debug)
+    : m_lock(new std::recursive_timed_mutex()),
+      m_debug(debug)
 {
 }
+
+NACS_INLINE
+PulserBase::PulserBase(PulserBase &&other)
+    : m_lock(std::move(other.m_lock)),
+      m_debug(other.m_debug)
+{
+}
+
 
 NACS_INLINE void
 PulserBase::set_dds_freq_f(int i, double f)
@@ -83,6 +99,7 @@ PulserBase::set_dds_phase_f(int i, double p)
 class NACS_EXPORT Pulser : public PulserBase {
     volatile void *m_base;
     std::atomic_bool m_running;
+
     Pulser() = delete;
     Pulser(const Pulser&) = delete;
     void operator=(const Pulser&) = delete;

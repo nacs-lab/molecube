@@ -11,6 +11,7 @@ class NACS_EXPORT BaseProgram {
     uint32_t *m_prog;
     size_t m_len;
     size_t m_alloc_len;
+    BaseProgram(const BaseProgram&) = delete;
 public:
     BaseProgram()
         : m_prog(nullptr),
