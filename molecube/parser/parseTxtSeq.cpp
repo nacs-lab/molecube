@@ -394,7 +394,8 @@ parseSeqTxt(Pulser::Pulser &pulser, unsigned reps,
 
     auto parse_time = nacsToc();
 
-    reply.printf("Parsed sequence into %zu long program.\n", builder.len());
+    reply.printf("Parsed sequence into a %zu bytes program.\n",
+                 builder.len() * sizeof(uint32_t));
 
     if (bForever) {
         nacsLog("Start continuous run.\n");
