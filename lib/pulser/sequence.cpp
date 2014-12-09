@@ -14,9 +14,9 @@ SequenceBuilder::finish_ttl()
     if (log_on()) {
         nacsLog("Finish TTL\n");
     }
-    auto holder = log_holder();
+    LogHolder holder();
     if (m_has_ttl) {
-        //disable timing check prior to last pulse
+        // disable timing check prior to last pulse
         disable_timing_check();
         ttl_pulse(PULSER_T_TTL_MIN, m_next_ttl);
     }
@@ -29,7 +29,7 @@ SequenceBuilder::push_ttl_all(uint64_t t, uint32_t val)
     if (log_on()) {
         nacsLog("Push TTL all t=%" PRTime ", val=%" PRIx32 "\n", t, val);
     }
-    auto holder = log_holder();
+    LogHolder holder();
     if (m_has_ttl) {
         make_curr_ttl(t);
     }
@@ -46,7 +46,7 @@ SequenceBuilder::push_ttl(uint64_t t, unsigned chn, bool val)
         nacsLog("Push TTL(%u) t=%" PRTime ", val=%s\n", chn, t,
                 val ? "true" : "false");
     }
-    auto holder = log_holder();
+    LogHolder holder();
     push_ttl_all(t, nacsSetBit(m_next_ttl, uint8_t(chn), val));
 }
 

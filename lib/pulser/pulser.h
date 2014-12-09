@@ -52,8 +52,10 @@ private:
     virtual void write_reg(unsigned reg, uint32_t val) = 0;
 protected:
     bool log_on();
-    ScopeSwap<bool> log_holder();
-
+    struct LogHolder : ScopeSwap<bool> {
+        LogHolder() : ScopeSwap<bool>(pulser_logging, true)
+        {}
+    };
     friend class PulserLocker;
 };
 
@@ -72,12 +74,6 @@ PulserLocker::PulserLocker(PulserBase *pulser, const DurationT &timeout)
     if (!try_lock_for(timeout)) {
         throw std::runtime_error("Cannot acquire pulser lock.");
     }
-}
-
-NACS_INLINE ScopeSwap<bool>
-PulserBase::log_holder()
-{
-    return make_scope_swap(pulser_logging, true);
 }
 
 NACS_INLINE bool
