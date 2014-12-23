@@ -6,27 +6,20 @@
 
 using namespace NaCs;
 
-static const int skip_dds = 10;
 static constexpr int ndds = 22;
 
 void
 test_dds(Pulser::Pulser &pulser, int dds_id, unsigned freq_step,
          unsigned num_steps, unsigned &fails, unsigned &runs)
 {
-    for (unsigned i = 0;i < freq_step * num_steps;i += freq_step) {
+    for (unsigned i = 0;i < num_steps;i++) {
         runs++;
-        pulser.set_dds_freq(dds_id, i);
-        pulser.set_dds_freq(dds_id, i);
-        pulser.set_dds_freq(dds_id, i);
-        pulser.get_dds_freq(dds_id);
+        unsigned fword = (i + 1) * freq_step - 1;
+        pulser.set_dds_freq(dds_id, fword);
         unsigned read = pulser.get_dds_freq(dds_id);
-        if (read != i) {
+        if (read != fword) {
             fails++;
-            // nacsError("DDS: %d: Write %x, read %x\n", dds_id, i, read);
         }
-        // if (read != (i | ((i & 0xff0000) << 8))) {
-        //     nacsError("DDS: %d: Write %x, read %x\n", dds_id, i, read);
-        // }
     }
 }
 
@@ -43,11 +36,20 @@ main()
     double fails[ndds] = {0.0};
     double runs[ndds] = {0.0};
     double fails2[ndds] = {0.0};
-    static constexpr int ncycle = 0x100;
+    const constexpr int ncycle = 0x800;
+    bool dds_exists[ndds] = {};
     auto &pulser = Pulser::get_pulser();
+
+    for (int dds = 0;dds < ndds;dds++) {
+        dds_exists[dds] = pulser.dds_exists(dds);
+        if (!dds_exists[dds]) {
+            printf("Missing DDS: %d\n", dds);
+        }
+    }
+
     for (int i = 0;i < ncycle;i++) {
         for (int dds = 0;dds < ndds;dds++) {
-            if (dds == skip_dds)
+            if (!dds_exists[dds])
                 continue;
             unsigned nfail = 0;
             unsigned nrun = 0;
@@ -66,10 +68,10 @@ main()
             continue;
         double rate = fails[dds] / runs[dds];
         double unc = std::sqrt(fails2[dds] - square(fails[dds]));
-        printf("Failing rate for DDS %d: %.2f+-%.2f%%\n", dds, rate * 100,
+        printf("Failing rate for DDS %d: %.3f+-%.3f%%\n", dds, rate * 100,
                unc / std::sqrt(double(ncycle - 1)) / runs[dds] * 100);
     }
     double total_rate = total_fails / total_runs;
-    printf("Total failing rate: %.2f%%\n", total_rate * 100);
+    printf("Total failing rate: %.3f%%\n", total_rate * 100);
     return 0;
 }
