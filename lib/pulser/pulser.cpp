@@ -437,11 +437,7 @@ Pulser::test_regs()
     PulserLocker lock(this);
     bool sr_ok = 1;
     for (int i = 0;i < 2;i++) {
-        unsigned test_val = 0;
-
-        for (int j = 0;j < 8;j++) {
-            test_val = test_val + ((i * 0xF) << (j * 4));
-        }
+        unsigned test_val = i ? unsigned(-1) : 0;
 
         nacsLog("Testing %08X ...\n", test_val);
         for (int k = 0;k < 8;k++) {

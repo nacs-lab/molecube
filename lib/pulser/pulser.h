@@ -164,11 +164,11 @@ public:
     bool &debug();
 
     bool self_test(int ndds, int cycle=1);
-private:
     bool test_regs();
     bool test_dds(int i);
-    uint32_t num_results();
     void debug_regs();
+private:
+    uint32_t num_results();
     bool is_finished();
     void release_hold();
 };
