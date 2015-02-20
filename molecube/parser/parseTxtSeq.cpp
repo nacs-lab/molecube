@@ -290,7 +290,7 @@ parseSeqTxt(Pulser::Pulser &pulser, unsigned reps,
         nacsLog("Parsing pulse sequence:%s\n", seqTxt.c_str());
     }
 
-    nacsTic();
+    tic();
 
     Pulser::SequenceBuilder builder(debugPulses);
     builder.enable_timing_check();
@@ -392,7 +392,7 @@ parseSeqTxt(Pulser::Pulser &pulser, unsigned reps,
     }
     builder.finish_ttl();
 
-    auto parse_time = nacsToc();
+    auto parse_time = toc();
 
     reply.printf("Parsed sequence into a %zu bytes program.\n",
                  builder.len() * sizeof(uint32_t));
@@ -403,7 +403,7 @@ parseSeqTxt(Pulser::Pulser &pulser, unsigned reps,
         nacsLog("Run %d sequences.\n", reps);
     }
 
-    nacsTic();
+    tic();
 
     // now run the pulses
     // update status string every 500 ms
@@ -441,7 +441,7 @@ parseSeqTxt(Pulser::Pulser &pulser, unsigned reps,
         }
     }
 
-    auto run_time = nacsToc();
+    auto run_time = toc();
 
     reply.printf("Finished %d/%d pulse sequences.\n", iRep, reps);
 

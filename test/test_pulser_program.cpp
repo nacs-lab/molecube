@@ -16,11 +16,11 @@ main()
     }
     builder.finish_ttl();
 
-    nacsTic();
+    NaCs::tic();
     pulser.set_hold();
     pulser.toggle_init();
     pulser.run(builder);
-    nacsPrintToc();
+    NaCs::printToc();
 
     // wait for pulses finished.
     pulser.wait();

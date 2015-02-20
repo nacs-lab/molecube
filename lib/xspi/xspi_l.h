@@ -73,8 +73,6 @@
 #ifndef XSPI_L_H
 #define XSPI_L_H
 
-NACS_BEGIN_DECLS
-
 /****************************************************************************/
 /**
  *
@@ -331,7 +329,5 @@ XSpi_WriteReg(volatile void *base, off_t offset, uint32_t val)
 #define XSP_QUAD_MODE 2
 
 /*@}*/
-
-NACS_END_DECLS
 
 #endif

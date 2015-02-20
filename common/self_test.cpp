@@ -75,12 +75,12 @@ check_timing(Pulser::Pulser &pulser)
         prog.pulse(10000000, 0, 0x00000000);
     }
 
-    uint64_t t0 = nacsGetTime();
+    uint64_t t0 = getTime();
     pulser.run(prog);
 
     r2 = pulser.read_reg(2);
 
-    uint64_t t1 = nacsGetTime();
+    uint64_t t1 = getTime();
 
     double dt = ((float)(t1 - t0)) / TICKS_PER_US;
     bTimingOK &= fabs(dt - 1000000) < 1000;
@@ -90,7 +90,7 @@ check_timing(Pulser::Pulser &pulser)
     printf("Wait up to three seconds for pulses_finished to go high\n");
 
     do {
-        t1 = nacsGetTime();
+        t1 = getTime();
         r2 = pulser.read_reg(2);
     } while (((t1 - t0) < 3000 * TICKS_PER_MS) && !(r2 & 4));
 

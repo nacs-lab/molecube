@@ -63,13 +63,10 @@
 *
 ******************************************************************************/
 
-#include <nacs-utils/utils.h>
 #include "xspi_l.h"
 
 #ifndef XSPI_I_H
 #define XSPI_I_H
-
-NACS_BEGIN_DECLS
 
 /************************** Function Prototypes ******************************/
 
@@ -78,7 +75,5 @@ void XSpi_Abort(XSpi *InstancePtr);
 /************************** Variable Definitions *****************************/
 
 extern XSpi_Config XSpi_ConfigTable[];
-
-NACS_END_DECLS
 
 #endif

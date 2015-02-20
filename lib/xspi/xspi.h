@@ -295,8 +295,6 @@
 #ifndef XSPI_H
 #define XSPI_H
 
-NACS_BEGIN_DECLS
-
 /************************** Constant Definitions *****************************/
 
 /** @name Configuration options
@@ -810,5 +808,4 @@ int XSpi_Transfer(XSpi *InstancePtr, uint8_t *SendBufPtr, uint8_t *RecvBufPtr,
 int XSpi_SetOptions(XSpi *InstancePtr, uint32_t Options);
 // uint32_t XSpi_GetOptions(XSpi *InstancePtr);
 
-NACS_END_DECLS
 #endif
