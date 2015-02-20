@@ -47,7 +47,7 @@ SequenceBuilder::push_ttl(uint64_t t, unsigned chn, bool val)
                 val ? "true" : "false");
     }
     LogHolder holder();
-    push_ttl_all(t, nacsSetBit(m_next_ttl, uint8_t(chn), val));
+    push_ttl_all(t, setBit(m_next_ttl, uint8_t(chn), val));
 }
 
 /**

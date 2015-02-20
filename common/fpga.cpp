@@ -1,6 +1,8 @@
 #include "fpga.h"
 #include "linux_file_util.h"
 
+#include <stdio.h>
+
 /*Hide real GPIO IDs from user.
  *User accesses inputs GPIO 0...(NGPIO_IN-1)
  *outputs GPIO 0...(NGPIO_OUT-1)

@@ -2,9 +2,13 @@
 
 #include <sys/file.h>
 #include <unistd.h>
+#include <stdio.h>
+#include <string.h>
 
 /* Generic functions to write values to and read them from file.
  * Calls to these functions can manipulate file-mapped devices in Linux. */
+
+namespace NaCs {
 
 int
 write_int_to_file(const char* fname, int val)
@@ -70,4 +74,6 @@ setProgramStatus(const char *progname, const char *str)
         fflush(f);
         flock(fileno(f), LOCK_UN);
     }
+}
+
 }

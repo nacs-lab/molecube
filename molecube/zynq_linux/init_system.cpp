@@ -45,8 +45,8 @@ init_system()
 
     pulser.clear_timing_check();
 
-    const bool spi_active_low[nacsMax(4, NSPI)] = {true, true, false, false};
-    const char spi_clock_phase[nacsMax(4, NSPI)] = {0, 0, 0, 0};
+    const bool spi_active_low[max(4, NSPI)] = {true, true, false, false};
+    const char spi_clock_phase[max(4, NSPI)] = {0, 0, 0, 0};
 
     for (uint16_t i = 0; i < NSPI; i++) {
         nacsInfo("Initializing SPI %d.\n", i);

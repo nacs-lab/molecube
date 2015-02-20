@@ -24,7 +24,7 @@ BaseProgram::reserve_space(size_t len)
         return;
     }
     const size_t block_size = 4096;
-    m_alloc_len = nacsAlignTo(new_len, block_size);
+    m_alloc_len = alignTo(new_len, block_size);
     m_prog = (uint32_t*)realloc(m_prog, m_alloc_len * sizeof(uint32_t));
 }
 

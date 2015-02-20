@@ -98,7 +98,7 @@ XSpi_LookupConfig(uint16_t DeviceId)
     }
     //remap physical address to virtual one
     CfgPtr->BaseAddress =
-        (char*)nacsMapFile("/dev/mem", (intptr_t)CfgPtr->BaseAddress, 4096);
+        (char*)NaCs::mapFile("/dev/mem", (intptr_t)CfgPtr->BaseAddress, 4096);
     if (nacsUnlikely(!CfgPtr->BaseAddress)) {
         nacsError("Can't map the memory to user space.\n");
         exit(0);

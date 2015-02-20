@@ -135,7 +135,7 @@ PulserBase::pulse(uint64_t t, unsigned flags, unsigned operand)
     static const uint32_t t_max = 0x001FFFFF;
     PulserLocker lock(this);
     do {
-        uint32_t t_step = uint32_t(nacsMin(t, t_max));
+        uint32_t t_step = uint32_t(min(t, t_max));
         short_pulse(t_step | flags, operand);
         t -= t_step;
     } while (t > 0);
@@ -232,18 +232,18 @@ void
 Pulser::debug_regs()
 {
     PulserLocker lock(this);
-    FILE *logf = nacsGetLog();
-    fprintf(logf, "PULSE_CONTROLLER registers:\n");
+    FILE *log_f = nacsGetLog();
+    fprintf(log_f, "PULSE_CONTROLLER registers:\n");
     for (unsigned i = 0;i < 31;i++) {
         if (i % 4 == 0) {
-            fprintf(logf, "[%2d...%2d]: ", i, i + 3);
+            fprintf(log_f, "[%2d...%2d]: ", i, i + 3);
         }
-        fprintf(logf, "%08X ", read_reg(i));
+        fprintf(log_f, "%08X ", read_reg(i));
         if (i % 4 == 3) {
-            fprintf(logf, "\n");
+            fprintf(log_f, "\n");
         }
     }
-    fprintf(logf, "\n");
+    fprintf(log_f, "\n");
 }
 
 void
@@ -571,7 +571,7 @@ static inline auto
 map_pulser_addr()
 {
     nacsInfo("Initializing pulse controller\n");
-    auto addr = nacsMapFile("/dev/mem", get_phys_addr(), 4096);
+    auto addr = mapFile("/dev/mem", get_phys_addr(), 4096);
     if (nacsUnlikely(!addr)) {
         nacsError("Can't map the memory to user space.\n");
         exit(0);
