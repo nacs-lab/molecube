@@ -1,10 +1,10 @@
 set(nacs_xspi_SRCS
-  xspi_stats.c
-  xspi_g.c
-  xspi_sinit.c
-  # xspi_selftest.c
-  xspi_options.c
-  xspi.c)
+  # xspi_stats.cpp
+  xspi_g.cpp
+  xspi_sinit.cpp
+  # xspi_selftest.cpp
+  xspi_options.cpp
+  xspi.cpp)
 set(nacs_xspi_LINKS nacs-utils pthread)
 
 add_library(nacs-xspi SHARED ${nacs_xspi_SRCS})

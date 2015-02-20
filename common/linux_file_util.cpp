@@ -9,8 +9,7 @@
 int
 write_int_to_file(const char* fname, int val)
 {
-    FILE *f = fopen(fname, "w");
-    if (f) {
+    if (FILE *f = fopen(fname, "w")) {
         fprintf(f, "%d", val);
         fclose(f);
         return 0;
@@ -23,9 +22,7 @@ write_int_to_file(const char* fname, int val)
 int
 get_int_from_file(const char *fname, int *val)
 {
-    FILE *f = fopen(fname, "r");
-
-    if (f) {
+    if (FILE *f = fopen(fname, "r")) {
         fscanf(f, "%d", val);
         fclose(f);
         return 0;
@@ -38,9 +35,8 @@ get_int_from_file(const char *fname, int *val)
 int
 write_str_to_file(const char *fname, const char *val)
 {
-    FILE *f = fopen(fname, "w");
-    if (f) {
-        fprintf(f, "%s", val);
+    if (FILE *f = fopen(fname, "w")) {
+        fwrite(val, strlen(val), 1, f);
         fclose(f);
         return 0;
     } else {
@@ -56,18 +52,15 @@ write_str_to_file(const char *fname, const char *val)
 void
 setProgramStatus(const char *progname, const char *str)
 {
-    static FILE *f = 0;
-
-    if (f == 0) {
-        char buff[256];
-
+    static FILE *f = [&] {
         if (progname) {
+            char buff[256];
             snprintf(buff, 256, "/tmp/%s.status", progname);
+            return fopen(buff, "w");
         } else {
-            snprintf(buff, 256, "/tmp/unnamedprog.status");
+            return fopen("/tmp/unnamedprog.status", "w");
         }
-        f = fopen(buff, "w");
-    }
+    }();
 
     if (f) {
         flock(fileno(f), LOCK_EX);

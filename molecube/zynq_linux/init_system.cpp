@@ -54,7 +54,7 @@ init_system()
     }
 
     nacsInfo("Initializing GPIO ... ");
-    init_gpio();
+    GPIO::init();
     nacsInfo("done.\n\n");
 
     // detect active DDS

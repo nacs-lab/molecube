@@ -20,7 +20,7 @@
 
 XSpi_Config XSpi_ConfigTable[] = {{
         XPAR_SPI_0_DEVICE_ID,
-        (void*)(intptr_t)XPAR_SPI_0_BASEADDR,
+        (char*)(intptr_t)XPAR_SPI_0_BASEADDR,
         XPAR_SPI_0_FIFO_EXIST,
         XPAR_SPI_0_SPI_SLAVE_ONLY,
         XPAR_SPI_0_NUM_SS_BITS,
@@ -32,7 +32,7 @@ XSpi_Config XSpi_ConfigTable[] = {{
         XPAR_SPI_0_USE_STARTUP
     }, {
         XPAR_SPI_1_DEVICE_ID,
-        (void*)(intptr_t)XPAR_SPI_1_BASEADDR,
+        (char*)(intptr_t)XPAR_SPI_1_BASEADDR,
         XPAR_SPI_1_FIFO_EXIST,
         XPAR_SPI_1_SPI_SLAVE_ONLY,
         XPAR_SPI_1_NUM_SS_BITS,

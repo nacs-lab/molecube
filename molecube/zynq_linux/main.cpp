@@ -63,7 +63,7 @@ public:
         fRequest(request)
     {
         // Parse environment
-        for(char **e = fRequest.envp; *e != NULL; ++e) {
+        for(char **e = fRequest.envp; *e != nullptr;e++) {
             std::string s(*e);
             std::string::size_type i = s.find('=');
             if(i == std::string::npos)

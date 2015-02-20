@@ -55,7 +55,7 @@
 * 1.00b rpm  04/25/02 Collapsed IPIF and reg base addresses into one
 * 1.11a wgr  03/22/07 Converted to new coding style.
 * 3.00a ktn  10/28/09 Updated all the register accesses as 32 bit access.
-*		      Updated driver to use the HAL APIs/macros.
+*                     Updated driver to use the HAL APIs/macros.
 *
 * </pre>
 *
@@ -87,7 +87,7 @@ static OptionsMap OptionsTable[] = {
     {XSP_MANUAL_SSELECT_OPTION, XSP_CR_MANUAL_SS_MASK}
 };
 
-#define XSP_NUM_OPTIONS		(sizeof(OptionsTable) / sizeof(OptionsMap))
+#define XSP_NUM_OPTIONS (sizeof(OptionsTable) / sizeof(OptionsMap))
 
 /*****************************************************************************/
 /**
@@ -122,10 +122,7 @@ static OptionsMap OptionsTable[] = {
 NACS_EXPORT int
 XSpi_SetOptions(XSpi *InstancePtr, uint32_t Options)
 {
-    uint32_t ControlReg;
-    uint32_t Index;
-
-    assert(InstancePtr != NULL);
+    assert(InstancePtr != nullptr);
     assert(InstancePtr->IsReady == XSPI_IS_READY);
 
     /*
@@ -139,6 +136,7 @@ XSpi_SetOptions(XSpi *InstancePtr, uint32_t Options)
     if (InstancePtr->IsBusy) {
         return XST_DEVICE_BUSY;
     }
+
     /*
      * Do not allow master option to be set if the device is slave only.
      */
@@ -146,23 +144,23 @@ XSpi_SetOptions(XSpi *InstancePtr, uint32_t Options)
         return XST_SPI_SLAVE_ONLY;
     }
 
-    ControlReg = XSpi_GetControlReg(InstancePtr);
+    uint32_t ControlReg = XSpi_GetControlReg(InstancePtr);
 
     /*
      * Loop through the options table, turning the option on or off
      * depending on whether the bit is set in the incoming options flag.
      */
-    for (Index = 0; Index < XSP_NUM_OPTIONS; Index++) {
-        if (Options & OptionsTable[Index].Option) {
+    for (uint32_t i = 0;i < XSP_NUM_OPTIONS;i++) {
+        if (Options & OptionsTable[i].Option) {
             /*
              *Turn it ON.
              */
-            ControlReg |= OptionsTable[Index].Mask;
+            ControlReg |= OptionsTable[i].Mask;
         } else {
             /*
              *Turn it OFF.
              */
-            ControlReg &= ~OptionsTable[Index].Mask;
+            ControlReg &= ~OptionsTable[i].Mask;
         }
     }
 
@@ -193,26 +191,23 @@ XSpi_SetOptions(XSpi *InstancePtr, uint32_t Options)
 * @note		None.
 *
 ******************************************************************************/
-#if 0
-uint32_t XSpi_GetOptions(XSpi *InstancePtr)
+uint32_t
+XSpi_GetOptions(XSpi *InstancePtr)
 {
-    uint32_t OptionsFlag = 0;
-    uint32_t ControlReg;
-    uint32_t Index;
-
-    assert(InstancePtr != NULL);
+    assert(InstancePtr != nullptr);
     assert(InstancePtr->IsReady == XSPI_IS_READY);
 
     /*
      * Get the control register to determine which options are currently
      * set.
      */
-    ControlReg = XSpi_GetControlReg(InstancePtr);
+    uint32_t ControlReg = XSpi_GetControlReg(InstancePtr);
 
     /*
      * Loop through the options table to determine which options are set.
      */
-    for (Index = 0; Index < XSP_NUM_OPTIONS; Index++) {
+    uint32_t OptionsFlag = 0;
+    for (uint32_t Index = 0; Index < XSP_NUM_OPTIONS; Index++) {
         if (ControlReg & OptionsTable[Index].Mask) {
             OptionsFlag |= OptionsTable[Index].Option;
         }
@@ -220,4 +215,3 @@ uint32_t XSpi_GetOptions(XSpi *InstancePtr)
 
     return OptionsFlag;
 }
-#endif

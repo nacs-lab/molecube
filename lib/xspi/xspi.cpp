@@ -80,20 +80,20 @@
  *                     Global Interrupt is being enabled in polled mode when a
  *                     slave is not selected.
  * 3.00a ktn  10/28/09 Updated all the register accesses as 32 bit access.
- *		      Updated to use the HAL APIs/macros.
- *		      Removed the macro XSpi_mReset, XSpi_Reset API should be
- *		      used in its place.
- *		      The macros have been renamed to remove _m from the name.
- *		      Removed an unnecessary read to the core register in the
- *		      XSpi_GetSlaveSelect API.
+ *                     Updated to use the HAL APIs/macros.
+ *                     Removed the macro XSpi_mReset, XSpi_Reset API should be
+ *                     used in its place.
+ *                     The macros have been renamed to remove _m from the name.
+ *                     Removed an unnecessary read to the core register in the
+ *                     XSpi_GetSlaveSelect API.
  * 3.01a sdm  04/23/10 Updated the driver to handle new slave mode interrupts
- *		      and the DTR Half Empty interrupt.
+ *                     and the DTR Half Empty interrupt.
  * 3.04a bss  03/21/12 Updated XSpi_CfgInitialize to support XIP Mode
  * 3.05a adk  18/04/13 Updated the code to avoid unused variable
- *	              warnings when compiling with the -Wextra -Wall flags
- *		      In the file xspi.c. CR:705005.
+ *                     warnings when compiling with the -Wextra -Wall flags
+ *                     In the file xspi.c. CR:705005.
  * 3.06a adk  07/08/13 Added a dummy read in the CfgInitialize(), if startup
- *		      block is used in the h/w design (CR 721229).
+ *                     block is used in the h/w design (CR 721229).
  * </pre>
  *
  ******************************************************************************/
@@ -110,41 +110,41 @@ static void StubStatusHandler(void *CallBackRef, uint32_t StatusEvent,
  * Initializes a specific XSpi instance such that the driver is ready to use.
  *
  * The state of the device after initialization is:
- *	- Device is disabled
- *	- Slave mode
- *	- Active high clock polarity
- *	- Clock phase 0
+ *        - Device is disabled
+ *        - Slave mode
+ *        - Active high clock polarity
+ *        - Clock phase 0
  *
- * @param	InstancePtr is a pointer to the XSpi instance to be worked on.
- * @param	Config is a reference to a structure containing information
- *		about a specific SPI device. This function initializes an
- *		InstancePtr object for a specific device specified by the
- *		contents of Config. This function can initialize multiple
- *		instance objects with the use of multiple calls giving
+ * @param        InstancePtr is a pointer to the XSpi instance to be worked on.
+ * @param        Config is a reference to a structure containing information
+ *                about a specific SPI device. This function initializes an
+ *                InstancePtr object for a specific device specified by the
+ *                contents of Config. This function can initialize multiple
+ *                instance objects with the use of multiple calls giving
  different Config information on each call.
- * @param	EffectiveAddr is the device base address in the virtual memory
- *		address space. The caller is responsible for keeping the
- *		address mapping from EffectiveAddr to the device physical base
- *		address unchanged once this function is invoked. Unexpected
- *		errors may occur if the address mapping changes after this
- *		function is called. If address translation is not used, use
- *		Config->BaseAddress for this parameters, passing the physical
- *		address instead.
+ * @param        EffectiveAddr is the device base address in the virtual memory
+ *                address space. The caller is responsible for keeping the
+ *                address mapping from EffectiveAddr to the device physical base
+ *                address unchanged once this function is invoked. Unexpected
+ *                errors may occur if the address mapping changes after this
+ *                function is called. If address translation is not used, use
+ *                Config->BaseAddress for this parameters, passing the physical
+ *                address instead.
  *
  * @return
- *		- XST_SUCCESS if successful.
- *		- XST_DEVICE_IS_STARTED if the device is started. It must be
+ *                - XST_SUCCESS if successful.
+ *                - XST_DEVICE_IS_STARTED if the device is started. It must be
  *                stopped to re-initialize.
  *
- * @note		None.
+ * @note                None.
  *
  ******************************************************************************/
-int XSpi_CfgInitialize(XSpi *InstancePtr, XSpi_Config *Config,
-                       volatile char *EffectiveAddr)
+int
+XSpi_CfgInitialize(XSpi *InstancePtr, XSpi_Config *Config,
+                   volatile char *EffectiveAddr)
 {
-    uint8_t  Buffer[3];
-
-    assert(InstancePtr != NULL);
+    assert(InstancePtr != nullptr);
+    uint8_t Buffer[3];
 
     /*
      * If the device is started, disallow the initialize and return a status
@@ -164,8 +164,8 @@ int XSpi_CfgInitialize(XSpi *InstancePtr, XSpi_Config *Config,
 
     InstancePtr->StatusHandler = StubStatusHandler;
 
-    InstancePtr->SendBufferPtr = NULL;
-    InstancePtr->RecvBufferPtr = NULL;
+    InstancePtr->SendBufferPtr = nullptr;
+    InstancePtr->RecvBufferPtr = nullptr;
     InstancePtr->RequestedBytes = 0;
     InstancePtr->RemainingBytes = 0;
     InstancePtr->BaseAddr = EffectiveAddr;
@@ -265,19 +265,19 @@ int XSpi_CfgInitialize(XSpi *InstancePtr, XSpi_Config *Config,
  * this function is called. If the device is configured with FIFOs, the FIFOs are
  * reset at this time.
  *
- * @param	InstancePtr is a pointer to the XSpi instance to be worked on.
+ * @param        InstancePtr is a pointer to the XSpi instance to be worked on.
  *
  * @return
- *		- XST_SUCCESS if the device is successfully started
- *		- XST_DEVICE_IS_STARTED if the device was already started.
+ *                - XST_SUCCESS if the device is successfully started
+ *                - XST_DEVICE_IS_STARTED if the device was already started.
  *
- * @note		None.
+ * @note                None.
  *
  ******************************************************************************/
 NACS_EXPORT int
 XSpi_Start(XSpi *InstancePtr)
 {
-    assert(InstancePtr != NULL);
+    assert(InstancePtr != nullptr);
     assert(InstancePtr->IsReady == XSPI_IS_READY);
 
     /*
@@ -335,7 +335,7 @@ XSpi_Start(XSpi *InstancePtr)
  * stopped while a transfer is in progress because the master is not done with
  * its transfer yet.
  *
- * @param	InstancePtr is a pointer to the XSpi instance to be worked on.
+ * @param        InstancePtr is a pointer to the XSpi instance to be worked on.
  *
  * @return
  *              - XST_SUCCESS if the device is successfully started.
@@ -356,7 +356,7 @@ XSpi_Stop(XSpi *InstancePtr)
 {
     uint32_t ControlReg;
 
-    assert(InstancePtr != NULL);
+    assert(InstancePtr != nullptr);
     assert(InstancePtr->IsReady == XSPI_IS_READY);
 
     /*
@@ -395,16 +395,16 @@ XSpi_Stop(XSpi *InstancePtr)
  * The upper layer software is responsible for re-configuring (if necessary)
  * and restarting the SPI device after the reset.
  *
- * @param	InstancePtr is a pointer to the XSpi instance to be worked on.
+ * @param        InstancePtr is a pointer to the XSpi instance to be worked on.
  *
- * @return	None.
+ * @return        None.
  *
- * @note		None.
+ * @note                None.
  *
  ******************************************************************************/
 void XSpi_Reset(XSpi *InstancePtr)
 {
-    assert(InstancePtr != NULL);
+    assert(InstancePtr != nullptr);
     assert(InstancePtr->IsReady == XSPI_IS_READY);
 
     /*
@@ -448,25 +448,25 @@ void XSpi_Reset(XSpi *InstancePtr)
  * argument must be the smaller of the two buffers if they differ in size.
  * Here are some sample usages:
  * <pre>
- *	XSpi_Transfer(InstancePtr, SendBuf, RecvBuf, ByteCount)
- *	The caller wishes to send and receive, and provides two different
- *	buffers for send and receive.
+ *        XSpi_Transfer(InstancePtr, SendBuf, RecvBuf, ByteCount)
+ *        The caller wishes to send and receive, and provides two different
+ *        buffers for send and receive.
  *
- *	XSpi_Transfer(InstancePtr, SendBuf, NULL, ByteCount)
- *	The caller wishes only to send and does not care about the received
- *	data. The driver ignores the received data in this case.
+ *        XSpi_Transfer(InstancePtr, SendBuf, nullptr, ByteCount)
+ *        The caller wishes only to send and does not care about the received
+ *        data. The driver ignores the received data in this case.
  *
- *	XSpi_Transfer(InstancePtr, SendBuf, SendBuf, ByteCount)
- *	The caller wishes to send and receive, but provides the same buffer
- *	for doing both. The driver sends the data and overwrites the send
- *	buffer with received data as it transfers the data.
+ *        XSpi_Transfer(InstancePtr, SendBuf, SendBuf, ByteCount)
+ *        The caller wishes to send and receive, but provides the same buffer
+ *        for doing both. The driver sends the data and overwrites the send
+ *        buffer with received data as it transfers the data.
  *
- *	XSpi_Transfer(InstancePtr, RecvBuf, RecvBuf, ByteCount)
- *	The caller wishes to only receive and does not care about sending
- *	data.  In this case, the caller must still provide a send buffer, but
- *	it can be the same as the receive buffer if the caller does not care
- *	what it sends. The device must send N bytes of data if it wishes to
- *	receive N bytes of data.
+ *        XSpi_Transfer(InstancePtr, RecvBuf, RecvBuf, ByteCount)
+ *        The caller wishes to only receive and does not care about sending
+ *        data.  In this case, the caller must still provide a send buffer, but
+ *        it can be the same as the receive buffer if the caller does not care
+ *        what it sends. The device must send N bytes of data if it wishes to
+ *        receive N bytes of data.
  * </pre>
  * In interrupt mode, though this function takes a buffer as an argument, the
  * driver can only transfer a limited number of bytes at time. It transfers only
@@ -482,24 +482,24 @@ void XSpi_Reset(XSpi *InstancePtr)
  * As a master, the SetSlaveSelect function must be called prior to this
  * function.
  *
- * @param	InstancePtr is a pointer to the XSpi instance to be worked on.
- * @param	SendBufPtr is a pointer to a buffer of data which is to be sent.
- *		This buffer must not be NULL.
- * @param	RecvBufPtr is a pointer to a buffer which will be filled with
- *		received data. This argument can be NULL if the caller does not
- *		wish to receive data.
- * @param	ByteCount contains the number of bytes to send/receive. The
- *		number of bytes received always equals the number of bytes sent.
+ * @param        InstancePtr is a pointer to the XSpi instance to be worked on.
+ * @param        SendBufPtr is a pointer to a buffer of data which is to be sent.
+ *                This buffer must not be nullptr.
+ * @param        RecvBufPtr is a pointer to a buffer which will be filled with
+ *                received data. This argument can be nullptr if the caller does not
+ *                wish to receive data.
+ * @param        ByteCount contains the number of bytes to send/receive. The
+ *                number of bytes received always equals the number of bytes sent.
  *
  * @return
- *		-XST_SUCCESS if the buffers are successfully handed off to the
- *		driver for transfer. Otherwise, returns:
- *		- XST_DEVICE_IS_STOPPED if the device must be started before
- *		transferring data.
- *		- XST_DEVICE_BUSY indicates that a data transfer is already in
- *		progress. This is determined by the driver.
- *		- XST_SPI_NO_SLAVE indicates the device is configured as a
- *		master and a slave has not yet been selected.
+ *                -XST_SUCCESS if the buffers are successfully handed off to the
+ *                driver for transfer. Otherwise, returns:
+ *                - XST_DEVICE_IS_STOPPED if the device must be started before
+ *                transferring data.
+ *                - XST_DEVICE_BUSY indicates that a data transfer is already in
+ *                progress. This is determined by the driver.
+ *                - XST_SPI_NO_SLAVE indicates the device is configured as a
+ *                master and a slave has not yet been selected.
  *
  * @notes
  *
@@ -512,10 +512,10 @@ XSpi_Transfer(XSpi *InstancePtr, uint8_t *SendBufPtr, uint8_t *RecvBufPtr,
               unsigned int ByteCount)
 {
     /*
-     * The RecvBufPtr argument can be NULL.
+     * The RecvBufPtr argument can be nullptr.
      */
-    assert(InstancePtr != NULL);
-    assert(SendBufPtr != NULL);
+    assert(InstancePtr != nullptr);
+    assert(SendBufPtr != nullptr);
     assert(ByteCount > 0);
     assert(InstancePtr->IsReady == XSPI_IS_READY);
 
@@ -698,7 +698,7 @@ XSpi_Transfer(XSpi *InstancePtr, uint8_t *SendBufPtr, uint8_t *RecvBufPtr,
                     /*
                      * Data Transfer Width is Byte (8 bit).
                      */
-                    if(InstancePtr->RecvBufferPtr != NULL) {
+                    if(InstancePtr->RecvBufferPtr != nullptr) {
                         *InstancePtr->RecvBufferPtr++ =
                             (uint8_t)Data;
                     }
@@ -708,7 +708,7 @@ XSpi_Transfer(XSpi *InstancePtr, uint8_t *SendBufPtr, uint8_t *RecvBufPtr,
                      * Data Transfer Width is Half Word
                      * (16 bit).
                      */
-                    if (InstancePtr->RecvBufferPtr != NULL) {
+                    if (InstancePtr->RecvBufferPtr != nullptr) {
                         *(uint16_t *)InstancePtr->RecvBufferPtr =
                             (uint16_t)Data;
                         InstancePtr->RecvBufferPtr += 2;
@@ -717,7 +717,7 @@ XSpi_Transfer(XSpi *InstancePtr, uint8_t *SendBufPtr, uint8_t *RecvBufPtr,
                     /*
                      * Data Transfer Width is Word (32 bit).
                      */
-                    if (InstancePtr->RecvBufferPtr != NULL) {
+                    if (InstancePtr->RecvBufferPtr != nullptr) {
                         *(uint32_t *)InstancePtr->RecvBufferPtr =
                             Data;
                         InstancePtr->RecvBufferPtr += 4;
@@ -827,18 +827,18 @@ XSpi_Transfer(XSpi *InstancePtr, uint8_t *SendBufPtr, uint8_t *RecvBufPtr,
  * implicitly deselects the current slave. In order to explicitly deselect the
  * current slave, a zero can be passed in as the argument to the function.
  *
- * @param	InstancePtr is a pointer to the XSpi instance to be worked on.
- * @param	SlaveMask is a 32-bit mask with a 1 in the bit position of the
- *		slave being selected. Only one slave can be selected. The
- *		SlaveMask can be zero if the slave is being deselected.
+ * @param        InstancePtr is a pointer to the XSpi instance to be worked on.
+ * @param        SlaveMask is a 32-bit mask with a 1 in the bit position of the
+ *                slave being selected. Only one slave can be selected. The
+ *                SlaveMask can be zero if the slave is being deselected.
  *
  * @return
- * 		- XST_SUCCESS if the slave is selected or deselected
- *		successfully.
- *		- XST_DEVICE_BUSY if a transfer is in progress, slave cannot be
- *		changed
- *		- XST_SPI_TOO_MANY_SLAVES if more than one slave is being
- *		selected.
+ *                 - XST_SUCCESS if the slave is selected or deselected
+ *                successfully.
+ *                - XST_DEVICE_BUSY if a transfer is in progress, slave cannot be
+ *                changed
+ *                - XST_SPI_TOO_MANY_SLAVES if more than one slave is being
+ *                selected.
  *
  * @note
  *
@@ -847,13 +847,12 @@ XSpi_Transfer(XSpi *InstancePtr, uint8_t *SendBufPtr, uint8_t *RecvBufPtr,
  * has no affect when the device is configured as a slave.
  *
  ******************************************************************************/
-#if 0
 int XSpi_SetSlaveSelect(XSpi *InstancePtr, uint32_t SlaveMask)
 {
     int NumAsserted;
     int Index;
 
-    assert(InstancePtr != NULL);
+    assert(InstancePtr != nullptr);
     assert(InstancePtr->IsReady == XSPI_IS_READY);
 
     /*
@@ -896,29 +895,27 @@ int XSpi_SetSlaveSelect(XSpi *InstancePtr, uint32_t SlaveMask)
 
     return XST_SUCCESS;
 }
-#endif
 
 /*****************************************************************************/
 /**
  *
  * Gets the current slave select bit mask for the SPI device.
  *
- * @param	InstancePtr is a pointer to the XSpi instance to be worked on.
+ * @param        InstancePtr is a pointer to the XSpi instance to be worked on.
  *
- * @return	The value returned is a 32-bit mask with a 1 in the bit position
- *		of the slave currently selected. The value may be zero if no
- *		slaves are selected.
+ * @return        The value returned is a 32-bit mask with a 1 in the bit position
+ *                of the slave currently selected. The value may be zero if no
+ *                slaves are selected.
  *
- * @note		This API is used to get the current slave select bit mask
- *		that was set using the XSpi_SetSlaveSelect API.
- *		This API deos not read the register from the core and returns
- *		the slave select register stored in the instance pointer.
+ * @note                This API is used to get the current slave select bit mask
+ *                that was set using the XSpi_SetSlaveSelect API.
+ *                This API deos not read the register from the core and returns
+ *                the slave select register stored in the instance pointer.
  *
  ******************************************************************************/
-#if 0
 uint32_t XSpi_GetSlaveSelect(XSpi *InstancePtr)
 {
-    assert(InstancePtr != NULL);
+    assert(InstancePtr != nullptr);
     assert(InstancePtr->IsReady == XSPI_IS_READY);
 
     /*
@@ -928,7 +925,6 @@ uint32_t XSpi_GetSlaveSelect(XSpi *InstancePtr)
      */
     return ~InstancePtr->SlaveSelectReg;
 }
-#endif
 
 /*****************************************************************************/
 /**
@@ -939,38 +935,38 @@ uint32_t XSpi_GetSlaveSelect(XSpi *InstancePtr)
  * the amount of processing performed such as transferring data to a thread
  * context. One of the following status events is passed to the status handler.
  * <pre>
- *   - XST_SPI_MODE_FAULT	A mode fault error occurred, meaning another
- *				master tried to select this device as a slave
- *				when this device was configured to be a master.
- *				Any transfer in progress is aborted.
+ *   - XST_SPI_MODE_FAULT        A mode fault error occurred, meaning another
+ *                                master tried to select this device as a slave
+ *                                when this device was configured to be a master.
+ *                                Any transfer in progress is aborted.
  *
- *   - XST_SPI_TRANSFER_DONE	The requested data transfer is done
+ *   - XST_SPI_TRANSFER_DONE        The requested data transfer is done
  *
- *   - XST_SPI_TRANSMIT_UNDERRUN	As a slave device, the master clocked
- *				data but there were none available in the
- *				transmit register/FIFO. This typically means the
- *				slave application did not issue a transfer
- *				request fast enough, or the processor/driver
- *				could not fill the transmit register/FIFO fast
- *				enough.
+ *   - XST_SPI_TRANSMIT_UNDERRUN        As a slave device, the master clocked
+ *                                data but there were none available in the
+ *                                transmit register/FIFO. This typically means the
+ *                                slave application did not issue a transfer
+ *                                request fast enough, or the processor/driver
+ *                                could not fill the transmit register/FIFO fast
+ *                                enough.
  *
- *   - XST_SPI_RECEIVE_OVERRUN	The SPI device lost data. Data was received
- *				but the receive data register/FIFO was full.
- *				This indicates that the device is receiving data
- *				faster than the processor/driver can consume it.
+ *   - XST_SPI_RECEIVE_OVERRUN        The SPI device lost data. Data was received
+ *                                but the receive data register/FIFO was full.
+ *                                This indicates that the device is receiving data
+ *                                faster than the processor/driver can consume it.
  *
- *   - XST_SPI_SLAVE_MODE_FAULT	A slave SPI device was selected as a slave while
- *				it was disabled.  This indicates the master is
- *				already transferring data (which is being
- *				dropped until the slave application issues a
- *				transfer).
+ *   - XST_SPI_SLAVE_MODE_FAULT        A slave SPI device was selected as a slave while
+ *                                it was disabled.  This indicates the master is
+ *                                already transferring data (which is being
+ *                                dropped until the slave application issues a
+ *                                transfer).
  * </pre>
- * @param	InstancePtr is a pointer to the XSpi instance to be worked on.
- * @param	CallBackRef is the upper layer callback reference passed back
- *		when the callback function is invoked.
- * @param	FuncPtr is the pointer to the callback function.
+ * @param        InstancePtr is a pointer to the XSpi instance to be worked on.
+ * @param        CallBackRef is the upper layer callback reference passed back
+ *                when the callback function is invoked.
+ * @param        FuncPtr is the pointer to the callback function.
  *
- * @return	None.
+ * @return        None.
  *
  * @note
  *
@@ -978,18 +974,16 @@ uint32_t XSpi_GetSlaveSelect(XSpi *InstancePtr)
  * quickly and queue potentially time-consuming work to a task-level thread.
  *
  ******************************************************************************/
-#if 0
 void XSpi_SetStatusHandler(XSpi *InstancePtr, void *CallBackRef,
                            XSpi_StatusHandler FuncPtr)
 {
-    assert(InstancePtr != NULL);
-    assert(FuncPtr != NULL);
+    assert(InstancePtr != nullptr);
+    assert(FuncPtr != nullptr);
     assert(InstancePtr->IsReady == XSPI_IS_READY);
 
     InstancePtr->StatusHandler = FuncPtr;
     InstancePtr->StatusRef = CallBackRef;
 }
-#endif
 
 /*****************************************************************************/
 /**
@@ -1056,9 +1050,9 @@ StubStatusHandler(void *CallBackRef, uint32_t StatusEvent,
  *   after the CS is asserted, doesn't match any command in the Lookup table.
  *   This interrupt is valid only for axi_qspi.
  *
- * @param	InstancePtr is a pointer to the XSpi instance to be worked on.
+ * @param        InstancePtr is a pointer to the XSpi instance to be worked on.
  *
- * @return	None.
+ * @return        None.
  *
  * @note
  *
@@ -1067,17 +1061,16 @@ StubStatusHandler(void *CallBackRef, uint32_t StatusEvent,
  * master since the hardware does not drive the slave select as a slave.
  *
  ******************************************************************************/
-#if 0
 void XSpi_InterruptHandler(void *InstancePtr)
 {
     XSpi *SpiPtr = (XSpi *)InstancePtr;
     uint32_t IntrStatus;
-    unsigned int BytesDone;	/* number of bytes done so far */
+    unsigned int BytesDone;        /* number of bytes done so far */
     uint32_t Data = 0;
     uint32_t StatusReg;
     uint8_t  DataWidth;
 
-    assert(InstancePtr != NULL);
+    assert(InstancePtr != nullptr);
 
     /*
      * Update the statistics for the number of interrupts.
@@ -1119,7 +1112,7 @@ void XSpi_InterruptHandler(void *InstancePtr)
         SpiPtr->StatusHandler(SpiPtr->StatusRef, XST_SPI_MODE_FAULT,
                               BytesDone);
 
-        return;		/* Do not continue servicing other interrupts */
+        return;                /* Do not continue servicing other interrupts */
     }
 
     DataWidth = SpiPtr->DataWidth;
@@ -1153,17 +1146,17 @@ void XSpi_InterruptHandler(void *InstancePtr)
              * Data Transfer Width is Byte (8 bit).
              */
             if (DataWidth == XSP_DATAWIDTH_BYTE) {
-                if (SpiPtr->RecvBufferPtr != NULL) {
+                if (SpiPtr->RecvBufferPtr != nullptr) {
                     *SpiPtr->RecvBufferPtr++ = (uint8_t) Data;
                 }
             } else if (DataWidth == XSP_DATAWIDTH_HALF_WORD) {
-                if (SpiPtr->RecvBufferPtr != NULL) {
+                if (SpiPtr->RecvBufferPtr != nullptr) {
                     *(uint16_t *) SpiPtr->RecvBufferPtr =
                         (uint16_t) Data;
                     SpiPtr->RecvBufferPtr +=2;
                 }
             } else if (DataWidth == XSP_DATAWIDTH_WORD) {
-                if (SpiPtr->RecvBufferPtr != NULL) {
+                if (SpiPtr->RecvBufferPtr != nullptr) {
                     *(uint32_t *) SpiPtr->RecvBufferPtr =
                         Data;
                     SpiPtr->RecvBufferPtr +=4;
@@ -1311,7 +1304,6 @@ void XSpi_InterruptHandler(void *InstancePtr)
                               XST_SPI_COMMAND_ERROR, BytesDone);
     }
 }
-#endif
 
 /*****************************************************************************/
 /**
@@ -1320,9 +1312,9 @@ void XSpi_InterruptHandler(void *InstancePtr)
  * then resetting the FIFOs if present. The byte counts are cleared and the
  * busy flag is set to false.
  *
- * @param	InstancePtr is a pointer to the XSpi instance to be worked on.
+ * @param        InstancePtr is a pointer to the XSpi instance to be worked on.
  *
- * @return	None.
+ * @return        None.
  *
  * @note
  *

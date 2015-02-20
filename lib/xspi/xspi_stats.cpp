@@ -1,7 +1,7 @@
-/* $Id: xspi_sinit.c,v 1.1.2.1 2011/08/09 06:59:27 svemula Exp $ */
+/* $Id: xspi_stats.c,v 1.1.2.1 2011/08/09 06:59:27 svemula Exp $ */
 /******************************************************************************
 *
-* (c) Copyright 2005-2013 Xilinx, Inc. All rights reserved.
+* (c) Copyright 2002-2013 Xilinx, Inc. All rights reserved.
 *
 * This file contains confidential and proprietary information of Xilinx, Inc.
 * and is protected under U.S. and international copyright and other
@@ -42,28 +42,29 @@
 /*****************************************************************************/
 /**
 *
-* @file xspi_sinit.c
+* @file xspi_stats.c
 *
-* The implementation of the XSpi component's static initialization
-* functionality.
+* This component contains the implementation of statistics functions for the
+* XSpi driver component.
 *
 * <pre>
 * MODIFICATION HISTORY:
 *
 * Ver   Who  Date     Changes
 * ----- ---- -------- -----------------------------------------------
-* 1.01a jvb  10/13/05 First release
+* 1.00b jhl  03/14/02 First release
+* 1.00b rpm  04/25/02 Changed macro naming convention
 * 1.11a wgr  03/22/07 Converted to new coding style.
-*
+* 1.12a sv   03/28/08 Removed the call to the Macro for clearing statistics.
+* 2.00a sv   07/30/08 Removed the call to the Macro for clearing statistics.
+* 3.00a ktn  10/28/09 Updated all the register accesses as 32 bit access.
+*                     Updated driver to use the HAL APIs/macros.
 * </pre>
 *
 ******************************************************************************/
 
 /***************************** Include Files *********************************/
 
-#include <nacs-utils/log.h>
-#include <nacs-utils/fd_utils.h>
-#include "xparameters.h"
 #include "xspi.h"
 #include "xspi_i.h"
 #include <assert.h>
@@ -71,86 +72,54 @@
 /*****************************************************************************/
 /**
 *
-* Looks up the device configuration based on the unique device ID. A table
-* contains the configuration info for each device in the system.
+* Gets a copy of the statistics for an SPI device.
 *
-* @param	DeviceId contains the ID of the device to look up the
-*		configuration for.
+* @param        InstancePtr is a pointer to the XSpi instance to be worked on.
+* @param        StatsPtr is a pointer to a XSpi_Stats structure which will get a
+*               copy of current statistics.
 *
-* @return
+* @return       None.
 *
-* A pointer to the configuration found or NULL if the specified device ID was
-* not found. See xspi.h for the definition of XSpi_Config.
-*
-* @note		None.
+* @note               Statistics are not updated in polled mode of operation.
 *
 ******************************************************************************/
-static XSpi_Config*
-XSpi_LookupConfig(uint16_t DeviceId)
+void
+XSpi_GetStats(XSpi *InstancePtr, XSpi_Stats *StatsPtr)
 {
-    XSpi_Config *CfgPtr = NULL;
+    assert(InstancePtr != nullptr);
+    assert(StatsPtr != nullptr);
+    assert(InstancePtr->IsReady == XSPI_IS_READY);
 
-    for (unsigned i = 0;i < XPAR_XSPI_NUM_INSTANCES;i++) {
-        if (XSpi_ConfigTable[i].DeviceId == DeviceId) {
-            CfgPtr = &XSpi_ConfigTable[i];
-            break;
-        }
-    }
-    //remap physical address to virtual one
-    CfgPtr->BaseAddress = nacsMapFile("/dev/mem",
-                                      (intptr_t)CfgPtr->BaseAddress, 4096);
-    if (nacsUnlikely(!CfgPtr->BaseAddress)) {
-        nacsError("Can't map the memory to user space.\n");
-        exit(0);
-    }
-    return CfgPtr;
+    StatsPtr->ModeFaults = InstancePtr->Stats.ModeFaults;
+    StatsPtr->XmitUnderruns = InstancePtr->Stats.XmitUnderruns;
+    StatsPtr->RecvOverruns =  InstancePtr->Stats.RecvOverruns;
+    StatsPtr->SlaveModeFaults = InstancePtr->Stats.SlaveModeFaults;
+    StatsPtr->BytesTransferred = InstancePtr->Stats.BytesTransferred;
+    StatsPtr->NumInterrupts = InstancePtr->Stats.NumInterrupts;
 }
 
 /*****************************************************************************/
 /**
 *
-* Initializes a specific XSpi instance such that the driver is ready to use.
+* Clears the statistics for the SPI device.
 *
-* The state of the device after initialization is:
-*	- Device is disabled
-*	- Slave mode
-*	- Active high clock polarity
-*	- Clock phase 0
+* @param        InstancePtr is a pointer to the XSpi instance to be worked on.
 *
-* @param	InstancePtr is a pointer to the XSpi instance to be worked on.
-* @param	DeviceId is the unique id of the device controlled by this XSpi
-*		instance. Passing in a device id associates the generic XSpi
-*		instance to a specific device, as chosen by the caller or
-*		application developer.
+* @return       None.
 *
-* @return
-*
-*		- XST_SUCCESS if successful.
-*		- XST_DEVICE_IS_STARTED if the device is started. It must be
-*		  stopped to re-initialize.
-*		- XST_DEVICE_NOT_FOUND if the device was not found in the
-*		  configuration such that initialization could not be
-*		  accomplished.
-*
-* @note		None.
+* @note                Statistics are not updated in polled mode of operation.
 *
 ******************************************************************************/
-NACS_EXPORT int
-XSpi_Initialize(XSpi *InstancePtr, uint16_t DeviceId)
+void
+XSpi_ClearStats(XSpi *InstancePtr)
 {
-    XSpi_Config *ConfigPtr; /* Pointer to Configuration ROM data */
+    assert(InstancePtr != nullptr);
+    assert(InstancePtr->IsReady == XSPI_IS_READY);
 
-    assert(InstancePtr != NULL);
-
-    /*
-     * Lookup the device configuration in the temporary CROM table. Use this
-     * configuration info down below when initializing this component.
-     */
-    ConfigPtr = XSpi_LookupConfig(DeviceId);
-    if (ConfigPtr == NULL) {
-        return XST_DEVICE_NOT_FOUND;
-    }
-
-    return XSpi_CfgInitialize(InstancePtr, ConfigPtr,
-                              ConfigPtr->BaseAddress);
+    InstancePtr->Stats.ModeFaults = 0;
+    InstancePtr->Stats.XmitUnderruns = 0;
+    InstancePtr->Stats.RecvOverruns = 0;
+    InstancePtr->Stats.SlaveModeFaults = 0;
+    InstancePtr->Stats.BytesTransferred = 0;
+    InstancePtr->Stats.NumInterrupts = 0;
 }

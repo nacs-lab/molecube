@@ -58,158 +58,25 @@
  * 2.00a sv   07/30/08 Updated the code to support 16/32 bit transfer width.
  * 3.00a sdm  10/28/09 Updated all the register accesses as 32 bit access.
  * 3.02a sdm  05/04/11 Updated to run the loopback test only in standard spi
- *		      mode.
+ *                     mode.
  * 3.03a sdm  08/09/11 Updated the selftest to check for a correct default value
- *		      in the case of axi_qspi - CR 620502
+ *                     in the case of axi_qspi - CR 620502
  * 3.04a bss  03/21/12 Updated Selftest to check for XIP mode and return if XIP
- *		      mode is true
+ *                     mode is true
  * </pre>
  *
  ******************************************************************************/
-
-/***************************** Include Files *********************************/
 
 #include "xspi.h"
 #include "xspi_i.h"
 #include <assert.h>
 
-/************************** Constant Definitions *****************************/
+#define XSP_SR_RESET_STATE 0x5 /* Default to Tx/Rx reg empty */
+#define XSP_CR_RESET_STATE 0x180
 
-#define XSP_SR_RESET_STATE	0x5	   /* Default to Tx/Rx reg empty */
-#define XSP_CR_RESET_STATE	0x180
+#define XSP_HALF_WORD_TESTBYTE 0x2200 /* Test Byte for Half Word */
+#define XSP_WORD_TESTBYTE 0xAA005500 /* Test Byte for Word */
 
-#define XSP_HALF_WORD_TESTBYTE	0x2200	   /* Test Byte for Half Word */
-#define XSP_WORD_TESTBYTE	0xAA005500 /* Test Byte for Word */
-
-/**************************** Type Definitions *******************************/
-
-
-/***************** Macros (Inline Functions) Definitions *********************/
-
-
-/************************** Function Prototypes ******************************/
-
-#if 0
-static int LoopbackTest(XSpi *InstancePtr);
-#endif
-
-/*****************************************************************************/
-/**
- *
- * Runs a self-test on the driver/device. The self-test is destructive in that
- * a reset of the device is performed in order to check the reset values of
- * the registers and to get the device into a known state. A simple loopback
- * test is also performed to verify that transmit and receive are working
- * properly. The device is changed to master mode for the loopback test, since
- * only a master can initiate a data transfer.
- *
- * Upon successful return from the self-test, the device is reset.
- *
- * @param       InstancePtr is a pointer to the XSpi instance to be worked on.
- *
- * @return
- *              - XST_SUCCESS if successful.
- *              - XST_REGISTER_ERROR indicates a register did not read or write
- *                correctly.
- *              - XST_LOOPBACK_ERROR if a loopback error occurred.
- *
- * @note		None.
- *
- ******************************************************************************/
-#if 0
-int XSpi_SelfTest(XSpi *InstancePtr)
-{
-    int Result;
-    uint32_t Register;
-
-    assert(InstancePtr != NULL);
-    assert(InstancePtr->IsReady == XSPI_IS_READY);
-
-
-    /* Return Success if XIP Mode */
-    if((InstancePtr->XipMode) == 1) {
-        return XST_SUCCESS;
-    }
-
-    /*
-     * Reset the SPI device to leave it in a known good state.
-     */
-    XSpi_Reset(InstancePtr);
-
-    if(InstancePtr->XipMode) {
-        Register = XSpi_GetControlReg(InstancePtr);
-        if (Register != XSP_CR_RESET_STATE) {
-            return XST_REGISTER_ERROR;
-        }
-
-        Register = XSpi_GetStatusReg(InstancePtr);
-        if ((Register & XSP_SR_RESET_STATE) != XSP_SR_RESET_STATE) {
-            return XST_REGISTER_ERROR;
-        }
-    }
-
-    /*
-     * All the SPI registers should be in their default state right now.
-     */
-    Register = XSpi_GetControlReg(InstancePtr);
-    if (Register != XSP_CR_RESET_STATE) {
-        return XST_REGISTER_ERROR;
-    }
-
-    Register = XSpi_GetStatusReg(InstancePtr);
-    if ((Register & XSP_SR_RESET_STATE) != XSP_SR_RESET_STATE) {
-        return XST_REGISTER_ERROR;
-    }
-
-    /*
-     * Each supported slave select bit should be set to 1.
-     */
-    Register = XSpi_GetSlaveSelectReg(InstancePtr);
-    if (Register != InstancePtr->SlaveSelectMask) {
-        return XST_REGISTER_ERROR;
-    }
-
-    /*
-     * If configured with FIFOs, the occupancy values should be 0.
-     */
-    if (InstancePtr->HasFifos) {
-        Register = XSpi_ReadReg(InstancePtr->BaseAddr,
-                                XSP_TFO_OFFSET);
-        if (Register != 0) {
-            return XST_REGISTER_ERROR;
-        }
-        Register = XSpi_ReadReg(InstancePtr->BaseAddr,
-                                XSP_RFO_OFFSET);
-        if (Register != 0) {
-            return XST_REGISTER_ERROR;
-        }
-    }
-
-    /*
-     * Run loopback test only in case of standard SPI mode.
-     */
-    if (InstancePtr->SpiMode != XSP_STANDARD_MODE) {
-        return XST_SUCCESS;
-    }
-
-    /*
-     * Run an internal loopback test on the SPI.
-     */
-    Result = LoopbackTest(InstancePtr);
-    if (Result != XST_SUCCESS) {
-        return Result;
-    }
-
-    /*
-     * Reset the SPI device to leave it in a known good state.
-     */
-    XSpi_Reset(InstancePtr);
-
-    return XST_SUCCESS;
-}
-#endif
-
-/*****************************************************************************/
 /*
  *
  * Runs an internal loopback test on the SPI device. This is done as a master
@@ -220,18 +87,18 @@ int XSpi_SelfTest(XSpi *InstancePtr)
  * This function does not restore the device context after performing the test
  * as it assumes the device will be reset after the call.
  *
- * @param	InstancePtr is a pointer to the XSpi instance to be worked on.
+ * @param        InstancePtr is a pointer to the XSpi instance to be worked on.
  *
  * @return
- * 		- XST_SUCCESS if loopback was performed successfully or not
- *		  performed at all if device is slave-only.
- *		- XST_LOOPBACK_ERROR if loopback failed.
+ *                 - XST_SUCCESS if loopback was performed successfully or not
+ *                  performed at all if device is slave-only.
+ *                - XST_LOOPBACK_ERROR if loopback failed.
  *
- * @note		None.
+ * @note                None.
  *
  ******************************************************************************/
-#if 0
-static int LoopbackTest(XSpi *InstancePtr)
+int
+LoopbackTest(XSpi *InstancePtr)
 {
     uint32_t StatusReg;
     uint32_t ControlReg;
@@ -363,4 +230,116 @@ static int LoopbackTest(XSpi *InstancePtr)
 
     return XST_SUCCESS;
 }
-#endif
+
+/**
+ *
+ * Runs a self-test on the driver/device. The self-test is destructive in that
+ * a reset of the device is performed in order to check the reset values of
+ * the registers and to get the device into a known state. A simple loopback
+ * test is also performed to verify that transmit and receive are working
+ * properly. The device is changed to master mode for the loopback test, since
+ * only a master can initiate a data transfer.
+ *
+ * Upon successful return from the self-test, the device is reset.
+ *
+ * @param       InstancePtr is a pointer to the XSpi instance to be worked on.
+ *
+ * @return
+ *              - XST_SUCCESS if successful.
+ *              - XST_REGISTER_ERROR indicates a register did not read or write
+ *                correctly.
+ *              - XST_LOOPBACK_ERROR if a loopback error occurred.
+ *
+ * @note                None.
+ *
+ ******************************************************************************/
+int XSpi_SelfTest(XSpi *InstancePtr)
+{
+    int Result;
+    uint32_t Register;
+
+    assert(InstancePtr != nullptr);
+    assert(InstancePtr->IsReady == XSPI_IS_READY);
+
+
+    /* Return Success if XIP Mode */
+    if((InstancePtr->XipMode) == 1) {
+        return XST_SUCCESS;
+    }
+
+    /*
+     * Reset the SPI device to leave it in a known good state.
+     */
+    XSpi_Reset(InstancePtr);
+
+    if(InstancePtr->XipMode) {
+        Register = XSpi_GetControlReg(InstancePtr);
+        if (Register != XSP_CR_RESET_STATE) {
+            return XST_REGISTER_ERROR;
+        }
+
+        Register = XSpi_GetStatusReg(InstancePtr);
+        if ((Register & XSP_SR_RESET_STATE) != XSP_SR_RESET_STATE) {
+            return XST_REGISTER_ERROR;
+        }
+    }
+
+    /*
+     * All the SPI registers should be in their default state right now.
+     */
+    Register = XSpi_GetControlReg(InstancePtr);
+    if (Register != XSP_CR_RESET_STATE) {
+        return XST_REGISTER_ERROR;
+    }
+
+    Register = XSpi_GetStatusReg(InstancePtr);
+    if ((Register & XSP_SR_RESET_STATE) != XSP_SR_RESET_STATE) {
+        return XST_REGISTER_ERROR;
+    }
+
+    /*
+     * Each supported slave select bit should be set to 1.
+     */
+    Register = XSpi_GetSlaveSelectReg(InstancePtr);
+    if (Register != InstancePtr->SlaveSelectMask) {
+        return XST_REGISTER_ERROR;
+    }
+
+    /*
+     * If configured with FIFOs, the occupancy values should be 0.
+     */
+    if (InstancePtr->HasFifos) {
+        Register = XSpi_ReadReg(InstancePtr->BaseAddr,
+                                XSP_TFO_OFFSET);
+        if (Register != 0) {
+            return XST_REGISTER_ERROR;
+        }
+        Register = XSpi_ReadReg(InstancePtr->BaseAddr,
+                                XSP_RFO_OFFSET);
+        if (Register != 0) {
+            return XST_REGISTER_ERROR;
+        }
+    }
+
+    /*
+     * Run loopback test only in case of standard SPI mode.
+     */
+    if (InstancePtr->SpiMode != XSP_STANDARD_MODE) {
+        return XST_SUCCESS;
+    }
+
+    /*
+     * Run an internal loopback test on the SPI.
+     */
+    Result = LoopbackTest(InstancePtr);
+    if (Result != XST_SUCCESS) {
+        return Result;
+    }
+
+    /*
+     * Reset the SPI device to leave it in a known good state.
+     */
+    XSpi_Reset(InstancePtr);
+
+    return XST_SUCCESS;
+}

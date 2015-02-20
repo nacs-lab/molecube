@@ -16,10 +16,10 @@ include_directories(../common)
 set(SOURCES ${SOURCES}
   ../common/CmdLineArgs.cpp
   # ../common/dac.cpp
-  ../common/linux_file_util.c
+  ../common/linux_file_util.cpp
   ../common/verbosity.cpp
   ../common/spi_util.cpp
-  ../common/fpga.c
+  ../common/fpga.cpp
   ../common/AD9914.cpp
   # ../common/self_test.cpp
   ../common/string_func.cpp)
