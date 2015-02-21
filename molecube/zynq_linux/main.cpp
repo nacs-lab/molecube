@@ -22,8 +22,8 @@
 #include <signal.h>
 #include <fcntl.h>
 
-#include <fcgi/fcgio.h>
-#include <fcgi/fcgi_config.h>
+#include <fcgio.h>
+#include <fcgi_config.h>
 #include <cgicc/CgiInput.h>
 
 // TR: Linker failed when FCgiIO was in a separate header (undefined ref to vtable),
