@@ -73,7 +73,7 @@ PulserBase::short_pulse(uint32_t control, uint32_t operand)
     if (log_on()) {
         nacsLog("Short Pulse control=%x, operand=%x\n", control, operand);
     }
-    LogHolder holder();
+    LogHolder holder;
     write_reg(31, operand);
     write_reg(31, control);
 }
@@ -88,7 +88,7 @@ PulserBase::clock_out(unsigned divider)
     if (log_on()) {
         nacsLog("Clock out %u\n", divider);
     }
-    LogHolder holder();
+    LogHolder holder;
     short_pulse(0x50000000, divider & 0xFF);
 }
 
@@ -100,7 +100,7 @@ PulserBase::set_dds_two_bytes(int i, uint32_t addr, uint32_t data)
     if (log_on()) {
         nacsLog("Set DDS(%d) two bytes addr=%x, data=%x\n", i, addr, data);
     }
-    LogHolder holder();
+    LogHolder holder;
     // put addr in bits 15...9 (maps to DDS opcode_reg[14:9] )?
     uint32_t dds_addr = (addr + 1) & 0x7F;
     // put data in bits 15...0 (maps to DDS operand_reg[15:0] )?
@@ -115,7 +115,7 @@ PulserBase::set_dds_four_bytes(int i, uint32_t addr, uint32_t data)
     if (log_on()) {
         nacsLog("Set DDS(%d) four bytes addr=%x, data=%x\n", i, addr, data);
     }
-    LogHolder holder();
+    LogHolder holder;
     //put addr in bits 15...9 (maps to DDS opcode_reg[14:9])?
     uint32_t dds_addr = (addr + 1) & 0x7F;
     short_pulse(0x1000000F | (i << 4) | (dds_addr << 9), data);
@@ -131,7 +131,7 @@ PulserBase::pulse(uint64_t t, unsigned flags, unsigned operand)
         nacsLog("Long pulse t=%" PRTime ", flags=%x, operand=%x\n",
                 t, flags, operand);
     }
-    LogHolder holder();
+    LogHolder holder;
     static const uint32_t t_max = 0x001FFFFF;
     PulserLocker lock(this);
     do {
@@ -148,7 +148,7 @@ PulserBase::clear_timing_check()
     if (log_on()) {
         nacsLog("Clear timing check\n");
     }
-    LogHolder holder();
+    LogHolder holder;
     short_pulse(0x30000000, 0);
 }
 
@@ -158,7 +158,7 @@ PulserBase::set_dds_freq(int i, uint32_t ftw)
     if (log_on()) {
         nacsLog("Set DDS(%d) frequency %x\n", i, ftw);
     }
-    LogHolder holder();
+    LogHolder holder;
     short_pulse(0x10000000 | (i << 4), ftw);
 }
 
@@ -168,7 +168,7 @@ PulserBase::set_dds_amp(int i, uint32_t amp)
     if (log_on()) {
         nacsLog("Set DDS(%d) amplitude %x\n", i, amp);
     }
-    LogHolder holder();
+    LogHolder holder;
     set_dds_two_bytes(i, 0x32, amp);
 }
 
@@ -179,7 +179,7 @@ PulserBase::dds_reset(int i)
     if (log_on()) {
         nacsLog("Reset DDS(%i)\n", i);
     }
-    LogHolder holder();
+    LogHolder holder;
     short_pulse(0x10000004 | (i << 4), 0);
 }
 
@@ -189,7 +189,7 @@ PulserBase::set_dds_phase(int i, uint16_t phase)
     if (log_on()) {
         nacsLog("Set DDS(%i) phase %" PRId16 "\n", i, phase);
     }
-    LogHolder holder();
+    LogHolder holder;
     set_dds_two_bytes(i, 0x30, phase);
 }
 
@@ -201,7 +201,7 @@ PulserBase::set_ttl_mask(uint32_t high_mask, uint32_t low_mask)
         nacsLog("Set TTL mask low=%" PRIx32 ", high=%" PRIx32 "\n",
                 low_mask, high_mask);
     }
-    LogHolder holder();
+    LogHolder holder;
     PulserLocker lock(this);
     write_reg(0, high_mask);
     write_reg(1, low_mask);
@@ -214,7 +214,7 @@ PulserBase::reset_dds_sel(uint32_t mask)
     if (log_on()) {
         nacsLog("Reset DDS selection mask %" PRIx32 "\n", mask);
     }
-    LogHolder holder();
+    LogHolder holder;
     short_pulse(0x10000005, mask);
 }
 
@@ -224,7 +224,7 @@ PulserBase::set_dds_sel(uint32_t mask)
     if (log_on()) {
         nacsLog("Set DDS selection mask %" PRIx32 "\n", mask);
     }
-    LogHolder holder();
+    LogHolder holder;
     short_pulse(0x10000006, mask);
 }
 
@@ -265,7 +265,7 @@ void
 Pulser::init(bool reset)
 {
     if (log_on()) {
-        LogHolder holder();
+        LogHolder holder;
         debug_regs();
     }
 

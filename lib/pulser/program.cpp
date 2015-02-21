@@ -93,7 +93,7 @@ Program::shift_dds_phase(int i, uint16_t phase)
     if (log_on()) {
         nacsLog("Shift DDS(%i) phase %" PRId16 "\n", i, phase);
     }
-    LogHolder holder();
+    LogHolder holder;
     // TODO: let's see what is the ``documented'' behavior of the set
     // phase command
     PulserLocker lock(this);
