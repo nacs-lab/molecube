@@ -272,7 +272,7 @@ main(int argc, char *argv[])
             }
         } catch (std::runtime_error e) {
             reply.printf("Oh noes! \n   %s\n", e.what())
-                .printf("%s", getQuote("/usr/local/quotes.frt",
+                .printf("%s", getQuote("/usr/share/molecube/quotes.frt",
                                        "%%").c_str());
         }
 

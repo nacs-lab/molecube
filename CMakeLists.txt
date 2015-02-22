@@ -45,6 +45,7 @@ cmake_c_add_flags(CMAKE_MODULE_LINKER_FLAGS ${LINKER_FLAGS})
 
 cmake_c_include_fix_path()
 cmake_c_include_fix_path(bin)
+add_subdirectory(data)
 add_subdirectory(lib)
 add_subdirectory(molecube)
 add_subdirectory(test)
