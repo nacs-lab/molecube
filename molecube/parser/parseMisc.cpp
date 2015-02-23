@@ -208,7 +208,8 @@ parseQueryCGI(NaCs::Pulser::Pulser &pulser, cgicc::Cgicc &cgi,
 
             if (sPage.length()) {
                 txtmap_t params;
-                std::string fname = "/home/www/userdata/params_" + sPage;
+                // TODO FIX absolute path
+                std::string fname = "/srv/http/userdata/params_" + sPage;
 
                 // load existing params
                 loadMap(params, fname);
@@ -228,7 +229,8 @@ parseQueryCGI(NaCs::Pulser::Pulser &pulser, cgicc::Cgicc &cgi,
             removeNonAlphaNum(sPage);
             if (sPage.length()) {
                 txtmap_t params;
-                loadMap(params, "/home/www/userdata/params_" + sPage);
+                // TODO FIX absolute path
+                loadMap(params, "/srv/http/userdata/params_" + sPage);
                 getDeviceParams(pulser, sPage, params);
                 dumpMapHTML(params, std::cout);
                 return true;
