@@ -196,11 +196,6 @@ main(int argc, char *argv[])
 
     setProgramStatus("molecube", "Initializing");
 
-    time_t rawtime;
-    time(&rawtime);
-    struct tm *timeinfo = localtime(&rawtime);
-    nacsInfo("Current time: (UTC) %s\n", asctime(timeinfo));
-
     auto &pulser = init_system();
 
     FCGX_Request request;
