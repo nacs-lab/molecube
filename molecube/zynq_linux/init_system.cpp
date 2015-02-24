@@ -40,7 +40,10 @@ init_system()
     auto &pulser = Pulser::get_pulser();
     nacsInfo("Initializing pulse controller at address %p...\n",
              pulser.get_base());
+    bool pulser_debug = pulser.debug();
+    pulser.debug() = true;
     pulser.init(false);
+    pulser.debug() = pulser_debug;
     nacsLog("Initializing pulse controller...done.\n");
 
     pulser.clear_timing_check();
