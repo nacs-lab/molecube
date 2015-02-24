@@ -567,26 +567,20 @@ get_phys_addr()
     return XPAR_PULSE_CONTROLLER_0_BASEADDR;
 }
 
-static inline auto
-map_pulser_addr()
-{
-    nacsInfo("Initializing pulse controller\n");
-    auto addr = mapFile("/dev/mem", get_phys_addr(), 4096);
-    if (nacsUnlikely(!addr)) {
-        nacsError("Can't map the memory to user space.\n");
-        exit(0);
-    }
-    return addr;
-}
-
 NACS_EXPORT Pulser&
 get_pulser()
 {
-    static std::mutex pulser_create_lock;
-    // C++ standard is fuzzy about whether initialization of function-scope
-    // static variable is thread-safe.
-    std::lock_guard<std::mutex> locker(pulser_create_lock);
-    static Pulser pulser(map_pulser_addr());
+    // C++0x grantees that the initialization of function scope static
+    // variable is thread-safe.
+    static Pulser pulser = [] {
+        nacsInfo("Initializing pulse controller\n");
+        auto addr = mapFile("/dev/mem", get_phys_addr(), 4096);
+        if (nacsUnlikely(!addr)) {
+            nacsError("Can't map the memory to user space.\n");
+            exit(0);
+        }
+        return addr;
+    }();
     return pulser;
 }
 

@@ -1,8 +1,8 @@
 #include <nacs-utils/timer.h>
+#include <nacs-utils/number.h>
 #include <nacs-pulser/pulser.h>
 
 #include <stdint.h>
-#include <cmath>
 
 using namespace NaCs;
 
@@ -21,13 +21,6 @@ test_dds(Pulser::Pulser &pulser, int dds_id, unsigned freq_step,
             fails++;
         }
     }
-}
-
-template <typename T>
-static inline T
-square(T v)
-{
-    return v * v;
 }
 
 int
