@@ -128,7 +128,7 @@ protected:
 namespace NaCs {
 
 volatile bool g_stop_curr_seq = false;
-FLock g_fPulserLock("/tmp/pulser.lock");
+FLock g_fPulserLock("/run/molecube/pulser.lock");
 std::vector<unsigned> active_dds; // all DDS that are available
 
 static void
