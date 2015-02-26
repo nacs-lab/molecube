@@ -15,6 +15,7 @@
 #include <stdexcept>
 #include <fstream>
 #include <map>
+#include <atomic>
 
 #include <unistd.h>
 #include <errno.h>
@@ -105,6 +106,7 @@ namespace NaCs {
 volatile bool g_stop_curr_seq = false;
 FLock g_fPulserLock("/run/molecube/pulser.lock");
 std::vector<unsigned> active_dds; // all DDS that are available
+std::mutex GPL;
 
 static void
 handleINT(int)
@@ -140,6 +142,13 @@ printUsage()
     printf("\n\n");
 }
 
+static inline int
+getRequestId()
+{
+    static std::atomic<int> id(0);
+    return ++id;
+}
+
 }
 
 using namespace NaCs;
@@ -173,17 +182,12 @@ main(int argc, char *argv[])
 
     auto &pulser = init_system();
 
-    FCGX_Request request;
-
-    FCGX_Init();
-    FCGX_InitRequest(&request, 0, 0);
-
-    int nAccept = 0;
-
     time_t srandT = time(0);
-    srand(srandT + nAccept);
+    srand(srandT);
     nacsLog("Random seed = %u.  2 random numbers: %u, %u\n",
             (unsigned)srandT, rand(), rand());
+
+    FCGX_Init();
 
     // run startup sequence
     std::string fnameStartup = cla.GetStringAfter("-s", "");
@@ -214,22 +218,22 @@ main(int argc, char *argv[])
 
     setProgramStatus("Idle");
 
+    FCGX_Request request;
+    FCGX_InitRequest(&request, 0, 0);
     while (FCGX_Accept_r(&request) == 0) {
+        auto request_id = getRequestId();
         setProgramStatus("Processing request");
         nacsLog("================ Accept FastCGI request %d "
-                "================\n", nAccept);
+                "================\n", request_id);
 
         // Replace stdio streambufs.
         // Note that the default bufsize (0) will cause the use of iostream
         // methods that require positioning (such as peek(), seek(),
         // unget() and putback()) to fail (in favour of more efficient IO).
-        //     fcgi_streambuf cin_fcgi_streambuf(request.in);
         fcgi_streambuf cout_fcgi_streambuf(request.out);
-        fcgi_streambuf cerr_fcgi_streambuf(request.err);
 
-        // std::cin.rdbuf(&cin_fcgi_streambuf);
+        LockGPL lock;
         std::cout.rdbuf(&cout_fcgi_streambuf);
-        std::cerr.rdbuf(&cerr_fcgi_streambuf);
 
         FCgiIO IO(request);
         cgicc::Cgicc cgi(&IO);
@@ -247,7 +251,7 @@ main(int argc, char *argv[])
         }
 
         nacsLog("================ Finish FastCGI request %d "
-                "================\n\n", nAccept++);
+                "================\n\n", request_id);
         std::cout << std::endl;
         setProgramStatus("Idle");
     }
