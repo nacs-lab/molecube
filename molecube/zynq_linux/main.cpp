@@ -169,7 +169,7 @@ main(int argc, char *argv[])
 
     printHeader(nacsGetLog());
 
-    setProgramStatus("molecube", "Initializing");
+    setProgramStatus("Initializing");
 
     auto &pulser = init_system();
 
@@ -212,10 +212,10 @@ main(int argc, char *argv[])
 
     nacsInfo("Waiting for network connections...\n\n");
 
-    setProgramStatus(0, "Idle");
+    setProgramStatus("Idle");
 
     while (FCGX_Accept_r(&request) == 0) {
-        setProgramStatus(0, "Processing request");
+        setProgramStatus("Processing request");
         nacsLog("================ Accept FastCGI request %d "
                 "================\n", nAccept);
 
@@ -249,10 +249,10 @@ main(int argc, char *argv[])
         nacsLog("================ Finish FastCGI request %d "
                 "================\n\n", nAccept++);
         std::cout << std::endl;
-        setProgramStatus(0, "Idle");
+        setProgramStatus("Idle");
     }
 
     nacsLog("Exit, return 0\n");
-    setProgramStatus(0, "Finished / Quit");
+    setProgramStatus("Finished / Quit");
     return 0;
 }

@@ -54,17 +54,9 @@ write_str_to_file(const char *fname, const char *val)
 // then rewrite and unlock it.  Readers should acquire a lock,
 // to prevent reading of partially written or empty files.
 void
-setProgramStatus(const char *progname, const char *str)
+setProgramStatus(const char *str)
 {
-    static FILE *f = [&] {
-        if (progname) {
-            char buff[256];
-            snprintf(buff, 256, "/var/run/%s.status", progname);
-            return fopen(buff, "w");
-        } else {
-            return fopen("/var/run/unnamedprog.status", "w");
-        }
-    }();
+    static FILE *f = fopen("/var/run/molecube/molecube.status", "w");
 
     if (f) {
         flock(fileno(f), LOCK_EX);

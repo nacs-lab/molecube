@@ -417,7 +417,7 @@ parseSeqTxt(Pulser::Pulser &pulser, unsigned reps,
         } else {
             snprintf(buff, 64, "Running sequence %d / %d", iRep, reps);
         }
-        setProgramStatus(0, buff);
+        setProgramStatus(buff);
 
         std::lock_guard<FLock> fl(g_fPulserLock);
         // hold the sequnce until pulse buffer is full or
