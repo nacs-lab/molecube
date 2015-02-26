@@ -59,10 +59,10 @@ setProgramStatus(const char *progname, const char *str)
     static FILE *f = [&] {
         if (progname) {
             char buff[256];
-            snprintf(buff, 256, "/tmp/%s.status", progname);
+            snprintf(buff, 256, "/var/run/%s.status", progname);
             return fopen(buff, "w");
         } else {
-            return fopen("/tmp/unnamedprog.status", "w");
+            return fopen("/var/run/unnamedprog.status", "w");
         }
     }();
 
