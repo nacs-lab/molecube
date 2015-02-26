@@ -46,54 +46,30 @@
  * It also provides access to the request's output and error streams, using a
  * similar interface.
  */
-class CGICC_API FCgiIO : public cgicc::CgiInput {
+class FCgiIO: public cgicc::CgiInput {
+    FCgiIO(const FCgiIO &io) = delete;
 public:
-
-    // ============================================================
-
-    /*! \name Constructor and Destructor */
-    //@{
-
+    /*! \name Constructor */
     /*!
      * \brief Constructor
      *
      * Create a new FCgiIO object
      */
-    FCgiIO(FCGX_Request& request) :
-        fRequest(request)
+    FCgiIO(FCGX_Request &request) :
+        cgicc::CgiInput(),
+        m_request(request)
     {
         // Parse environment
-        for(char **e = fRequest.envp; *e != nullptr;e++) {
+        for(char **e = m_request.envp; *e != nullptr;e++) {
             std::string s(*e);
             std::string::size_type i = s.find('=');
             if(i == std::string::npos)
                 throw std::runtime_error("Illegally formed environment");
-            fEnv[s.substr(0, i)] = s.substr(i + 1);
+            m_env[s.substr(0, i)] = s.substr(i + 1);
         }
     }
 
-    /*!
-     * \brief Copy constructor
-     *
-     */
-    FCgiIO(const FCgiIO& io) :
-        CgiInput(io),
-        fRequest(io.fRequest)
-        {
-        }
-    /*!
-     * \brief Destructor
-     *
-     * Delete this FCgiIO object
-     */
-    virtual ~FCgiIO() {}
-    //@}
-
-    // ============================================================
-
     /*! \name Data Sources */
-    //@{
-
     /*!
      * \brief Read data from the request's input stream.
      *
@@ -101,9 +77,10 @@ public:
      * \param length The number of characters to read
      * \return The number of characters read
      */
-    size_t read(char *data, size_t length)
+    size_t
+    read(char *data, size_t length) override
     {
-        return FCGX_GetStr(data, length, fRequest.in);
+        return FCGX_GetStr(data, length, m_request.in);
     }
 
     /*!
@@ -113,16 +90,14 @@ public:
      * \return The value of the requested environment variable, or an empty
      * string if not found.
      */
-    virtual std::string getenv(const char *varName)
+    std::string
+    getenv(const char *varName) override
     {
-        return fEnv[varName];
+        return m_env[varName];
     }
-    //@}
-
-
 protected:
-    FCGX_Request& fRequest;
-    std::map<std::string, std::string> fEnv;
+    FCGX_Request &m_request;
+    std::map<std::string, std::string> m_env;
 };
 
 namespace NaCs {
