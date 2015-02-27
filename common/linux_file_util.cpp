@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <string.h>
+#include <mutex>
 
 /* Generic functions to write values to and read them from file.
  * Calls to these functions can manipulate file-mapped devices in Linux. */
@@ -57,8 +58,10 @@ void
 setProgramStatus(const char *str)
 {
     static FILE *f = fopen("/var/run/molecube/molecube.status", "w");
+    static std::mutex lock;
 
     if (f) {
+        std::lock_guard<std::mutex> locker(lock);
         flock(fileno(f), LOCK_EX);
         ftruncate(fileno(f), 0);
         rewind(f);

@@ -176,10 +176,9 @@ parseQueryCGI(NaCs::Pulser::Pulser &pulser, cgicc::Cgicc &cgi,
 {
     cgicc::form_iterator cmd = cgi.getElement("command");
     cgicc::form_iterator page = cgi.getElement("page");
-
     if (cmd != cgi.getElements().end()) {
         nacsLog("Command = %s\n", (**cmd).c_str());
-
+        LockGPL lock;
         if ((**cmd) == "getTTL") {
             printJSONResponseHeader(reply);
             unsigned lo, hi;
@@ -263,7 +262,6 @@ parseQueryCGI(NaCs::Pulser::Pulser &pulser, cgicc::Cgicc &cgi,
         nacsLog("No Command\n");
         return false;
     }
-
 }
 
 unsigned

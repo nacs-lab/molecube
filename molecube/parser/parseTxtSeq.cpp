@@ -488,6 +488,10 @@ std::string
 getQuote(const char *fname, const char *delim)
 {
     static std::random_device rd;
+    static std::mutex lock;
+    std::unique_lock<std::mutex> locker(lock, std::defer_lock);
+    NACS_RET_IF_FAIL(locker.try_lock(), "");
+
     static time_t tLastQuote = time(0);
     time_t tNow = time(0);
 

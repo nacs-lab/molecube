@@ -229,7 +229,6 @@ main(int argc, char *argv[])
         FCgiIO IO(request);
         cgicc::Cgicc cgi(&IO);
         verbosity reply(&out);
-        LockGPL lock;
         try {
             if (!parseQueryCGI(pulser, cgi, reply)) {
                 nacsError("Couldn't understand HTTP request.\n");
