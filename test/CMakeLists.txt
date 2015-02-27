@@ -15,3 +15,9 @@ set(test_fcgi_SOURCES test_fcgi.cpp)
 add_executable(test-fcgi ${test_fcgi_SOURCES})
 
 target_link_libraries(test-fcgi fcgi fcgi++ nacs-utils nacs-xspi nacs-pulser)
+
+set(test_thread_SOURCES test_thread.cpp)
+
+add_executable(test-thread ${test_thread_SOURCES})
+
+target_link_libraries(test-thread nacs-utils)
