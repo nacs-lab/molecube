@@ -11,6 +11,8 @@
 
 #include <stdexcept>
 #include <mutex>
+#include <random>
+#include <limits>
 #include <inttypes.h>
 
 namespace NaCs {
@@ -467,6 +469,10 @@ Pulser::self_test(int ndds, int cycle)
     unsigned nBad = 0;
 
     bool test_pass = test_regs();
+    static std::random_device rd;
+    std::uniform_int_distribution<int> dds_dist(0, ndds);
+    std::uniform_int_distribution<unsigned>
+        val_dist(0, std::numeric_limits<unsigned>::max());
     nacsLog("\n");
 
     if (cycle > 0) {
@@ -484,7 +490,7 @@ Pulser::self_test(int ndds, int cycle)
         }
 
         for (int j = 0;j < cycle;j++) {
-            int i = rand() % ndds;
+            int i = dds_dist(rd);
             unsigned ftw_read = get_dds_freq(i);
 
             if (ftw_read != ftw[i]) {
@@ -494,7 +500,7 @@ Pulser::self_test(int ndds, int cycle)
                 nBad++;
             }
 
-            ftw[i] = rand();
+            ftw[i] = val_dist(rd);
             set_dds_freq(i, ftw[i]);
         }
 

@@ -181,12 +181,6 @@ main(int argc, char *argv[])
     setProgramStatus("Initializing");
 
     auto &pulser = init_system();
-
-    time_t srandT = time(0);
-    srand(srandT);
-    nacsLog("Random seed = %u.  2 random numbers: %u, %u\n",
-            (unsigned)srandT, rand(), rand());
-
     FCGX_Init();
 
     // run startup sequence

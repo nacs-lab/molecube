@@ -21,6 +21,7 @@
 #include <string>
 #include <stdexcept>
 #include <mutex>
+#include <random>
 
 #include "AD9914.h"
 #include "string_func.h"
@@ -486,12 +487,13 @@ findNextDelim(FILE *f, const char *delim)
 std::string
 getQuote(const char *fname, const char *delim)
 {
+    static std::random_device rd;
     static time_t tLastQuote = time(0);
     time_t tNow = time(0);
 
     if (tNow > tLastQuote + 30) {
         //no wasting time in the lab
-        if (rand() % 2) {
+        if (std::uniform_int_distribution<int>(0, 1)(rd)) {
             tLastQuote = tNow;
             std::string s;
 
@@ -502,7 +504,7 @@ getQuote(const char *fname, const char *delim)
                 //get file length
                 fseek(f, 0, SEEK_END);
                 size_t len = ftell(f);
-                size_t pos = rand() % len; // RAND_MAX >> len;
+                auto pos = std::uniform_int_distribution<size_t>(0, len)(rd);
 
                 fseek(f, pos, SEEK_SET);
                 if (findNextDelim(f, delim)) {

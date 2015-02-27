@@ -1,6 +1,7 @@
 #include "AD9914.h"
 
 #include <nacs-utils/log.h>
+#include <random>
 
 namespace NaCs {
 
@@ -44,6 +45,8 @@ void
 test_dds_addr(Pulser::Pulser &pulser, int i, unsigned low_addr,
               unsigned high_addr, unsigned ntest, FILE *f)
 {
+    static std::random_device rd;
+    static std::uniform_int_distribution<unsigned> dist(0, 0xFF);
     unsigned nerrors = 0;
     unsigned ntested = 0;
 
@@ -52,7 +55,7 @@ test_dds_addr(Pulser::Pulser &pulser, int i, unsigned low_addr,
         unsigned d1 = pulser.get_dds_byte(i, addr + 1);
 
         for(unsigned j = 0;j < ntest;j++) {
-            unsigned r = rand() & 0xFF;
+            unsigned r = dist(rd);
             pulser.set_dds_two_bytes(i, addr, r);
             unsigned b = pulser.get_dds_byte(i, addr);
 
