@@ -230,16 +230,12 @@ main(int argc, char *argv[])
         // Note that the default bufsize (0) will cause the use of iostream
         // methods that require positioning (such as peek(), seek(),
         // unget() and putback()) to fail (in favour of more efficient IO).
-        fcgi_streambuf cout_fcgi_streambuf(request.out);
-
-        LockGPL lock;
-        std::cout.rdbuf(&cout_fcgi_streambuf);
-
+        fcgi_streambuf out_fcgi_streambuf(request.out);
+        std::ostream out(&out_fcgi_streambuf);
         FCgiIO IO(request);
         cgicc::Cgicc cgi(&IO);
-
-        verbosity reply(&std::cout);
-
+        verbosity reply(&out);
+        LockGPL lock;
         try {
             if (!parseQueryCGI(pulser, cgi, reply)) {
                 nacsError("Couldn't understand HTTP request.\n");
@@ -252,7 +248,7 @@ main(int argc, char *argv[])
 
         nacsLog("================ Finish FastCGI request %d "
                 "================\n\n", request_id);
-        std::cout << std::endl;
+        out << std::endl;
         setProgramStatus("Idle");
     }
 

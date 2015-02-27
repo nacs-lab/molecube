@@ -14,17 +14,15 @@
 namespace NaCs {
 
 void
-printPlainResponseHeader()
+printPlainResponseHeader(std::ostream &out)
 {
-    // std::cout << "HTTP/1.1 200 OK\n";
-    std::cout << "Content-type: text/plain; charset=UTF-8\r\n\r\n";
+    out << "Content-type: text/plain; charset=UTF-8\r\n\r\n";
 }
 
 static void
-printJSONResponseHeader()
+printJSONResponseHeader(std::ostream &out)
 {
-    // std::cout << "HTTP/1.1 200 OK\n";
-    std::cout << "Content-type: application/json; charset=UTF-8\r\n\r\n";
+    out << "Content-type: application/json; charset=UTF-8\r\n\r\n";
 }
 
 
@@ -183,26 +181,26 @@ parseQueryCGI(NaCs::Pulser::Pulser &pulser, cgicc::Cgicc &cgi,
         nacsLog("Command = %s\n", (**cmd).c_str());
 
         if ((**cmd) == "getTTL") {
-            printJSONResponseHeader();
+            printJSONResponseHeader(reply);
             unsigned lo, hi;
             pulser.get_ttl_mask(&hi, &lo);
 
             char buff[64];
             sprintf(buff, "{\"lo\":%u, \"hi\":%u}", lo, hi);
-            std::cout << buff;
+            reply << buff;
 
             nacsLog("%s\n", buff);
             return true;
         }
 
         if ((**cmd) == "getActiveDDS") {
-            printJSONResponseHeader();
-            stream_vect_to_JSON_array(std::cout, active_dds);
+            printJSONResponseHeader(reply);
+            stream_vect_to_JSON_array(reply, active_dds);
             return true;
         }
 
         if ((**cmd) == "setParams" &&  page != cgi.getElements().end()) {
-            printPlainResponseHeader();
+            printPlainResponseHeader(reply);
             std::string sPage = **page;
             removeNonAlphaNum(sPage);
 
@@ -224,7 +222,7 @@ parseQueryCGI(NaCs::Pulser::Pulser &pulser, cgicc::Cgicc &cgi,
         }
 
         if ((**cmd) == "getParams" &&  page != cgi.getElements().end() ) {
-            printPlainResponseHeader();
+            printPlainResponseHeader(reply);
             std::string sPage = **page;
             removeNonAlphaNum(sPage);
             if (sPage.length()) {
@@ -232,7 +230,7 @@ parseQueryCGI(NaCs::Pulser::Pulser &pulser, cgicc::Cgicc &cgi,
                 // TODO FIX absolute path
                 loadMap(params, "/srv/http/userdata/params_" + sPage);
                 getDeviceParams(pulser, sPage, params);
-                dumpMapHTML(params, std::cout);
+                dumpMapHTML(params, reply);
                 return true;
             } else {
                 return false;
@@ -240,7 +238,7 @@ parseQueryCGI(NaCs::Pulser::Pulser &pulser, cgicc::Cgicc &cgi,
         }
 
         if ((**cmd) == "setDeviceParams" && page != cgi.getElements().end()) {
-            printPlainResponseHeader();
+            printPlainResponseHeader(reply);
 
             std::string sPage = **page;
             removeNonAlphaNum(sPage);

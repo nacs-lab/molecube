@@ -8,9 +8,11 @@
 #include <string>
 #include <cgicc/Cgicc.h>
 
+#include <ostream>
+
 namespace NaCs {
 
-void printPlainResponseHeader();
+void printPlainResponseHeader(std::ostream&);
 
 bool parseQueryCGI(NaCs::Pulser::Pulser &pulser, cgicc::Cgicc& cgi,
                    const verbosity &reply);

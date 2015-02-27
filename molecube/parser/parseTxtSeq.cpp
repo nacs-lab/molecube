@@ -284,7 +284,7 @@ parseSeqTxt(Pulser::Pulser &pulser, unsigned reps,
             const std::string &seqTxt, bool bForever, bool debugPulses,
             const verbosity &reply)
 {
-    printPlainResponseHeader();
+    printPlainResponseHeader(reply);
 
     if (debugPulses) {
         nacsLog("Parsing pulse sequence:%s\n", seqTxt.c_str());
