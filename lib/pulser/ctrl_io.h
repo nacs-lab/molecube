@@ -10,6 +10,9 @@
 #ifndef __NACS_PULSER_CTRL_IO_H__
 #define __NACS_PULSER_CTRL_IO_H__
 
+namespace NaCs {
+namespace Pulser {
+
 /**
  *
  * Write a value to a PULSE_CONTROLLER register. A 32 bit write is performed.
@@ -22,7 +25,7 @@
  *
  */
 static NACS_INLINE void
-PULSER_mWriteReg(volatile void *base, off_t offset, uint32_t data)
+mWriteReg(volatile void *base, off_t offset, uint32_t data)
 {
     mem_write32((volatile char*)base + offset, data);
 }
@@ -41,7 +44,7 @@ PULSER_mWriteReg(volatile void *base, off_t offset, uint32_t data)
  *
  */
 static NACS_INLINE uint32_t
-PULSER_mReadReg(volatile void *base, off_t offset)
+mReadReg(volatile void *base, off_t offset)
 {
     return mem_read32((volatile char*)base + offset);
 }
@@ -50,8 +53,12 @@ PULSER_mReadReg(volatile void *base, off_t offset)
  * User Logic Slave Space Offsets
  * -- SLV_REG(n) : user logic slave module register n
  */
-#define PULSER_USER_SLV_SPACE_OFFSET (0x00000000)
-#define PULSER_SLV_REG_OFFSET(n) (PULSER_USER_SLV_SPACE_OFFSET + n * 4)
+static constexpr uint32_t usr_slv_space_offset = 0x0;
+static inline constexpr uint32_t
+slvRegOffset(uint32_t n)
+{
+    return usr_slv_space_offset + n * 4;
+}
 
 /**
  *
@@ -65,23 +72,23 @@ PULSER_mReadReg(volatile void *base, off_t offset)
  *
  */
 static NACS_INLINE void
-PULSER_mWriteSlaveReg(volatile void *base, int n, uint32_t val)
+mWriteSlaveReg(volatile void *base, int n, uint32_t val)
 {
-    PULSER_mWriteReg(base, PULSER_SLV_REG_OFFSET(n), val);
+    mWriteReg(base, slvRegOffset(n), val);
 }
 
 static NACS_INLINE uint32_t
-PULSER_mReadSlaveReg(volatile void *base, int n)
+mReadSlaveReg(volatile void *base, int n)
 {
-    return PULSER_mReadReg(base, PULSER_SLV_REG_OFFSET(n));
+    return mReadReg(base, slvRegOffset(n));
 }
 
 /**
  * Software Reset Space Register Offsets
  * -- RST : software reset register
  */
-#define PULSER_SOFT_RST_SPACE_OFFSET (0x00000100)
-#define PULSER_RST_REG_OFFSET (PULSER_SOFT_RST_SPACE_OFFSET + 0x00000000)
+static constexpr uint32_t soft_rst_space_offset = 0x100;
+static constexpr uint32_t rst_reg_offset = soft_rst_space_offset + 0x0;
 
 /**
  *
@@ -91,17 +98,20 @@ PULSER_mReadSlaveReg(volatile void *base, int n)
  *
  */
 static NACS_INLINE void
-PULSER_mReset(volatile void *base)
+mReset(volatile void *base)
 {
     /**
      * Software Reset Masks
      * -- SOFT_RESET : software reset
      */
-    static const uint32_t SOFT_RESET = 0x0000000A;
-    mem_write32((volatile char*)base + PULSER_RST_REG_OFFSET, SOFT_RESET);
+    static constexpr uint32_t soft_reset = 0x0000000A;
+    mem_write32((volatile char*)base + rst_reg_offset, soft_reset);
 }
 
 /* Defines the number of registers available for read and write */
-#define PULSER_USER_NUM_REG 32
+static constexpr uint32_t usr_num_reg = 32;
+
+}
+}
 
 #endif

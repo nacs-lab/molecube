@@ -38,7 +38,7 @@ Program::write_reg(unsigned reg, uint32_t val)
         nacsLog("Write Register(%u), %" PRIx32 "\n", reg, val);
     }
     PulserLocker lock(this);
-    writes(PULSER_SLV_REG_OFFSET(reg), val);
+    writes(slvRegOffset(reg), val);
 }
 
 void

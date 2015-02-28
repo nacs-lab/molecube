@@ -20,8 +20,3 @@
 
 #define PULSER_COUNTING_PULSE_FLAG (0x04000000)
 #define PULSER_INVERT_SYNC (0x02000000)
-
-//synchronize these parameters with N_BITS/N_BINS in the verilog files
-//I haven't figured out how to reuse them automatically in the Xilinx toolchain
-#define PULSER_N_PMT_BINS (16)
-#define PULSER_N_PMT_BITS (8)

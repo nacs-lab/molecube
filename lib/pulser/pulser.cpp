@@ -28,7 +28,7 @@ check_program(const uint32_t *prog, size_t len) noexcept
         return false;
     }
     for (size_t i = 0;i < len;i += 2) {
-        int32_t offset = prog[i] - PULSER_USER_SLV_SPACE_OFFSET;
+        int32_t offset = prog[i] - usr_slv_space_offset;
         if (nacsUnlikely(offset < 0 || offset >= 32 * 4)) {
             nacsError("i: %zu, offset: %" PRIi32, i, offset);
             return false;
@@ -52,7 +52,7 @@ run_program_real(volatile void *base, const uint32_t *__restrict__ prog,
         p++;
         auto val = *p;
         __builtin_prefetch(p + 3);
-        PULSER_mWriteReg(base, addr, val);
+        mWriteReg(base, addr, val);
     }
 }
 
@@ -254,13 +254,13 @@ Pulser::write_reg(unsigned reg, uint32_t val)
     if (log_on()) {
         nacsLog("Write Register(%u), %" PRIx32 "\n", reg, val);
     }
-    PULSER_mWriteSlaveReg(m_base, reg, val);
+    mWriteSlaveReg(m_base, reg, val);
 }
 
 uint32_t
 Pulser::read_reg(unsigned reg)
 {
-    return PULSER_mReadSlaveReg(m_base, reg);
+    return mReadSlaveReg(m_base, reg);
 }
 
 void
