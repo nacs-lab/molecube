@@ -11,7 +11,7 @@
 
 #include <assert.h>
 
-static constexpr int N = 100000000;
+static constexpr int N = 10000000;
 
 using namespace NaCs;
 using namespace std::literals;
@@ -46,7 +46,20 @@ main()
     auto &pulser = Pulser::get_pulser();
     volatile bool finished = false;
     volatile int res_read = 0;
+
+    tic();
+    for (int i = 0;i < N;i++) {
+        pulser.short_pulse(0x10000003, 0);
+    }
+    auto plain_write_time = toc();
+    std::this_thread::sleep_for(1ms);
+
+    std::cout << "Average time per write: "
+              << double(plain_write_time) / double(N) / 1e3 << " us"
+              << std::endl;
+
     read_results(pulser);
+
     std::thread reader([&] {
             while (!finished) {
                 res_read += read_results(pulser);
@@ -68,6 +81,7 @@ main()
               << double(write_time) / double(N) / 1e3 << " us"
               << std::endl;
     std::cout << "res_read: " << res_read << std::endl;
+
     std::this_thread::sleep_for(1ms);
     finished = true;
     reader.join();
