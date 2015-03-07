@@ -3,6 +3,8 @@
 #include "program.h"
 #include "ctrl_io.h"
 
+#include <nacs-utils/container.h>
+
 #include <nacs-utils/number.h>
 #include <nacs-utils/log.h>
 #include <nacs-utils/timer.h>
@@ -37,9 +39,9 @@ check_program(const uint32_t *prog, size_t len) noexcept
     return true;
 }
 
-static __attribute__((optimize("Ofast", "prefetch-loop-arrays"),
-                      flatten, hot)) void
-run_program_real(volatile void *base, const uint32_t *__restrict__ prog,
+// optimize("Ofast", "prefetch-loop-arrays")
+static __attribute__((flatten, hot)) void
+run_program_real(Driver &driver, const uint32_t *__restrict__ prog,
                  size_t len) noexcept
 {
     // Options to benchmark
@@ -47,22 +49,23 @@ run_program_real(volatile void *base, const uint32_t *__restrict__ prog,
     // * loop with index/pointer
     // * whether to use __buildin_prefetch directly
     auto end = prog + len;
+#pragma unroll(16)
     for (auto p = prog;p < end;p++) {
         auto addr = *p;
         p++;
         auto val = *p;
         __builtin_prefetch(p + 3);
-        mWriteReg(base, addr, val);
+        driver.writeReg(addr, val);
     }
 }
 
 static int
-run_program(volatile void *base, const uint32_t *prog, size_t len) noexcept
+run_program(Driver &driver, const uint32_t *prog, size_t len) noexcept
 {
     if (nacsUnlikely(!check_program(prog, len))) {
         return -1;
     }
-    run_program_real(base, prog, len);
+    run_program_real(driver, prog, len);
     return 0;
 }
 
@@ -254,13 +257,13 @@ Pulser::write_reg(unsigned reg, uint32_t val)
     if (log_on()) {
         nacsLog("Write Register(%u), %" PRIx32 "\n", reg, val);
     }
-    mWriteSlaveReg(m_base, reg, val);
+    m_driver.writeReg(reg, val);
 }
 
 uint32_t
 Pulser::read_reg(unsigned reg)
 {
-    return mReadSlaveReg(m_base, reg);
+    return m_driver.readReg(reg);
 }
 
 void
@@ -286,7 +289,7 @@ Pulser::run(const BaseProgram &prog)
         throw std::runtime_error("Already running.");
     }
     PulserLocker lock(this);
-    if (run_program(m_base, prog.program(), prog.len()) != 0) {
+    if (run_program(m_driver, prog.program(), prog.len()) != 0) {
         throw std::runtime_error("Invalid program.");
     }
 }

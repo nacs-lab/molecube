@@ -10,6 +10,7 @@
 
 #include <sys/resource.h>
 #include <errno.h>
+#include <inttypes.h>
 
 #include <mutex>
 
@@ -38,7 +39,7 @@ init_system()
     }
 
     auto &pulser = Pulser::get_pulser();
-    nacsInfo("Initializing pulse controller at address %p...\n",
+    nacsInfo("Initializing pulse controller at address %" PRIxPTR "...\n",
              pulser.get_base());
     bool pulser_debug = pulser.debug();
     pulser.debug() = true;

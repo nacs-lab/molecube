@@ -4,6 +4,7 @@
 #define __NACS_PULSER_PULSER_H__
 
 #include "converter.h"
+#include "driver_p.h"
 #include <nacs-pulser/pulser-config.h>
 
 #include <atomic>
@@ -115,7 +116,7 @@ PulserBase::set_dds_phase_f(int i, double p)
 }
 
 class NACS_EXPORT Pulser : public PulserBase {
-    volatile void *m_base;
+    Driver m_driver;
     std::atomic_bool m_running;
 
     Pulser() = delete;
@@ -155,7 +156,7 @@ public:
     uint32_t get_dds_freq(int i);
     uint32_t get_dds_phase(int i);
     uint32_t get_dds_amp(int i);
-    volatile void *get_base() const;
+    intptr_t get_base() const;
 
     double get_dds_freq_f(int i);
     double get_dds_phase_f(int i);
@@ -182,24 +183,23 @@ Pulser::debug()
 NACS_INLINE
 Pulser::Pulser(Pulser &&other)
     : PulserBase(static_cast<PulserBase&&>(other)),
-      m_base(other.m_base),
+      m_driver(std::move(other.m_driver)),
       m_running(other.m_running.exchange(false))
 {
-    other.m_base = nullptr;
 }
 
 NACS_INLINE
 Pulser::Pulser(volatile void *base, bool debug)
     : PulserBase(debug),
-      m_base(base),
+      m_driver(base),
       m_running(false)
 {
 }
 
-NACS_INLINE volatile void*
+NACS_INLINE intptr_t
 Pulser::get_base() const
 {
-    return m_base;
+    return m_driver.getBase();
 }
 
 Pulser &get_pulser();
