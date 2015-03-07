@@ -22,14 +22,6 @@ pulser_num_results(Pulser::Pulser &pulser)
     return (pulser.read_reg(2) >> 4) & 31;
 }
 
-uint64_t
-get_time()
-{
-    using namespace std::chrono;
-    return time_point_cast<nanoseconds>(system_clock::now())
-        .time_since_epoch().count();
-}
-
 static inline uint32_t
 read_results(Pulser::Pulser &pulser)
 {
