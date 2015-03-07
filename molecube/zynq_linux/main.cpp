@@ -64,7 +64,7 @@ public:
         for(char **e = m_request.envp; *e != nullptr;e++) {
             std::string s(*e);
             std::string::size_type i = s.find('=');
-            if(i == std::string::npos)
+            if (i == std::string::npos)
                 throw std::runtime_error("Illegally formed environment");
             m_env[s.substr(0, i)] = s.substr(i + 1);
         }
