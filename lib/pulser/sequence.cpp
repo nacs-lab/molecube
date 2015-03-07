@@ -2,6 +2,7 @@
 
 #include <nacs-utils/log.h>
 #include <nacs-utils/timer.h>
+#include <nacs-utils/number.h>
 
 #include <stdexcept>
 
