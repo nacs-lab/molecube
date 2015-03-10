@@ -12,6 +12,7 @@
 
 #include <nacs-utils/timer.h>
 #include <nacs-pulser/program.h>
+#include <nacs-pulser/commands.h>
 #include <math.h>
 
 #include <thread>
@@ -63,20 +64,19 @@ check_timing(Pulser::Pulser &pulser)
 
     printf("Generating 1,000,000 x 1 us pulses + 10 x 100 ms pulses...\n");
 
-    pulser.clear_timing_check();
-
-    pulser.makePulse(100, 0, 0);
+    Pulser::clearTimingCheck(pulser);
+    Pulser::makePulse(pulser, 100, 0, 0);
 
     Pulser::Program prog(true);
     prog.enable_timing_check();
 
     for (j = 0; j < 1000000; j++) {
-        prog.makePulse(100, 0, 0);
+        Pulser::makePulse(prog, 100, 0, 0);
     }
 
     for (j = 0; j < 5; j++) {
-        prog.makePulse(10000000, 0, 0xFFFFFFFF);
-        prog.makePulse(10000000, 0, 0x00000000);
+        Pulser::makePulse(prog, 10000000, 0, 0xFFFFFFFF);
+        Pulser::makePulse(prog, 10000000, 0, 0x00000000);
     }
 
     uint64_t t0 = getTime();
@@ -117,7 +117,7 @@ other_test(Pulser::Pulser &pulser)
 {
     unsigned j, r2;
 
-    pulser.clear_timing_check();
+    Pulser::clearTimingCheck(pulser);
 
     // //push PMT counter value onto result FIFO
     // pulser.shortPulse(0x20000000, 0);

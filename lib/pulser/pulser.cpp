@@ -1,5 +1,6 @@
 #include "pulser.h"
 
+#include "commands.h"
 #include "program.h"
 #include "ctrl_io.h"
 
@@ -82,89 +83,6 @@ PulserBase::shortPulse(uint32_t control, uint32_t operand)
     write_reg(31, control);
 }
 
-// enable / disable clock_out
-// divider = 0..254 means emit clock with period 2 x (divider + 1)
-// in pulse controller timing units (DT_ns)
-// divider = 255 means disable
-void
-PulserBase::clock_out(unsigned divider)
-{
-    if (log_on()) {
-        nacsLog("Clock out %u\n", divider);
-    }
-    LogHolder holder;
-    shortPulse(0x50000000, divider & 0xFF);
-}
-
-// set bytes at addr + 1 and addr
-// note that get_dds_two bytes also returns data at addr+1 and addr
-void
-PulserBase::set_dds_two_bytes(int i, uint32_t addr, uint32_t data)
-{
-    if (log_on()) {
-        nacsLog("Set DDS(%d) two bytes addr=%x, data=%x\n", i, addr, data);
-    }
-    LogHolder holder;
-    // put addr in bits 15...9 (maps to DDS opcode_reg[14:9] )?
-    uint32_t dds_addr = (addr + 1) & 0x7F;
-    // put data in bits 15...0 (maps to DDS operand_reg[15:0] )?
-    uint32_t dds_data = data & 0xFFFF;
-    shortPulse(0x10000002 | (i << 4) | (dds_addr << 9), dds_data);
-}
-
-// set bytes addr + 3 ... addr
-void
-PulserBase::set_dds_four_bytes(int i, uint32_t addr, uint32_t data)
-{
-    if (log_on()) {
-        nacsLog("Set DDS(%d) four bytes addr=%x, data=%x\n", i, addr, data);
-    }
-    LogHolder holder;
-    //put addr in bits 15...9 (maps to DDS opcode_reg[14:9])?
-    uint32_t dds_addr = (addr + 1) & 0x7F;
-    shortPulse(0x1000000F | (i << 4) | (dds_addr << 9), data);
-}
-
-//make timed pulses
-//if t > t_max, subdivide into shorter pulses
-//returns number of pulses made
-void
-PulserBase::makePulse(uint64_t t, unsigned flags, unsigned operand)
-{
-    if (log_on()) {
-        nacsLog("Long pulse t=%" PRTime ", flags=%x, operand=%x\n",
-                t, flags, operand);
-    }
-    LogHolder holder;
-    static const uint32_t t_max = 0x001FFFFF;
-    do {
-        uint32_t t_step = uint32_t(min(t, t_max));
-        shortPulse(t_step | flags, operand);
-        t -= t_step;
-    } while (t > 0);
-}
-
-// clear timing check (clear failures)
-void
-PulserBase::clear_timing_check()
-{
-    if (log_on()) {
-        nacsLog("Clear timing check\n");
-    }
-    LogHolder holder;
-    shortPulse(0x30000000, 0);
-}
-
-void
-PulserBase::set_dds_freq(int i, uint32_t ftw)
-{
-    if (log_on()) {
-        nacsLog("Set DDS(%d) frequency %x\n", i, ftw);
-    }
-    LogHolder holder;
-    shortPulse(0x10000000 | (i << 4), ftw);
-}
-
 void
 PulserBase::set_dds_amp(int i, uint32_t amp)
 {
@@ -172,7 +90,7 @@ PulserBase::set_dds_amp(int i, uint32_t amp)
         nacsLog("Set DDS(%d) amplitude %x\n", i, amp);
     }
     LogHolder holder;
-    set_dds_two_bytes(i, 0x32, amp);
+    setDDSTwoBytes(*this, i, 0x32, amp);
 }
 
 // reset DDS i
@@ -193,7 +111,7 @@ PulserBase::set_dds_phase(int i, uint16_t phase)
         nacsLog("Set DDS(%i) phase %" PRId16 "\n", i, phase);
     }
     LogHolder holder;
-    set_dds_two_bytes(i, 0x30, phase);
+    setDDSTwoBytes(*this, i, 0x30, phase);
 }
 
 // TTL functions: pulse_io = (ttl_out | high_mask) & (~low_mask);
@@ -388,10 +306,10 @@ Pulser::dds_exists(int i)
 {
     unsigned addr = 0x68;
     // Check whether it's possible to set phase of profile 7 to 0 and 1
-    set_dds_two_bytes(i, addr, 0);
+    setDDSTwoBytes(*this, i, addr, 0);
     unsigned u0 = get_dds_two_bytes(i, addr);
 
-    set_dds_two_bytes(i, addr, 1);
+    setDDSTwoBytes(*this, i, addr, 1);
     unsigned u1 = get_dds_two_bytes(i, addr);
 
     return (u0 == 0) && (u1 == 1);
@@ -471,7 +389,7 @@ Pulser::self_test(int ndds, int cycle)
         // initialize to 0 Hz
         for (int i = 0;i < ndds;i++) {
             ftw[i] = 0;
-            set_dds_freq(i, 0);
+            setDDSFreq(*this, i, 0);
         }
 
         for (int j = 0;j < cycle;j++) {
@@ -486,11 +404,11 @@ Pulser::self_test(int ndds, int cycle)
             }
 
             ftw[i] = val_dist(rd);
-            set_dds_freq(i, ftw[i]);
+            setDDSFreq(*this, i, ftw[i]);
         }
 
         for (int i = 0;i < ndds;i++) {
-            set_dds_freq(i, 0);
+            setDDSFreq(*this, i, 0);
         }
 
         if (nBad == 0) {
@@ -516,7 +434,7 @@ Pulser::test_dds(int i)
             test_val = test_val + ((i * 0xF) << (j * 4));
         }
 
-        set_dds_freq(i, test_val);
+        setDDSFreq(*this, i, test_val);
         unsigned read = get_dds_freq(i);
         freq_ok = freq_ok && (read == test_val);
 

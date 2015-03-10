@@ -37,9 +37,9 @@ unsigned getResult_ADS8361(spi_p spi, unsigned next_channel);
 unsigned short getResult_AD7656(spi_p spi, unsigned num_channels,
                                 short *pValues);
 unsigned short getResult_AD7656i(spi_p spi, unsigned num_channels,
-                                 int *pValues);
+                                 short *pValues);
 unsigned short getAddResult_AD7656(spi_p spi, unsigned num_channels,
-                                   int *pValues);
+                                   short *pValues);
 
 void Init_ADS8361(spi_p spi);
 

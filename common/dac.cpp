@@ -95,7 +95,7 @@ SetDDS_AD9833(spi_p spi, Pulser::Pulser &pulser, unsigned setType,
 {
     unsigned tx = 0;
     unsigned rc = 0;
-    unsigned short temp = 0;
+    unsigned temp = 0;
     bool useSB(0), resetSB(0), setFreq(0);
     // bool setPhase(0);
     unsigned high_mask0, low_mask0, low_mask(0), updateDDS(0);
@@ -246,7 +246,7 @@ void SetDAC_AD5370(spi_p spi, unsigned channel, unsigned dacWord)
 //start a conversion on previously spec'd ADC channel
 void startConversion_AD7689(spi_p spi)
 {
-    unsigned tx = 0; //(0xF1C40000 | (channel << 25));
+    uint16_t tx = 0; //(0xF1C40000 | (channel << 25));
 
     SPI_Transfer2(spi, tx);
 }
@@ -337,7 +337,8 @@ unsigned short getResult_AD7656(spi_p spi, unsigned num_channels, short* pValues
 }
 
 // convert and transfer 'num_channels' from AD7656 ADC evaluation board
-unsigned short getResult_AD7656i(spi_p spi, unsigned num_channels, int* pValues)
+unsigned short getResult_AD7656i(spi_p spi, unsigned num_channels,
+                                 short* pValues)
 {
     uint16_t tx = 0x0000;
 
@@ -352,7 +353,8 @@ unsigned short getResult_AD7656i(spi_p spi, unsigned num_channels, int* pValues)
 }
 
 // convert and transfer 'num_channels' from AD7656 ADC evaluation board and add to pValues
-unsigned short getAddResult_AD7656(spi_p spi, unsigned num_channels, int* pValues)
+unsigned short getAddResult_AD7656(spi_p spi, unsigned num_channels,
+                                   short* pValues)
 {
     uint16_t tx = 0x0000;
 

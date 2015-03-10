@@ -4,6 +4,7 @@
 #define __NACS_PULSER_PULSER_H__
 
 #include "converter.h"
+// #include "commands.h"
 #include "driver_p.h"
 #include <nacs-pulser/pulser-config.h>
 
@@ -30,19 +31,12 @@ public:
     PulserBase(PulserBase &&other);
 
     virtual ~PulserBase() {}
-    void clock_out(unsigned divider);
-    void set_dds_two_bytes(int i, uint32_t addr, uint32_t data);
-    void set_dds_four_bytes(int i, uint32_t addr, uint32_t data);
-    void makePulse(uint64_t t, unsigned flags, unsigned operand);
-    void clear_timing_check();
-    void set_dds_freq(int i, uint32_t ftw);
     void set_dds_amp(int i, uint32_t amp);
     virtual void set_dds_phase(int i, uint16_t phase);
     void dds_reset(int i);
     void set_ttl_mask(uint32_t high_mask, uint32_t low_mask);
     virtual void shortPulse(uint32_t control, uint32_t operand);
 
-    void set_dds_freq_f(int i, double f);
     void set_dds_amp_f(int i, double f);
     void set_dds_phase_f(int i, double f);
 
@@ -77,12 +71,6 @@ PulserBase::PulserBase(PulserBase &&other)
     : m_lock(std::move(other.m_lock)),
       m_debug(other.m_debug)
 {
-}
-
-NACS_INLINE void
-PulserBase::set_dds_freq_f(int i, double f)
-{
-    set_dds_freq(i, DDSConverter::freq2num(f, PULSER_AD9914_CLK));
 }
 
 NACS_INLINE void
