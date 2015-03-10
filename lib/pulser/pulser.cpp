@@ -72,7 +72,7 @@ run_program(Driver &driver, const uint32_t *prog, size_t len) noexcept
 // make short timed pulses
 // FPGA can only handle pulse lengths up to t_max = 0x001FFFFF (about 40 ms)
 void
-PulserBase::short_pulse(uint32_t control, uint32_t operand)
+PulserBase::shortPulse(uint32_t control, uint32_t operand)
 {
     if (log_on()) {
         nacsLog("Short Pulse control=%x, operand=%x\n", control, operand);
@@ -93,7 +93,7 @@ PulserBase::clock_out(unsigned divider)
         nacsLog("Clock out %u\n", divider);
     }
     LogHolder holder;
-    short_pulse(0x50000000, divider & 0xFF);
+    shortPulse(0x50000000, divider & 0xFF);
 }
 
 // set bytes at addr + 1 and addr
@@ -109,7 +109,7 @@ PulserBase::set_dds_two_bytes(int i, uint32_t addr, uint32_t data)
     uint32_t dds_addr = (addr + 1) & 0x7F;
     // put data in bits 15...0 (maps to DDS operand_reg[15:0] )?
     uint32_t dds_data = data & 0xFFFF;
-    short_pulse(0x10000002 | (i << 4) | (dds_addr << 9), dds_data);
+    shortPulse(0x10000002 | (i << 4) | (dds_addr << 9), dds_data);
 }
 
 // set bytes addr + 3 ... addr
@@ -122,7 +122,7 @@ PulserBase::set_dds_four_bytes(int i, uint32_t addr, uint32_t data)
     LogHolder holder;
     //put addr in bits 15...9 (maps to DDS opcode_reg[14:9])?
     uint32_t dds_addr = (addr + 1) & 0x7F;
-    short_pulse(0x1000000F | (i << 4) | (dds_addr << 9), data);
+    shortPulse(0x1000000F | (i << 4) | (dds_addr << 9), data);
 }
 
 //make timed pulses
@@ -139,7 +139,7 @@ PulserBase::pulse(uint64_t t, unsigned flags, unsigned operand)
     static const uint32_t t_max = 0x001FFFFF;
     do {
         uint32_t t_step = uint32_t(min(t, t_max));
-        short_pulse(t_step | flags, operand);
+        shortPulse(t_step | flags, operand);
         t -= t_step;
     } while (t > 0);
 }
@@ -152,7 +152,7 @@ PulserBase::clear_timing_check()
         nacsLog("Clear timing check\n");
     }
     LogHolder holder;
-    short_pulse(0x30000000, 0);
+    shortPulse(0x30000000, 0);
 }
 
 void
@@ -162,7 +162,7 @@ PulserBase::set_dds_freq(int i, uint32_t ftw)
         nacsLog("Set DDS(%d) frequency %x\n", i, ftw);
     }
     LogHolder holder;
-    short_pulse(0x10000000 | (i << 4), ftw);
+    shortPulse(0x10000000 | (i << 4), ftw);
 }
 
 void
@@ -183,7 +183,7 @@ PulserBase::dds_reset(int i)
         nacsLog("Reset DDS(%i)\n", i);
     }
     LogHolder holder;
-    short_pulse(0x10000004 | (i << 4), 0);
+    shortPulse(0x10000004 | (i << 4), 0);
 }
 
 void
@@ -217,7 +217,7 @@ PulserBase::reset_dds_sel(uint32_t mask)
         nacsLog("Reset DDS selection mask %" PRIx32 "\n", mask);
     }
     LogHolder holder;
-    short_pulse(0x10000005, mask);
+    shortPulse(0x10000005, mask);
 }
 
 void
@@ -227,7 +227,7 @@ PulserBase::set_dds_sel(uint32_t mask)
         nacsLog("Set DDS selection mask %" PRIx32 "\n", mask);
     }
     LogHolder holder;
-    short_pulse(0x10000006, mask);
+    shortPulse(0x10000006, mask);
 }
 
 void
@@ -353,7 +353,7 @@ Pulser::timing_ok()
 uint32_t
 Pulser::get_dds_byte(int i, uint32_t address)
 {
-    short_pulse(0x10000003 | (i << 4) | (address << 9), 0);
+    shortPulse(0x10000003 | (i << 4) | (address << 9), 0);
     return (pop_result() >> 8) & 0x000000ff;
 }
 
@@ -361,7 +361,7 @@ Pulser::get_dds_byte(int i, uint32_t address)
 uint32_t
 Pulser::get_dds_two_bytes(int i, unsigned address)
 {
-    short_pulse(0x10000003 | (i << 4) | ((address + 1) << 9), 0);
+    shortPulse(0x10000003 | (i << 4) | ((address + 1) << 9), 0);
     return pop_result() & 0x0000ffff;
 }
 
@@ -369,7 +369,7 @@ Pulser::get_dds_two_bytes(int i, unsigned address)
 uint32_t
 Pulser::get_dds_four_bytes(int i, unsigned address)
 {
-    short_pulse(0x1000000E | (i << 4) | ((address + 1) << 9), 0);
+    shortPulse(0x1000000E | (i << 4) | ((address + 1) << 9), 0);
     return pop_result();
 }
 
@@ -400,7 +400,7 @@ Pulser::dds_exists(int i)
 uint32_t
 Pulser::get_dds_freq(int i)
 {
-    // short_pulse(0x1000000E | (i << 4) | (0x2D << 9), 0);
+    // shortPulse(0x1000000E | (i << 4) | (0x2D << 9), 0);
     // return pop_result();
     uint32_t u0 = get_dds_two_bytes(i, 0x2C);
     uint32_t u2 = get_dds_two_bytes(i, 0x2E);

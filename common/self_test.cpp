@@ -116,7 +116,7 @@ other_test(Pulser::Pulser &pulser)
     pulser.clear_timing_check();
 
     // //push PMT counter value onto result FIFO
-    // pulser.short_pulse(0x20000000, 0);
+    // pulser.shortPulse(0x20000000, 0);
     // pulser.pulse(1000000, 0, 0); // 10 ms
     // unsigned r = pulser.pop_result();
 
@@ -134,7 +134,7 @@ other_test(Pulser::Pulser &pulser)
     printf("Pushing values 0...%u onto result FIFO\n", nLoopback - 1);
     for (unsigned j = 0; j < nLoopback; j++) {
         // push value j onto result FIFO
-        pulser.short_pulse(0x40000000, j);
+        pulser.shortPulse(0x40000000, j);
     }
 
     usleep(1000);

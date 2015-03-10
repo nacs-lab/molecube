@@ -41,9 +41,9 @@ Program::write_reg(unsigned reg, uint32_t val)
 }
 
 void
-Program::short_pulse(uint32_t control, uint32_t operand)
+Program::shortPulse(uint32_t control, uint32_t operand)
 {
-    PulserBase::short_pulse(control | m_flags, operand);
+    PulserBase::shortPulse(control | m_flags, operand);
 }
 
 #define ENABLE_TIMING_CHECK (0x08000000)

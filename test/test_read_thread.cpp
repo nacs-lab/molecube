@@ -41,7 +41,7 @@ main()
 
     tic();
     for (int i = 0;i < N;i++) {
-        pulser.short_pulse(0x10000003, 0);
+        pulser.shortPulse(0x10000003, 0);
     }
     auto plain_write_time = toc();
     std::this_thread::sleep_for(1ms);
@@ -60,7 +60,7 @@ main()
 
     tic();
     for (int i = 0;i < N;i++) {
-        pulser.short_pulse(0x10000003, 0);
+        pulser.shortPulse(0x10000003, 0);
         while (i + 1 - res_read > 16) {
             // std::cout << "Sleep: " << i << ", " << res_read << std::endl;
             // std::this_thread::sleep_for(1us);

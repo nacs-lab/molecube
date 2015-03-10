@@ -40,7 +40,7 @@ public:
     virtual void set_dds_phase(int i, uint16_t phase);
     void dds_reset(int i);
     void set_ttl_mask(uint32_t high_mask, uint32_t low_mask);
-    virtual void short_pulse(uint32_t control, uint32_t operand);
+    virtual void shortPulse(uint32_t control, uint32_t operand);
 
     void set_dds_freq_f(int i, double f);
     void set_dds_amp_f(int i, double f);

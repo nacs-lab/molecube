@@ -53,7 +53,7 @@ class NACS_EXPORT Program : public BaseProgram, public PulserBase {
     uint16_t m_phases[32];
 public:
     Program(bool debug=false);
-    void short_pulse(uint32_t control, uint32_t operand) override;
+    void shortPulse(uint32_t control, uint32_t operand) override;
     void enable_timing_check();
     void disable_timing_check();
     void dds_reset(int i);
