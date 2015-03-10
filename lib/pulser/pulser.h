@@ -57,25 +57,7 @@ protected:
         LogHolder() : ScopeSwap<bool>(pulser_logging, true)
         {}
     };
-    friend class PulserLocker;
 };
-
-class PulserLocker : std::unique_lock<std::recursive_timed_mutex> {
-public:
-    template<class DurationT=decltype(1ms)>
-    PulserLocker(PulserBase *pulser, const DurationT &timeout=1ms);
-};
-
-template<class DurationT>
-NACS_INLINE
-PulserLocker::PulserLocker(PulserBase *pulser, const DurationT &timeout)
-    : std::unique_lock<std::recursive_timed_mutex>(*pulser->m_lock,
-                                                   std::defer_lock)
-{
-    if (!try_lock_for(timeout)) {
-        throw std::runtime_error("Cannot acquire pulser lock.");
-    }
-}
 
 NACS_INLINE bool
 PulserBase::log_on()
