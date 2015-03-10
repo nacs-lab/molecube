@@ -24,10 +24,8 @@ class NACS_EXPORT PulserBase {
     std::unique_ptr<std::recursive_timed_mutex> m_lock;
     PulserBase(const PulserBase&) = delete;
     void operator=(const PulserBase&) = delete;
-protected:
-    bool m_debug;
 public:
-    PulserBase(bool debug=false);
+    PulserBase();
     PulserBase(PulserBase &&other);
 
     virtual ~PulserBase() {}
@@ -47,16 +45,14 @@ private:
 };
 
 NACS_INLINE
-PulserBase::PulserBase(bool debug)
-    : m_lock(new std::recursive_timed_mutex()),
-      m_debug(debug)
+PulserBase::PulserBase()
+    : m_lock(new std::recursive_timed_mutex())
 {
 }
 
 NACS_INLINE
 PulserBase::PulserBase(PulserBase &&other)
-    : m_lock(std::move(other.m_lock)),
-      m_debug(other.m_debug)
+    : m_lock(std::move(other.m_lock))
 {
 }
 
@@ -81,7 +77,7 @@ class NACS_EXPORT Pulser : public PulserBase {
     void operator=(const Pulser&) = delete;
 public:
     Pulser(Pulser &&other);
-    Pulser(volatile void *base, bool debug=false);
+    Pulser(volatile void *base);
 
     ~Pulser() {}
     void init(bool reset);
@@ -119,8 +115,6 @@ public:
     double get_dds_phase_f(int i);
     double get_dds_amp_f(int i);
 
-    bool &debug();
-
     bool self_test(int ndds, int cycle=1);
     bool test_regs();
     bool test_dds(int i);
@@ -131,12 +125,6 @@ private:
     void release_hold();
 };
 
-NACS_INLINE bool&
-Pulser::debug()
-{
-    return m_debug;
-}
-
 NACS_INLINE
 Pulser::Pulser(Pulser &&other)
     : PulserBase(static_cast<PulserBase&&>(other)),
@@ -146,8 +134,8 @@ Pulser::Pulser(Pulser &&other)
 }
 
 NACS_INLINE
-Pulser::Pulser(volatile void *base, bool debug)
-    : PulserBase(debug),
+Pulser::Pulser(volatile void *base)
+    : PulserBase(),
       m_driver(base),
       m_running(false)
 {

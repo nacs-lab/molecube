@@ -13,7 +13,7 @@ class NACS_EXPORT SequenceBuilder : public Program {
     uint32_t m_next_ttl;
     uint32_t m_curr_ttl;
 public:
-    SequenceBuilder(bool debug=false);
+    SequenceBuilder();
     unsigned &line_num();
     bool &has_ttl();
     uint64_t &curr_t();
@@ -32,8 +32,8 @@ private:
 };
 
 inline
-SequenceBuilder::SequenceBuilder(bool debug)
-    : Program(debug),
+SequenceBuilder::SequenceBuilder()
+    : Program(),
       m_line_num(0),
       m_has_ttl(false),
       m_curr_t(0),

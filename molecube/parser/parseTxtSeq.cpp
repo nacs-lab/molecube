@@ -294,7 +294,7 @@ parseSeqTxt(Pulser::Pulser &pulser, unsigned reps,
 
     tic();
 
-    Pulser::SequenceBuilder builder(debugPulses);
+    Pulser::SequenceBuilder builder;
     builder.enable_timing_check();
 
     // first parse and load up the pulses vector

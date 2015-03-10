@@ -52,7 +52,7 @@ class NACS_EXPORT Program : public BaseProgram, public PulserBase {
     uint32_t m_flags;
     uint16_t m_phases[32];
 public:
-    Program(bool debug=false);
+    Program();
     void shortPulse(uint32_t control, uint32_t operand) override;
     void enable_timing_check();
     void disable_timing_check();
@@ -65,9 +65,9 @@ private:
 };
 
 NACS_INLINE
-Program::Program(bool debug)
+Program::Program()
     : BaseProgram(),
-      PulserBase(debug),
+      PulserBase(),
       m_flags(0)
 {
 }
