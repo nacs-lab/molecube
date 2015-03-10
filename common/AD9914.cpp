@@ -2,6 +2,10 @@
 
 #include <nacs-utils/log.h>
 #include <random>
+#include <thread>
+#include <chrono>
+
+using namespace std::literals;
 
 namespace NaCs {
 
@@ -132,8 +136,8 @@ init_AD9914(Pulser::Pulser &pulser, int i, bool bForce)
 
         //calibrate internal timing.  required at power-up
         pulser.set_dds_two_bytes(i, 0x0E, 0x0105);
-        usleep(1000);
-        //finish cal. disble sync_out
+        std::this_thread::sleep_for(1ms);
+        // finish cal. disble sync_out
         pulser.set_dds_two_bytes(i, 0x0E, 0x0405);
 
         // enable programmable modulus and profile 0, enable SYNC_CLK output

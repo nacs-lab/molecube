@@ -12,8 +12,12 @@
 
 #include <nacs-utils/timer.h>
 #include <nacs-pulser/program.h>
-
 #include <math.h>
+
+#include <thread>
+#include <chrono>
+
+using namespace std::literals;
 
 namespace NaCs {
 
@@ -30,13 +34,13 @@ check_register(Pulser::Pulser &pulser, int n)
     bOK = bOK && (r == 0);
 
     pulser.write_reg(n, 0xFFFFFFFF);
-    usleep(100);
+    std::this_thread::sleep_for(100us);
     r = pulser.read_reg(n);
     printf("Register %d = %08X (wrote 0xFFFFFFFF)\n", n, r);
     bOK = bOK && (r == 0xFFFFFFFF);
 
     pulser.write_reg(n, 0);
-    usleep(100);
+    std::this_thread::sleep_for(100us);
     r = pulser.read_reg(n);
     printf("Register %d = %08X (wrote 0x00000000)\n", n, r);
 
@@ -137,7 +141,7 @@ other_test(Pulser::Pulser &pulser)
         pulser.shortPulse(0x40000000, j);
     }
 
-    usleep(1000);
+    std::this_thread::sleep_for(1ms);
 
     //read back data
     unsigned nResults = 0;

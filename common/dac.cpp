@@ -1,4 +1,8 @@
 #include "dac.h"
+#include <thread>
+#include <chrono>
+
+using namespace std::literals;
 
 namespace NaCs {
 
@@ -109,20 +113,23 @@ SetDDS_AD9833(spi_p spi, Pulser::Pulser &pulser, unsigned setType,
     low_mask = low_mask0;
     low_mask = low_mask | updateDDS;
 
-    if (useSB) { // use DDS
-        if(resetSB) { // reset DDS phase to value stored in the phase register
+    // use DDS
+    if (useSB) {
+        // reset DDS phase to value stored in the phase register
+        if(resetSB) {
             tx = (0x100) << 16;
 
             pulser.set_ttl_mask(high_mask0, low_mask);
-            usleep(1);
+            std::this_thread::sleep_for(1us);
             SPI_Transmit(spi, &tx, &rc, 2); //write the reset command
             pulser.set_ttl_mask(high_mask0, low_mask0);
 
-            usleep(3);  //reset needs 7 to 8 clock cycles to take effect
+            // reset needs 7 to 8 clock cycles to take effect
+            std::this_thread::sleep_for(3us);
             tx = 0;
 
             pulser.set_ttl_mask(high_mask0, low_mask);
-            usleep(1);
+            std::this_thread::sleep_for(1us);
             SPI_Transmit(spi, &tx, &rc, 2); //take AD9833 out of reset mode
             pulser.set_ttl_mask(high_mask0, low_mask0);
         }
@@ -281,7 +288,7 @@ unsigned short getResult_AD7689(spi_p spi, unsigned)
     uint16_t rc;
 
     SPI_SetSlaveSelect(spi,1);
-    usleep(1);
+    std::this_thread::sleep_for(1us);
     for(unsigned j = 0; j<6; j++)
         rc = SPI_Transfer2(spi, tx);
     SPI_SetSlaveSelect(spi,0);
@@ -320,7 +327,7 @@ unsigned short getResult_AD7656(spi_p spi, unsigned num_channels, short* pValues
 
     SPI_SetSlaveSelect(spi,2);
     SPI_SetSlaveSelect(spi,0);
-    usleep(3); //data sheet spec t_convert
+    std::this_thread::sleep_for(3us); // data sheet spec t_convert
     for(unsigned j = 0; j<num_channels; j++)
         pValues[j] = (short)SPI_Transfer2(spi, tx);
 
@@ -335,7 +342,7 @@ unsigned short getResult_AD7656i(spi_p spi, unsigned num_channels, int* pValues)
     uint16_t tx = 0x0000;
 
     SPI_SetSlaveSelect(spi,0);
-    usleep(3);
+    std::this_thread::sleep_for(3us);
     for(unsigned j = 0; j<num_channels; j++)
         pValues[j] = (short)SPI_Transfer2(spi, tx);
 
@@ -350,7 +357,7 @@ unsigned short getAddResult_AD7656(spi_p spi, unsigned num_channels, int* pValue
     uint16_t tx = 0x0000;
 
     SPI_SetSlaveSelect(spi,0); //the chip select line is wired to trigger a conversion (CONVST)
-    usleep(3);
+    std::this_thread::sleep_for(3us);
     for(unsigned j = 0; j<num_channels; j++)
         pValues[j] += (short)SPI_Transfer2(spi, tx);
 
