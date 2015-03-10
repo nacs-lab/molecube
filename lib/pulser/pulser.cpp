@@ -75,9 +75,6 @@ run_program(Driver &driver, const uint32_t *prog, size_t len) noexcept
 void
 PulserBase::shortPulse(uint32_t control, uint32_t operand)
 {
-    if (log_on()) {
-        nacsLog("Short Pulse control=%x, operand=%x\n", control, operand);
-    }
     LogHolder holder;
     write_reg(31, operand);
     write_reg(31, control);
@@ -86,10 +83,6 @@ PulserBase::shortPulse(uint32_t control, uint32_t operand)
 void
 PulserBase::set_dds_amp(int i, uint32_t amp)
 {
-    if (log_on()) {
-        nacsLog("Set DDS(%d) amplitude %x\n", i, amp);
-    }
-    LogHolder holder;
     setDDSTwoBytes(*this, i, 0x32, amp);
 }
 
@@ -97,9 +90,6 @@ PulserBase::set_dds_amp(int i, uint32_t amp)
 void
 PulserBase::dds_reset(int i)
 {
-    if (log_on()) {
-        nacsLog("Reset DDS(%i)\n", i);
-    }
     LogHolder holder;
     shortPulse(0x10000004 | (i << 4), 0);
 }
@@ -107,10 +97,6 @@ PulserBase::dds_reset(int i)
 void
 PulserBase::set_dds_phase(int i, uint16_t phase)
 {
-    if (log_on()) {
-        nacsLog("Set DDS(%i) phase %" PRId16 "\n", i, phase);
-    }
-    LogHolder holder;
     setDDSTwoBytes(*this, i, 0x30, phase);
 }
 
@@ -118,10 +104,6 @@ PulserBase::set_dds_phase(int i, uint16_t phase)
 void
 PulserBase::set_ttl_mask(uint32_t high_mask, uint32_t low_mask)
 {
-    if (log_on()) {
-        nacsLog("Set TTL mask low=%" PRIx32 ", high=%" PRIx32 "\n",
-                low_mask, high_mask);
-    }
     LogHolder holder;
     write_reg(0, high_mask);
     write_reg(1, low_mask);
@@ -131,9 +113,6 @@ PulserBase::set_ttl_mask(uint32_t high_mask, uint32_t low_mask)
 void
 PulserBase::reset_dds_sel(uint32_t mask)
 {
-    if (log_on()) {
-        nacsLog("Reset DDS selection mask %" PRIx32 "\n", mask);
-    }
     LogHolder holder;
     shortPulse(0x10000005, mask);
 }
@@ -141,9 +120,6 @@ PulserBase::reset_dds_sel(uint32_t mask)
 void
 PulserBase::set_dds_sel(uint32_t mask)
 {
-    if (log_on()) {
-        nacsLog("Set DDS selection mask %" PRIx32 "\n", mask);
-    }
     LogHolder holder;
     shortPulse(0x10000006, mask);
 }
@@ -168,9 +144,6 @@ Pulser::debug_regs()
 void
 Pulser::write_reg(unsigned reg, uint32_t val)
 {
-    if (log_on()) {
-        nacsLog("Write Register(%u), %" PRIx32 "\n", reg, val);
-    }
     m_driver.writeReg(reg, val);
 }
 
