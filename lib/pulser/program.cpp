@@ -76,7 +76,6 @@ Program::set_dds_phase(int i, uint16_t phase)
 NACS_EXPORT void
 Program::shift_dds_phase(int i, uint16_t phase)
 {
-    LogHolder holder;
     // TODO: let's see what is the ``documented'' behavior of the set
     // phase command
     m_phases[i] = uint16_t(m_phases[i] + phase);

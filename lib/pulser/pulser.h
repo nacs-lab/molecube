@@ -43,21 +43,8 @@ public:
     void reset_dds_sel(uint32_t mask);
     void set_dds_sel(uint32_t mask);
 private:
-    static thread_local bool pulser_logging;
     virtual void write_reg(unsigned reg, uint32_t val) = 0;
-protected:
-    bool log_on();
-    struct LogHolder : ScopeSwap<bool> {
-        LogHolder() : ScopeSwap<bool>(pulser_logging, true)
-        {}
-    };
 };
-
-NACS_INLINE bool
-PulserBase::log_on()
-{
-    return m_debug && !pulser_logging;
-}
 
 NACS_INLINE
 PulserBase::PulserBase(bool debug)

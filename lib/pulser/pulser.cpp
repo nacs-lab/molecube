@@ -21,8 +21,6 @@
 namespace NaCs {
 namespace Pulser {
 
-thread_local bool PulserBase::pulser_logging = false;
-
 static bool
 check_program(const uint32_t *prog, size_t len) noexcept
 {
@@ -75,7 +73,6 @@ run_program(Driver &driver, const uint32_t *prog, size_t len) noexcept
 void
 PulserBase::shortPulse(uint32_t control, uint32_t operand)
 {
-    LogHolder holder;
     write_reg(31, operand);
     write_reg(31, control);
 }
@@ -90,7 +87,6 @@ PulserBase::set_dds_amp(int i, uint32_t amp)
 void
 PulserBase::dds_reset(int i)
 {
-    LogHolder holder;
     shortPulse(0x10000004 | (i << 4), 0);
 }
 
@@ -104,7 +100,6 @@ PulserBase::set_dds_phase(int i, uint16_t phase)
 void
 PulserBase::set_ttl_mask(uint32_t high_mask, uint32_t low_mask)
 {
-    LogHolder holder;
     write_reg(0, high_mask);
     write_reg(1, low_mask);
 }
@@ -113,14 +108,12 @@ PulserBase::set_ttl_mask(uint32_t high_mask, uint32_t low_mask)
 void
 PulserBase::reset_dds_sel(uint32_t mask)
 {
-    LogHolder holder;
     shortPulse(0x10000005, mask);
 }
 
 void
 PulserBase::set_dds_sel(uint32_t mask)
 {
-    LogHolder holder;
     shortPulse(0x10000006, mask);
 }
 
@@ -156,10 +149,7 @@ Pulser::read_reg(unsigned reg)
 void
 Pulser::init(bool reset)
 {
-    if (log_on()) {
-        LogHolder holder;
-        debug_regs();
-    }
+    debug_regs();
     release_hold();
     if (reset) {
         nacsInfo("PULSER_init... reset DDS\n");

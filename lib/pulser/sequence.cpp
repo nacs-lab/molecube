@@ -14,7 +14,6 @@ namespace Pulser {
 NACS_EXPORT void
 SequenceBuilder::finish_ttl()
 {
-    LogHolder holder;
     if (m_has_ttl) {
         // disable timing check prior to last pulse
         disable_timing_check();
@@ -26,7 +25,6 @@ SequenceBuilder::finish_ttl()
 NACS_EXPORT void
 SequenceBuilder::push_ttl_all(uint64_t t, uint32_t val)
 {
-    LogHolder holder;
     if (m_has_ttl) {
         make_curr_ttl(t);
     }
