@@ -61,18 +61,18 @@ check_timing(Pulser::Pulser &pulser)
 
     pulser.clear_timing_check();
 
-    pulser.pulse(100, 0, 0);
+    pulser.makePulse(100, 0, 0);
 
     Pulser::Program prog(true);
     prog.enable_timing_check();
 
     for (j = 0; j < 1000000; j++) {
-        prog.pulse(100, 0, 0);
+        prog.makePulse(100, 0, 0);
     }
 
     for (j = 0; j < 5; j++) {
-        prog.pulse(10000000, 0, 0xFFFFFFFF);
-        prog.pulse(10000000, 0, 0x00000000);
+        prog.makePulse(10000000, 0, 0xFFFFFFFF);
+        prog.makePulse(10000000, 0, 0x00000000);
     }
 
     uint64_t t0 = getTime();
@@ -117,7 +117,7 @@ other_test(Pulser::Pulser &pulser)
 
     // //push PMT counter value onto result FIFO
     // pulser.shortPulse(0x20000000, 0);
-    // pulser.pulse(1000000, 0, 0); // 10 ms
+    // pulser.makePulse(1000000, 0, 0); // 10 ms
     // unsigned r = pulser.pop_result();
 
 

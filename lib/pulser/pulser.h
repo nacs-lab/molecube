@@ -33,7 +33,7 @@ public:
     void clock_out(unsigned divider);
     void set_dds_two_bytes(int i, uint32_t addr, uint32_t data);
     void set_dds_four_bytes(int i, uint32_t addr, uint32_t data);
-    void pulse(uint64_t t, unsigned flags, unsigned operand);
+    void makePulse(uint64_t t, unsigned flags, unsigned operand);
     void clear_timing_check();
     void set_dds_freq(int i, uint32_t ftw);
     void set_dds_amp(int i, uint32_t amp);

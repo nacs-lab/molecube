@@ -129,7 +129,7 @@ PulserBase::set_dds_four_bytes(int i, uint32_t addr, uint32_t data)
 //if t > t_max, subdivide into shorter pulses
 //returns number of pulses made
 void
-PulserBase::pulse(uint64_t t, unsigned flags, unsigned operand)
+PulserBase::makePulse(uint64_t t, unsigned flags, unsigned operand)
 {
     if (log_on()) {
         nacsLog("Long pulse t=%" PRTime ", flags=%x, operand=%x\n",
