@@ -225,7 +225,6 @@ Pulser::get_dds_two_bytes(int i, unsigned address)
     return pop_result() & 0x0000ffff;
 }
 
-// get four bytes from address + 3 ... adress on DDS i
 uint32_t
 Pulser::get_dds_four_bytes(int i, unsigned address)
 {

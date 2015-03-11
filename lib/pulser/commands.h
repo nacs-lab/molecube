@@ -27,9 +27,9 @@ static inline void
 setDDSTwoBytes(T &v, int i, uint32_t addr, uint32_t data)
 {
     // put addr in bits 15...9 (maps to DDS opcode_reg[14:9] )?
-    uint32_t dds_addr = (addr + 1) & 0x7F;
+    uint32_t dds_addr = (addr + 1) & 0x7f;
     // put data in bits 15...0 (maps to DDS operand_reg[15:0] )?
-    uint32_t dds_data = data & 0xFFFF;
+    uint32_t dds_data = data & 0xffff;
     v.shortPulse(0x10000002 | (i << 4) | (dds_addr << 9), dds_data);
 }
 
@@ -39,8 +39,8 @@ static inline void
 setDDSFourBytes(T &v, int i, uint32_t addr, uint32_t data)
 {
     //put addr in bits 15...9 (maps to DDS opcode_reg[14:9])?
-    uint32_t dds_addr = (addr + 1) & 0x7F;
-    v.shortPulse(0x1000000F | (i << 4) | (dds_addr << 9), data);
+    uint32_t dds_addr = (addr + 1) & 0x7f;
+    v.shortPulse(0x1000000f | (i << 4) | (dds_addr << 9), data);
 }
 
 // make timed pulses
@@ -50,7 +50,7 @@ template<typename T>
 static inline void
 makePulse(T &v, uint64_t t, unsigned flags, unsigned operand)
 {
-    static constexpr uint32_t t_max = 0x001FFFFF;
+    static constexpr uint32_t t_max = 0x001fffff;
     do {
         uint32_t t_step = uint32_t(min(t, t_max));
         v.shortPulse(t_step | flags, operand);
@@ -139,11 +139,12 @@ ddsTwoBytesReq(T &v, int i, uint32_t address)
     v.shortPulse(0x10000003 | (i << 4) | ((address + 1) << 9), 0);
 }
 
+// get four bytes from address + 3 ... adress on DDS i
 template<typename T>
 static inline void
 ddsFourBytesReq(T &v, int i, uint32_t address)
 {
-    v.shortPulse(0x1000000E | (i << 4) | ((address + 1) << 9), 0);
+    v.shortPulse(0x1000000e | (i << 4) | ((address + 1) << 9), 0);
 }
 
 }
