@@ -200,7 +200,7 @@ parseCommand(Pulser::SequenceBuilder &builder, uint64_t t, std::string &cmd,
 
     if (cmd.find("amp") != std::string::npos) {
         return parseDDS(builder, t, arg1, s, [&] (int chn, double amp) {
-                builder.set_dds_amp_f(chn, amp);
+                Pulser::setDDSAmpF(builder, chn, amp);
             });
     }
 

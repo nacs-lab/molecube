@@ -119,7 +119,7 @@ setDeviceParams(NaCs::Pulser::Pulser &pulser, const std::string &page,
             if (pos != params.end()) {
                 double amp = limit(atof(pos->second.c_str()), 1);
                 nacsLog("DDS setamp (%d): %6.3f %%\n", iDDS, amp * 100);
-                pulser.set_dds_amp_f(iDDS, amp);
+                Pulser::setDDSAmpF(pulser, iDDS, amp);
             }
 
             sprintf(buff, "phase%d", iDDS);

@@ -80,6 +80,72 @@ setDDSFreqF(T &v, int i, double f)
     setDDSFreq(v, i, DDSConverter::freq2num(f, PULSER_AD9914_CLK));
 }
 
+template<typename T>
+static inline void
+setDDSAmp(T &v, int i, uint32_t amp)
+{
+    setDDSTwoBytes(v, i, 0x32, amp);
+}
+
+template<typename T>
+static inline void
+setDDSAmpF(T &v, int i, double amp)
+{
+    setDDSAmp(v, i, DDSConverter::amp2num(amp));
+}
+
+template<typename T>
+static inline void
+setDDSPhase(T &v, int i, uint16_t phase)
+{
+    setDDSTwoBytes(v, i, 0x30, phase);
+}
+
+template<typename T>
+static inline void
+ddsReset(T &v, int i)
+{
+    v.shortPulse(0x10000004 | (i << 4), 0);
+}
+
+// reset DDS selected by bitmask mask
+template<typename T>
+static inline void
+resetDDSSel(T &v, uint32_t mask)
+{
+    v.shortPulse(0x10000005, mask);
+}
+
+template<typename T>
+static inline void
+setDDSSel(T &v, uint32_t mask)
+{
+    v.shortPulse(0x10000006, mask);
+}
+
+// get byte from address on DDS i
+template<typename T>
+static inline void
+ddsByteReq(T &v, int i, uint32_t address)
+{
+    v.shortPulse(0x10000003 | (i << 4) | (address << 9), 0);
+}
+
+// get two bytes from address + 1 ... adress on DDS i
+template<typename T>
+static inline void
+ddsTwoBytesReq(T &v, int i, uint32_t address)
+{
+    v.shortPulse(0x10000003 | (i << 4) | ((address + 1) << 9), 0);
+}
+
+template<typename T>
+static inline void
+ddsFourBytesReq(T &v, int i, uint32_t address)
+{
+    v.shortPulse(0x1000000E | (i << 4) | ((address + 1) << 9), 0);
+}
+
 }
 }
 

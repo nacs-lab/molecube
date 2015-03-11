@@ -29,17 +29,12 @@ public:
     PulserBase(PulserBase &&other);
 
     virtual ~PulserBase() {}
-    void set_dds_amp(int i, uint32_t amp);
     virtual void set_dds_phase(int i, uint16_t phase);
     void dds_reset(int i);
     void set_ttl_mask(uint32_t high_mask, uint32_t low_mask);
     virtual void shortPulse(uint32_t control, uint32_t operand);
 
-    void set_dds_amp_f(int i, double f);
     void set_dds_phase_f(int i, double f);
-
-    void reset_dds_sel(uint32_t mask);
-    void set_dds_sel(uint32_t mask);
 private:
     virtual void write_reg(unsigned reg, uint32_t val) = 0;
 };
@@ -54,12 +49,6 @@ NACS_INLINE
 PulserBase::PulserBase(PulserBase &&other)
     : m_lock(std::move(other.m_lock))
 {
-}
-
-NACS_INLINE void
-PulserBase::set_dds_amp_f(int i, double amp)
-{
-    set_dds_amp(i, DDSConverter::amp2num(amp));
 }
 
 NACS_INLINE void

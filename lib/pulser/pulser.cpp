@@ -77,23 +77,17 @@ PulserBase::shortPulse(uint32_t control, uint32_t operand)
     write_reg(31, control);
 }
 
-void
-PulserBase::set_dds_amp(int i, uint32_t amp)
-{
-    setDDSTwoBytes(*this, i, 0x32, amp);
-}
-
 // reset DDS i
 void
 PulserBase::dds_reset(int i)
 {
-    shortPulse(0x10000004 | (i << 4), 0);
+    ddsReset(*this, i);
 }
 
 void
 PulserBase::set_dds_phase(int i, uint16_t phase)
 {
-    setDDSTwoBytes(*this, i, 0x30, phase);
+    setDDSPhase(*this, i, phase);
 }
 
 // TTL functions: pulse_io = (ttl_out | high_mask) & (~low_mask);
@@ -102,19 +96,6 @@ PulserBase::set_ttl_mask(uint32_t high_mask, uint32_t low_mask)
 {
     write_reg(0, high_mask);
     write_reg(1, low_mask);
-}
-
-// reset DDS selected by bitmask mask
-void
-PulserBase::reset_dds_sel(uint32_t mask)
-{
-    shortPulse(0x10000005, mask);
-}
-
-void
-PulserBase::set_dds_sel(uint32_t mask)
-{
-    shortPulse(0x10000006, mask);
 }
 
 void
@@ -230,19 +211,17 @@ Pulser::timing_ok()
     return !(read_reg(2) & 0x1);
 }
 
-// get byte from address on DDS i
 uint32_t
 Pulser::get_dds_byte(int i, uint32_t address)
 {
-    shortPulse(0x10000003 | (i << 4) | (address << 9), 0);
+    ddsByteReq(*this, i, address);
     return (pop_result() >> 8) & 0x000000ff;
 }
 
-// get two bytes from address + 1 ... adress on DDS i
 uint32_t
 Pulser::get_dds_two_bytes(int i, unsigned address)
 {
-    shortPulse(0x10000003 | (i << 4) | ((address + 1) << 9), 0);
+    ddsTwoBytesReq(*this, i, address);
     return pop_result() & 0x0000ffff;
 }
 
@@ -250,7 +229,7 @@ Pulser::get_dds_two_bytes(int i, unsigned address)
 uint32_t
 Pulser::get_dds_four_bytes(int i, unsigned address)
 {
-    shortPulse(0x1000000E | (i << 4) | ((address + 1) << 9), 0);
+    ddsFourBytesReq(*this, i, address);
     return pop_result();
 }
 
@@ -448,7 +427,7 @@ get_pulser()
         auto addr = mapFile("/dev/mem", get_phys_addr(), 4096);
         if (nacsUnlikely(!addr)) {
             nacsError("Can't map the memory to user space.\n");
-            exit(0);
+            exit(1);
         }
         return addr;
     }();
