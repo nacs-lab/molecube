@@ -57,7 +57,7 @@ public:
     void enable_timing_check();
     void disable_timing_check();
     void dds_reset(int i);
-    void set_dds_phase(int i, uint16_t phase);
+    void set_dds_phase(int i, uint16_t phase) override;
     void shift_dds_phase(int i, uint16_t phase);
     void shift_dds_phase_f(int i, double f);
 private:
