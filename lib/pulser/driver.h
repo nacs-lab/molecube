@@ -3,9 +3,6 @@
 
 #include "ctrl_io.h"
 
-#include <type_traits>
-#include <atomic>
-
 namespace NaCs {
 namespace Pulser {
 
@@ -16,7 +13,7 @@ namespace Pulser {
  * can be read and write by multiple threads at the same time.
  */
 class Driver {
-    volatile void *m_base;
+    volatile void *const m_base;
     Driver() = delete;
     Driver(const Driver&) = delete;
     void operator=(const Driver&) = delete;
@@ -27,7 +24,6 @@ public:
     Driver(Driver &&other)
         : m_base(other.m_base)
     {
-        other.m_base = nullptr;
     }
     intptr_t
     getBase() const
