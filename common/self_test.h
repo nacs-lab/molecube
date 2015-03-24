@@ -5,7 +5,7 @@
  *      Author: trosen
  */
 
-#include <nacs-pulser/pulser.h>
+#include <nacs-old-pulser/pulser.h>
 
 #ifndef SELF_TEST_H_
 #define SELF_TEST_H_

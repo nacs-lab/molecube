@@ -1,7 +1,7 @@
 #ifndef AD9914_H
 #define AD9914_H
 
-#include <nacs-pulser/pulser.h>
+#include <nacs-old-pulser/pulser.h>
 #include <stdio.h>
 
 namespace NaCs {

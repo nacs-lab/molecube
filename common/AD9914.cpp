@@ -1,6 +1,6 @@
 #include "AD9914.h"
 
-#include <nacs-pulser/commands.h>
+#include <nacs-old-pulser/commands.h>
 #include <nacs-utils/log.h>
 #include <random>
 #include <thread>

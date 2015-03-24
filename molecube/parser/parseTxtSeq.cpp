@@ -13,8 +13,8 @@
  */
 #include "parseTxtSeq.h"
 
-#include <nacs-pulser/sequence.h>
-#include <nacs-pulser/commands.h>
+#include <nacs-old-pulser/sequence.h>
+#include <nacs-old-pulser/commands.h>
 #include <nacs-utils/log.h>
 #include <nacs-utils/timer.h>
 

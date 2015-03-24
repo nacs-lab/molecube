@@ -11,8 +11,8 @@
 #include "self_test.h"
 
 #include <nacs-utils/timer.h>
-#include <nacs-pulser/program.h>
-#include <nacs-pulser/commands.h>
+#include <nacs-old-pulser/program.h>
+#include <nacs-old-pulser/commands.h>
 #include <math.h>
 
 #include <thread>

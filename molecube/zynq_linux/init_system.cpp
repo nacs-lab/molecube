@@ -2,7 +2,7 @@
 
 #include <nacs-utils/log.h>
 #include <nacs-utils/number.h>
-#include <nacs-pulser/commands.h>
+#include <nacs-old-pulser/commands.h>
 
 #include "spi_util.h"
 #include "AD9914.h"

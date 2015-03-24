@@ -1,7 +1,7 @@
 #ifndef PARSE_MISC_H
 #define PARSE_MISC_H
 
-#include <nacs-pulser/pulser.h>
+#include <nacs-old-pulser/pulser.h>
 
 #include <verbosity.h>
 

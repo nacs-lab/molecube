@@ -1,7 +1,7 @@
 #ifndef PARSE_TXT_SEQ_H
 #define PARSE_TXT_SEQ_H
 
-#include <nacs-pulser/pulser.h>
+#include <nacs-old-pulser/pulser.h>
 
 #include <verbosity.h>
 

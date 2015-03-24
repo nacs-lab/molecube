@@ -1,6 +1,6 @@
 #include <nacs-utils/timer.h>
-#include <nacs-pulser/pulser.h>
-#include <nacs-pulser/sequence.h>
+#include <nacs-old-pulser/pulser.h>
+#include <nacs-old-pulser/sequence.h>
 
 #include <mutex>
 #include <atomic>

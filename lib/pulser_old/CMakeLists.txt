@@ -6,13 +6,13 @@ set(nacs_pulser_LINKS nacs-utils nacs-xspi pthread)
 
 configure_file(pulser-config.h.in pulser-config.h @ONLY)
 
-add_library(nacs-pulser SHARED ${nacs_pulser_SRCS})
+add_library(nacs-old-pulser SHARED ${nacs_pulser_SRCS})
 
-target_link_libraries(nacs-pulser ${nacs_pulser_LINKS})
+target_link_libraries(nacs-old-pulser ${nacs_pulser_LINKS})
 
-set_target_properties(nacs-pulser PROPERTIES
+set_target_properties(nacs-old-pulser PROPERTIES
   VERSION 0.1
   SOVERSION 0
   COMPILE_FLAGS "-fvisibility=hidden"
   LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
-install(TARGETS nacs-pulser LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}")
+install(TARGETS nacs-old-pulser LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}")

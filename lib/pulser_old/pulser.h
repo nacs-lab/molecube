@@ -6,7 +6,7 @@
 #include "converter.h"
 // #include "commands.h"
 #include "driver_p.h"
-#include <nacs-pulser/pulser-config.h>
+#include <nacs-old-pulser/pulser-config.h>
 
 #include <atomic>
 #include <memory>
