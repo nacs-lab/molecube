@@ -33,61 +33,61 @@ public:
 
     // Read
     inline uint32_t
-    readReg(uint32_t reg)
+    readReg(uint32_t reg) const
     {
         return mReadSlaveReg(m_base, reg);
     }
     inline uint32_t
-    numResults()
+    numResults() const
     {
         return (readReg(2) >> 4) & 31;
     }
     inline bool
-    isFinished()
+    isFinished() const
     {
         return readReg(2) & 0x4;
     }
     inline uint32_t
-    getTTLHighMask()
+    getTTLHighMask() const
     {
         return readReg(0);
     }
     inline uint32_t
-    getTTLLowMask()
+    getTTLLowMask() const
     {
         return readReg(1);
     }
     inline uint32_t
-    readResult()
+    readResult() const
     {
         return readReg(31);
     }
     inline bool
-    timingOK()
+    timingOK() const
     {
         return !(readReg(2) & 0x1);
     }
 
     // Write
     inline void
-    writeReg(uint32_t reg, uint32_t val)
+    writeReg(uint32_t reg, uint32_t val) const
     {
         mWriteSlaveReg(m_base, reg, val);
     }
     inline void
-    shortPulse(uint32_t ctrl, uint32_t op)
+    shortPulse(uint32_t ctrl, uint32_t op) const
     {
         writeReg(31, op);
         writeReg(31, ctrl);
     }
     // TTL functions: pulse_io = (ttl_out | high_mask) & (~low_mask);
     inline void
-    setTTLHighMask(uint32_t high_mask)
+    setTTLHighMask(uint32_t high_mask) const
     {
         writeReg(0, high_mask);
     }
     inline void
-    setTTLLowMask(uint32_t low_mask)
+    setTTLLowMask(uint32_t low_mask) const
     {
         writeReg(1, low_mask);
     }
