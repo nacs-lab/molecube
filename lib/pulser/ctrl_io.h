@@ -4,6 +4,11 @@
 #define __NACS_PULSER_CTRL_IO_H__
 
 // TODO: generate the parameters in this file from the hardware design
+/**
+ * This is the file generated with parameters (register offsets) from the
+ * hardware design. The pulse_controller has 32x 32bits slave registers which
+ * are used to communicate between the PS and PL.
+ */
 
 namespace NaCs {
 namespace Pulser {

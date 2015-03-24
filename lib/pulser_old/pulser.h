@@ -4,8 +4,7 @@
 #define __NACS_PULSER_PULSER_H__
 
 #include "converter.h"
-// #include "commands.h"
-#include "driver_p.h"
+#include <nacs-pulser/driver.h>
 #include <nacs-old-pulser/pulser-config.h>
 
 #include <atomic>

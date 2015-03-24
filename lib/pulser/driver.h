@@ -1,7 +1,7 @@
-#ifndef __NACS_PULSER_DRIVER_P_H__
-#define __NACS_PULSER_DRIVER_P_H__
+#ifndef __NACS_PULSER_DRIVER_H__
+#define __NACS_PULSER_DRIVER_H__
 
-#include <nacs-pulser/ctrl_io.h>
+#include "ctrl_io.h"
 
 #include <type_traits>
 #include <atomic>
@@ -12,7 +12,8 @@ namespace Pulser {
 /**
  * This is the class that does all the low level stuff
  * There's no lock to protect anything and there should only be
- * one writer and one reader.
+ * one writer and one reader for the FIFO (register 31). Other registers
+ * can be read and write by multiple threads at the same time.
  */
 class Driver {
     volatile void *m_base;
