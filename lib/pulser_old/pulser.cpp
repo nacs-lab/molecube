@@ -2,7 +2,7 @@
 
 #include "commands.h"
 #include "program.h"
-#include "ctrl_io.h"
+#include <nacs-pulser/ctrl_io.h>
 
 #include <nacs-utils/container.h>
 

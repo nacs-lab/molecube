@@ -1,7 +1,7 @@
 #ifndef __NACS_PULSER_DRIVER_P_H__
 #define __NACS_PULSER_DRIVER_P_H__
 
-#include "ctrl_io.h"
+#include <nacs-pulser/ctrl_io.h>
 
 #include <type_traits>
 #include <atomic>

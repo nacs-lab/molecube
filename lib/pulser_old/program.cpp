@@ -1,5 +1,5 @@
 #include "program.h"
-#include "ctrl_io.h"
+#include <nacs-pulser/ctrl_io.h>
 
 #include <nacs-utils/number.h>
 #include <nacs-utils/log.h>

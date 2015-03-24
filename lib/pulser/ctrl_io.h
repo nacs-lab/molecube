@@ -1,28 +1,21 @@
-/*****************************************************************************
- * Filename:          PULSER_v4_00_b/src/pulse_controller.h
- * Version:           4.00.b
- * Description:       pulse_controller Driver Header File
- * Date:              Sat Jul 14 14:34:13 2012 (by Create and Import Peripheral Wizard)
- *****************************************************************************/
-
 #include <nacs-utils/mem.h>
 
 #ifndef __NACS_PULSER_CTRL_IO_H__
 #define __NACS_PULSER_CTRL_IO_H__
 
+// TODO: generate the parameters in this file from the hardware design
+
 namespace NaCs {
 namespace Pulser {
 
 /**
- *
  * Write a value to a PULSE_CONTROLLER register. A 32 bit write is performed.
  * If the component is implemented in a smaller width, only the least
  * significant data is written.
  *
- * @param   BaseAddress is the base address of the PULSE_CONTROLLER device.
- * @param   RegOffset is the register offset from the base to write to.
- * @param   Data is the data written to the register.
- *
+ * @param base is the base address of the PULSE_CONTROLLER device.
+ * @param offset is the register offset from the base to write to.
+ * @param data is the data written to the register.
  */
 static NACS_INLINE void
 mWriteReg(volatile void *base, off_t offset, uint32_t data)
@@ -31,17 +24,15 @@ mWriteReg(volatile void *base, off_t offset, uint32_t data)
 }
 
 /**
- *
  * Read a value from a PULSE_CONTROLLER register. A 32 bit read is performed.
  * If the component is implemented in a smaller width, only the least
  * significant data is read from the register. The most significant data
  * will be read as 0.
  *
- * @param   BaseAddress is the base address of the PULSE_CONTROLLER device.
- * @param   RegOffset is the register offset from the base to write to.
+ * @param base is the base address of the PULSE_CONTROLLER device.
+ * @param offset is the register offset from the base to write to.
  *
- * @return  Data is the data from the register.
- *
+ * @return data is the data from the register.
  */
 static NACS_INLINE uint32_t
 mReadReg(volatile void *base, off_t offset)
@@ -94,7 +85,7 @@ static constexpr uint32_t rst_reg_offset = soft_rst_space_offset + 0x0;
  *
  * Reset PULSE_CONTROLLER via software.
  *
- * @param   BaseAddress is the base address of the PULSE_CONTROLLER device.
+ * @param base is the base address of the PULSE_CONTROLLER device.
  *
  */
 static NACS_INLINE void
@@ -104,12 +95,9 @@ mReset(volatile void *base)
      * Software Reset Masks
      * -- SOFT_RESET : software reset
      */
-    static constexpr uint32_t soft_reset = 0x0000000A;
+    static constexpr uint32_t soft_reset = 0x0000000a;
     mem_write32((volatile char*)base + rst_reg_offset, soft_reset);
 }
-
-/* Defines the number of registers available for read and write */
-static constexpr uint32_t usr_num_reg = 32;
 
 }
 }
