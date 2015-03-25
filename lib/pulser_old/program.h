@@ -75,7 +75,7 @@ Program::Program()
 NACS_INLINE void
 Program::shift_dds_phase_f(int i, double p)
 {
-    shift_dds_phase(i, DDSConverter::phase2num(p));
+    shift_dds_phase(i, DDSCvt::phase2num(p));
 }
 
 }

@@ -77,7 +77,7 @@ template<typename T>
 static inline void
 setDDSFreqF(T &v, int i, double f)
 {
-    setDDSFreq(v, i, DDSConverter::freq2num(f, PULSER_AD9914_CLK));
+    setDDSFreq(v, i, DDSCvt::freq2num(f, PULSER_AD9914_CLK));
 }
 
 template<typename T>
@@ -91,7 +91,7 @@ template<typename T>
 static inline void
 setDDSAmpF(T &v, int i, double amp)
 {
-    setDDSAmp(v, i, DDSConverter::amp2num(amp));
+    setDDSAmp(v, i, DDSCvt::amp2num(amp));
 }
 
 template<typename T>

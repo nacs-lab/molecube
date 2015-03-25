@@ -108,7 +108,7 @@ setDeviceParams(NaCs::Pulser::Pulser &pulser, const std::string &page,
                 Pulser::setDDSFreqF(pulser, iDDS, f);
                 unsigned ftw = pulser.get_dds_freq(iDDS);
                 double freq_get =
-                    Pulser::DDSConverter::num2freq(ftw, PULSER_AD9914_CLK);
+                    Pulser::DDSCvt::num2freq(ftw, PULSER_AD9914_CLK);
                 nacsLog("DDS getfreq(%d): %12.3f  (ftw = %08X)\n",
                         iDDS, freq_get, ftw);
             }

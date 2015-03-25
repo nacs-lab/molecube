@@ -53,7 +53,7 @@ PulserBase::PulserBase(PulserBase &&other)
 NACS_INLINE void
 PulserBase::set_dds_phase_f(int i, double p)
 {
-    set_dds_phase(i, DDSConverter::phase2num(p));
+    set_dds_phase(i, DDSCvt::phase2num(p));
 }
 
 class NACS_EXPORT Pulser : public PulserBase {
@@ -139,19 +139,19 @@ Pulser &get_pulser();
 NACS_INLINE double
 Pulser::get_dds_freq_f(int i)
 {
-    return DDSConverter::num2freq(get_dds_freq(i), PULSER_AD9914_CLK);
+    return DDSCvt::num2freq(get_dds_freq(i), PULSER_AD9914_CLK);
 }
 
 NACS_INLINE double
 Pulser::get_dds_phase_f(int i)
 {
-    return DDSConverter::num2phase(get_dds_phase(i));
+    return DDSCvt::num2phase(get_dds_phase(i));
 }
 
 NACS_INLINE double
 Pulser::get_dds_amp_f(int i)
 {
-    return DDSConverter::num2amp(get_dds_amp(i));
+    return DDSCvt::num2amp(get_dds_amp(i));
 }
 
 }
