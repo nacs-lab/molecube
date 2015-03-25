@@ -1,7 +1,7 @@
 #ifndef __NACS_PULSER_COMMANDS_P_H__
 #define __NACS_PULSER_COMMANDS_P_H__
 
-#include "converter.h"
+#include <nacs-pulser/converter.h>
 #include <nacs-pulser/pulser-config.h>
 
 #include <nacs-utils/number.h>

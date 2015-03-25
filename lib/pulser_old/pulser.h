@@ -3,7 +3,7 @@
 #ifndef __NACS_PULSER_PULSER_H__
 #define __NACS_PULSER_PULSER_H__
 
-#include "converter.h"
+#include <nacs-pulser/converter.h>
 #include <nacs-pulser/driver.h>
 #include <nacs-pulser/pulser-config.h>
 
