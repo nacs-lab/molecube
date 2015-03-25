@@ -5,7 +5,7 @@
 
 #include "converter.h"
 #include <nacs-pulser/driver.h>
-#include <nacs-old-pulser/pulser-config.h>
+#include <nacs-pulser/pulser-config.h>
 
 #include <atomic>
 #include <memory>

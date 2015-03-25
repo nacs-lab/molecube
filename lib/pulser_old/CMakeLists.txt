@@ -4,8 +4,6 @@ set(nacs_pulser_SRCS
   sequence.cpp)
 set(nacs_pulser_LINKS nacs-utils pthread)
 
-configure_file(pulser-config.h.in pulser-config.h @ONLY)
-
 add_library(nacs-old-pulser SHARED ${nacs_pulser_SRCS})
 
 target_link_libraries(nacs-old-pulser ${nacs_pulser_LINKS})
