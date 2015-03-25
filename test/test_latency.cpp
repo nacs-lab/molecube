@@ -11,6 +11,7 @@
 
 using namespace NaCs;
 
+template<bool wait=true>
 double
 test_dds(Pulser::Pulser &pulser, unsigned nrun)
 {
@@ -19,12 +20,19 @@ test_dds(Pulser::Pulser &pulser, unsigned nrun)
     for (unsigned i = 0;i < nrun;i++) {
         setDDSFreq(pulser, 0, 0);
     }
-    while (!pulser.is_finished()) {
+    if (wait) {
+        while (!pulser.is_finished()) {
+        }
     }
     auto time = toc();
+    if (!wait) {
+        while (!pulser.is_finished()) {
+        }
+    }
     return double(time) / double(nrun) / 1e3;
 }
 
+template<bool wait=true>
 void
 test_latencies(Pulser::Pulser &pulser, unsigned ncycles)
 {
@@ -37,7 +45,7 @@ test_latencies(Pulser::Pulser &pulser, unsigned ncycles)
         double sum = 0;
         double sum2 = 0;
         for (unsigned j = 0;j < ncycles;j++) {
-            auto t = test_dds(pulser, nrun);
+            auto t = test_dds<wait>(pulser, nrun);
             if (tmin == 0) {
                 tmin = t;
             } else {
@@ -48,11 +56,11 @@ test_latencies(Pulser::Pulser &pulser, unsigned ncycles)
             sum2 += t * t;
         }
         double taverage = sum / ncycles;
-        double tstd = sum2 / ncycles - taverage * taverage;
+        double tstd = std::sqrt(sum2 / ncycles - taverage * taverage);
         std::cout << "mean (us): " << std::fixed
                   << std::setw(6) << std::setprecision(4) << taverage;
-        std::cout << ", std (ps): " << std::fixed
-                  << std::setw(7) << std::setprecision(4) << tstd * 1e6;
+        std::cout << ", std (ns): " << std::fixed
+                  << std::setw(7) << std::setprecision(4) << tstd * 1e3;
         std::cout << ", min (us): " << std::fixed
                   << std::setw(6) << std::setprecision(4) << tmin;
         std::cout << ", max (us): " << std::fixed
@@ -65,6 +73,7 @@ int
 main()
 {
     auto &pulser = Pulser::get_pulser();
-    test_latencies(pulser, 8192);
+    test_latencies<true>(pulser, 4096);
+    test_latencies<false>(pulser, 4096);
     return 0;
 }
