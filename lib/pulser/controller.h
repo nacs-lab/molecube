@@ -15,15 +15,23 @@ namespace Pulser {
 
 class Controller;
 
+/**
+ * Each request should be writing two 32-bit words to the FIFO (slave reg 31)
+ * and should last for no more than 500ns, the precise length of the pulse
+ * is stored in `length` (< 50) in unit of FPGA clock (10ns)
+ */
 struct Request {
-    bool ready;
+    bool ready: 1;
+    const bool has_res: 1;
+    const uint8_t length;
+    const uint8_t cond_id;
     // Result
     uint32_t res;
-    const uint8_t cond_id;
     // Keep this as is until we have variable length requests
     const uint32_t ctrl;
     const uint32_t op;
-    Request(Controller &, uint32_t ctrl, uint32_t op);
+    Request(Controller &, uint32_t ctrl, uint32_t op,
+            uint8_t len, bool _has_res);
 private:
     Request() = delete;
 };
@@ -42,11 +50,15 @@ public:
           m_cond_locks{}
     {
     }
+
+    // For creating requests
     uint8_t
     getCondId()
     {
         return uint8_t(m_cond_id.fetch_add(1) & numLocksMask);
     }
+
+    // For requester
     void
     wait(const Request &req)
     {
@@ -70,6 +82,8 @@ public:
         wait(req);
         return req.res;
     }
+
+    // For result reader
     void
     setRes(Request &req, uint32_t res)
     {
@@ -91,10 +105,13 @@ private:
 };
 
 inline
-Request::Request(Controller &ctrl, uint32_t _ctrl, uint32_t _op)
+Request::Request(Controller &ctrl, uint32_t _ctrl, uint32_t _op,
+                 uint8_t len, bool _has_res)
     : ready(false),
-      res(0),
+      has_res(_has_res),
+      length(len),
       cond_id(ctrl.getCondId()),
+      res(0),
       ctrl(_ctrl),
       op(_op)
 {
