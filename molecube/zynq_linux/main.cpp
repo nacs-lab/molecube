@@ -125,8 +125,13 @@ printHeader(FILE *fLog)
 {
     fprintf(fLog, "\n\nMolecube 1.09 (FastCGI)\n");
     fprintf(fLog, "Built: %s %s  ", __DATE__, __TIME__);
+#ifdef __clang__
+    fprintf(fLog, "with Clang %d.%d.%d\n", __clang_major__,
+            __clang_minor__, __clang_patchlevel__);
+#else
     fprintf(fLog, "with GCC %d.%d.%d\n", __GNUC__,
             __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
+#endif
 }
 
 static void
