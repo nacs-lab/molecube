@@ -268,7 +268,7 @@ Pulser::init(bool reset)
         LogHolder holder;
         debug_regs();
     }
-
+    release_hold();
     if (reset) {
         nacsInfo("PULSER_init... reset DDS\n");
         for (unsigned i = 0;i < PULSER_NDDS;i++) {
