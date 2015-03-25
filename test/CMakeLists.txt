@@ -29,3 +29,7 @@ target_link_libraries(test-fifo nacs-utils)
 set(test_controller_SOURCES test_controller.cpp)
 add_executable(test-controller ${test_controller_SOURCES})
 target_link_libraries(test-controller nacs-utils)
+
+set(test_latency_SOURCES test_latency.cpp)
+add_executable(test-latency ${test_latency_SOURCES})
+target_link_libraries(test-latency nacs-utils nacs-old-pulser)
