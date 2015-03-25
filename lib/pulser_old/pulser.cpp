@@ -130,6 +130,7 @@ Pulser::read_reg(unsigned reg)
 void
 Pulser::init(bool reset)
 {
+    release_hold();
     debug_regs();
     release_hold();
     if (reset) {
@@ -161,14 +162,14 @@ Pulser::is_finished()
 void
 Pulser::release_hold()
 {
-    write_reg(3, read_reg(3) & ~0x00000080);
+    write_reg(3, read_reg(3) & ~0x80);
 }
 
 // set hold. pulses are stopped
 void
 Pulser::set_hold()
 {
-    write_reg(3, read_reg(3) | 0x00000080);
+    write_reg(3, read_reg(3) | 0x80);
 }
 
 void
