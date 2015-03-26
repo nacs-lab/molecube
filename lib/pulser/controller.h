@@ -4,12 +4,12 @@
 #include "driver.h"
 #include "commands.h"
 
+#include <nacs-utils/utils.h>
 #include <nacs-utils/container.h>
 
 #include <condition_variable>
 #include <mutex>
 #include <atomic>
-#include <type_traits>
 
 namespace NaCs {
 namespace Pulser {
@@ -99,9 +99,7 @@ public:
         m_req_queue.push(&req);
     }
     template<typename R>
-    std::enable_if_t<std::is_base_of<Request,
-                                     std::remove_reference_t<R> >::value,
-                     uint32_t>
+    std::enable_if_t<isBaseOf<Request, R>, uint32_t>
     reqSync(R &&req)
     {
         pushReq(req);

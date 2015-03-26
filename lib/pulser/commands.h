@@ -4,8 +4,7 @@
 #include "converter.h"
 #include <nacs-pulser/pulser-config.h>
 #include <nacs-utils/number.h>
-
-#include <type_traits>
+#include <nacs-utils/utils.h>
 
 namespace NaCs {
 namespace Pulser {
@@ -43,10 +42,8 @@ struct _isCmdType : std::false_type {};
 template<template<bool> class CmdType, typename T>
 struct _isCmdType<CmdType, T,
                   std::enable_if_t<
-                      std::is_base_of<
-                          CmdType<std::remove_reference_t<T>::has_res>,
-                          std::remove_reference_t<T>>::value>> :
-        std::true_type {
+                      isBaseOf<CmdType<std::remove_reference_t<T>::has_res>,
+                               T>>> : std::true_type {
 };
 
 template<typename T>
