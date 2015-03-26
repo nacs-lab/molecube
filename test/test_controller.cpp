@@ -21,7 +21,8 @@ main()
     ctrl.wait(req);
     assert(req.res == 10);
 
-    Pulser::Request req2(ctrl, 0, 0, 50, true);
+    Pulser::Request req2(ctrl, Pulser::LoopBack(10));
+    assert(req2.has_res);
     Pulser::Request req3(ctrl, 0, 0, 50, true);
     Pulser::Request req4(ctrl, 0, 0, 50, true);
     std::thread t([&] {

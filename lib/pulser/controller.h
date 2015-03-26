@@ -1,9 +1,10 @@
 #ifndef __NACS_PULSER_CONTROLLER_H__
 #define __NACS_PULSER_CONTROLLER_H__
 
-#include <nacs-utils/container.h>
-
 #include "driver.h"
+#include "commands.h"
+
+#include <nacs-utils/container.h>
 
 #include <condition_variable>
 #include <mutex>
@@ -20,7 +21,23 @@ class Controller;
  * and should last for no more than 500ns, the precise length of the pulse
  * is stored in `length` (< 50) in unit of FPGA clock (10ns)
  */
-struct Request {
+class Request {
+    struct RequestFactory {
+        uint32_t m_ctrl;
+        uint32_t m_op;
+        template<typename Cmd>
+        RequestFactory(Cmd &&cmd)
+        {
+            cmd.run(*this);
+        }
+        inline void
+        shortPulse(uint32_t ctrl, uint32_t op)
+        {
+            m_ctrl = ctrl;
+            m_op = op;
+        }
+    };
+public:
     bool ready: 1;
     const bool has_res: 1;
     const uint8_t length;
@@ -30,8 +47,17 @@ struct Request {
     // Keep this as is until we have variable length requests
     const uint32_t ctrl;
     const uint32_t op;
-    Request(Controller &, uint32_t ctrl, uint32_t op,
+    Request(Controller&, uint32_t ctrl, uint32_t op,
             uint8_t len, bool _has_res);
+    Request(Controller &ctrl, RequestFactory &&req, uint8_t len, bool has_res)
+        : Request(ctrl, req.m_ctrl, req.m_op, len, has_res)
+    {}
+    template<typename Cmd, class=std::enable_if_t<isBaseCmd<Cmd> > >
+    Request(Controller &ctrl, Cmd &&cmd)
+        : Request(ctrl, RequestFactory(cmd),
+                  uint8_t(cmd.length()), cmd.has_res)
+    {
+    }
 private:
     Request() = delete;
 };
@@ -114,8 +140,7 @@ Request::Request(Controller &ctrl, uint32_t _ctrl, uint32_t _op,
       res(0),
       ctrl(_ctrl),
       op(_op)
-{
-}
+{}
 
 }
 }
