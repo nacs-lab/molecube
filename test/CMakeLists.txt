@@ -33,3 +33,7 @@ target_link_libraries(test-controller nacs-utils)
 set(test_latency_SOURCES test_latency.cpp)
 add_executable(test-latency ${test_latency_SOURCES})
 target_link_libraries(test-latency nacs-utils nacs-old-pulser)
+
+set(test_loopback_SOURCES test_loopback.cpp)
+add_executable(test-loopback ${test_loopback_SOURCES})
+target_link_libraries(test-loopback nacs-utils nacs-old-pulser)
