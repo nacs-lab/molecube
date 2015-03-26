@@ -1,6 +1,6 @@
 #include "AD9914.h"
 
-#include <nacs-old-pulser/commands.h>
+#include <nacs-pulser/commands.h>
 #include <nacs-utils/log.h>
 #include <random>
 #include <thread>
@@ -15,7 +15,7 @@ namespace NaCs {
 static bool
 test_val_AD9914(Pulser::Pulser &pulser, int i, unsigned addr, unsigned val)
 {
-    Pulser::setDDSTwoBytes(pulser, i, addr, val);
+    pulser.add(Pulser::DDSSetTwoBytes(i, addr, val));
     return pulser.get_dds_two_bytes(i, addr) == val;
 }
 
@@ -35,7 +35,7 @@ test_AD9914(Pulser::Pulser &pulser, int i)
         }
     }
 
-    Pulser::setDDSTwoBytes(pulser, i, addr, 0);
+    pulser.add(Pulser::DDSSetTwoBytes(i, addr, 0));
 
     if (pass) {
         nacsLog("DDS %d passed digital I/O test.\n", i);
@@ -60,7 +60,7 @@ test_dds_addr(Pulser::Pulser &pulser, int i, unsigned low_addr,
 
         for(unsigned j = 0;j < ntest;j++) {
             unsigned r = dist(rd);
-            Pulser::setDDSTwoBytes(pulser, i, addr, r);
+            pulser.add(Pulser::DDSSetTwoBytes(i, addr, r));
             unsigned b = pulser.get_dds_byte(i, addr);
 
             if (r != b) {
@@ -74,7 +74,7 @@ test_dds_addr(Pulser::Pulser &pulser, int i, unsigned low_addr,
             ntested++;
         }
 
-        Pulser::setDDSTwoBytes(pulser, i, addr, d0 | (d1 << 8));
+        pulser.add(Pulser::DDSSetTwoBytes(i, addr, d0 | (d1 << 8)));
     }
 
     fprintf(f, "Tested %d read/writes in address range 0x%02x to 0x%02x.  "
@@ -134,41 +134,41 @@ init_AD9914(Pulser::Pulser &pulser, int i, bool bForce)
     if (bInit) {
         pulser.dds_reset(i);
 
-        //calibrate internal timing.  required at power-up
-        Pulser::setDDSTwoBytes(pulser, i, 0x0E, 0x0105);
+        // calibrate internal timing.  required at power-up
+        pulser.add(Pulser::DDSSetTwoBytes(i, 0x0E, 0x0105));
         std::this_thread::sleep_for(1ms);
         // finish cal. disble sync_out
-        Pulser::setDDSTwoBytes(pulser, i, 0x0E, 0x0405);
+        pulser.add(Pulser::DDSSetTwoBytes(i, 0x0E, 0x0405));
 
         // enable programmable modulus and profile 0, enable SYNC_CLK output
-        // Pulser::setDDSTwoBytes(pulser, i, 0x05, 0x8D0B);
+        // pulser.add(Pulser::DDSSetTwoBytes(i, 0x05, 0x8D0B));
 
         // disable programmable modulus, enable profile 0,
         // enable SYNC_CLK output
-        // Pulser::setDDSTwoBytes(pulser, i, 0x05, 0x8009);
+        // pulser.add(Pulser::DDSSetTwoBytes(i, 0x05, 0x8009));
 
         // disable ramp & programmable modulus, enable profile 0,
         // disable SYNC_CLK output
-        // Pulser::setDDSTwoBytes(pulser, i, 0x05, 0x8001);
+        // pulser.add(Pulser::DDSSetTwoBytes(i, 0x05, 0x8001));
 
         // disable SYNC_CLK output
-        Pulser::setDDSTwoBytes(pulser, i, 0x04, 0x0100);
+        pulser.add(Pulser::DDSSetTwoBytes(i, 0x04, 0x0100));
 
         // enable ramp, enable programmable modulus, disable profile mode
-        // Pulser::setDDSTwoBytes(pulser, i, 0x06, 0x0009);
+        // pulser.add(Pulser::DDSSetTwoBytes(i, 0x06, 0x0009));
 
         // disable ramp, disable programmable modulus, enable profile mode
-        Pulser::setDDSTwoBytes(pulser, i, 0x06, 0x0080);
+        pulser.add(Pulser::DDSSetTwoBytes(i, 0x06, 0x0080));
 
         // enable amplitude control (OSK)
-        Pulser::setDDSTwoBytes(pulser, i, 0x0, 0x0108);
+        pulser.add(Pulser::DDSSetTwoBytes(i, 0x0, 0x0108));
 
         // zero-out all other memory
         for (unsigned addr = 0x10;addr <= 0x6a;addr += 2) {
-            Pulser::setDDSTwoBytes(pulser, i, addr, 0x0);
+            pulser.add(Pulser::DDSSetTwoBytes(i, addr, 0x0));
         }
 
-        Pulser::setDDSFourBytes(pulser, i, 0x64, magic_bytes);
+        pulser.add(Pulser::DDSSetFourBytes(i, 0x64, magic_bytes));
 
         nacsLog("Initialized AD9914 board=%i\n", i);
     }

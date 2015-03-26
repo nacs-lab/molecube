@@ -1,7 +1,7 @@
 #include <nacs-utils/timer.h>
 #include <nacs-utils/number.h>
 #include <nacs-old-pulser/pulser.h>
-#include <nacs-old-pulser/commands.h>
+#include <nacs-pulser/commands.h>
 
 #include <stdint.h>
 
@@ -16,7 +16,7 @@ test_dds(Pulser::Pulser &pulser, int dds_id, unsigned freq_step,
     for (unsigned i = 0;i < num_steps;i++) {
         runs++;
         unsigned fword = (i + 1) * freq_step - 1;
-        setDDSFreq(pulser, dds_id, fword);
+        pulser.add(Pulser::DDSSetFreq(dds_id, fword));
         unsigned read = pulser.get_dds_freq(dds_id);
         if (read != fword) {
             fails++;

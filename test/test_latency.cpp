@@ -1,7 +1,7 @@
 #include <nacs-utils/timer.h>
 #include <nacs-utils/number.h>
 #include <nacs-old-pulser/pulser.h>
-#include <nacs-old-pulser/commands.h>
+#include <nacs-pulser/commands.h>
 
 #include <stdint.h>
 
@@ -18,7 +18,7 @@ test_dds(Pulser::Pulser &pulser, unsigned nrun)
     pulser.release_hold();
     tic();
     for (unsigned i = 0;i < nrun;i++) {
-        setDDSFreq(pulser, 0, 0);
+        pulser.add(Pulser::DDSSetFreq(0, 0));
     }
     if (wait) {
         while (!pulser.is_finished()) {

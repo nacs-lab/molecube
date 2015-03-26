@@ -1,8 +1,8 @@
 #include "pulser.h"
 
-#include "commands.h"
 #include "program.h"
 #include <nacs-pulser/ctrl_io.h>
+#include <nacs-pulser/commands.h>
 
 #include <nacs-utils/container.h>
 
@@ -81,13 +81,13 @@ PulserBase::shortPulse(uint32_t control, uint32_t operand)
 void
 PulserBase::dds_reset(int i)
 {
-    ddsReset(*this, i);
+    add(DDSReset(i));
 }
 
 void
 PulserBase::set_dds_phase(int i, uint16_t phase)
 {
-    setDDSPhase(*this, i, phase);
+    add(DDSSetPhase(i, phase));
 }
 
 // TTL functions: pulse_io = (ttl_out | high_mask) & (~low_mask);
@@ -215,21 +215,21 @@ Pulser::timing_ok()
 uint32_t
 Pulser::get_dds_byte(int i, uint32_t address)
 {
-    ddsByteReq(*this, i, address);
+    add(DDSByteReq(i, address));
     return (pop_result() >> 8) & 0x000000ff;
 }
 
 uint32_t
 Pulser::get_dds_two_bytes(int i, unsigned address)
 {
-    ddsTwoBytesReq(*this, i, address);
+    add(DDSTwoBytesReq(i, address));
     return pop_result() & 0x0000ffff;
 }
 
 uint32_t
 Pulser::get_dds_four_bytes(int i, unsigned address)
 {
-    ddsFourBytesReq(*this, i, address);
+    add(DDSFourBytesReq(i, address));
     return pop_result();
 }
 
@@ -248,10 +248,10 @@ Pulser::dds_exists(int i)
 {
     unsigned addr = 0x68;
     // Check whether it's possible to set phase of profile 7 to 0 and 1
-    setDDSTwoBytes(*this, i, addr, 0);
+    add(DDSSetTwoBytes(i, addr, 0));
     unsigned u0 = get_dds_two_bytes(i, addr);
 
-    setDDSTwoBytes(*this, i, addr, 1);
+    add(DDSSetTwoBytes(i, addr, 1));
     unsigned u1 = get_dds_two_bytes(i, addr);
 
     return (u0 == 0) && (u1 == 1);
@@ -331,7 +331,7 @@ Pulser::self_test(int ndds, int cycle)
         // initialize to 0 Hz
         for (int i = 0;i < ndds;i++) {
             ftw[i] = 0;
-            setDDSFreq(*this, i, 0);
+            add(DDSSetFreq(i, 0));
         }
 
         for (int j = 0;j < cycle;j++) {
@@ -346,11 +346,11 @@ Pulser::self_test(int ndds, int cycle)
             }
 
             ftw[i] = val_dist(rd);
-            setDDSFreq(*this, i, ftw[i]);
+            add(DDSSetFreq(i, ftw[i]));
         }
 
         for (int i = 0;i < ndds;i++) {
-            setDDSFreq(*this, i, 0);
+            add(DDSSetFreq(i, 0));
         }
 
         if (nBad == 0) {
@@ -376,7 +376,7 @@ Pulser::test_dds(int i)
             test_val = test_val + ((i * 0xF) << (j * 4));
         }
 
-        setDDSFreq(*this, i, test_val);
+        add(DDSSetFreq(i, test_val));
         unsigned read = get_dds_freq(i);
         freq_ok = freq_ok && (read == test_val);
 

@@ -2,7 +2,7 @@
 
 #include <nacs-utils/log.h>
 #include <nacs-utils/number.h>
-#include <nacs-old-pulser/commands.h>
+#include <nacs-pulser/commands.h>
 
 #include "spi_util.h"
 #include "AD9914.h"
@@ -45,7 +45,7 @@ init_system()
     pulser.init(false);
     nacsLog("Initializing pulse controller...done.\n");
 
-    Pulser::clearTimingCheck(pulser);
+    pulser.add(Pulser::ClearTimingCheck());
 
     const bool spi_active_low[max(4, NSPI)] = {true, true, false, false};
     const char spi_clock_phase[max(4, NSPI)] = {0, 0, 0, 0};

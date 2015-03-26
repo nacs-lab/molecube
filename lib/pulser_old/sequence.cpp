@@ -1,6 +1,6 @@
 #include "sequence.h"
 
-#include "commands.h"
+#include <nacs-pulser/commands.h>
 
 #include <nacs-utils/log.h>
 #include <nacs-utils/timer.h>
@@ -88,7 +88,7 @@ SequenceBuilder::ttl_pulse(uint64_t t, uint32_t ttl)
                                                 PULSER_DT_us) +
                                  " us is too short or early.");
     }
-    makePulse(*this, t, 0, ttl);
+    add(LongPulse(t, 0, ttl));
 }
 
 NACS_EXPORT void

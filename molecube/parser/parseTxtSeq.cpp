@@ -14,7 +14,7 @@
 #include "parseTxtSeq.h"
 
 #include <nacs-old-pulser/sequence.h>
-#include <nacs-old-pulser/commands.h>
+#include <nacs-pulser/commands.h>
 #include <nacs-utils/log.h>
 #include <nacs-utils/timer.h>
 
@@ -101,10 +101,10 @@ parseReset(Pulser::SequenceBuilder &builder, uint64_t t, std::string &arg1,
 
         // disable programmable modulus, enable profile 0,
         // enable SYNC_CLK output
-        Pulser::setDDSTwoBytes(builder, channel, 0x05, 0x840B);
+        builder.add(Pulser::DDSSetTwoBytes(channel, 0x05, 0x840B));
 
         // enable amplitude control (OSK)
-        Pulser::setDDSTwoBytes(builder, channel, 0x0, 0x0108);
+        builder.add(Pulser::DDSSetTwoBytes(channel, 0x0, 0x0108));
         builder.curr_t() = t;
         return true;
     }
@@ -130,7 +130,7 @@ parseClockOut(Pulser::SequenceBuilder &builder, uint64_t t, std::string &arg1)
     }
     builder.handle_curr_ttl(t, 0);
     builder.curr_t() += PULSER_ENABLE_CLK_DURATION;
-    Pulser::clockOut(builder, divider);
+    builder.add(Pulser::ClockOut(divider));
     return true;
 }
 
@@ -194,13 +194,13 @@ parseCommand(Pulser::SequenceBuilder &builder, uint64_t t, std::string &cmd,
 
     if (cmd.find("freq") != std::string::npos) {
         return parseDDS(builder, t, arg1, s, [&] (int chn, double freq) {
-                setDDSFreqF(builder, chn, freq);
+                builder.add(Pulser::DDSSetFreqF(chn, freq));
             });
     }
 
     if (cmd.find("amp") != std::string::npos) {
         return parseDDS(builder, t, arg1, s, [&] (int chn, double amp) {
-                Pulser::setDDSAmpF(builder, chn, amp);
+                builder.add(Pulser::DDSSetAmpF(chn, amp));
             });
     }
 
@@ -432,7 +432,7 @@ parseSeqTxt(Pulser::Pulser &pulser, unsigned reps,
         pulser.wait();
 
         if (!pulser.timing_ok()) {
-            Pulser::clearTimingCheck(pulser);
+            pulser.add(Pulser::ClearTimingCheck());
             nTimingErrors++;
         }
 

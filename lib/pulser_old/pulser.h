@@ -1,11 +1,9 @@
-#include <nacs-utils/utils.h>
-
 #ifndef __NACS_PULSER_PULSER_H__
 #define __NACS_PULSER_PULSER_H__
-
-#include <nacs-pulser/converter.h>
 #include <nacs-pulser/driver.h>
-#include <nacs-pulser/pulser-config.h>
+#include <nacs-pulser/commands.h>
+
+#include <nacs-utils/utils.h>
 
 #include <atomic>
 #include <memory>
@@ -15,7 +13,7 @@
 namespace NaCs {
 namespace Pulser {
 
-using namespace std::literals::chrono_literals;
+using namespace std::literals;
 
 class BaseProgram;
 
@@ -34,6 +32,12 @@ public:
     virtual void shortPulse(uint32_t control, uint32_t operand);
 
     void set_dds_phase_f(int i, double f);
+    template<typename Cmd>
+    inline std::enable_if_t<isBaseCmd<Cmd>>
+    add(Cmd &&cmd)
+    {
+        cmd.run(*this);
+    }
 private:
     virtual void write_reg(unsigned reg, uint32_t val) = 0;
 };

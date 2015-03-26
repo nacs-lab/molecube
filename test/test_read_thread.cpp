@@ -16,16 +16,10 @@ static constexpr int N = 10000000;
 using namespace NaCs;
 using namespace std::literals;
 
-static uint32_t
-pulser_num_results(Pulser::Pulser &pulser)
-{
-    return (pulser.read_reg(2) >> 4) & 31;
-}
-
 static inline uint32_t
 read_results(Pulser::Pulser &pulser)
 {
-    uint32_t n_res = pulser_num_results(pulser);
+    uint32_t n_res = pulser.num_results();
     for (auto n = n_res;n != 0;n--) {
         pulser.read_reg(31);
     }

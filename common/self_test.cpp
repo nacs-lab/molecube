@@ -12,7 +12,7 @@
 
 #include <nacs-utils/timer.h>
 #include <nacs-old-pulser/program.h>
-#include <nacs-old-pulser/commands.h>
+#include <nacs-pulser/commands.h>
 #include <math.h>
 
 #include <thread>
@@ -64,19 +64,19 @@ check_timing(Pulser::Pulser &pulser)
 
     printf("Generating 1,000,000 x 1 us pulses + 10 x 100 ms pulses...\n");
 
-    Pulser::clearTimingCheck(pulser);
-    Pulser::makePulse(pulser, 100, 0, 0);
+    pulser.add(Pulser::ClearTimingCheck());
+    pulser.add(Pulser::LongPulse(100, 0, 0));
 
-    Pulser::Program prog(true);
+    Pulser::Program prog;
     prog.enable_timing_check();
 
     for (j = 0; j < 1000000; j++) {
-        Pulser::makePulse(prog, 100, 0, 0);
+        prog.add(Pulser::LongPulse(100, 0, 0));
     }
 
     for (j = 0; j < 5; j++) {
-        Pulser::makePulse(prog, 10000000, 0, 0xFFFFFFFF);
-        Pulser::makePulse(prog, 10000000, 0, 0x00000000);
+        prog.add(Pulser::LongPulse(10000000, 0, 0xffffffff));
+        prog.add(Pulser::LongPulse(10000000, 0, 0x00000000));
     }
 
     uint64_t t0 = getTime();
@@ -117,13 +117,7 @@ other_test(Pulser::Pulser &pulser)
 {
     unsigned j, r2;
 
-    Pulser::clearTimingCheck(pulser);
-
-    // //push PMT counter value onto result FIFO
-    // pulser.shortPulse(0x20000000, 0);
-    // pulser.makePulse(1000000, 0, 0); // 10 ms
-    // unsigned r = pulser.pop_result();
-
+    pulser.add(Pulser::ClearTimingCheck());
 
     for (j = 0; j < PULSER_NDDS; j++) {
         double freq = pulser.get_dds_freq_f(j);
@@ -143,7 +137,7 @@ other_test(Pulser::Pulser &pulser)
 
     std::this_thread::sleep_for(1ms);
 
-    //read back data
+    // read back data
     unsigned nResults = 0;
     unsigned k = 0;
 

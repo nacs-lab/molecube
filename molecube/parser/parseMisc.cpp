@@ -1,6 +1,6 @@
 #include "parseMisc.h"
 
-#include <nacs-old-pulser/commands.h>
+#include <nacs-pulser/commands.h>
 
 #include <nacs-utils/number.h>
 #include <nacs-utils/log.h>
@@ -105,7 +105,7 @@ setDeviceParams(NaCs::Pulser::Pulser &pulser, const std::string &page,
             if (pos != params.end()) {
                 double f = 1e6 * atof(pos->second.c_str());
                 nacsLog("DDS setfreq(%d): %12.3f\n", iDDS, f);
-                Pulser::setDDSFreqF(pulser, iDDS, f);
+                pulser.add(Pulser::DDSSetFreqF(iDDS, f));
                 unsigned ftw = pulser.get_dds_freq(iDDS);
                 double freq_get =
                     Pulser::DDSCvt::num2freq(ftw, PULSER_AD9914_CLK);
@@ -119,7 +119,7 @@ setDeviceParams(NaCs::Pulser::Pulser &pulser, const std::string &page,
             if (pos != params.end()) {
                 double amp = limit(atof(pos->second.c_str()), 1);
                 nacsLog("DDS setamp (%d): %6.3f %%\n", iDDS, amp * 100);
-                Pulser::setDDSAmpF(pulser, iDDS, amp);
+                pulser.add(Pulser::DDSSetAmpF(iDDS, amp));
             }
 
             sprintf(buff, "phase%d", iDDS);
