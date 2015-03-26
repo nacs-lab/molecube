@@ -37,6 +37,9 @@ class Request {
             m_op = op;
         }
     };
+    Request(Controller &ctrl, RequestFactory &&req, uint8_t len, bool has_res)
+        : Request(ctrl, req.m_ctrl, req.m_op, len, has_res)
+    {}
 public:
     bool ready: 1;
     const bool has_res: 1;
@@ -49,10 +52,7 @@ public:
     const uint32_t op;
     Request(Controller&, uint32_t ctrl, uint32_t op,
             uint8_t len, bool _has_res);
-    Request(Controller &ctrl, RequestFactory &&req, uint8_t len, bool has_res)
-        : Request(ctrl, req.m_ctrl, req.m_op, len, has_res)
-    {}
-    template<typename Cmd, class=std::enable_if_t<isBaseCmd<Cmd> > >
+    template<typename Cmd, class=std::enable_if_t<isSimpleCmd<Cmd> > >
     Request(Controller &ctrl, Cmd &&cmd)
         : Request(ctrl, RequestFactory(cmd),
                   uint8_t(cmd.length()), cmd.has_res)
@@ -74,8 +74,7 @@ public:
           m_req_queue(64),
           m_cond_vars{},
           m_cond_locks{}
-    {
-    }
+    {}
 
     // For creating requests
     uint8_t
@@ -105,6 +104,12 @@ public:
         pushReq(req);
         wait(req);
         return req.res;
+    }
+    template<typename Cmd>
+    std::enable_if_t<isSimpleCmd<Cmd>, uint32_t>
+    reqSync(Cmd &&cmd)
+    {
+        return reqSync(Request(cmd));
     }
 
     // For result reader
