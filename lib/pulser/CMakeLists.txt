@@ -1,8 +1,6 @@
-set(nacs_pulser_SRCS)
+set(nacs_pulser_SRCS controller.cpp)
 set(nacs_pulser_LINKS nacs-utils pthread)
 configure_file(pulser-config.h.in pulser-config.h @ONLY)
-
-return()
 
 add_library(nacs-pulser SHARED ${nacs_pulser_SRCS})
 

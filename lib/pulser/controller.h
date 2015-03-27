@@ -10,11 +10,17 @@
 #include <condition_variable>
 #include <mutex>
 #include <atomic>
+#include <thread>
+#include <chrono>
+
+#include <assert.h>
 
 namespace NaCs {
 namespace Pulser {
 
 class Controller;
+
+using namespace std::literals;
 
 /**
  * Each request should be writing two 32-bit words to the FIFO (slave reg 31)
@@ -62,7 +68,7 @@ private:
     Request() = delete;
 };
 
-class Controller: public Driver {
+class NACS_EXPORT Controller: public Driver {
     static constexpr unsigned numLocks = 32;
     static constexpr unsigned numLocksMask = numLocks - 1;
 public:
@@ -72,27 +78,33 @@ public:
           m_num_written(0),
           m_res_queue(64),
           m_req_queue(64),
+          m_notify_queue(64),
           m_cond_vars{},
-          m_cond_locks{}
+          m_cond_locks{},
+          m_quit(false),
+          m_reader_thread(&Controller::runReader, this),
+          m_reader_cond(),
+          m_reader_lock(),
+          m_writer_cond(),
+          m_writer_lock()
     {}
+    ~Controller()
+    {
+        m_quit = true;
+        m_reader_thread.join();
+    }
 
     // For creating requests
-    uint8_t
+    inline uint8_t
     getCondId()
     {
         return uint8_t(m_cond_id.fetch_add(1) & numLocksMask);
     }
 
     // For requester
-    void
-    wait(const Request &req)
-    {
-        std::unique_lock<std::mutex> locker(m_cond_locks[req.cond_id]);
-        m_cond_vars[req.cond_id].wait(locker, [&] {
-                return req.ready;
-            });
-    }
-    void
+    void wait(const Request &req);
+
+    inline void
     pushReq(Request &req)
     {
         m_req_queue.push(&req);
@@ -113,24 +125,43 @@ public:
     }
 
     // For result reader
-    void
-    setRes(Request &req, uint32_t res)
-    {
-        {
-            std::lock_guard<std::mutex> locker(m_cond_locks[req.cond_id]);
-            req.res = res;
-            req.ready = true;
-        }
-        m_cond_vars[req.cond_id].notify_all();
-    }
+    void setRes(Request &req, uint32_t res);
 private:
-    size_t m_num_read;
-    size_t m_num_written;
+    uint32_t popResults();
+    void dumpNotifyQueue();
+    uint32_t popRemaining();
+    void runReader();
+
+    uint64_t writeRequests(uint32_t max_num, bool notify);
+
+    // For a request that returns a result, the writer should first push it
+    // into the result queue (`m_res_queue`), then write the request to the
+    // FPGA, and increment m_num_written.
+    // Use atomic_uint for num_read and num_written to ensure atomic load and
+    // write (which is hopefully trivial).
+    std::atomic_uint m_num_read;
+    std::atomic_uint m_num_written;
     FIFO<Request*> m_res_queue;
     FIFO<Request*> m_req_queue;
+    // For write only request, the time it cost to do a notify might
+    // be a little too expensive for the real time writer thread. Therefore,
+    // although the request is technically done when it is written to the
+    // FPGA, we push it to a queue and let the reader thread send
+    // the notification.
+    FIFO<Request*> m_notify_queue;
     mutable std::condition_variable m_cond_vars[numLocks];
     mutable std::mutex m_cond_locks[numLocks];
     mutable std::atomic_uint m_cond_id;
+
+    // For the reader thread
+    bool m_quit;
+    std::thread m_reader_thread;
+    mutable std::condition_variable m_reader_cond;
+    mutable std::mutex m_reader_lock;
+
+    // For the writer thread
+    mutable std::condition_variable m_writer_cond;
+    mutable std::mutex m_writer_lock;
 };
 
 inline
