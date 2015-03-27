@@ -88,6 +88,7 @@ public:
           m_reader_thread(&Controller::runReader, this),
           m_reader_cond(),
           m_reader_lock(),
+          m_writer_thread(&Controller::runWriter, this),
           m_writer_cond(),
           m_writer_lock()
     {}
@@ -95,6 +96,7 @@ public:
     {
         m_quit = true;
         m_reader_thread.join();
+        m_writer_thread.join();
     }
 
     // For creating requests
@@ -126,7 +128,7 @@ public:
     std::enable_if_t<isSimpleCmd<Cmd>, uint32_t>
     reqSync(Cmd &&cmd)
     {
-        return reqSync(Request(cmd));
+        return reqSync(Request(*this, cmd));
     }
 
     // For result reader
@@ -146,6 +148,7 @@ private:
      * the requester directly.
      */
     uint64_t writeRequests(uint32_t max_num, bool notify);
+    void runWriter();
 
     /**
      * Use atomic_uint for num_read and num_written to ensure atomic load and
@@ -216,11 +219,15 @@ private:
     /**
      * For the writer thread
      *
+     * @m_writer_thread: Helper thread that writes requests to the FPGA and
+     *     runs sequences.
      * @m_writer_cond:
      * @m_writer_lock: For notifying the writer that some results has been
      *     read from the FPGA so that it can write more requests in case
-     *     it was waiting for enough space in the result buffer.
+     *     it was waiting for enough space in the result buffer. Also used for
+     *     notifying the writer if there's a sequence to be run.
      */
+    std::thread m_writer_thread;
     mutable std::condition_variable m_writer_cond;
     mutable std::mutex m_writer_lock;
 };

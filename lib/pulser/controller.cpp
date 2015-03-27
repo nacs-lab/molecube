@@ -115,7 +115,7 @@ Controller::runReader()
 {
     while (!m_quit) {
         std::unique_lock<std::mutex> locker(m_reader_lock);
-        // If a sequence is running
+        // Sleep for a shorter time if there's pending requests
         m_reader_cond.wait_for(locker, m_req_queue.size() ? 200us : 2000us);
         popRemaining();
     }
@@ -175,6 +175,20 @@ Controller::writeRequests(uint32_t max_num, bool notify)
         }
     }
     return total_time;
+}
+
+/**
+ * Write requests or run sequences
+ */
+NACS_EXPORT void
+Controller::runWriter()
+{
+    while (!m_quit) {
+        std::unique_lock<std::mutex> locker(m_writer_lock);
+        m_writer_cond.wait_for(locker, 2000us);
+        // TODO: check if there's a sequence to run and run it.
+        writeRequests(32, true);
+    }
 }
 
 }
