@@ -40,5 +40,4 @@ target_link_libraries(test-loopback nacs-utils nacs-pulser nacs-old-pulser)
 
 set(test_controller_threads_SOURCES test_controller_threads.cpp)
 add_executable(test-controller_threads ${test_controller_threads_SOURCES})
-target_link_libraries(test-controller_threads nacs-utils nacs-pulser
-  nacs-old-pulser)
+target_link_libraries(test-controller_threads nacs-utils nacs-pulser)

@@ -407,30 +407,12 @@ Pulser::test_dds(int i)
     return freq_ok && phase_ok;
 }
 
-static inline auto
-get_phys_addr()
-{
-    // Can also be determined by looking for
-    // /proc/device-tree/amba@0/pulse-controller@73000000
-    // with propery device tree file.
-
-    return XPAR_PULSE_CONTROLLER_0_BASEADDR;
-}
-
 NACS_EXPORT Pulser&
 get_pulser()
 {
     // C++0x grantees that the initialization of function scope static
     // variable is thread-safe.
-    static Pulser pulser = [] {
-        nacsInfo("Initializing pulse controller\n");
-        auto addr = mapFile("/dev/mem", get_phys_addr(), 4096);
-        if (nacsUnlikely(!addr)) {
-            nacsError("Can't map the memory to user space.\n");
-            exit(1);
-        }
-        return addr;
-    }();
+    static Pulser pulser = mapPulserAddr();
     return pulser;
 }
 

@@ -2,7 +2,7 @@ set(nacs_pulser_SRCS
   pulser.cpp
   program.cpp
   sequence.cpp)
-set(nacs_pulser_LINKS nacs-utils pthread)
+set(nacs_pulser_LINKS nacs-utils nacs-pulser pthread)
 
 add_library(nacs-old-pulser SHARED ${nacs_pulser_SRCS})
 

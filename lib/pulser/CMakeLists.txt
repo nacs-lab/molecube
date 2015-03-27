@@ -1,4 +1,6 @@
-set(nacs_pulser_SRCS controller.cpp)
+set(nacs_pulser_SRCS
+  controller.cpp
+  driver.cpp)
 set(nacs_pulser_LINKS nacs-utils pthread)
 configure_file(pulser-config.h.in pulser-config.h @ONLY)
 

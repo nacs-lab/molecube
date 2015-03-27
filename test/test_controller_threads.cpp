@@ -4,8 +4,6 @@
 #include <nacs-utils/timer.h>
 #include <nacs-utils/number.h>
 
-#include <nacs-old-pulser/pulser.h>
-
 #include <assert.h>
 #include <thread>
 #include <chrono>
@@ -17,8 +15,7 @@ using namespace std::literals;
 int
 main()
 {
-    auto &pulser = Pulser::get_pulser();
-    Pulser::Controller ctrl((void*)pulser.get_base());
+    Pulser::Controller ctrl(Pulser::mapPulserAddr());
 
     auto write_loopback1 = [&] {
         for (uint32_t i = 0;i < 1024;i++) {

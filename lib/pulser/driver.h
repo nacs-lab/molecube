@@ -93,6 +93,8 @@ public:
     }
 };
 
+volatile void *mapPulserAddr();
+
 }
 }
 
