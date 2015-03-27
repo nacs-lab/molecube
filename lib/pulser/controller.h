@@ -85,12 +85,12 @@ public:
           m_cond_vars{},
           m_cond_locks{},
           m_quit(false),
-          m_reader_thread(&Controller::runReader, this),
           m_reader_cond(),
           m_reader_lock(),
-          m_writer_thread(&Controller::runWriter, this),
           m_writer_cond(),
-          m_writer_lock()
+          m_writer_lock(),
+          m_reader_thread(&Controller::runReader, this),
+          m_writer_thread(&Controller::runWriter, this)
     {}
     ~Controller()
     {
@@ -203,8 +203,6 @@ private:
     /**
      * For the reader thread
      *
-     * @m_reader_thread: Helper thread that reads values from the FPGA
-     *     continiously
      * @m_reader_cond:
      * @m_reader_lock: For notifying the reader that some requests has been
      *     written to the FPGA. This might not happen for all requests written
@@ -212,24 +210,31 @@ private:
      *     result) so the reader thread should timeout on the wait and check
      *     if there's anything to read.
      */
-    std::thread m_reader_thread;
     mutable std::condition_variable m_reader_cond;
     mutable std::mutex m_reader_lock;
 
     /**
      * For the writer thread
      *
-     * @m_writer_thread: Helper thread that writes requests to the FPGA and
-     *     runs sequences.
      * @m_writer_cond:
      * @m_writer_lock: For notifying the writer that some results has been
      *     read from the FPGA so that it can write more requests in case
      *     it was waiting for enough space in the result buffer. Also used for
      *     notifying the writer if there's a sequence to be run.
      */
-    std::thread m_writer_thread;
     mutable std::condition_variable m_writer_cond;
     mutable std::mutex m_writer_lock;
+
+    /**
+     * Threads: needs to be initialized last
+     *
+     * @m_reader_thread: Helper thread that reads values from the FPGA
+     *     continiously
+     * @m_writer_thread: Helper thread that writes requests to the FPGA and
+     *     runs sequences.
+     */
+    std::thread m_reader_thread;
+    std::thread m_writer_thread;
 };
 
 inline
