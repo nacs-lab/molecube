@@ -6,7 +6,7 @@ namespace Pulser {
 /**
  * Wait for the request to finish.
  */
-void
+NACS_EXPORT void
 Controller::wait(const Request &req)
 {
     std::unique_lock<std::mutex> locker(m_cond_locks[req.cond_id]);
@@ -19,7 +19,7 @@ Controller::wait(const Request &req)
  * (Mainly) For the reader thread.
  * Set the result (and ready) of a request.
  */
-void
+NACS_EXPORT void
 Controller::setRes(Request &req, uint32_t res)
 {
     {
@@ -110,7 +110,7 @@ Controller::popRemaining()
 /**
  * Wait for event or timeout to thread the result buffer from FPGA
  */
-void
+NACS_EXPORT void
 Controller::runReader()
 {
     while (!m_quit) {
@@ -125,6 +125,8 @@ Controller::runReader()
  * Write at most @max_num requests (each at most 500us long) to FPGA.
  * @notify controls whether to notify other threads of the write being done.
  * Use `false` for RT thread.
+ *
+ * Return: the length of the pulese written.
  */
 uint64_t
 Controller::writeRequests(uint32_t max_num, bool notify)
@@ -148,21 +150,29 @@ Controller::writeRequests(uint32_t max_num, bool notify)
         if (req->has_res) {
             m_res_queue.push(req);
             num_return++;
-        } else if (notify) {
-            // If notify is enabled for the writer thread (i.e. this is not
-            // a RT thread), notify the requester directly.
-            setRes(*req, 0);
-        } else {
-            m_notify_queue.push(req);
         }
         total_time += req->length;
         shortPulse(req->ctrl, req->op);
+        if (!req->has_res) {
+            // Notify the requester or push it to the notify queue after
+            // the it has been written to the FPGA since the request is invalid
+            // (might be freed / destructed at any time) after that.
+            if (notify) {
+                // If notify is enabled for the writer thread (i.e. this is
+                // not a RT thread), notify the requester directly.
+                setRes(*req, 0);
+            } else {
+                m_notify_queue.push(req);
+            }
+        }
     }
     if (num_return) {
         m_num_written = m_num_written + num_return;
-    }
-    if (notify) {
-        m_reader_cond.notify_all();
+        if (notify) {
+            // If notify is on, the reader thread only need to be waken up
+            // for the requests that return results.
+            m_reader_cond.notify_one();
+        }
     }
     return total_time;
 }

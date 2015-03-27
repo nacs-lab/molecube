@@ -68,7 +68,10 @@ private:
     Request() = delete;
 };
 
-class NACS_EXPORT Controller: public Driver {
+/**
+ * This is the object that manages the threads that talks to the FPGA.
+ */
+class Controller: public Driver {
     static constexpr unsigned numLocks = 32;
     static constexpr unsigned numLocksMask = numLocks - 1;
 public:
@@ -109,6 +112,8 @@ public:
     {
         m_req_queue.push(&req);
     }
+
+    // Send a request and wait for it to finish
     template<typename R>
     std::enable_if_t<isBaseOf<Request, R>, uint32_t>
     reqSync(R &&req)
@@ -132,34 +137,90 @@ private:
     uint32_t popRemaining();
     void runReader();
 
+    /**
+     * For a request that returns a result, the writer should first push it
+     * into the result queue (`m_res_queue`), then write the request to the
+     * FPGA, and increment m_num_written.
+     * For a request that does not return a result, the writer should write the
+     * request first and then either push it to the list to be freed or notify
+     * the requester directly.
+     */
     uint64_t writeRequests(uint32_t max_num, bool notify);
 
-    // For a request that returns a result, the writer should first push it
-    // into the result queue (`m_res_queue`), then write the request to the
-    // FPGA, and increment m_num_written.
-    // Use atomic_uint for num_read and num_written to ensure atomic load and
-    // write (which is hopefully trivial).
+    /**
+     * Use atomic_uint for num_read and num_written to ensure atomic load and
+     * write (which is hopefully trivial).
+     *
+     * @m_num_read: number of results read
+     * @m_num_written: number of request that returns a result written
+     *     (i.e.) the number of results expected
+     *
+     * It is important to keep the difference between these small since the
+     * the FPGA only has a finite result buffer size.
+     */
     std::atomic_uint m_num_read;
     std::atomic_uint m_num_written;
+
+    /**
+     * @m_res_queue: queue of written requests
+     * @m_req_queue: queue of requests to be written
+     */
     FIFO<Request*> m_res_queue;
     FIFO<Request*> m_req_queue;
-    // For write only request, the time it cost to do a notify might
-    // be a little too expensive for the real time writer thread. Therefore,
-    // although the request is technically done when it is written to the
-    // FPGA, we push it to a queue and let the reader thread send
-    // the notification.
+    /**
+     * @m_notify_queue: For write only request, the time it cost to do a
+     *     notify might be a little too expensive for the real time writer
+     *     thread. Therefore, although the request is technically done when it
+     *     is written to the FPGA, we push it to a queue and let the reader
+     *     thread send the notification.
+     */
     FIFO<Request*> m_notify_queue;
+
+    /**
+     * @m_cond_vars
+     * @m_cond_locks
+     *     Condition variables to notify the requester of finished request
+     *     Split into multiple bins so that we don't need to create a new
+     *     condition variable (and mutex) for each single request, which can
+     *     be too expensive for RT thread or wake up everyone for every events
+     *     when there are more then one pending requests.
+     */
     mutable std::condition_variable m_cond_vars[numLocks];
     mutable std::mutex m_cond_locks[numLocks];
+    /**
+     * m_cond_id: counter to assign condition variables.
+     */
     mutable std::atomic_uint m_cond_id;
 
-    // For the reader thread
+    /**
+     * @m_quit: the controller is (being) destructed and the helper thread(s)
+     *     should all quit.
+     */
     bool m_quit;
+    /**
+     * For the reader thread
+     *
+     * @m_reader_thread: Helper thread that reads values from the FPGA
+     *     continiously
+     * @m_reader_cond:
+     * @m_reader_lock: For notifying the reader that some requests has been
+     *     written to the FPGA. This might not happen for all requests written
+     *     (e.g. when RT thread write a request that does not need immediate
+     *     result) so the reader thread should timeout on the wait and check
+     *     if there's anything to read.
+     */
     std::thread m_reader_thread;
     mutable std::condition_variable m_reader_cond;
     mutable std::mutex m_reader_lock;
 
-    // For the writer thread
+    /**
+     * For the writer thread
+     *
+     * @m_writer_cond:
+     * @m_writer_lock: For notifying the writer that some results has been
+     *     read from the FPGA so that it can write more requests in case
+     *     it was waiting for enough space in the result buffer.
+     */
     mutable std::condition_variable m_writer_cond;
     mutable std::mutex m_writer_lock;
 };
