@@ -113,6 +113,7 @@ public:
     pushReq(Request &req)
     {
         m_req_queue.push(&req);
+        m_writer_cond.notify_all();
     }
 
     // Send a request and wait for it to finish
