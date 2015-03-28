@@ -197,6 +197,33 @@ struct DDSFourBytesReq : DDSCmd<true> {
     {}
 };
 
+struct DDSFreqReq : BaseCmd<true> {
+    DDSFreqReq(int i)
+        : req1(i, 0x2c),
+          req2(i, 0x2e)
+    {
+    }
+    constexpr uint64_t
+    length() const
+    {
+        return req1.length() + req2.length();
+    }
+    template<typename T>
+    inline void
+    run(T &v) const
+    {
+        req1.run(v);
+        req2.run(v);
+    }
+    static inline uint32_t
+    convertRes(uint32_t res1, uint32_t res2)
+    {
+        return res1 | (res2 << 16);
+    }
+    DDSTwoBytesReq req1;
+    DDSTwoBytesReq req2;
+};
+
 }
 }
 

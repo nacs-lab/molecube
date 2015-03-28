@@ -89,12 +89,19 @@ public:
           m_reader_lock(),
           m_writer_cond(),
           m_writer_lock(),
+          m_lock(),
           m_reader_thread(&Controller::runReader, this),
           m_writer_thread(&Controller::runWriter, this)
     {}
     ~Controller()
     {
-        m_quit = true;
+        {
+            std::lock_guard<std::mutex> r_locker(m_reader_lock);
+            std::lock_guard<std::mutex> w_locker(m_writer_lock);
+            m_quit = true;
+        }
+        m_reader_cond.notify_all();
+        m_writer_cond.notify_all();
         m_reader_thread.join();
         m_writer_thread.join();
     }
@@ -112,7 +119,10 @@ public:
     inline void
     pushReq(Request &req)
     {
-        m_req_queue.push(&req);
+        {
+            std::lock_guard<std::mutex> locker(m_writer_lock);
+            m_req_queue.push(&req);
+        }
         m_writer_cond.notify_all();
     }
 
@@ -131,9 +141,100 @@ public:
     {
         return reqSync(Request(*this, cmd));
     }
+    inline uint32_t
+    reqSync(const DDSFreqReq &cmd)
+    {
+        Request req1(*this, cmd.req1);
+        Request req2(*this, cmd.req2);
+        pushReq(req1);
+        pushReq(req2);
+        wait(req1);
+        wait(req2);
+
+        return cmd.convertRes(req1.res, req2.res);
+    }
 
     // For result reader
     void setRes(Request &req, uint32_t res);
+
+    inline void
+    lock()
+    {
+        m_lock.lock();
+    }
+    inline void
+    unlock()
+    {
+        m_lock.unlock();
+    }
+    inline bool
+    try_lock()
+    {
+        return m_lock.try_lock();
+    }
+
+    // The thread needs to aquire the writer lock when calling these functions
+    template<typename Cmd>
+    inline std::enable_if_t<isBaseCmd<Cmd> >
+    write(Cmd &&cmd)
+    {
+        cmd.run(*this);
+    }
+
+    // Synchronously run commands while holding the writer lock.
+    // Mainly for testing
+    template<typename Cmd>
+    inline std::enable_if_t<isBaseOf<BaseCmd<false>, Cmd> >
+    run(Cmd &&cmd)
+    {
+        write(cmd);
+    }
+
+    template<typename Cmd>
+    inline std::enable_if_t<isBaseOf<SimpleCmd<true>, Cmd>, uint32_t>
+    run(Cmd &&cmd)
+    {
+        Request req(*this, cmd);
+        m_res_queue.push(&req);
+        waitForResSpace(1);
+        write(cmd);
+        m_num_written++;
+        m_reader_cond.notify_all();
+        wait(req);
+        return req.res;
+    }
+
+    inline uint32_t
+    run(const DDSFreqReq &cmd)
+    {
+        Request req1(*this, cmd.req1);
+        Request req2(*this, cmd.req2);
+        m_res_queue.push(&req1);
+        m_res_queue.push(&req2);
+        waitForResSpace(2);
+        write(cmd);
+        m_num_written = m_num_written + 2;
+        m_reader_cond.notify_all();
+        wait(req1);
+        wait(req2);
+        return cmd.convertRes(req1.res, req2.res);
+    }
+    inline int32_t
+    resBuffSpace()
+    {
+        static constexpr int max_write = 15;
+        return max_write - m_num_written + m_num_read;
+    }
+
+    inline void
+    waitForResSpace(int32_t space)
+    {
+        std::unique_lock<std::mutex> locker(m_writer_lock);
+        m_writer_cond.wait(locker, [&] {
+                return resBuffSpace() >= space;
+            });
+    }
+    uint64_t writeRequests(uint32_t max_num, bool notify);
 private:
     uint32_t popResults();
     void dumpNotifyQueue();
@@ -148,7 +249,6 @@ private:
      * request first and then either push it to the list to be freed or notify
      * the requester directly.
      */
-    uint64_t writeRequests(uint32_t max_num, bool notify);
     void runWriter();
 
     /**
@@ -220,19 +320,19 @@ private:
      * @m_writer_cond:
      * @m_writer_lock: For notifying the writer that some results has been
      *     read from the FPGA so that it can write more requests in case
-     *     it was waiting for enough space in the result buffer. Also used for
-     *     notifying the writer if there's a sequence to be run.
+     *     it was waiting for enough space in the result buffer.
+     * @m_lock: Suspend the writer thread if a external thread is running
      */
     mutable std::condition_variable m_writer_cond;
     mutable std::mutex m_writer_lock;
+    mutable std::mutex m_lock;
 
     /**
      * Threads: needs to be initialized last
      *
      * @m_reader_thread: Helper thread that reads values from the FPGA
      *     continiously
-     * @m_writer_thread: Helper thread that writes requests to the FPGA and
-     *     runs sequences.
+     * @m_writer_thread: Helper thread that writes requests to the FPGA
      */
     std::thread m_reader_thread;
     std::thread m_writer_thread;

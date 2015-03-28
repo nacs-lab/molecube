@@ -262,8 +262,8 @@ Pulser::get_dds_freq(int i)
 {
     // shortPulse(0x1000000E | (i << 4) | (0x2D << 9), 0);
     // return pop_result();
-    uint32_t u0 = get_dds_two_bytes(i, 0x2C);
-    uint32_t u2 = get_dds_two_bytes(i, 0x2E);
+    uint32_t u0 = get_dds_two_bytes(i, 0x2c);
+    uint32_t u2 = get_dds_two_bytes(i, 0x2e);
 
     return u0 | (u2 << 16);
 }

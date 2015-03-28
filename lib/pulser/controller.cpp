@@ -52,12 +52,15 @@ Controller::popResults()
     }
     // Atomic increment is not necessary since there should only be one
     // thread writing to it
-    m_num_read = m_num_read + n_res;
+    {
+        std::lock_guard<std::mutex> locker(m_writer_lock);
+        m_num_read = m_num_read + n_res;
+    }
     // There should be enough requests queued in the result queue
     Request *reqs[buf_size];
     auto num_pop = m_res_queue.pop(reqs, n_res);
     assert(num_pop == n_res);
-    m_writer_cond.notify_one();
+    m_writer_cond.notify_all();
     for (uint32_t i = 0;i < n_res;i++) {
         setRes(*reqs[i], results[i]);
     }
@@ -88,21 +91,10 @@ Controller::popRemaining()
     uint32_t n_read = 0;
     // Should be safe even in case of overflow since the difference between
     // them should be kept small by the writter thread
-    int n_no_res;
     while (int(m_num_written - m_num_read) > 0 && !m_quit) {
-        auto num_res = popResults();
-        if (num_res == 0) {
-            n_no_res++;
-        } else {
-            n_read += num_res;
-            n_no_res = 0;
-        }
+        n_read += popResults();
         dumpNotifyQueue();
-        // Try three times before going to sleep again.
-        if (n_no_res >= 2) {
-            // The actual time is usually longer than 10us.
-            std::this_thread::sleep_for(10us);
-        }
+        std::this_thread::yield();
     }
     return n_read;
 }
@@ -132,13 +124,13 @@ uint64_t
 Controller::writeRequests(uint32_t max_num, bool notify)
 {
     static constexpr int max_write = 15;
-    int res_pipe_space = max_write - m_num_written + m_num_read;
-    if (res_pipe_space <= 0)
+    int res_buff_space = resBuffSpace();
+    if (res_buff_space <= 0)
         return 0;
     // Block writer if there's not enough space in the result buffer
     // This also means that requests that does not return a result will be
     // blocked too. Probably not a big issue.
-    uint32_t num_to_write = min(max_num, uint32_t(res_pipe_space));
+    uint32_t num_to_write = min(max_num, uint32_t(res_buff_space));
     if (num_to_write == 0)
         return 0;
     Request *reqs[max_write];
@@ -171,22 +163,24 @@ Controller::writeRequests(uint32_t max_num, bool notify)
         if (notify) {
             // If notify is on, the reader thread only need to be waken up
             // for the requests that return results.
-            m_reader_cond.notify_one();
+            m_reader_cond.notify_all();
         }
     }
     return total_time;
 }
 
 /**
- * Write requests or run sequences
+ * Write requests
  */
 NACS_EXPORT void
 Controller::runWriter()
 {
     while (!m_quit) {
         std::unique_lock<std::mutex> locker(m_writer_lock);
-        m_writer_cond.wait_for(locker, 2000us);
-        // TODO: check if there's a sequence to run and run it.
+        m_writer_cond.wait(locker, [&] {
+                return m_quit || (resBuffSpace() > 0 && m_req_queue.size());
+            });
+        std::lock_guard<std::mutex> controller_locker(m_lock);
         writeRequests(32, true);
     }
 }
