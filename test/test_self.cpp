@@ -1,7 +1,6 @@
 #include <nacs-utils/timer.h>
 #include <nacs-utils/number.h>
-#include <nacs-old-pulser/pulser.h>
-#include <nacs-pulser/commands.h>
+#include <nacs-pulser/controller.h>
 
 #include <stdint.h>
 
@@ -10,14 +9,14 @@ using namespace NaCs;
 static constexpr int ndds = 22;
 
 void
-test_dds(Pulser::Pulser &pulser, int dds_id, unsigned freq_step,
+test_dds(Pulser::Controller &ctrl, int dds_id, unsigned freq_step,
          unsigned num_steps, unsigned &fails, unsigned &runs)
 {
     for (unsigned i = 0;i < num_steps;i++) {
         runs++;
         unsigned fword = (i + 1) * freq_step - 1;
-        pulser.add(Pulser::DDSSetFreq(dds_id, fword));
-        unsigned read = pulser.get_dds_freq(dds_id);
+        ctrl.run(Pulser::DDSSetFreq(dds_id, fword));
+        unsigned read = ctrl.run(Pulser::DDSFreqReq(dds_id));
         if (read != fword) {
             fails++;
         }
@@ -32,12 +31,12 @@ main()
     double fails2[ndds] = {0.0};
     const constexpr int ncycle = 0x100;
     bool dds_exists[ndds] = {};
-    auto &pulser = Pulser::get_pulser();
+    Pulser::Controller ctrl(Pulser::mapPulserAddr());
 
     auto prev_time = time(nullptr);
 
     for (int dds = 0;dds < ndds;dds++) {
-        dds_exists[dds] = pulser.dds_exists(dds);
+        dds_exists[dds] = ctrl.run(Pulser::DDSExists(dds));
         if (!dds_exists[dds]) {
             printf("Missing DDS: %d\n", dds);
         }
@@ -49,7 +48,7 @@ main()
                 continue;
             unsigned nfail = 0;
             unsigned nrun = 0;
-            test_dds(pulser, dds, 0x80000, 0x800, nfail, nrun);
+            test_dds(ctrl, dds, 0x80000, 0x800, nfail, nrun);
             fails[dds] += double(nfail) / ncycle;
             runs[dds] += double(nrun) / ncycle;
             fails2[dds] += square(double(nfail)) / ncycle;

@@ -4,7 +4,7 @@ target_link_libraries(test-pulser-program nacs-utils nacs-old-pulser)
 
 set(test_self_SOURCES test_self.cpp)
 add_executable(test-self ${test_self_SOURCES})
-target_link_libraries(test-self nacs-utils nacs-old-pulser)
+target_link_libraries(test-self nacs-utils nacs-pulser)
 
 set(test_fcgi_SOURCES test_fcgi.cpp)
 add_executable(test-fcgi ${test_fcgi_SOURCES})
