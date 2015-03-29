@@ -4,8 +4,8 @@
 #include "driver.h"
 #include "commands.h"
 
-#include <nacs-utils/utils.h>
 #include <nacs-utils/container.h>
+#include <nacs-utils/utils.h>
 
 #include <condition_variable>
 #include <mutex>
