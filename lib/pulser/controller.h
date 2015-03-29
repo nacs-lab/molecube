@@ -175,10 +175,12 @@ public:
         return req.res;
     }
     template<typename Cmd>
-    inline std::enable_if_t<isSimpleCmd<Cmd>, uint32_t>
+    inline auto
     reqSync(Cmd &&cmd)
+        -> std::enable_if_t<isSimpleCmd<Cmd>,
+                            decltype(cmd.convertRes(std::declval<uint32_t>()))>
     {
-        return reqSync(Request(*this, cmd));
+        return cmd.convertRes(reqSync(Request(*this, cmd)));
     }
     template<typename Cmd, class=std::enable_if_t<isCompositeCmd<Cmd> > >
     inline auto
@@ -228,8 +230,10 @@ public:
     }
 
     template<typename Cmd>
-    inline std::enable_if_t<isBaseOf<SimpleCmd<true>, Cmd>, uint32_t>
+    inline auto
     run(Cmd &&cmd)
+        -> std::enable_if_t<isBaseOf<SimpleCmd<true>, Cmd>,
+                            decltype(cmd.convertRes(std::declval<uint32_t>()))>
     {
         Request req(*this, cmd);
         m_res_queue.push(&req);
@@ -238,7 +242,7 @@ public:
         m_num_written++;
         m_reader_cond.notify_all();
         wait(req);
-        return req.res;
+        return cmd.convertRes(req.res);
     }
 
     template<typename Cmd, class=std::enable_if_t<isCompositeCmd<Cmd> > >

@@ -11,6 +11,11 @@ namespace Pulser {
 template<bool _has_res>
 struct BaseCmd {
     static constexpr bool has_res = _has_res;
+    static inline uint32_t
+    convertRes(uint32_t res)
+    {
+        return res;
+    }
 };
 
 template<bool has_res>
@@ -302,6 +307,16 @@ struct DDSGetFreq : CompositeCmd<std::tuple<DDSGetTwoBytes, DDSGetTwoBytes> > {
     convertRes(uint32_t res1, uint32_t res2)
     {
         return res1 | (res2 << 16);
+    }
+};
+
+struct DDSGetFreqF : DDSGetFreq {
+    using DDSGetFreq::DDSGetFreq;
+    static inline double
+    convertRes(uint32_t res1, uint32_t res2)
+    {
+        return DDSCvt::num2freq(DDSGetFreq::convertRes(res1, res2),
+                                PULSER_AD9914_CLK);
     }
 };
 
