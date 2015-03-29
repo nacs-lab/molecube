@@ -186,6 +186,11 @@ struct DDSGetByte : DDSCmd<true> {
     DDSGetByte(int i, uint32_t addr)
         : DDSCmd<true>(0x3 | (i << 4) | (addr << 9), 0)
     {}
+    static inline uint32_t
+    convertRes(uint32_t res)
+    {
+        return (res >> 8) & 0x000000ff;
+    }
 };
 
 // get two bytes from address + 1 ... adress on DDS i
@@ -193,6 +198,11 @@ struct DDSGetTwoBytes : DDSCmd<true> {
     DDSGetTwoBytes(int i, uint32_t addr)
         : DDSCmd<true>(0x3 | (i << 4) | ((addr + 1) << 9), 0)
     {}
+    static inline uint32_t
+    convertRes(uint32_t res)
+    {
+        return res & 0x0000ffff;
+    }
 };
 
 struct DDSGetFourBytes : DDSCmd<true> {
@@ -333,7 +343,7 @@ struct DDSExists : CompositeCmd<std::tuple<DDSSetTwoBytes, DDSGetTwoBytes,
     static inline bool
     convertRes(uint32_t res1, uint32_t res2)
     {
-        return (res1 == 0) && (res2 == 1);
+        return res1 == 0 && res2 == 1;
     }
 };
 

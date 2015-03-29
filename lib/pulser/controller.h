@@ -81,26 +81,26 @@ class Controller: public Driver {
                       std::index_sequence<ResI...>)
     {
         typedef typename std::decay_t<Cmd>::tupleType TupleType;
-        Request reqs[] = {
-            Request(*this, std::get<I>(static_cast<TupleType&>(cmd)))...
-        };
+        TupleType &cmdTuple = cmd;
+        Request reqs[] = {Request(*this, std::get<I>(cmdTuple))...};
         for (auto &req: reqs) {
             pushReq(req);
         }
         for (auto &req: reqs) {
             wait(req);
         }
-        return cmd.convertRes(reqs[ResI].res...);
+        return cmd.convertRes(
+            std::get<ResI>(cmdTuple).convertRes(reqs[ResI].res)...);
     }
-    template<typename Cmd, size_t... I, size_t... ResI>
+    template<typename Cmd, size_t... I, size_t... ResI, size_t... ResNum>
     inline auto
     _runComposite(Cmd &&cmd, std::index_sequence<I...>,
-                  std::index_sequence<ResI...>)
+                  std::index_sequence<ResI...>,
+                  std::index_sequence<ResNum...>)
     {
         typedef typename std::decay_t<Cmd>::tupleType TupleType;
-        Request reqs[] = {
-            Request(*this, std::get<ResI>(static_cast<TupleType&>(cmd)))...
-        };
+        TupleType &cmdTuple = cmd;
+        Request reqs[] = {Request(*this, std::get<ResI>(cmdTuple))...};
         for (auto &req: reqs) {
             m_res_queue.push(&req);
         }
@@ -111,7 +111,8 @@ class Controller: public Driver {
         for (auto &req: reqs) {
             wait(req);
         }
-        return cmd.convertRes(reqs[ResI].res...);
+        return cmd.convertRes(
+            std::get<ResI>(cmdTuple).convertRes(reqs[ResNum].res)...);
     }
 public:
     Controller(volatile void *base)
@@ -253,7 +254,9 @@ public:
         return _runComposite(std::forward<Cmd>(cmd),
                              std::make_index_sequence<
                              std::tuple_size<TupleType>::value>(),
-                             typename std::decay_t<Cmd>::resIndexes());
+                             typename std::decay_t<Cmd>::resIndexes(),
+                             std::make_index_sequence<
+                             std::decay_t<Cmd>::numRes>());
     }
     inline int32_t
     resBuffSpace()

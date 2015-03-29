@@ -78,5 +78,15 @@ main()
         t.join();
     }
 
+    {
+        std::lock_guard<Pulser::Controller> locker(ctrl);
+        for (uint32_t i = 0;i < 128;i++) {
+            for (uint32_t j = 0;j < 128;j++) {
+                auto res = ctrl.run(LoopBack2(i, j));
+                assert(res == (i | (uint64_t(j) << 32)));
+            }
+        }
+    }
+
     return 0;
 }
