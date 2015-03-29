@@ -303,6 +303,23 @@ struct DDSFreqReq : CompositeCmd<std::tuple<DDSTwoBytesReq, DDSTwoBytesReq> > {
     }
 };
 
+struct DDSExists : CompositeCmd<std::tuple<DDSSetTwoBytes, DDSTwoBytesReq,
+                                           DDSSetTwoBytes, DDSTwoBytesReq> > {
+    DDSExists(int i)
+        : CompositeCmd<std::tuple<DDSSetTwoBytes, DDSTwoBytesReq,
+                                  DDSSetTwoBytes,
+                                  DDSTwoBytesReq> >(DDSSetTwoBytes(i, 0x68, 0),
+                                                    DDSTwoBytesReq(i, 0x68),
+                                                    DDSSetTwoBytes(i, 0x68, 1),
+                                                    DDSTwoBytesReq(i, 0x68))
+    {}
+    static inline bool
+    convertRes(uint32_t res1, uint32_t res2)
+    {
+        return (res1 == 0) && (res2 == 1);
+    }
+};
+
 }
 }
 
