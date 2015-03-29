@@ -1,7 +1,6 @@
 #include <nacs-utils/timer.h>
 #include <nacs-utils/number.h>
-#include <nacs-old-pulser/pulser.h>
-#include <nacs-pulser/commands.h>
+#include <nacs-pulser/controller.h>
 
 #include <stdint.h>
 
@@ -13,20 +12,20 @@ using namespace NaCs;
 
 template<bool wait=true>
 double
-test_dds(Pulser::Pulser &pulser, unsigned nrun)
+test_dds(Pulser::Controller &ctrl, unsigned nrun)
 {
-    pulser.release_hold();
+    ctrl.releaseHold();
     tic();
     for (unsigned i = 0;i < nrun;i++) {
-        pulser.add(Pulser::DDSSetFreq(0, 0));
+        ctrl.run(Pulser::DDSSetFreq(0, 0));
     }
     if (wait) {
-        while (!pulser.is_finished()) {
+        while (!ctrl.isFinished()) {
         }
     }
     auto time = toc();
     if (!wait) {
-        while (!pulser.is_finished()) {
+        while (!ctrl.isFinished()) {
         }
     }
     return double(time) / double(nrun) / 1e3;
@@ -34,7 +33,7 @@ test_dds(Pulser::Pulser &pulser, unsigned nrun)
 
 template<bool wait=true>
 void
-test_latencies(Pulser::Pulser &pulser, unsigned ncycles)
+test_latencies(Pulser::Controller &ctrl, unsigned ncycles)
 {
     for (unsigned i = 1;i <= 16;i++) {
         auto nrun = i * 256;
@@ -45,7 +44,7 @@ test_latencies(Pulser::Pulser &pulser, unsigned ncycles)
         double sum = 0;
         double sum2 = 0;
         for (unsigned j = 0;j < ncycles;j++) {
-            auto t = test_dds<wait>(pulser, nrun);
+            auto t = test_dds<wait>(ctrl, nrun);
             if (tmin == 0) {
                 tmin = t;
             } else {
@@ -72,8 +71,9 @@ test_latencies(Pulser::Pulser &pulser, unsigned ncycles)
 int
 main()
 {
-    auto &pulser = Pulser::get_pulser();
-    test_latencies<true>(pulser, 4096);
-    test_latencies<false>(pulser, 4096);
+    Pulser::Controller ctrl(Pulser::mapPulserAddr());
+    std::lock_guard<Pulser::Controller> locker(ctrl);
+    test_latencies<true>(ctrl, 4096);
+    test_latencies<false>(ctrl, 4096);
     return 0;
 }

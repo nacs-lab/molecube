@@ -8,15 +8,11 @@ target_link_libraries(test-self nacs-utils nacs-pulser)
 
 set(test_fcgi_SOURCES test_fcgi.cpp)
 add_executable(test-fcgi ${test_fcgi_SOURCES})
-target_link_libraries(test-fcgi fcgi fcgi++ nacs-utils nacs-old-pulser)
+target_link_libraries(test-fcgi fcgi fcgi++ nacs-utils)
 
 set(test_thread_SOURCES test_thread.cpp)
 add_executable(test-thread ${test_thread_SOURCES})
 target_link_libraries(test-thread nacs-utils)
-
-set(test_read_thread_SOURCES test_read_thread.cpp)
-add_executable(test-read_thread ${test_read_thread_SOURCES})
-target_link_libraries(test-read_thread nacs-utils nacs-old-pulser)
 
 set(test_bits_SOURCES test_bits.cpp)
 add_executable(test-bits ${test_bits_SOURCES})
@@ -32,7 +28,7 @@ target_link_libraries(test-controller nacs-utils nacs-pulser)
 
 set(test_latency_SOURCES test_latency.cpp)
 add_executable(test-latency ${test_latency_SOURCES})
-target_link_libraries(test-latency nacs-utils nacs-pulser nacs-old-pulser)
+target_link_libraries(test-latency nacs-utils nacs-pulser)
 
 set(test_controller_threads_SOURCES test_controller_threads.cpp)
 add_executable(test-controller_threads ${test_controller_threads_SOURCES})
