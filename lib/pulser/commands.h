@@ -177,21 +177,21 @@ struct DDSSetSel : DDSCmd<false> {
 };
 
 // get byte from address on DDS i
-struct DDSByteReq : DDSCmd<true> {
-    DDSByteReq(int i, uint32_t addr)
+struct DDSGetByte : DDSCmd<true> {
+    DDSGetByte(int i, uint32_t addr)
         : DDSCmd<true>(0x3 | (i << 4) | (addr << 9), 0)
     {}
 };
 
 // get two bytes from address + 1 ... adress on DDS i
-struct DDSTwoBytesReq : DDSCmd<true> {
-    DDSTwoBytesReq(int i, uint32_t addr)
+struct DDSGetTwoBytes : DDSCmd<true> {
+    DDSGetTwoBytes(int i, uint32_t addr)
         : DDSCmd<true>(0x3 | (i << 4) | ((addr + 1) << 9), 0)
     {}
 };
 
-struct DDSFourBytesReq : DDSCmd<true> {
-    DDSFourBytesReq(int i, uint32_t addr)
+struct DDSGetFourBytes : DDSCmd<true> {
+    DDSGetFourBytes(int i, uint32_t addr)
         : DDSCmd<true>(0xe | (i << 4) | ((addr + 1) << 9), 0)
     {}
 };
@@ -292,11 +292,11 @@ struct _isCompositeCmd<
 template<typename Cmd>
 static constexpr bool isCompositeCmd = _isCompositeCmd<Cmd>::value;
 
-struct DDSFreqReq : CompositeCmd<std::tuple<DDSTwoBytesReq, DDSTwoBytesReq> > {
-    DDSFreqReq(int i)
-        : CompositeCmd<std::tuple<DDSTwoBytesReq,
-                                  DDSTwoBytesReq> >(DDSTwoBytesReq(i, 0x2c),
-                                                    DDSTwoBytesReq(i, 0x2e))
+struct DDSGetFreq : CompositeCmd<std::tuple<DDSGetTwoBytes, DDSGetTwoBytes> > {
+    DDSGetFreq(int i)
+        : CompositeCmd<std::tuple<DDSGetTwoBytes,
+                                  DDSGetTwoBytes> >(DDSGetTwoBytes(i, 0x2c),
+                                                    DDSGetTwoBytes(i, 0x2e))
     {}
     static inline uint32_t
     convertRes(uint32_t res1, uint32_t res2)
@@ -305,15 +305,15 @@ struct DDSFreqReq : CompositeCmd<std::tuple<DDSTwoBytesReq, DDSTwoBytesReq> > {
     }
 };
 
-struct DDSExists : CompositeCmd<std::tuple<DDSSetTwoBytes, DDSTwoBytesReq,
-                                           DDSSetTwoBytes, DDSTwoBytesReq> > {
+struct DDSExists : CompositeCmd<std::tuple<DDSSetTwoBytes, DDSGetTwoBytes,
+                                           DDSSetTwoBytes, DDSGetTwoBytes> > {
     DDSExists(int i)
-        : CompositeCmd<std::tuple<DDSSetTwoBytes, DDSTwoBytesReq,
+        : CompositeCmd<std::tuple<DDSSetTwoBytes, DDSGetTwoBytes,
                                   DDSSetTwoBytes,
-                                  DDSTwoBytesReq> >(DDSSetTwoBytes(i, 0x68, 0),
-                                                    DDSTwoBytesReq(i, 0x68),
+                                  DDSGetTwoBytes> >(DDSSetTwoBytes(i, 0x68, 0),
+                                                    DDSGetTwoBytes(i, 0x68),
                                                     DDSSetTwoBytes(i, 0x68, 1),
-                                                    DDSTwoBytesReq(i, 0x68))
+                                                    DDSGetTwoBytes(i, 0x68))
     {}
     static inline bool
     convertRes(uint32_t res1, uint32_t res2)

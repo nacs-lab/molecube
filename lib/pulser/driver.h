@@ -91,6 +91,18 @@ public:
     {
         writeReg(1, low_mask);
     }
+    // release hold.  pulses can run
+    inline void
+    releaseHold()
+    {
+        writeReg(3, readReg(3) & ~0x80);
+    }
+    // set hold. pulses are stopped
+    inline void
+    setHold()
+    {
+        writeReg(3, readReg(3) | 0x80);
+    }
 };
 
 volatile void *mapPulserAddr();

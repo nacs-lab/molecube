@@ -215,21 +215,21 @@ Pulser::timing_ok()
 uint32_t
 Pulser::get_dds_byte(int i, uint32_t address)
 {
-    add(DDSByteReq(i, address));
+    add(DDSGetByte(i, address));
     return (pop_result() >> 8) & 0x000000ff;
 }
 
 uint32_t
 Pulser::get_dds_two_bytes(int i, unsigned address)
 {
-    add(DDSTwoBytesReq(i, address));
+    add(DDSGetTwoBytes(i, address));
     return pop_result() & 0x0000ffff;
 }
 
 uint32_t
 Pulser::get_dds_four_bytes(int i, unsigned address)
 {
-    add(DDSFourBytesReq(i, address));
+    add(DDSGetFourBytes(i, address));
     return pop_result();
 }
 

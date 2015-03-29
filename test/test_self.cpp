@@ -16,7 +16,7 @@ test_dds(Pulser::Controller &ctrl, int dds_id, unsigned freq_step,
         runs++;
         unsigned fword = (i + 1) * freq_step - 1;
         ctrl.run(Pulser::DDSSetFreq(dds_id, fword));
-        unsigned read = ctrl.run(Pulser::DDSFreqReq(dds_id));
+        unsigned read = ctrl.run(Pulser::DDSGetFreq(dds_id));
         if (read != fword) {
             fails++;
         }
