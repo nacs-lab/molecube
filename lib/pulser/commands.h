@@ -4,7 +4,6 @@
 #include "converter.h"
 #include <nacs-pulser/pulser-config.h>
 #include <nacs-utils/number.h>
-#include <nacs-utils/utils.h>
 
 namespace NaCs {
 namespace Pulser {
@@ -42,7 +41,7 @@ struct _isCmdType : std::false_type {};
 template<template<bool> class CmdType, typename T>
 struct _isCmdType<CmdType, T,
                   std::enable_if_t<
-                      isBaseOf<CmdType<std::remove_reference_t<T>::has_res>,
+                      isBaseOf<CmdType<std::decay_t<T>::has_res>,
                                T>>> : std::true_type {
 };
 
@@ -196,6 +195,100 @@ struct DDSFourBytesReq : DDSCmd<true> {
         : DDSCmd<true>(0xe | (i << 4) | ((addr + 1) << 9), 0)
     {}
 };
+
+template<typename Cmd>
+static inline constexpr int
+_numCmdResult()
+{
+    static_assert(isSimpleCmd<Cmd>, "");
+    return isBaseOf<SimpleCmd<true>, Cmd> ? 1 : 0;
+}
+
+template<typename... Cmds>
+static constexpr int numCmdResults = sumAll(_numCmdResult<Cmds>()...);
+
+static constexpr struct {
+    template<typename... Cmd>
+    inline constexpr uint64_t
+    operator()(Cmd&&... cmd)
+    {
+        return sumAll(cmd.length()...);
+    }
+} totalCmdLen{};
+
+template<typename T>
+struct CmdRunner {
+    CmdRunner(T &v) : m_v(v)
+    {}
+    T &m_v;
+    template<typename First>
+    inline void
+    operator()(First &&first) const
+    {
+        first.run(m_v);
+    }
+    template<typename First, typename... Rest>
+    inline auto
+    operator()(First &&first, Rest&&... rest) const
+    {
+        operator()(std::forward<First>(first));
+        operator()(std::forward<Rest>(rest)...);
+    }
+};
+
+template<size_t Cur, typename Cmd, size_t... I>
+auto __resIndexes(std::index_sequence<I...> idx)
+    -> std::conditional_t<isBaseOf<SimpleCmd<true>, Cmd>,
+                          std::index_sequence<Cur, I...>, decltype(idx)>;
+template<size_t Cur, size_t... I>
+std::index_sequence<I...> _resIndexes(std::index_sequence<I...> idx);
+
+template<size_t Cur, typename First, typename... Rest, size_t... I>
+auto _resIndexes(std::index_sequence<I...> idx)
+{
+    return __resIndexes<Cur, First>(_resIndexes<Cur + 1, Rest...>(idx));
+}
+
+template<typename... Cmd>
+using ResIndexes = decltype(_resIndexes<0, Cmd...>(std::index_sequence<>()));
+
+template<typename CmdTuple>
+struct CompositeCmd;
+
+template<typename... Cmd>
+struct CompositeCmd<std::tuple<Cmd...> > :
+        std::tuple<Cmd...>, BaseCmd<numCmdResults<Cmd...> != 0> {
+    static constexpr auto numRes = numCmdResults<Cmd...>;
+    typedef std::tuple<Cmd...> tupleType;
+    typedef ResIndexes<Cmd...> resIndexes;
+    template<typename... T>
+    CompositeCmd(T&&... v)
+        : std::tuple<Cmd...>(std::forward<T>(v)...)
+    {}
+    inline constexpr uint64_t
+    length() const
+    {
+        return applyTuple(totalCmdLen, static_cast<std::tuple<Cmd...>&>(*this));
+    }
+    template<typename T>
+    inline void
+    run(T &v) const
+    {
+        applyTuple(CmdRunner<T>(v), static_cast<std::tuple<Cmd...>&>(*this));
+    }
+};
+
+template<typename Cmd, class=void>
+struct _isCompositeCmd : std::false_type {};
+
+template<typename Cmd>
+struct _isCompositeCmd<
+    Cmd, std::enable_if_t<
+             isBaseOf<CompositeCmd<typename std::decay_t<Cmd>::tupleType>,
+                      Cmd>>> : std::true_type {};
+
+template<typename Cmd>
+static constexpr bool isCompositeCmd = _isCompositeCmd<Cmd>::value;
 
 struct DDSFreqReq : BaseCmd<true> {
     DDSFreqReq(int i)
