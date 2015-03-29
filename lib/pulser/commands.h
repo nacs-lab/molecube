@@ -268,13 +268,15 @@ struct CompositeCmd<std::tuple<Cmd...> > :
     inline constexpr uint64_t
     length() const
     {
-        return applyTuple(totalCmdLen, static_cast<std::tuple<Cmd...>&>(*this));
+        return applyTuple(totalCmdLen,
+                          static_cast<const std::tuple<Cmd...>&>(*this));
     }
     template<typename T>
     inline void
     run(T &v) const
     {
-        applyTuple(CmdRunner<T>(v), static_cast<std::tuple<Cmd...>&>(*this));
+        applyTuple(CmdRunner<T>(v),
+                   static_cast<const std::tuple<Cmd...>&>(*this));
     }
 };
 
