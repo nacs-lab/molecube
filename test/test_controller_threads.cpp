@@ -79,7 +79,7 @@ main()
     }
 
     {
-        std::lock_guard<Pulser::Controller> locker(ctrl);
+        Pulser::CtrlLocker locker(ctrl);
         for (uint32_t i = 0;i < 128;i++) {
             for (uint32_t j = 0;j < 128;j++) {
                 auto res = ctrl.run(LoopBack2(i, j));

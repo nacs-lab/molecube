@@ -377,6 +377,8 @@ private:
     std::thread m_writer_thread;
 };
 
+typedef std::lock_guard<Controller> CtrlLocker;
+
 inline
 Request::Request(Controller &ctrl, uint32_t _ctrl, uint32_t _op,
                  uint8_t len, bool _has_res)

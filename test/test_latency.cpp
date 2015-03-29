@@ -72,7 +72,7 @@ int
 main()
 {
     Pulser::Controller ctrl(Pulser::mapPulserAddr());
-    std::lock_guard<Pulser::Controller> locker(ctrl);
+    Pulser::CtrlLocker locker(ctrl);
     test_latencies<true>(ctrl, 4096);
     test_latencies<false>(ctrl, 4096);
     return 0;
