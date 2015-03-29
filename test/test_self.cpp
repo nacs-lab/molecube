@@ -32,6 +32,7 @@ main()
     const constexpr int ncycle = 0x100;
     bool dds_exists[ndds] = {};
     Pulser::Controller ctrl(Pulser::mapPulserAddr());
+    std::lock_guard<Pulser::Controller> locker(ctrl);
 
     auto prev_time = time(nullptr);
 
