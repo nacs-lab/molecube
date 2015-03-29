@@ -12,6 +12,7 @@
 #include <atomic>
 #include <thread>
 #include <chrono>
+#include <array>
 
 #include <assert.h>
 
@@ -74,6 +75,40 @@ private:
 class Controller: public Driver {
     static constexpr unsigned numLocks = 32;
     static constexpr unsigned numLocksMask = numLocks - 1;
+    template<typename Cmd, size_t... I, size_t... ResI>
+    inline auto
+    _reqSyncComposite(Cmd &&cmd, std::index_sequence<I...>,
+                      std::index_sequence<ResI...>)
+    {
+        typedef typename std::decay_t<Cmd>::typleType TupleType;
+        Request reqs[] = {std::get<I>(static_cast<TupleType&>(cmd))...};
+        for (auto &req: reqs) {
+            pushReq(req);
+        }
+        for (auto &req: reqs) {
+            wait(req);
+        }
+        return cmd.convertRes(reqs[ResI].res...);
+    }
+    template<typename Cmd, size_t... I, size_t... ResI>
+    inline auto
+    _runComposite(Cmd &&cmd, std::index_sequence<I...>,
+                  std::index_sequence<ResI...>)
+    {
+        typedef typename std::decay_t<Cmd>::typleType TupleType;
+        Request reqs[] = {std::get<ResI>(static_cast<TupleType&>(cmd))...};
+        for (auto &req: reqs) {
+            m_res_queue.push(&req);
+        }
+        waitForResSpace(sizeof...(ResI));
+        write(cmd);
+        m_num_written = m_num_written + sizeof...(ResI);
+        m_reader_cond.notify_all();
+        for (auto &req: reqs) {
+            wait(req);
+        }
+        return cmd.convertRes(reqs[ResI].res...);
+    }
 public:
     Controller(volatile void *base)
         : Driver(base),
@@ -128,7 +163,7 @@ public:
 
     // Send a request and wait for it to finish
     template<typename R>
-    std::enable_if_t<isBaseOf<Request, R>, uint32_t>
+    inline std::enable_if_t<isBaseOf<Request, R>, uint32_t>
     reqSync(R &&req)
     {
         pushReq(req);
@@ -136,22 +171,20 @@ public:
         return req.res;
     }
     template<typename Cmd>
-    std::enable_if_t<isSimpleCmd<Cmd>, uint32_t>
+    inline std::enable_if_t<isSimpleCmd<Cmd>, uint32_t>
     reqSync(Cmd &&cmd)
     {
         return reqSync(Request(*this, cmd));
     }
-    inline uint32_t
-    reqSync(const DDSFreqReq &cmd)
+    template<typename Cmd, class=std::enable_if_t<isCompositeCmd<Cmd> > >
+    inline auto
+    reqSync(Cmd &&cmd)
     {
-        Request req1(*this, cmd.req1);
-        Request req2(*this, cmd.req2);
-        pushReq(req1);
-        pushReq(req2);
-        wait(req1);
-        wait(req2);
-
-        return cmd.convertRes(req1.res, req2.res);
+        typedef typename std::decay_t<Cmd>::typleType TupleType;
+        return _resSyncComposite(std::forward<Cmd>(cmd),
+                                 std::make_index_sequence<
+                                 std::tuple_size<TupleType>::value>(),
+                                 std::decay_t<Cmd>::resIndexes());
     }
 
     // For result reader
@@ -204,20 +237,15 @@ public:
         return req.res;
     }
 
-    inline uint32_t
-    run(const DDSFreqReq &cmd)
+    template<typename Cmd, class=std::enable_if_t<isCompositeCmd<Cmd> > >
+    inline auto
+    run(Cmd &&cmd)
     {
-        Request req1(*this, cmd.req1);
-        Request req2(*this, cmd.req2);
-        m_res_queue.push(&req1);
-        m_res_queue.push(&req2);
-        waitForResSpace(2);
-        write(cmd);
-        m_num_written = m_num_written + 2;
-        m_reader_cond.notify_all();
-        wait(req1);
-        wait(req2);
-        return cmd.convertRes(req1.res, req2.res);
+        typedef typename std::decay_t<Cmd>::typleType TupleType;
+        return _runComposite(std::forward<Cmd>(cmd),
+                             std::make_index_sequence<
+                             std::tuple_size<TupleType>::value>(),
+                             std::decay_t<Cmd>::resIndexes());
     }
     inline int32_t
     resBuffSpace()

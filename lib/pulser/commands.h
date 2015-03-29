@@ -290,31 +290,17 @@ struct _isCompositeCmd<
 template<typename Cmd>
 static constexpr bool isCompositeCmd = _isCompositeCmd<Cmd>::value;
 
-struct DDSFreqReq : BaseCmd<true> {
+struct DDSFreqReq : CompositeCmd<std::tuple<DDSTwoBytesReq, DDSTwoBytesReq> > {
     DDSFreqReq(int i)
-        : req1(i, 0x2c),
-          req2(i, 0x2e)
-    {
-    }
-    constexpr uint64_t
-    length() const
-    {
-        return req1.length() + req2.length();
-    }
-    template<typename T>
-    inline void
-    run(T &v) const
-    {
-        req1.run(v);
-        req2.run(v);
-    }
+        : CompositeCmd<std::tuple<DDSTwoBytesReq,
+                                  DDSTwoBytesReq> >(DDSTwoBytesReq(i, 0x2c),
+                                                    DDSTwoBytesReq(i, 0x2e))
+    {}
     static inline uint32_t
     convertRes(uint32_t res1, uint32_t res2)
     {
         return res1 | (res2 << 16);
     }
-    DDSTwoBytesReq req1;
-    DDSTwoBytesReq req2;
 };
 
 }
