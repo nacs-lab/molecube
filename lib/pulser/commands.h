@@ -60,15 +60,15 @@ static constexpr bool isSimpleCmd = _isCmdType<SimpleCmd, T>::value;
 // in pulse controller timing units (DT_ns)
 // divider = 255 means disable
 struct ClockOut : SimpleCmd<false> {
-    ClockOut(uint32_t divider) :
-        SimpleCmd<false>(0x50000000, divider & 0xff, 5)
+    ClockOut(uint32_t divider)
+        : SimpleCmd<false>(0x50000000, divider & 0xff, 5)
     {}
 };
 
 template<bool has_res>
 struct DDSCmd : SimpleCmd<has_res> {
-    DDSCmd(uint32_t ctrl, uint32_t op) :
-        SimpleCmd<has_res>(0x10000000 | ctrl, op, 50)
+    DDSCmd(uint32_t ctrl, uint32_t op)
+        : SimpleCmd<has_res>(0x10000000 | ctrl, op, 50)
     {}
 };
 
@@ -95,7 +95,7 @@ struct DDSSetFourBytes : DDSCmd<false> {
 // if t > t_max, subdivide into shorter pulses
 // returns number of pulses made
 struct LongPulse : BaseCmd<false> {
-    LongPulse(uint64_t t, unsigned flags, unsigned op)
+    LongPulse(uint64_t t, uint32_t flags, uint32_t op)
         : m_t(t), m_flags(flags), m_op(op)
     {}
     constexpr uint64_t
@@ -162,6 +162,12 @@ struct DDSSetPhase : DDSSetTwoBytes {
     {}
 };
 
+struct DDSSetPhaseF : DDSSetPhase {
+    DDSSetPhaseF(int i, double amp)
+        : DDSSetPhase(i, DDSCvt::phase2num(amp))
+    {}
+};
+
 struct DDSReset : DDSCmd<false> {
     DDSReset(int i)
         : DDSCmd<false>(0x4 | (i << 4), 0)
@@ -209,6 +215,36 @@ struct DDSGetFourBytes : DDSCmd<true> {
     DDSGetFourBytes(int i, uint32_t addr)
         : DDSCmd<true>(0xe | (i << 4) | ((addr + 1) << 9), 0)
     {}
+};
+
+struct DDSGetPhase : DDSGetTwoBytes {
+    DDSGetPhase(int i)
+        : DDSGetTwoBytes(i, 0x30)
+    {}
+};
+
+struct DDSGetPhaseF : DDSGetPhase {
+    using DDSGetPhase::DDSGetPhase;
+    static inline double
+    convertRes(uint32_t res)
+    {
+        return DDSCvt::num2phase(res);
+    }
+};
+
+struct DDSGetAmp : DDSGetTwoBytes {
+    DDSGetAmp(int i)
+        : DDSGetTwoBytes(i, 0x32)
+    {}
+};
+
+struct DDSGetAmpF : DDSGetAmp {
+    using DDSGetAmp::DDSGetAmp;
+    static inline double
+    convertRes(uint32_t res)
+    {
+        return DDSCvt::num2amp(res);
+    }
 };
 
 template<typename Cmd>

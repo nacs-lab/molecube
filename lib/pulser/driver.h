@@ -103,6 +103,14 @@ public:
     {
         writeReg(3, readReg(3) | 0x80);
     }
+    // toggle init. reset prior to new sequence
+    inline void
+    toggleInit()
+    {
+        uint32_t r3 = readReg(3);
+        writeReg(3, r3 | 0x00000100);
+        writeReg(3, r3 & ~0x00000100);
+    }
 };
 
 volatile void *mapPulserAddr();
