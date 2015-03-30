@@ -107,7 +107,7 @@ struct LongPulse : BaseCmd<false> {
     inline void
     run(T &v) const
     {
-        static constexpr uint32_t t_max = 0x001fffff;
+        static constexpr uint32_t t_max = 0x00ffffff;
         auto t = m_t;
         do {
             uint32_t t_step = uint32_t(min(t, t_max));

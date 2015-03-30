@@ -33,3 +33,7 @@ target_link_libraries(test-latency nacs-utils nacs-pulser)
 set(test_controller_threads_SOURCES test_controller_threads.cpp)
 add_executable(test-controller_threads ${test_controller_threads_SOURCES})
 target_link_libraries(test-controller_threads nacs-utils nacs-pulser)
+
+set(test_short_pulse_SOURCES test_short_pulse.cpp)
+add_executable(test-short_pulse ${test_short_pulse_SOURCES})
+target_link_libraries(test-short_pulse nacs-utils nacs-pulser)
