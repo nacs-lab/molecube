@@ -40,103 +40,100 @@ struct CtrlState {
     uint16_t dds_phases[22];
 };
 
-class InstWriter {
-    template<typename... T>
-    static inline void
-    write(Instruction *inst, T&&... v)
-    {
-        new (inst) Instruction(std::forward<T>(v)...);
-    }
-public:
+struct InstWriter {
     // all 500ns
     struct DDS {
-        static inline void
-        setPhase(Instruction *inst, int i, uint16_t phase)
+        static inline Instruction
+        setPhase(int i, uint16_t phase)
         {
-            write(inst, ControlBit::DDSSetPhaseMeta | phase, uint32_t(i));
+            return Instruction(ControlBit::DDSSetPhaseMeta | phase,
+                               uint32_t(i));
         }
-        static inline void
-        setPhaseF(Instruction *inst, int i, double phase)
+        static inline Instruction
+        setPhaseF(int i, double phase)
         {
-            setPhase(inst, i, DDSCvt::phase2num(phase));
+            return setPhase(i, DDSCvt::phase2num(phase));
         }
-        static inline void
-        shiftPhase(Instruction *inst, int i, uint16_t phase)
+        static inline Instruction
+        shiftPhase(int i, uint16_t phase)
         {
-            write(inst, ControlBit::DDSShiftPhaseMeta | phase, uint32_t(i));
+            return Instruction(ControlBit::DDSShiftPhaseMeta | phase,
+                               uint32_t(i));
         }
-        static inline void
-        shiftPhaseF(Instruction *inst, int i, double phase)
+        static inline Instruction
+        shiftPhaseF(int i, double phase)
         {
-            shiftPhase(inst, i, DDSCvt::phase2num(phase));
+            return shiftPhase(i, DDSCvt::phase2num(phase));
         }
-        static inline void
-        setFreq(Instruction *inst, int i, uint32_t freq)
+        static inline Instruction
+        setFreq(int i, uint32_t freq)
         {
-            write(inst, DDSSetFreq(i, freq));
+            return DDSSetFreq(i, freq);
         }
-        static inline void
-        setFreqF(Instruction *inst, int i, double freq)
+        static inline Instruction
+        setFreqF(int i, double freq)
         {
-            write(inst, DDSSetFreqF(i, freq));
+            return DDSSetFreqF(i, freq);
         }
-        static inline void
-        setAmp(Instruction *inst, int i, uint32_t amp)
+        static inline Instruction
+        setAmp(int i, uint32_t amp)
         {
-            write(inst, DDSSetAmp(i, amp));
+            return DDSSetAmp(i, amp);
         }
-        static inline void
-        setAmpF(Instruction *inst, int i, double amp)
+        static inline Instruction
+        setAmpF(int i, double amp)
         {
-            write(inst, DDSSetAmpF(i, amp));
+            return DDSSetAmpF(i, amp);
         }
-        static inline void
-        reset(Instruction *inst, int i)
+        static inline Instruction
+        reset(int i)
         {
-            write(inst, ControlBit::DDSResetMeta, uint32_t(i));
+            return Instruction(ControlBit::DDSResetMeta, uint32_t(i));
         }
     };
     // 0ns
-    static inline void
-    enableTimingCheck(Instruction *inst)
+    static inline Instruction
+    enableTimingCheck()
     {
-        write(inst, ControlBit::TimingCheckMeta, 1);
+        return Instruction(ControlBit::TimingCheckMeta, 1);
     }
     // 0ns
-    static inline void
-    disableTimingCheck(Instruction *inst)
+    static inline Instruction
+    disableTimingCheck()
     {
-        write(inst, ControlBit::TimingCheckMeta, 0);
+        return Instruction(ControlBit::TimingCheckMeta, 0);
     }
     // 50ns
-    static inline void
-    clearTimingCheck(Instruction *inst)
+    static inline Instruction
+    clearTimingCheck()
     {
-        write(inst, ClearTimingCheck());
+        return ClearTimingCheck();
     }
     // variable time
-    static inline void
-    wait(Instruction *inst, uint64_t t)
+    static inline Instruction
+    wait(uint64_t t)
     {
-        write(inst, ControlBit::WaitMeta | uint32_t(t >> 32), uint32_t(t));
+        return Instruction(ControlBit::WaitMeta | uint32_t(t >> 32),
+                           uint32_t(t));
     }
     // 30ns
-    static inline void
-    ttl(Instruction *inst, uint32_t val)
+    static inline Instruction
+    ttl(uint32_t val)
     {
-        write(inst, 3, val);
+        return Instruction(3, val);
     }
     // 50ns
-    static inline void
-    clockOut(Instruction *inst, uint32_t div)
+    static inline Instruction
+    clockOut(uint32_t div)
     {
-        write(inst, ClockOut(div));
+        return ClockOut(div);
     }
 };
 
 }
 }
 
+// In case we want to use with LLVM
 extern "C"
 void runInstructionList(NaCs::Pulser::Controller *__restrict__ ctrler,
                         NaCs::Pulser::CtrlState *__restrict__ state,
