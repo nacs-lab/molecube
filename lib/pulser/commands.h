@@ -203,8 +203,8 @@ struct DDSSetPhase : DDSSetTwoBytes {
 };
 
 struct DDSSetPhaseF : DDSSetPhase {
-    DDSSetPhaseF(int i, double amp)
-        : DDSSetPhase(i, DDSCvt::phase2num(amp))
+    DDSSetPhaseF(int i, double phase)
+        : DDSSetPhase(i, DDSCvt::phase2num(phase))
     {}
 };
 
