@@ -13,14 +13,14 @@ namespace NaCs {
 // const double ad9914_clk_MHz = 3500.0;
 
 static bool
-test_val_AD9914(Pulser::Pulser &pulser, int i, unsigned addr, unsigned val)
+test_val_AD9914(Pulser::OldPulser &pulser, int i, unsigned addr, unsigned val)
 {
     pulser.add(Pulser::DDSSetTwoBytes(i, addr, val));
     return pulser.get_dds_two_bytes(i, addr) == val;
 }
 
 bool
-test_AD9914(Pulser::Pulser &pulser, int i)
+test_AD9914(Pulser::OldPulser &pulser, int i)
 {
     unsigned addr = 0x34; //FTW for profile 1, shouldn't affect the signal
     bool pass = true;
@@ -46,7 +46,7 @@ test_AD9914(Pulser::Pulser &pulser, int i)
 }
 
 void
-test_dds_addr(Pulser::Pulser &pulser, int i, unsigned low_addr,
+test_dds_addr(Pulser::OldPulser &pulser, int i, unsigned low_addr,
               unsigned high_addr, unsigned ntest, FILE *f)
 {
     static std::random_device rd;
@@ -82,7 +82,7 @@ test_dds_addr(Pulser::Pulser &pulser, int i, unsigned low_addr,
 }
 
 void
-print_AD9914_registers(Pulser::Pulser &pulser, int i)
+print_AD9914_registers(Pulser::OldPulser &pulser, int i)
 {
     bool bNonZeroOnly = true;
 
@@ -109,7 +109,7 @@ print_AD9914_registers(Pulser::Pulser &pulser, int i)
 //           false: init only if not previopusly initialized
 // return true if init was performed
 bool
-init_AD9914(Pulser::Pulser &pulser, int i, bool bForce)
+init_AD9914(Pulser::OldPulser &pulser, int i, bool bForce)
 {
     bool bInit = bForce; //init needed?
     const unsigned magic_bytes = 0xF00F0000;

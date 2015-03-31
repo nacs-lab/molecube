@@ -40,7 +40,7 @@ Program::write_reg(unsigned reg, uint32_t val)
 void
 Program::shortPulse(uint32_t control, uint32_t operand)
 {
-    PulserBase::shortPulse(control | m_flags, operand);
+    OldPulserBase::shortPulse(control | m_flags, operand);
 }
 
 #define ENABLE_TIMING_CHECK (0x08000000)
@@ -62,14 +62,14 @@ Program::disable_timing_check()
 NACS_EXPORT void
 Program::dds_reset(int i)
 {
-    PulserBase::dds_reset(i);
+    OldPulserBase::dds_reset(i);
     m_phases[i] = 0;
 }
 
 NACS_EXPORT void
 Program::set_dds_phase(int i, uint16_t phase)
 {
-    PulserBase::set_dds_phase(i, phase);
+    OldPulserBase::set_dds_phase(i, phase);
     m_phases[i] = phase;
 }
 

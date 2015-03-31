@@ -48,7 +48,7 @@ private:
     void reserve_space(size_t len);
 };
 
-class NACS_EXPORT Program : public BaseProgram, public PulserBase {
+class NACS_EXPORT Program : public BaseProgram, public OldPulserBase {
     uint32_t m_flags;
     uint16_t m_phases[32];
 public:
@@ -67,7 +67,7 @@ private:
 NACS_INLINE
 Program::Program()
     : BaseProgram(),
-      PulserBase(),
+      OldPulserBase(),
       m_flags(0)
 {
 }

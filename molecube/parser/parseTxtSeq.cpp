@@ -39,7 +39,7 @@
 namespace NaCs {
 
 //parse text-encoded pulse sequence
-static bool parseSeqTxt(Pulser::Pulser &pulser, unsigned reps,
+static bool parseSeqTxt(Pulser::OldPulser &pulser, unsigned reps,
                         const std::string &seqTxt, bool bForever,
                         bool debugPulses, const verbosity &reply);
 
@@ -227,7 +227,7 @@ parseCommand(Pulser::SequenceBuilder &builder, uint64_t t, std::string &cmd,
 
 //parse URL-encoded pulse sequence
 bool
-parseSeqURL(Pulser::Pulser &pulser, std::string &seq, const verbosity &reply)
+parseSeqURL(Pulser::OldPulser &pulser, std::string &seq, const verbosity &reply)
 {
     unsigned reps = getUnsignedParam(seq, "reps=", 1);
     bool debugPulses = getCheckboxParam(seq, "debugPulses=", false);
@@ -254,7 +254,7 @@ parseSeqURL(Pulser::Pulser &pulser, std::string &seq, const verbosity &reply)
 
 //parse pulse sequence via CGICC
 bool
-parseSeqCGI(Pulser::Pulser &pulser, cgicc::Cgicc &cgi, const verbosity &reply)
+parseSeqCGI(Pulser::OldPulser &pulser, cgicc::Cgicc &cgi, const verbosity &reply)
 {
     unsigned reps = getUnsignedParamCGI(cgi, "reps", 1);
     bool debugPulses = getCheckboxParamCGI(cgi, "debugPulses", false);
@@ -282,7 +282,7 @@ parseSeqCGI(Pulser::Pulser &pulser, cgicc::Cgicc &cgi, const verbosity &reply)
 
 // parse text-encoded pulse sequence
 static bool
-parseSeqTxt(Pulser::Pulser &pulser, unsigned reps,
+parseSeqTxt(Pulser::OldPulser &pulser, unsigned reps,
             const std::string &seqTxt, bool bForever, bool debugPulses,
             const verbosity &reply)
 {

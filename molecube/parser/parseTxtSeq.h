@@ -12,10 +12,10 @@ namespace NaCs {
 
 //parse URL-encoded pulse sequence in string
 // should only be used for shorter sequence (< 100 pulses)
-bool parseSeqURL(Pulser::Pulser &pulser, std::string &seq,
+bool parseSeqURL(Pulser::OldPulser &pulser, std::string &seq,
                  const verbosity &reply);
 
-bool parseSeqCGI(Pulser::Pulser &pulser, cgicc::Cgicc &cgi,
+bool parseSeqCGI(Pulser::OldPulser &pulser, cgicc::Cgicc &cgi,
                  const verbosity &reply);
 
 // parse sequence in multipart format

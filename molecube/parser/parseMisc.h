@@ -14,7 +14,7 @@ namespace NaCs {
 
 void printPlainResponseHeader(std::ostream&);
 
-bool parseQueryCGI(NaCs::Pulser::Pulser &pulser, cgicc::Cgicc& cgi,
+bool parseQueryCGI(Pulser::OldPulser &pulser, cgicc::Cgicc& cgi,
                    const verbosity &reply);
 
 unsigned getUnsignedParam(const std::string &seq, const std::string &name,

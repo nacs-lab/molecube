@@ -19,7 +19,7 @@ namespace NaCs {
 
 static spi_struct g_spi[NSPI];
 
-Pulser::Pulser&
+Pulser::OldPulser&
 init_system()
 {
     std::lock_guard<FLock> fl(g_fPulserLock);

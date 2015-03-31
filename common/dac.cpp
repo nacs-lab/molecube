@@ -90,7 +90,7 @@ void SetDAC_AD5668(spi_p spi, unsigned channel, unsigned dacWord)
 // set DDS phase and frequnecy (28-bit register set via two consecutive
 // 16-bit transfers)
 void
-SetDDS_AD9833(spi_p spi, Pulser::Pulser &pulser, unsigned setType,
+SetDDS_AD9833(spi_p spi, Pulser::OldPulser &pulser, unsigned setType,
               unsigned ddsPhase, unsigned ddsFreq)
 {
     unsigned tx = 0;

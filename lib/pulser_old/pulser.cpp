@@ -71,7 +71,7 @@ run_program(Driver &driver, const uint32_t *prog, size_t len) noexcept
 // make short timed pulses
 // FPGA can only handle pulse lengths up to t_max = 0x001FFFFF (about 40 ms)
 void
-PulserBase::shortPulse(uint32_t control, uint32_t operand)
+OldPulserBase::shortPulse(uint32_t control, uint32_t operand)
 {
     write_reg(31, operand);
     write_reg(31, control);
@@ -79,27 +79,27 @@ PulserBase::shortPulse(uint32_t control, uint32_t operand)
 
 // reset DDS i
 void
-PulserBase::dds_reset(int i)
+OldPulserBase::dds_reset(int i)
 {
     add(DDSReset(i));
 }
 
 void
-PulserBase::set_dds_phase(int i, uint16_t phase)
+OldPulserBase::set_dds_phase(int i, uint16_t phase)
 {
     add(DDSSetPhase(i, phase));
 }
 
 // TTL functions: pulse_io = (ttl_out | high_mask) & (~low_mask);
 void
-PulserBase::set_ttl_mask(uint32_t high_mask, uint32_t low_mask)
+OldPulserBase::set_ttl_mask(uint32_t high_mask, uint32_t low_mask)
 {
     write_reg(0, high_mask);
     write_reg(1, low_mask);
 }
 
 void
-Pulser::debug_regs()
+OldPulser::debug_regs()
 {
     FILE *log_f = nacsGetLog();
     fprintf(log_f, "PULSE_CONTROLLER registers:\n");
@@ -116,19 +116,19 @@ Pulser::debug_regs()
 }
 
 void
-Pulser::write_reg(unsigned reg, uint32_t val)
+OldPulser::write_reg(unsigned reg, uint32_t val)
 {
     m_driver.writeReg(reg, val);
 }
 
 uint32_t
-Pulser::read_reg(unsigned reg)
+OldPulser::read_reg(unsigned reg)
 {
     return m_driver.readReg(reg);
 }
 
 void
-Pulser::init(bool reset)
+OldPulser::init(bool reset)
 {
     release_hold();
     debug_regs();
@@ -142,7 +142,7 @@ Pulser::init(bool reset)
 }
 
 void
-Pulser::run(const BaseProgram &prog)
+OldPulser::run(const BaseProgram &prog)
 {
     if (m_running.exchange(true)) {
         throw std::runtime_error("Already running.");
@@ -153,27 +153,27 @@ Pulser::run(const BaseProgram &prog)
 }
 
 bool
-Pulser::is_finished()
+OldPulser::is_finished()
 {
     return read_reg(2) & 0x4;
 }
 
 // release hold.  pulses can run
 void
-Pulser::release_hold()
+OldPulser::release_hold()
 {
     write_reg(3, read_reg(3) & ~0x80);
 }
 
 // set hold. pulses are stopped
 void
-Pulser::set_hold()
+OldPulser::set_hold()
 {
     write_reg(3, read_reg(3) | 0x80);
 }
 
 void
-Pulser::wait()
+OldPulser::wait()
 {
     if (!m_running.exchange(false)) {
         throw std::runtime_error("Not running.");
@@ -185,20 +185,20 @@ Pulser::wait()
 
 // TTL functions: pulse_io = (ttl_out | high_mask) & (~low_mask);
 void
-Pulser::get_ttl_mask(uint32_t *high_mask, uint32_t *low_mask)
+OldPulser::get_ttl_mask(uint32_t *high_mask, uint32_t *low_mask)
 {
     *high_mask = read_reg(0);
     *low_mask = read_reg(1);
 }
 
 uint32_t
-Pulser::num_results()
+OldPulser::num_results()
 {
     return (read_reg(2) >> 4) & 31;
 }
 
 uint32_t
-Pulser::pop_result()
+OldPulser::pop_result()
 {
     while (num_results() == 0) {
     }
@@ -207,27 +207,27 @@ Pulser::pop_result()
 
 // were there any timing failures?
 bool
-Pulser::timing_ok()
+OldPulser::timing_ok()
 {
     return !(read_reg(2) & 0x1);
 }
 
 uint32_t
-Pulser::get_dds_byte(int i, uint32_t address)
+OldPulser::get_dds_byte(int i, uint32_t address)
 {
     add(DDSGetByte(i, address));
     return (pop_result() >> 8) & 0x000000ff;
 }
 
 uint32_t
-Pulser::get_dds_two_bytes(int i, unsigned address)
+OldPulser::get_dds_two_bytes(int i, unsigned address)
 {
     add(DDSGetTwoBytes(i, address));
     return pop_result() & 0x0000ffff;
 }
 
 uint32_t
-Pulser::get_dds_four_bytes(int i, unsigned address)
+OldPulser::get_dds_four_bytes(int i, unsigned address)
 {
     add(DDSGetFourBytes(i, address));
     return pop_result();
@@ -235,7 +235,7 @@ Pulser::get_dds_four_bytes(int i, unsigned address)
 
 // toggle init. reset prior to new sequence
 void
-Pulser::toggle_init()
+OldPulser::toggle_init()
 {
     unsigned r3 = read_reg(3);
     write_reg(3, r3 | 0x00000100);
@@ -244,7 +244,7 @@ Pulser::toggle_init()
 
 // If DDS i is present return non-zero, otherwise 0.
 bool
-Pulser::dds_exists(int i)
+OldPulser::dds_exists(int i)
 {
     unsigned addr = 0x68;
     // Check whether it's possible to set phase of profile 7 to 0 and 1
@@ -258,7 +258,7 @@ Pulser::dds_exists(int i)
 }
 
 uint32_t
-Pulser::get_dds_freq(int i)
+OldPulser::get_dds_freq(int i)
 {
     // shortPulse(0x1000000E | (i << 4) | (0x2D << 9), 0);
     // return pop_result();
@@ -269,19 +269,19 @@ Pulser::get_dds_freq(int i)
 }
 
 uint32_t
-Pulser::get_dds_phase(int i)
+OldPulser::get_dds_phase(int i)
 {
     return get_dds_two_bytes(i, 0x30);
 }
 
 uint32_t
-Pulser::get_dds_amp(int i)
+OldPulser::get_dds_amp(int i)
 {
     return get_dds_two_bytes(i, 0x32);
 }
 
 bool
-Pulser::test_regs()
+OldPulser::test_regs()
 {
     bool sr_ok = 1;
     for (int i = 0;i < 2;i++) {
@@ -305,7 +305,7 @@ Pulser::test_regs()
 }
 
 bool
-Pulser::self_test(int ndds, int cycle)
+OldPulser::self_test(int ndds, int cycle)
 {
     if (nacsUnlikely(ndds <= 0)) {
         return true;
@@ -363,7 +363,7 @@ Pulser::self_test(int ndds, int cycle)
 }
 
 bool
-Pulser::test_dds(int i)
+OldPulser::test_dds(int i)
 {
     int freq_ok = 1;
     int phase_ok = 1;
@@ -407,12 +407,12 @@ Pulser::test_dds(int i)
     return freq_ok && phase_ok;
 }
 
-NACS_EXPORT Pulser&
+NACS_EXPORT OldPulser&
 get_pulser()
 {
     // C++0x grantees that the initialization of function scope static
     // variable is thread-safe.
-    static Pulser pulser = mapPulserAddr();
+    static OldPulser pulser = mapPulserAddr();
     return pulser;
 }
 

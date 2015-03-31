@@ -17,15 +17,15 @@ using namespace std::literals;
 
 class BaseProgram;
 
-class NACS_EXPORT PulserBase {
+class NACS_EXPORT OldPulserBase {
     std::unique_ptr<std::recursive_timed_mutex> m_lock;
-    PulserBase(const PulserBase&) = delete;
-    void operator=(const PulserBase&) = delete;
+    OldPulserBase(const OldPulserBase&) = delete;
+    void operator=(const OldPulserBase&) = delete;
 public:
-    PulserBase();
-    PulserBase(PulserBase &&other);
+    OldPulserBase();
+    OldPulserBase(OldPulserBase &&other);
 
-    virtual ~PulserBase() {}
+    virtual ~OldPulserBase() {}
     virtual void set_dds_phase(int i, uint16_t phase);
     void dds_reset(int i);
     void set_ttl_mask(uint32_t high_mask, uint32_t low_mask);
@@ -43,35 +43,35 @@ private:
 };
 
 NACS_INLINE
-PulserBase::PulserBase()
+OldPulserBase::OldPulserBase()
     : m_lock(new std::recursive_timed_mutex())
 {
 }
 
 NACS_INLINE
-PulserBase::PulserBase(PulserBase &&other)
+OldPulserBase::OldPulserBase(OldPulserBase &&other)
     : m_lock(std::move(other.m_lock))
 {
 }
 
 NACS_INLINE void
-PulserBase::set_dds_phase_f(int i, double p)
+OldPulserBase::set_dds_phase_f(int i, double p)
 {
     set_dds_phase(i, DDSCvt::phase2num(p));
 }
 
-class NACS_EXPORT Pulser : public PulserBase {
+class NACS_EXPORT OldPulser : public OldPulserBase {
     Driver m_driver;
     std::atomic_bool m_running;
 
-    Pulser() = delete;
-    Pulser(const Pulser&) = delete;
-    void operator=(const Pulser&) = delete;
+    OldPulser() = delete;
+    OldPulser(const OldPulser&) = delete;
+    void operator=(const OldPulser&) = delete;
 public:
-    Pulser(Pulser &&other);
-    Pulser(volatile void *base);
+    OldPulser(OldPulser &&other);
+    OldPulser(volatile void *base);
 
-    ~Pulser() {}
+    ~OldPulser() {}
     // TODO
     void init(bool reset);
     // TODO
@@ -88,7 +88,7 @@ public:
      * met. Timing failure will occur if the pulse buffer underflows.
      *
      * While timing_check flag is enabled, all pulses that are sent to the
-     * Pulser are considered time-critical.  If a pulse finishes, and there is
+     * OldPulser are considered time-critical.  If a pulse finishes, and there is
      * not another pulse waiting in the buffer, a timing error is stored in one
      * of the status registers. This can be detected by calling timing_ok
      * (returns false if a timing error occured). The error status can be
@@ -120,43 +120,43 @@ public:
 };
 
 NACS_INLINE
-Pulser::Pulser(Pulser &&other)
-    : PulserBase(static_cast<PulserBase&&>(other)),
+OldPulser::OldPulser(OldPulser &&other)
+    : OldPulserBase(static_cast<OldPulserBase&&>(other)),
       m_driver(std::move(other.m_driver)),
       m_running(other.m_running.exchange(false))
 {
 }
 
 NACS_INLINE
-Pulser::Pulser(volatile void *base)
-    : PulserBase(),
+OldPulser::OldPulser(volatile void *base)
+    : OldPulserBase(),
       m_driver(base),
       m_running(false)
 {
 }
 
 NACS_INLINE intptr_t
-Pulser::get_base() const
+OldPulser::get_base() const
 {
     return m_driver.getBase();
 }
 
-Pulser &get_pulser();
+OldPulser &get_pulser();
 
 NACS_INLINE double
-Pulser::get_dds_freq_f(int i)
+OldPulser::get_dds_freq_f(int i)
 {
     return DDSCvt::num2freq(get_dds_freq(i), PULSER_AD9914_CLK);
 }
 
 NACS_INLINE double
-Pulser::get_dds_phase_f(int i)
+OldPulser::get_dds_phase_f(int i)
 {
     return DDSCvt::num2phase(get_dds_phase(i));
 }
 
 NACS_INLINE double
-Pulser::get_dds_amp_f(int i)
+OldPulser::get_dds_amp_f(int i)
 {
     return DDSCvt::num2amp(get_dds_amp(i));
 }

@@ -7,7 +7,7 @@
 
 namespace NaCs {
 
-Pulser::Pulser &init_system();
+Pulser::OldPulser &init_system();
 
 }
 

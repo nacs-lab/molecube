@@ -25,7 +25,7 @@ namespace NaCs {
 namespace self_test {
 
 bool
-check_register(Pulser::Pulser &pulser, int n)
+check_register(Pulser::OldPulser &pulser, int n)
 {
     unsigned r;
     bool bOK = true;
@@ -51,7 +51,7 @@ check_register(Pulser::Pulser &pulser, int n)
 }
 
 bool
-check_timing(Pulser::Pulser &pulser)
+check_timing(Pulser::OldPulser &pulser)
 {
     unsigned j;
 
@@ -113,7 +113,7 @@ check_timing(Pulser::Pulser &pulser)
 }
 
 bool
-other_test(Pulser::Pulser &pulser)
+other_test(Pulser::OldPulser &pulser)
 {
     unsigned j, r2;
 

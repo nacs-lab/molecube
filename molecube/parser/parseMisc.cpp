@@ -56,7 +56,7 @@ parseParamsCGI(txtmap_t& params, cgicc::Cgicc& cgi)
 }
 
 static void
-getDeviceParams(NaCs::Pulser::Pulser &pulser, const std::string &page,
+getDeviceParams(Pulser::OldPulser &pulser, const std::string &page,
                 txtmap_t &params)
 {
     std::lock_guard<FLock> fl(g_fPulserLock);
@@ -87,7 +87,7 @@ getDeviceParams(NaCs::Pulser::Pulser &pulser, const std::string &page,
 }
 
 static void
-setDeviceParams(NaCs::Pulser::Pulser &pulser, const std::string &page,
+setDeviceParams(Pulser::OldPulser &pulser, const std::string &page,
                 const txtmap_t &params)
 {
     std::lock_guard<FLock> fl(g_fPulserLock);
@@ -134,7 +134,7 @@ setDeviceParams(NaCs::Pulser::Pulser &pulser, const std::string &page,
             pos = params.find(buff);
             if(pos != params.end()) {
                 nacsLog("DDS reset/init (%d)\n", iDDS);
-                NaCs::init_AD9914(pulser, iDDS, true);
+                init_AD9914(pulser, iDDS, true);
                 // fprintf(gLog, "DDS test (%d)\n", iDDS);
                 // print_AD9914_registers(pulser, iDDS, gLog);
             }
@@ -173,7 +173,7 @@ stream_vect_to_JSON_array(std::ostream& os, const V& v)
 }
 
 bool
-parseQueryCGI(NaCs::Pulser::Pulser &pulser, cgicc::Cgicc &cgi,
+parseQueryCGI(Pulser::OldPulser &pulser, cgicc::Cgicc &cgi,
               const verbosity &reply)
 {
     cgicc::form_iterator cmd = cgi.getElement("command");
