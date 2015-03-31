@@ -28,26 +28,7 @@ using namespace std::literals;
  * and should last for no more than 500ns, the precise length of the pulse
  * is stored in `length` (< 50) in unit of FPGA clock (10ns)
  */
-class Request {
-    struct RequestFactory {
-        uint32_t m_ctrl;
-        uint32_t m_op;
-        template<typename Cmd>
-        RequestFactory(Cmd &&cmd)
-        {
-            cmd.run(*this);
-        }
-        inline void
-        shortPulse(uint32_t ctrl, uint32_t op)
-        {
-            m_ctrl = ctrl;
-            m_op = op;
-        }
-    };
-    Request(Controller &ctrl, RequestFactory &&req, uint8_t len, bool has_res)
-        : Request(ctrl, req.m_ctrl, req.m_op, len, has_res)
-    {}
-public:
+struct Request {
     bool ready: 1;
     const bool has_res: 1;
     const uint8_t length;
@@ -61,11 +42,9 @@ public:
             uint8_t len, bool _has_res);
     template<typename Cmd, class=std::enable_if_t<isSimpleCmd<Cmd> > >
     Request(Controller &ctrl, Cmd &&cmd)
-        : Request(ctrl, RequestFactory(cmd),
+        : Request(ctrl, cmd.control(), cmd.operand(),
                   uint8_t(cmd.length()), cmd.has_res)
-    {
-    }
-private:
+    {}
     Request() = delete;
 };
 

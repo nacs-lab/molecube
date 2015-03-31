@@ -28,6 +28,16 @@ struct SimpleCmd : BaseCmd<has_res> {
     {
         return m_len;
     }
+    constexpr uint32_t
+    control() const
+    {
+        return m_ctrl;
+    }
+    constexpr uint32_t
+    operand() const
+    {
+        return m_op;
+    }
     template<typename T>
     inline void
     run(T &v) const

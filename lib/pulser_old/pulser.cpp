@@ -69,7 +69,7 @@ run_program(Driver &driver, const uint32_t *prog, size_t len) noexcept
 }
 
 // make short timed pulses
-// FPGA can only handle pulse lengths up to t_max = 0x001FFFFF (about 40 ms)
+// FPGA can only handle pulse lengths up to t_max = 0x00FFFFFF (about 40 ms)
 void
 OldPulserBase::shortPulse(uint32_t control, uint32_t operand)
 {
