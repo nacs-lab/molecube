@@ -247,6 +247,9 @@ public:
     inline void
     waitForResSpace(int32_t space)
     {
+        // Fast path, no lock
+        if (resBuffSpace() >= space)
+            return;
         std::unique_lock<std::mutex> locker(m_writer_lock);
         m_writer_cond.wait(locker, [&] {
                 return resBuffSpace() >= space;
