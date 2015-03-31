@@ -88,7 +88,7 @@ SequenceBuilder::ttl_pulse(uint64_t t, uint32_t ttl)
                                                 PULSER_DT_us) +
                                  " us is too short or early.");
     }
-    add(LongPulse(t, 0, ttl));
+    add(TTLPulse(t, ttl));
 }
 
 NACS_EXPORT void

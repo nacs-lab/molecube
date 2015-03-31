@@ -65,18 +65,18 @@ check_timing(Pulser::Pulser &pulser)
     printf("Generating 1,000,000 x 1 us pulses + 10 x 100 ms pulses...\n");
 
     pulser.add(Pulser::ClearTimingCheck());
-    pulser.add(Pulser::LongPulse(100, 0, 0));
+    pulser.add(Pulser::TTLPulse(100, 0));
 
     Pulser::Program prog;
     prog.enable_timing_check();
 
     for (j = 0; j < 1000000; j++) {
-        prog.add(Pulser::LongPulse(100, 0, 0));
+        prog.add(Pulser::TTLPulse(100, 0));
     }
 
     for (j = 0; j < 5; j++) {
-        prog.add(Pulser::LongPulse(10000000, 0, 0xffffffff));
-        prog.add(Pulser::LongPulse(10000000, 0, 0x00000000));
+        prog.add(Pulser::TTLPulse(10000000, 0xffffffff));
+        prog.add(Pulser::TTLPulse(10000000, 0x00000000));
     }
 
     uint64_t t0 = getTime();

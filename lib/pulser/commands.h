@@ -91,12 +91,11 @@ struct DDSSetFourBytes : DDSCmd<false> {
     {}
 };
 
-// make timed pulses
+// make dummy pulses
 // if t > t_max, subdivide into shorter pulses
-// returns number of pulses made
-struct LongPulse : BaseCmd<false> {
-    LongPulse(uint64_t t, uint32_t flags, uint32_t op)
-        : m_t(t), m_flags(flags), m_op(op)
+struct WaitPulse : BaseCmd<false> {
+    WaitPulse(uint64_t t)
+        : m_t(t)
     {}
     constexpr uint64_t
     length() const
@@ -107,18 +106,49 @@ struct LongPulse : BaseCmd<false> {
     inline void
     run(T &v) const
     {
-        static constexpr uint32_t t_max = 0x00ffffff;
+        static constexpr uint32_t t_max = 0xffffff;
         auto t = m_t;
         do {
             uint32_t t_step = uint32_t(min(t, t_max));
-            v.shortPulse(t_step | m_flags, m_op);
+            v.shortPulse(0x20000000 | t_step, 0);
             t -= t_step;
         } while (t > 0);
     }
 private:
     const uint64_t m_t;
-    const uint32_t m_flags;
-    const uint32_t m_op;
+};
+
+// make timed pulses
+// if t > t_max, subdivide into shorter pulses
+struct TTLPulse : BaseCmd<false> {
+    TTLPulse(uint64_t t, uint32_t val)
+        : m_t(t), m_val(val)
+    {}
+    constexpr uint64_t
+    length() const
+    {
+        return m_t;
+    }
+    template<typename T>
+    inline void
+    run(T &v) const
+    {
+        static constexpr uint32_t t_max = 0xffffff;
+        auto t = m_t;
+        do {
+            uint32_t t_step = uint32_t(min(t, t_max));
+            v.shortPulse(t_step, m_val);
+            t -= t_step;
+        } while (t > 0);
+    }
+    constexpr uint32_t
+    ttlVal() const
+    {
+        return m_val;
+    }
+private:
+    const uint64_t m_t;
+    const uint32_t m_val;
 };
 
 // clear timing check (clear failures)
