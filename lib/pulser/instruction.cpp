@@ -94,10 +94,7 @@ runMetaInstruction(Controller *__restrict__ ctrler,
     case ControlBit::WaitMeta:
         // After removing the Meta bits, the maximum time is
         // 2^(32 + 24) * 10ns ~ 22 years. Hopefully that's enough...
-        runWaitMeta(ctrler, state, ctrl & ~ControlBit::MetaInstMask, op);
-        break;
-    case ControlBit::TTLMeta:
-        runTTLMeta(ctrler, state, ctrl & ~ControlBit::MetaInstMask, op);
+        runWaitMeta(ctrler, state, ctrl & ControlBit::MetaContentMask, op);
         break;
     case ControlBit::DDSSetPhaseMeta:
         // Truncate ctrl to 16 bits to get phase
@@ -114,6 +111,9 @@ runMetaInstruction(Controller *__restrict__ ctrler,
     case ControlBit::DDSResetMeta:
         state->dds_phases[op] = 0;
         writeShortPulse(ctrler, state, DDSReset(int(op)));
+        break;
+    case ControlBit::TTLMeta:
+        runTTLMeta(ctrler, state, ctrl & ControlBit::MetaContentMask, op);
         break;
     }
 }
@@ -140,8 +140,9 @@ runInstructionList(Controller *__restrict__ ctrler,
                    size_t n)
 {
     for (size_t i = 0;i < n;i++) {
-        __builtin_prefetch(inst + 2);
-        runInstruction(ctrler, state, &inst[n]);
+        auto cur_inst = inst + i;
+        __builtin_prefetch(cur_inst + 2);
+        runInstruction(ctrler, state, cur_inst);
     }
 }
 

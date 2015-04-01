@@ -28,7 +28,6 @@ struct ControlBit {
     // TODO: we need to implement command that returns values at some point.
     // However, it is not clear yet what data transfer method is going to be
     // used.
-    static constexpr uint32_t TTLAll = TimingCheck;
 
     static constexpr uint32_t MetaInstMask = 0xf000000;
     static constexpr uint32_t WaitMeta = 0x0;
@@ -37,6 +36,9 @@ struct ControlBit {
     static constexpr uint32_t TimingCheckMeta = 0x3000000;
     static constexpr uint32_t DDSResetMeta = 0x4000000;
     static constexpr uint32_t TTLMeta = 0x5000000;
+
+    static constexpr uint32_t TTLAll = 0x800000;
+    static constexpr uint32_t MetaContentMask = ~(MetaInstMask | InstMask);
 };
 
 struct CtrlState {
@@ -56,7 +58,8 @@ struct InstWriter {
         static inline Instruction
         setPhase(int i, uint16_t phase)
         {
-            return Instruction(ControlBit::DDSSetPhaseMeta | phase,
+            return Instruction(ControlBit::MetaCmd |
+                               ControlBit::DDSSetPhaseMeta | phase,
                                uint32_t(i));
         }
         static inline Instruction
@@ -67,7 +70,8 @@ struct InstWriter {
         static inline Instruction
         shiftPhase(int i, uint16_t phase)
         {
-            return Instruction(ControlBit::DDSShiftPhaseMeta | phase,
+            return Instruction(ControlBit::MetaCmd |
+                               ControlBit::DDSShiftPhaseMeta | phase,
                                uint32_t(i));
         }
         static inline Instruction
@@ -98,20 +102,23 @@ struct InstWriter {
         static inline Instruction
         reset(int i)
         {
-            return Instruction(ControlBit::DDSResetMeta, uint32_t(i));
+            return Instruction(ControlBit::MetaCmd |
+                               ControlBit::DDSResetMeta, uint32_t(i));
         }
     };
     // 0ns
     static inline Instruction
     enableTimingCheck()
     {
-        return Instruction(ControlBit::TimingCheckMeta, 1);
+        return Instruction(ControlBit::MetaCmd |
+                           ControlBit::TimingCheckMeta, 1);
     }
     // 0ns
     static inline Instruction
     disableTimingCheck()
     {
-        return Instruction(ControlBit::TimingCheckMeta, 0);
+        return Instruction(ControlBit::MetaCmd |
+                           ControlBit::TimingCheckMeta, 0);
     }
     // 50ns
     static inline Instruction
@@ -123,20 +130,23 @@ struct InstWriter {
     static inline Instruction
     wait(uint64_t t)
     {
-        return Instruction(ControlBit::WaitMeta | uint32_t(t >> 32),
+        return Instruction(ControlBit::MetaCmd |
+                           ControlBit::WaitMeta | uint32_t(t >> 32),
                            uint32_t(t));
     }
     // 30ns
     static inline Instruction
     ttlAll(uint32_t val)
     {
-        return Instruction(ControlBit::TTLMeta | ControlBit::TTLAll, val);
+        return Instruction(ControlBit::MetaCmd |
+                           ControlBit::TTLMeta | ControlBit::TTLAll, val);
     }
     // 30ns
     static inline Instruction
     ttl(uint8_t addr, bool val)
     {
-        return Instruction(ControlBit::TTLMeta | addr, val);
+        return Instruction(ControlBit::MetaCmd |
+                           ControlBit::TTLMeta | addr, val);
     }
     // 50ns
     static inline Instruction
