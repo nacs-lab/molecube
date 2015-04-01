@@ -99,23 +99,6 @@ OldPulserBase::set_ttl_mask(uint32_t high_mask, uint32_t low_mask)
 }
 
 void
-OldPulser::debug_regs()
-{
-    FILE *log_f = nacsGetLog();
-    fprintf(log_f, "PULSE_CONTROLLER registers:\n");
-    for (unsigned i = 0;i < 31;i++) {
-        if (i % 4 == 0) {
-            fprintf(log_f, "[%2d...%2d]: ", i, i + 3);
-        }
-        fprintf(log_f, "%08X ", read_reg(i));
-        if (i % 4 == 3) {
-            fprintf(log_f, "\n");
-        }
-    }
-    fprintf(log_f, "\n");
-}
-
-void
 OldPulser::write_reg(unsigned reg, uint32_t val)
 {
     m_driver.writeReg(reg, val);
@@ -131,7 +114,6 @@ void
 OldPulser::init(bool reset)
 {
     release_hold();
-    debug_regs();
 
     if (reset) {
         nacsInfo("PULSER_init... reset DDS\n");

@@ -111,7 +111,6 @@ public:
     bool self_test(int ndds, int cycle=1);
     bool test_regs();
     bool test_dds(int i);
-    void debug_regs();
     uint32_t num_results();
     bool is_finished();
     void release_hold();
