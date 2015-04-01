@@ -1,7 +1,34 @@
 #include "controller.h"
 
+#include <nacs-utils/log.h>
+
 namespace NaCs {
 namespace Pulser {
+
+void
+Controller::init(bool reset)
+{
+    releaseHold();
+    FILE *log_f = nacsGetLog();
+    fprintf(log_f, "PULSE_CONTROLLER registers:\n");
+    for (unsigned i = 0;i < 31;i++) {
+        if (i % 4 == 0) {
+            fprintf(log_f, "[%2d...%2d]: ", i, i + 3);
+        }
+        fprintf(log_f, "%08X ", readReg(i));
+        if (i % 4 == 3) {
+            fprintf(log_f, "\n");
+        }
+    }
+    fprintf(log_f, "\n");
+
+    if (reset) {
+        nacsInfo("PULSER_init... reset DDS\n");
+        for (unsigned i = 0;i < PULSER_NDDS;i++) {
+            run(DDSReset(i));
+        }
+    }
+}
 
 /**
  * Wait for the request to finish.

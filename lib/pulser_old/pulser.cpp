@@ -132,7 +132,7 @@ OldPulser::init(bool reset)
 {
     release_hold();
     debug_regs();
-    release_hold();
+
     if (reset) {
         nacsInfo("PULSER_init... reset DDS\n");
         for (unsigned i = 0;i < PULSER_NDDS;i++) {
