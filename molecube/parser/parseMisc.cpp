@@ -65,8 +65,6 @@ getDeviceParams(Pulser::OldPulser &pulser, const std::string &page,
         char key[32];
         char val[32];
 
-
-
         for (unsigned iDDS = 0;iDDS < PULSER_NDDS;iDDS++) {
             double f = 1e-6 * pulser.get_dds_freq_f(iDDS);
             snprintf(key, 32, "freq%d", iDDS);
@@ -93,8 +91,6 @@ setDeviceParams(Pulser::OldPulser &pulser, const std::string &page,
     std::lock_guard<FLock> fl(g_fPulserLock);
 
     if (page == "dds") {
-        // dumpMap(params, gLog);
-
         txtmap_t::const_iterator pos;
         char buff[32];
 
@@ -132,11 +128,9 @@ setDeviceParams(Pulser::OldPulser &pulser, const std::string &page,
 
             sprintf(buff, "reset%d", iDDS);
             pos = params.find(buff);
-            if(pos != params.end()) {
+            if (pos != params.end()) {
                 nacsLog("DDS reset/init (%d)\n", iDDS);
                 init_AD9914(pulser, iDDS, true);
-                // fprintf(gLog, "DDS test (%d)\n", iDDS);
-                // print_AD9914_registers(pulser, iDDS, gLog);
             }
         }
     }

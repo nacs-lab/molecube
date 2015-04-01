@@ -115,14 +115,6 @@ void dumpMapHTML(const txtmap_t &m, std::ostream &os)
     }
 }
 
-void
-dumpMap(const txtmap_t &m, FILE *f)
-{
-    for (txtmap_t::const_iterator i = m.begin();i != m.end();i++) {
-        fprintf(f, "%s = %s\n", i->first.c_str(), i->second.c_str());
-    }
-}
-
 //replace next string in str matching from with to.  start at next
 //return next positon after replacment or string::npos if no match
 static size_t
@@ -131,11 +123,11 @@ replace(std::string &str, const std::string &from,
 {
     size_t start_pos = str.find(from, next);
 
-    if(start_pos == std::string::npos)
+    if (start_pos == std::string::npos)
         return start_pos;
 
     str.replace(start_pos, from.length(), to);
-    return start_pos+to.length();
+    return start_pos + to.length();
 }
 
 void replaceAll(std::string &str, const std::string &from,

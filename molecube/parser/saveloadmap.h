@@ -23,9 +23,6 @@ void saveMap(const txtmap_t &m, const std::string &fname);
 // merge maps.  copy all entries from new to old
 void mergeMaps(txtmap_t &mOld, const txtmap_t &mNew);
 
-// dump out the map to a FILE* as key = value lines
-void dumpMap(const txtmap_t &m, FILE *f);
-
 // dump out the map to an ostream as key = value lines after conversion to HTML
 void dumpMapHTML(const txtmap_t &m, std::ostream &os);
 
