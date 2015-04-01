@@ -1,11 +1,9 @@
 #include <nacs-utils/timer.h>
-#include <nacs-utils/number.h>
 #include <nacs-pulser/controller.h>
 
 #include <stdint.h>
 
 #include <iostream>
-#include <iomanip>
 #include <cmath>
 
 using namespace NaCs;
@@ -15,7 +13,7 @@ test_short_pulse(Pulser::Controller &ctrl, uint32_t t)
 {
     ctrl.releaseHold();
     tic();
-    ctrl.shortPulse(t, 0);
+    ctrl.shortPulse(0x20000000 | t, 0);
     while (!ctrl.isFinished()) {
     }
     auto time = toc();

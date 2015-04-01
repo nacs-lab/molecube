@@ -23,9 +23,7 @@ main()
     Pulser::CtrlState state;
 
     tic();
-    // tic();
-    runInstructionList(&ctrl, &state, builder.data(), builder.size());
-    // printToc();
+    runInstructionList(&ctrl, &state, builder);
     // wait for pulses finished.
     ctrl.waitFinish();
     printToc();

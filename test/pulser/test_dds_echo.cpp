@@ -1,5 +1,4 @@
 #include <nacs-utils/timer.h>
-#include <nacs-utils/number.h>
 #include <nacs-pulser/controller.h>
 
 #include <stdint.h>

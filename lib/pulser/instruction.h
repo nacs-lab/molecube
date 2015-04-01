@@ -182,8 +182,15 @@ public:
 void runInstructionList(Controller *__restrict__ ctrler,
                         CtrlState *__restrict__ state,
                         const Instruction *__restrict__ inst, size_t n);
+template<typename T>
+static inline void
+runInstructionList(Controller *__restrict__ ctrler,
+                   CtrlState *__restrict__ state, T &&v)
+{
+    runInstructionList(ctrler, state, v.data(), v.size());
+}
 
-class BlockBuilder : std::vector<Instruction> {
+class BlockBuilder : public std::vector<Instruction> {
     unsigned m_line_num;
     uint64_t m_curr_t;
 public:
@@ -191,22 +198,11 @@ public:
         : std::vector<Instruction>(),
           m_line_num(0),
           m_curr_t(0)
-    {
-    }
+    {}
     inline auto&
     lineNum()
     {
         return m_line_num;
-    }
-    const Instruction*
-    data() const
-    {
-        return std::vector<Instruction>::data();
-    }
-    size_t
-    size() const
-    {
-        return std::vector<Instruction>::size();
     }
     template<typename Func, typename... Args>
     inline void

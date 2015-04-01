@@ -1,8 +1,6 @@
-#include <nacs-pulser/commands.h>
 #include <nacs-pulser/controller.h>
 
 #include <nacs-utils/timer.h>
-#include <nacs-utils/number.h>
 
 #include <assert.h>
 #include <thread>
