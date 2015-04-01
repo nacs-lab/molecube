@@ -20,7 +20,6 @@ set(SOURCES ${SOURCES}
   ../common/spi_util.cpp
   ../common/fpga.cpp
   ../common/AD9914.cpp
-  # ../common/self_test.cpp
   ../common/string_func.cpp)
 
 add_executable(molecube ${SOURCES})
