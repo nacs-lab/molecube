@@ -74,6 +74,19 @@ runWaitMeta(Controller *__restrict__ ctrler, CtrlState *__restrict__ state,
 }
 
 static inline __attribute__((flatten, hot)) void
+runTTLMeta(Controller *__restrict__ ctrler, CtrlState *__restrict__ state,
+           uint32_t ttl_addr, uint32_t ttl_val)
+{
+    if (ttl_addr & ControlBit::TTLAll) {
+        state->curr_ttl = ttl_val;
+    } else {
+        state->curr_ttl = setBit(state->curr_ttl, uint8_t(ttl_addr),
+                                 bool(ttl_val));
+    }
+    writeShortPulse(ctrler, state, 3, state->curr_ttl);
+}
+
+static inline __attribute__((flatten, hot)) void
 runMetaInstruction(Controller *__restrict__ ctrler,
                    CtrlState *__restrict__ state, uint32_t ctrl, uint32_t op)
 {
@@ -83,25 +96,24 @@ runMetaInstruction(Controller *__restrict__ ctrler,
         // 2^(32 + 24) * 10ns ~ 22 years. Hopefully that's enough...
         runWaitMeta(ctrler, state, ctrl & ~ControlBit::MetaInstMask, op);
         break;
+    case ControlBit::TTLMeta:
+        runTTLMeta(ctrler, state, ctrl & ~ControlBit::MetaInstMask, op);
+        break;
     case ControlBit::DDSSetPhaseMeta:
         // Truncate ctrl to 16 bits to get phase
         runDDSSetPhase(ctrler, state, int(op), uint16_t(ctrl));
         break;
-    case ControlBit::DDSShiftPhaseMeta: {
-        int dds_num = op;
+    case ControlBit::DDSShiftPhaseMeta:
         // Truncate ctrl to 16 bits to get phase
-        runDDSSetPhase(ctrler, state, dds_num,
-                       uint16_t(ctrl) + state->dds_phases[dds_num]);
-    }
+        runDDSSetPhase(ctrler, state, int(op),
+                       uint16_t(ctrl) + state->dds_phases[op]);
         break;
     case ControlBit::TimingCheckMeta:
         state->timing_check = bool(op);
         break;
-    case ControlBit::DDSResetMeta: {
-        int dds_num = op;
-        state->dds_phases[dds_num] = 0;
-        writeShortPulse(ctrler, state, DDSReset(dds_num));
-    }
+    case ControlBit::DDSResetMeta:
+        state->dds_phases[op] = 0;
+        writeShortPulse(ctrler, state, DDSReset(int(op)));
         break;
     }
 }
@@ -121,11 +133,6 @@ runInstruction(Controller *__restrict__ ctrler, CtrlState *__restrict__ state,
     }
 }
 
-}
-}
-
-using namespace NaCs::Pulser;
-
 NACS_EXPORT __attribute__((flatten, hot)) void
 runInstructionList(Controller *__restrict__ ctrler,
                    CtrlState *__restrict__ state,
@@ -136,4 +143,7 @@ runInstructionList(Controller *__restrict__ ctrler,
         __builtin_prefetch(inst + 2);
         runInstruction(ctrler, state, &inst[n]);
     }
+}
+
+}
 }

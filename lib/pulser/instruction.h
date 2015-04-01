@@ -26,6 +26,7 @@ struct ControlBit {
     // TODO: we need to implement command that returns values at some point.
     // However, it is not clear yet what data transfer method is going to be
     // used.
+    static constexpr uint32_t TTLAll = TimingCheck;
 
     static constexpr uint32_t MetaInstMask = 0xf000000;
     static constexpr uint32_t WaitMeta = 0x0;
@@ -33,16 +34,23 @@ struct ControlBit {
     static constexpr uint32_t DDSShiftPhaseMeta = 0x2000000;
     static constexpr uint32_t TimingCheckMeta = 0x3000000;
     static constexpr uint32_t DDSResetMeta = 0x4000000;
+    static constexpr uint32_t TTLMeta = 0x5000000;
 };
 
 struct CtrlState {
     bool timing_check;
     uint16_t dds_phases[22];
+    uint32_t curr_ttl;
 };
 
 struct InstWriter {
     // all 500ns
     struct DDS {
+        static inline Instruction
+        setTwoBytes(int i, uint32_t addr, uint32_t val)
+        {
+            return DDSSetTwoBytes(i, addr, val);
+        }
         static inline Instruction
         setPhase(int i, uint16_t phase)
         {
@@ -118,9 +126,15 @@ struct InstWriter {
     }
     // 30ns
     static inline Instruction
-    ttl(uint32_t val)
+    ttlAll(uint32_t val)
     {
-        return Instruction(3, val);
+        return Instruction(ControlBit::TTLMeta | ControlBit::TTLAll, val);
+    }
+    // 30ns
+    static inline Instruction
+    ttl(uint8_t addr, bool val)
+    {
+        return Instruction(ControlBit::TTLMeta | addr, val);
     }
     // 50ns
     static inline Instruction
@@ -130,14 +144,12 @@ struct InstWriter {
     }
 };
 
+void runInstructionList(Controller *__restrict__ ctrler,
+                        CtrlState *__restrict__ state,
+                        const Instruction *__restrict__ inst, size_t n);
+
 }
 }
 
-// In case we want to use with LLVM
-extern "C"
-void runInstructionList(NaCs::Pulser::Controller *__restrict__ ctrler,
-                        NaCs::Pulser::CtrlState *__restrict__ state,
-                        const NaCs::Pulser::Instruction *__restrict__ inst,
-                        size_t n);
 
 #endif
