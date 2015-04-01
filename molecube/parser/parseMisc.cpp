@@ -27,11 +27,10 @@ printJSONResponseHeader(std::ostream &out)
     out << "Content-type: application/json; charset=UTF-8\r\n\r\n";
 }
 
-
 static void
 removeNonAlphaNum(std::string &s)
 {
-    size_t i=0;
+    size_t i = 0;
 
     while (i < s.length()) {
         if (isalpha(s[i]) || isdigit(s[i])) {
