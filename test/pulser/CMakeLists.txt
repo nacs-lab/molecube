@@ -19,5 +19,9 @@ add_executable(test-dds_echo ${test_dds_echo_SOURCES})
 target_link_libraries(test-dds_echo nacs-utils nacs-pulser)
 
 set(test_pulser_program_SOURCES test_pulser_program.cpp)
-add_executable(test-pulser-program ${test_pulser_program_SOURCES})
-target_link_libraries(test-pulser-program nacs-utils nacs-pulser)
+add_executable(test-pulser_program ${test_pulser_program_SOURCES})
+target_link_libraries(test-pulser_program nacs-utils nacs-pulser)
+
+set(test_self_SOURCES test_self.cpp)
+add_executable(test-self ${test_self_SOURCES})
+target_link_libraries(test-self nacs-utils nacs-pulser)

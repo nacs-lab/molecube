@@ -14,9 +14,6 @@ namespace NaCs {
 
 namespace self_test {
 
-//check pulse controller register n
-bool check_register(Pulser::OldPulser &pulser, int n);
-bool check_timing(Pulser::OldPulser &pulser);
 bool other_test(Pulser::OldPulser &pulser);
 
 }
