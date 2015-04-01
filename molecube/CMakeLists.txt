@@ -15,7 +15,6 @@ include_directories(../common)
 
 set(SOURCES ${SOURCES}
   ../common/CmdLineArgs.cpp
-  # ../common/dac.cpp
   ../common/linux_file_util.cpp
   ../common/verbosity.cpp
   ../common/spi_util.cpp

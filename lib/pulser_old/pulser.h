@@ -74,9 +74,7 @@ public:
     ~OldPulser() {}
     // TODO
     void init(bool reset);
-    // TODO
     void run(const BaseProgram &prog);
-    // TODO
     void wait();
     void get_ttl_mask(uint32_t *high_mask, uint32_t *low_mask);
     void write_reg(unsigned reg, uint32_t val) override;
