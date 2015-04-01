@@ -12,25 +12,24 @@ main()
     Pulser::Controller ctrl(Pulser::mapPulserAddr());
     Pulser::BlockBuilder builder;
     builder.pushPulse(Inst::enableTimingCheck);
-    for (int i = 0;i < 10000;i++) {
-        builder.pushPulse(Inst::ttlAll, 0);
-        builder.pushPulse(Inst::wait, 100);
+    for (int i = 0;i < 10000000;i++) {
+        builder.pulseDT(100, Inst::ttlAll, 0);
     }
-    builder.pushPulse(Inst::disableTimingCheck);
-    builder.pushPulse(Inst::wait, 3);
+    builder.finalPulse();
 
-    tic();
-    tic();
+    Pulser::CtrlLocker locker(ctrl);
     ctrl.setHold();
     ctrl.toggleInit();
     Pulser::CtrlState state;
-    runInstructionList(&ctrl, &state, builder.data(), builder.size());
-    printToc();
 
+    tic();
+    // tic();
+    runInstructionList(&ctrl, &state, builder.data(), builder.size());
+    // printToc();
     // wait for pulses finished.
     ctrl.waitFinish();
-    std::cout << "TimingOK: " << ctrl.timingOK() << std::endl;
     printToc();
+    std::cout << "TimingOK: " << ctrl.timingOK() << std::endl;
 
     return 0;
 }

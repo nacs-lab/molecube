@@ -47,111 +47,134 @@ struct CtrlState {
     uint32_t curr_ttl;
 };
 
-struct InstWriter {
+class InstWriter {
+    static inline void
+    accumTime(uint64_t *tp, uint64_t t)
+    {
+        if (tp) {
+            *tp += t;
+        }
+    }
+public:
     // all 500ns
     struct DDS {
         static inline Instruction
-        setTwoBytes(int i, uint32_t addr, uint32_t val)
+        setTwoBytes(int i, uint32_t addr, uint32_t val, uint64_t *tp=nullptr)
         {
+            accumTime(tp, 50);
             return DDSSetTwoBytes(i, addr, val);
         }
         static inline Instruction
-        setPhase(int i, uint16_t phase)
+        setPhase(int i, uint16_t phase, uint64_t *tp=nullptr)
         {
+            accumTime(tp, 50);
             return Instruction(ControlBit::MetaCmd |
                                ControlBit::DDSSetPhaseMeta | phase,
                                uint32_t(i));
         }
         static inline Instruction
-        setPhaseF(int i, double phase)
+        setPhaseF(int i, double phase, uint64_t *tp=nullptr)
         {
+            accumTime(tp, 50);
             return setPhase(i, DDSCvt::phase2num(phase));
         }
         static inline Instruction
-        shiftPhase(int i, uint16_t phase)
+        shiftPhase(int i, uint16_t phase, uint64_t *tp=nullptr)
         {
+            accumTime(tp, 50);
             return Instruction(ControlBit::MetaCmd |
                                ControlBit::DDSShiftPhaseMeta | phase,
                                uint32_t(i));
         }
         static inline Instruction
-        shiftPhaseF(int i, double phase)
+        shiftPhaseF(int i, double phase, uint64_t *tp=nullptr)
         {
+            accumTime(tp, 50);
             return shiftPhase(i, DDSCvt::phase2num(phase));
         }
         static inline Instruction
-        setFreq(int i, uint32_t freq)
+        setFreq(int i, uint32_t freq, uint64_t *tp=nullptr)
         {
+            accumTime(tp, 50);
             return DDSSetFreq(i, freq);
         }
         static inline Instruction
-        setFreqF(int i, double freq)
+        setFreqF(int i, double freq, uint64_t *tp=nullptr)
         {
+            accumTime(tp, 50);
             return DDSSetFreqF(i, freq);
         }
         static inline Instruction
-        setAmp(int i, uint32_t amp)
+        setAmp(int i, uint32_t amp, uint64_t *tp=nullptr)
         {
+            accumTime(tp, 50);
             return DDSSetAmp(i, amp);
         }
         static inline Instruction
-        setAmpF(int i, double amp)
+        setAmpF(int i, double amp, uint64_t *tp=nullptr)
         {
+            accumTime(tp, 50);
             return DDSSetAmpF(i, amp);
         }
         static inline Instruction
-        reset(int i)
+        reset(int i, uint64_t *tp=nullptr)
         {
+            accumTime(tp, 50);
             return Instruction(ControlBit::MetaCmd |
                                ControlBit::DDSResetMeta, uint32_t(i));
         }
     };
     // 0ns
     static inline Instruction
-    enableTimingCheck()
+    enableTimingCheck(uint64_t* =nullptr)
     {
         return Instruction(ControlBit::MetaCmd |
                            ControlBit::TimingCheckMeta, 1);
     }
     // 0ns
     static inline Instruction
-    disableTimingCheck()
+    disableTimingCheck(uint64_t* =nullptr)
     {
         return Instruction(ControlBit::MetaCmd |
                            ControlBit::TimingCheckMeta, 0);
     }
     // 50ns
     static inline Instruction
-    clearTimingCheck()
+    clearTimingCheck(uint64_t *tp=nullptr)
     {
+        accumTime(tp, 50);
         return ClearTimingCheck();
     }
     // variable time
     static inline Instruction
-    wait(uint64_t t)
+    wait(uint64_t t, uint64_t *tp=nullptr)
     {
+        accumTime(tp, t);
         return Instruction(ControlBit::MetaCmd |
                            ControlBit::WaitMeta | uint32_t(t >> 32),
                            uint32_t(t));
     }
     // 30ns
     static inline Instruction
-    ttlAll(uint32_t val)
+    ttlAll(uint32_t val, uint64_t *tp=nullptr)
     {
+        accumTime(tp, 3);
         return Instruction(ControlBit::MetaCmd |
                            ControlBit::TTLMeta | ControlBit::TTLAll, val);
     }
     // 30ns
     static inline Instruction
-    ttl(uint8_t addr, bool val)
+    ttl(uint8_t addr, bool val, uint64_t *tp=nullptr)
     {
+        accumTime(tp, 3);
         return Instruction(ControlBit::MetaCmd |
                            ControlBit::TTLMeta | addr, val);
     }
     // 50ns
     static inline Instruction
-    clockOut(uint32_t div)
+    clockOut(uint32_t div, uint64_t *tp=nullptr)
     {
+        accumTime(tp, 5);
         return ClockOut(div);
     }
 };
@@ -175,11 +198,6 @@ public:
     {
         return m_line_num;
     }
-    inline auto&
-    currT()
-    {
-        return m_curr_t;
-    }
     const Instruction*
     data() const
     {
@@ -194,7 +212,36 @@ public:
     inline void
     pushPulse(Func &&func, Args&&... args)
     {
-        push_back(std::forward<Func>(func)(std::forward<Args>(args)...));
+        push_back(std::forward<Func>(func)(std::forward<Args>(args)...,
+                                           &m_curr_t));
+    }
+    template<typename Func, typename... Args>
+    inline void
+    pulseAbsT(uint64_t t, Func &&func, Args&&... args)
+    {
+        if (t < m_curr_t) {
+            throw std::runtime_error("Going back in time.");
+        } else if (t - m_curr_t >= 3) {
+            pushPulse(InstWriter::wait, t - m_curr_t);
+        }
+        pushPulse(std::forward<Func>(func), std::forward<Args>(args)...);
+    }
+    template<typename Func, typename... Args>
+    inline void
+    pulseDT(uint64_t dt, Func &&func, Args&&... args)
+    {
+        uint64_t final_t = m_curr_t + dt;
+        pushPulse(std::forward<Func>(func), std::forward<Args>(args)...);
+        if (final_t < m_curr_t) {
+            throw std::runtime_error("Pulse too short.");
+        }
+        pushPulse(InstWriter::wait, final_t - m_curr_t);
+    }
+    inline void
+    finalPulse()
+    {
+        pushPulse(InstWriter::disableTimingCheck);
+        pushPulse(InstWriter::wait, 3);
     }
 };
 
