@@ -1,5 +1,6 @@
 #include <nacs-utils/timer.h>
 #include <nacs-utils/log.h>
+#include <nacs-pulser/controller.h>
 
 #include "init_system.h"
 
@@ -104,7 +105,6 @@ protected:
 namespace NaCs {
 
 volatile bool g_stop_curr_seq = false;
-FLock g_fPulserLock("/run/molecube/pulser.lock");
 std::vector<unsigned> active_dds; // all DDS that are available
 std::mutex GPL;
 
@@ -185,7 +185,7 @@ main(int argc, char *argv[])
 
     setProgramStatus("Initializing");
 
-    auto &pulser = init_system();
+    auto &ctrl = init_system();
     FCGX_Init();
 
     // run startup sequence
@@ -204,7 +204,7 @@ main(int argc, char *argv[])
             }
 
             try {
-                parseSeqURL(pulser, sStartupSeq, verbosity(&std::cout));
+                parseSeqURL(ctrl, sStartupSeq, verbosity(&std::cout));
             } catch (std::runtime_error e) {
                 nacsError("Startup sequence error:   %s\n", e.what());
             }
@@ -235,7 +235,7 @@ main(int argc, char *argv[])
         cgicc::Cgicc cgi(&IO);
         verbosity reply(&out);
         try {
-            if (!parseQueryCGI(pulser, cgi, reply)) {
+            if (!parseQueryCGI(ctrl, cgi, reply)) {
                 nacsError("Couldn't understand HTTP request.\n");
             }
         } catch (std::runtime_error e) {

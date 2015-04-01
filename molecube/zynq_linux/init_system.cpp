@@ -2,7 +2,7 @@
 
 #include <nacs-utils/log.h>
 #include <nacs-utils/number.h>
-#include <nacs-pulser/commands.h>
+#include <nacs-pulser/controller.h>
 
 #include "spi_util.h"
 #include "AD9914.h"
@@ -19,11 +19,11 @@ namespace NaCs {
 
 static spi_struct g_spi[NSPI];
 
-Pulser::OldPulser&
+using namespace Pulser;
+
+Controller&
 init_system()
 {
-    std::lock_guard<FLock> fl(g_fPulserLock);
-
     nacsInfo("Processor clock frequency: %9.3f MHz\n", 1e-6 * CPU_FREQ_HZ);
     nacsLog("NDDS = %d  (REF_CLK = %u MHz)   NSPI = %d\n",
             PULSER_NDDS, (unsigned)(PULSER_AD9914_CLK * 1e-6), (int)NSPI);
@@ -39,13 +39,14 @@ init_system()
                   nice, errno);
     }
 
-    auto &pulser = Pulser::get_pulser();
+    static Controller ctrl(mapPulserAddr());
+    CtrlLocker locker(ctrl);
     nacsInfo("Initializing pulse controller at address %" PRIxPTR "...\n",
-             pulser.get_base());
-    pulser.init(false);
+             ctrl.getBase());
+    ctrl.init(false);
     nacsLog("Initializing pulse controller...done.\n");
 
-    pulser.add(Pulser::ClearTimingCheck());
+    ctrl.run(ClearTimingCheck());
 
     const bool spi_active_low[max(4, NSPI)] = {true, true, false, false};
     const char spi_clock_phase[max(4, NSPI)] = {0, 0, 0, 0};
@@ -61,18 +62,18 @@ init_system()
 
     // detect active DDS
     for (unsigned j = 0;j < PULSER_MAX_NDDS;j++) {
-        if (pulser.dds_exists(j)) {
+        if (ctrl.run(DDSExists(j))) {
             active_dds.push_back(j);
         }
     }
 
     // initialize active DDS if necessary
     for (auto i: active_dds) {
-        init_AD9914(pulser, i, false);
-        print_AD9914_registers(pulser, i);
+        AD9914::init(ctrl, i, false);
+        AD9914::print_registers(ctrl, i);
     }
 
-    return pulser;
+    return ctrl;
 }
 
 }

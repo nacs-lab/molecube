@@ -13,8 +13,7 @@
  */
 #include "parseTxtSeq.h"
 
-#include <nacs-old-pulser/sequence.h>
-#include <nacs-pulser/commands.h>
+#include <nacs-pulser/instruction.h>
 #include <nacs-utils/log.h>
 #include <nacs-utils/timer.h>
 
@@ -38,8 +37,10 @@
 
 namespace NaCs {
 
+using Inst = Pulser::InstWriter;
+
 //parse text-encoded pulse sequence
-static bool parseSeqTxt(Pulser::OldPulser &pulser, unsigned reps,
+static bool parseSeqTxt(Pulser::Controller &pulser, unsigned reps,
                         const std::string &seqTxt, bool bForever,
                         bool debugPulses, const verbosity &reply);
 
@@ -83,36 +84,29 @@ eatStreamTo(std::istream &is, char to, std::string &strPrior)
     return false;
 }
 
-static bool
-parseReset(Pulser::SequenceBuilder &builder, uint64_t t, std::string &arg1,
-           std::istream &s)
+static auto
+parseError(Pulser::BlockBuilder &builder, std::string &&text)
+{
+    return std::runtime_error("L" + std::to_string(builder.lineNum) +
+                              ": " + text);
+}
+
+static Pulser::Instruction
+parseReset(Pulser::BlockBuilder &builder, std::string &arg1, std::istream &s,
+           uint64_t *tp)
 {
     std::string line;
     getline(s, line);
-
-    if (!line.length())
-        return false;
-
     int channel = -1;
-    if (sscanf(arg1.c_str(), " %d", &channel)) {
-        // Duration of the reset command
-        builder.handle_curr_ttl(t, 90);
-        builder.dds_reset(channel);
 
-        // disable programmable modulus, enable profile 0,
-        // enable SYNC_CLK output
-        builder.add(Pulser::DDSSetTwoBytes(channel, 0x05, 0x840B));
-
-        // enable amplitude control (OSK)
-        builder.add(Pulser::DDSSetTwoBytes(channel, 0x0, 0x0108));
-        builder.curr_t() = t;
-        return true;
+    if (!line.length() || !sscanf(arg1.c_str(), " %d", &channel)) {
+        throw parseError(builder, "Failed to parse reset command.");
     }
-    return false;
+    return Inst::DDS::reset(channel, tp);
 }
 
-static bool
-parseClockOut(Pulser::SequenceBuilder &builder, uint64_t t, std::string &arg1)
+static Pulser::Instruction
+parseClockOut(Pulser::BlockBuilder &builder, std::string &arg1, uint64_t *tp)
 {
     int divider = 0;
 
@@ -123,111 +117,87 @@ parseClockOut(Pulser::SequenceBuilder &builder, uint64_t t, std::string &arg1)
     }
 
     if (divider < 0 || divider > 255) {
-        nacsError("Error at t = %6.3Lf us.  "
-                  "CLOCK_OUT accepts parameter off or 1 ... 255\n",
-                  (long double)t * PULSER_DT_us);
-        throw std::runtime_error("Bad CLOCK_OUT parameter.");
+        throw parseError(builder, "Bad CLOCK_OUT parameter");
     }
-    builder.handle_curr_ttl(t, 0);
-    builder.curr_t() += PULSER_ENABLE_CLK_DURATION;
-    builder.add(Pulser::ClockOut(divider));
-    return true;
+    return Inst::clockOut(divider, tp);
 }
 
-static bool
-parseTTL(Pulser::SequenceBuilder &builder, uint64_t t,
-         std::string &arg1, std::istream &s)
+static Pulser::Instruction
+parseTTL(Pulser::BlockBuilder &builder, std::string &arg1, std::istream &s,
+         uint64_t *tp)
 {
     std::string line;
     getline(s, line);
-
-    if (!line.length())
-        return false;
-
     unsigned ttl;
-    if (!sscanf(line.c_str(), " = %x", &ttl))
-        return false;
+
+    if (!line.length() || !sscanf(line.c_str(), " = %x", &ttl)) {
+        throw parseError(builder, "Failed to parse TTL command.");
+    }
 
     int channel = -1;
     if (sscanf(arg1.c_str(), " %d", &channel)) {
-        builder.push_ttl(t, channel, ttl);
-        return true;
+        return Inst::ttl(uint8_t(channel), ttl, tp);
     } else {
         if (arg1.find("all") != std::string::npos) {
-            builder.push_ttl_all(t, ttl);
-            return true;
+            return Inst::ttlAll(ttl, tp);
         }
     }
-
-    return false;
+    throw parseError(builder, "Failed to parse TTL command.");
 }
 
 template<typename Func>
-static NACS_INLINE bool
-parseDDS(Pulser::SequenceBuilder &builder, uint64_t t, std::string &arg1,
-         std::istream &s, Func &&cb)
+static Pulser::Instruction
+parseDDS(Pulser::BlockBuilder &builder, std::string &arg1, std::istream &s,
+         Func &&cb, uint64_t *tp)
 {
     int chn = -1;
     double operand = 0;
 
     if (get_channel_and_operand(arg1, s, &chn, &operand)) {
         if (chn > PULSER_NDDS - 1) {
-            throw std::runtime_error("Line " +
-                                     std::to_string(builder.line_num()) +
-                                     ", Invalid DDS: " +
-                                     std::to_string(chn));
+            throw parseError(builder,
+                             "Invalid DDS (" + std::to_string(chn) + ")");
         }
-        builder.handle_curr_ttl(t, PULSER_T_DDS_MIN);
-        cb(chn, operand);
-        builder.curr_t() = t;
-        return true;
+        return cb(chn, operand, tp);
     }
-    return false;
+    throw parseError(builder, "Failed to parse DDS command.");
 }
 
-static bool
-parseCommand(Pulser::SequenceBuilder &builder, uint64_t t, std::string &cmd,
-             std::string &arg1, std::istream &s)
+static Pulser::Instruction
+parseCommand(Pulser::BlockBuilder &builder, std::string &cmd,
+             std::string &arg1, std::istream &s, uint64_t *tp)
 {
     if (cmd.find("TTL") != std::string::npos)
-        return parseTTL(builder, t, arg1, s);
+        return parseTTL(builder, arg1, s, tp);
 
     if (cmd.find("freq") != std::string::npos) {
-        return parseDDS(builder, t, arg1, s, [&] (int chn, double freq) {
-                builder.add(Pulser::DDSSetFreqF(chn, freq));
-            });
+        return parseDDS(builder, arg1, s, Inst::DDS::setFreqF, tp);
     }
 
     if (cmd.find("amp") != std::string::npos) {
-        return parseDDS(builder, t, arg1, s, [&] (int chn, double amp) {
-                builder.add(Pulser::DDSSetAmpF(chn, amp));
-            });
+        return parseDDS(builder, arg1, s, Inst::DDS::setAmpF, tp);
     }
 
     if (cmd.find("phase") != std::string::npos) {
-        return parseDDS(builder, t, arg1, s, [&] (int chn, double phase) {
-                builder.set_dds_phase_f(chn, phase);
-            });
+        return parseDDS(builder, arg1, s, Inst::DDS::setPhaseF, tp);
     }
 
     if (cmd.find("shiftp") != std::string::npos) {
-        return parseDDS(builder, t, arg1, s, [&] (int chn, double phase) {
-                builder.shift_dds_phase_f(chn, phase);
-            });
+        return parseDDS(builder, arg1, s, Inst::DDS::shiftPhaseF, tp);
     }
 
     if (cmd.find("reset") != std::string::npos)
-        return parseReset(builder, t, arg1, s);
+        return parseReset(builder, arg1, s, tp);
 
     if (cmd.find("CLOCK_OUT") != std::string::npos)
-        return parseClockOut(builder, t, arg1);
+        return parseClockOut(builder, arg1, tp);
 
-    return false;
+    throw parseError(builder, "Unknown command.");
 }
 
 //parse URL-encoded pulse sequence
 bool
-parseSeqURL(Pulser::OldPulser &pulser, std::string &seq, const verbosity &reply)
+parseSeqURL(Pulser::Controller &ctrl, std::string &seq, const verbosity &reply)
 {
     unsigned reps = getUnsignedParam(seq, "reps=", 1);
     bool debugPulses = getCheckboxParam(seq, "debugPulses=", false);
@@ -240,21 +210,21 @@ parseSeqURL(Pulser::OldPulser &pulser, std::string &seq, const verbosity &reply)
         return false;
     }
 
-    size_t end_pos = seq.find("&", start_pos+L);
+    size_t end_pos = seq.find("&", start_pos + L);
     if (end_pos == std::string::npos)
         end_pos = seq.length();
 
     std::string seqTxt = seq.substr(start_pos + L, end_pos - start_pos - L);
     html2txt(seqTxt, 1); //this is a slow function
 
-    parseSeqTxt(pulser, reps, seqTxt, bForever, debugPulses, reply);
+    parseSeqTxt(ctrl, reps, seqTxt, bForever, debugPulses, reply);
 
     return true;
 }
 
-//parse pulse sequence via CGICC
+// parse pulse sequence via CGICC
 bool
-parseSeqCGI(Pulser::OldPulser &pulser, cgicc::Cgicc &cgi, const verbosity &reply)
+parseSeqCGI(Pulser::Controller &ctrl, cgicc::Cgicc &cgi, const verbosity &reply)
 {
     unsigned reps = getUnsignedParamCGI(cgi, "reps", 1);
     bool debugPulses = getCheckboxParamCGI(cgi, "debugPulses", false);
@@ -275,14 +245,14 @@ parseSeqCGI(Pulser::OldPulser &pulser, cgicc::Cgicc &cgi, const verbosity &reply
         }
     }
 
-    parseSeqTxt(pulser, reps, seqTxt, bForever, debugPulses, reply);
+    parseSeqTxt(ctrl, reps, seqTxt, bForever, debugPulses, reply);
 
     return true;
 }
 
 // parse text-encoded pulse sequence
 static bool
-parseSeqTxt(Pulser::OldPulser &pulser, unsigned reps,
+parseSeqTxt(Pulser::Controller &ctrl, unsigned reps,
             const std::string &seqTxt, bool bForever, bool debugPulses,
             const verbosity &reply)
 {
@@ -294,23 +264,18 @@ parseSeqTxt(Pulser::OldPulser &pulser, unsigned reps,
 
     tic();
 
-    Pulser::SequenceBuilder builder;
-    builder.enable_timing_check();
+    Pulser::BlockBuilder builder;
+    builder.pushPulse(Inst::enableTimingCheck);
 
     // first parse and load up the pulses vector
     std::stringstream ss0(seqTxt);
-
-    // long double and double are the same on ARM
-    // Both should be precise enough (2^-52 or ~1 ps in 1 hour)
-    long double tSoFar = 0;
-    bool use_dt = true;
 
     while (!ss0.eof()) {
         // read line
         std::string line;
         getline(ss0, line);
 
-        builder.line_num()++;
+        builder.lineNum++;
 
         // ignore everything after '#' comment symbol
         size_t posC = line.find("#");
@@ -324,31 +289,24 @@ parseSeqTxt(Pulser::OldPulser &pulser, unsigned reps,
         // otherwise parse the line
         std::stringstream ssL(line);
 
-        long double new_t;
         std::string strPrior;
 
         // valid lines will start with "dt = " or "t = "
 
         if (!eatStreamTo(ssL, '=', strPrior)) {
             continue;
-            // throw std::runtime_error(std::to_string(builder.line_num()) +
-            //                          ": no time spec.");
         }
 
+        bool use_dt;
+        double __new_t;
+        ssL >> __new_t;
+        uint64_t new_t = uint64_t(__new_t * PULSER_DT_per_us);
         if (strPrior.find("dt") != std::string::npos) {
             use_dt = true;
-            ssL >> new_t;
-            new_t += tSoFar;
         } else if (strPrior.find("t") != std::string::npos) {
             use_dt = false;
-            ssL >> new_t;
         } else {
-            throw std::runtime_error(std::to_string(builder.line_num()) +
-                                     ": invalid time spec.");
-        }
-        if (new_t <= tSoFar && tSoFar > 0) {
-            throw std::runtime_error(std::to_string(builder.line_num()) +
-                                     ": going back in time.");
+            throw parseError(builder, "Invalid time spec.");
         }
 
         // next comes the time unit (not used), then a comma
@@ -356,48 +314,33 @@ parseSeqTxt(Pulser::OldPulser &pulser, unsigned reps,
         getline(ssL, timeunit, ',');
 
         if (ssL.eof()) {
-            throw std::runtime_error(std::to_string(builder.line_num()) +
-                                     ": no action.");
+            throw parseError(builder, "No action.");
         }
 
         // then comes the command name, followed by '(arg1)'
         std::string cmd;
         getline(ssL, cmd, '(');
         if (ssL.eof()) {
-            throw std::runtime_error(std::to_string(builder.line_num()) +
-                                     ": incomplete action.");
+            throw parseError(builder, "Incomplete action.");
         }
 
         std::string arg1;
         getline(ssL, arg1, ')');
         if (ssL.eof()) {
-            throw std::runtime_error(std::to_string(builder.line_num()) +
-                                     ": incomplete action (2).");
+            throw parseError(builder, "Incomplete action (2).");
         }
 
-        if (!use_dt) {
-            tSoFar = new_t;
-        }
-        uint64_t t_count =
-            static_cast<uint64_t>(tSoFar * PULSER_DT_per_us + 0.5);
-        if (parseCommand(builder, t_count, cmd, arg1, ssL)) {
-            tSoFar = new_t;
+        if (use_dt) {
+            builder.pulseDT(new_t, parseCommand, builder, cmd, arg1, ssL);
         } else {
-            throw std::runtime_error(std::to_string(builder.line_num()) +
-                                     ": failed to parse command.");
+            builder.pulseAbsT(new_t, parseCommand, builder, cmd, arg1, ssL);
         }
     }
-    if (use_dt) {
-        uint64_t t_count =
-            static_cast<uint64_t>(tSoFar * PULSER_DT_per_us + 0.5);
-        builder.handle_curr_ttl(t_count, 0);
-    }
-    builder.finish_ttl();
+    builder.finalPulse();
 
     auto parse_time = toc();
 
-    reply.printf("Parsed sequence into a %zu bytes program.\n",
-                 builder.len() * sizeof(uint32_t));
+    reply.printf("Parsed sequence into %zu pulses.\n", builder.size());
 
     if (bForever) {
         nacsLog("Start continuous run.\n");
@@ -409,7 +352,7 @@ parseSeqTxt(Pulser::OldPulser &pulser, unsigned reps,
 
     // now run the pulses
     // update status string every 500 ms
-    auto seq_len_ms = (long double)builder.curr_t() * PULSER_DT_us * 1e-3l;
+    auto seq_len_ms = (long double)builder.currT * PULSER_DT_us * 1e-3l;
     unsigned nTimingErrors = 0;
     unsigned iRep;
     char buff[64] = {'\0'};
@@ -421,18 +364,19 @@ parseSeqTxt(Pulser::OldPulser &pulser, unsigned reps,
         }
         setProgramStatus(buff);
 
-        std::lock_guard<FLock> fl(g_fPulserLock);
         // hold the sequnce until pulse buffer is full or
-        // pulser.wait() is called
-        pulser.set_hold();
-        pulser.toggle_init();
-        pulser.run(builder);
+        // ctrl.waitFinish() is called
+        Pulser::CtrlLocker locker(ctrl);
+        ctrl.setHold();
+        ctrl.toggleInit();
+        Pulser::CtrlState state;
+        Pulser::runInstructionList(&ctrl, &state, builder);
 
         // wait for pulses finished.
-        pulser.wait();
+        ctrl.waitFinish();
 
-        if (!pulser.timing_ok()) {
-            pulser.add(Pulser::ClearTimingCheck());
+        if (!ctrl.timingOK()) {
+            ctrl.run(Pulser::ClearTimingCheck());
             nTimingErrors++;
         }
 

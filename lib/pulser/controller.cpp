@@ -5,7 +5,7 @@
 namespace NaCs {
 namespace Pulser {
 
-void
+NACS_EXPORT void
 Controller::init(bool reset)
 {
     releaseHold();

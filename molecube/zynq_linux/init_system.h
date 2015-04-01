@@ -1,13 +1,14 @@
 #ifndef __MOLECUBE_INIT_SYSTEM_H__
 #define __MOLECUBE_INIT_SYSTEM_H__
 
-#include <nacs-old-pulser/pulser.h>
-
 #define CPU_FREQ_HZ (667000000)
 
 namespace NaCs {
+namespace Pulser {
+class Controller;
+}
 
-Pulser::OldPulser &init_system();
+Pulser::Controller &init_system();
 
 }
 

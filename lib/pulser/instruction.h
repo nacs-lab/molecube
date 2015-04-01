@@ -190,35 +190,30 @@ runInstructionList(Controller *__restrict__ ctrler,
     runInstructionList(ctrler, state, v.data(), v.size());
 }
 
-class BlockBuilder : public std::vector<Instruction> {
-    unsigned m_line_num;
-    uint64_t m_curr_t;
+struct BlockBuilder : public std::vector<Instruction> {
+    unsigned lineNum;
+    uint64_t currT;
 public:
     BlockBuilder()
         : std::vector<Instruction>(),
-          m_line_num(0),
-          m_curr_t(0)
+          lineNum(0),
+          currT(0)
     {}
-    inline auto&
-    lineNum()
-    {
-        return m_line_num;
-    }
     template<typename Func, typename... Args>
     inline void
     pushPulse(Func &&func, Args&&... args)
     {
         push_back(std::forward<Func>(func)(std::forward<Args>(args)...,
-                                           &m_curr_t));
+                                           &currT));
     }
     template<typename Func, typename... Args>
     inline void
     pulseAbsT(uint64_t t, Func &&func, Args&&... args)
     {
-        if (t < m_curr_t) {
+        if (t < currT) {
             throw std::runtime_error("Going back in time.");
-        } else if (t - m_curr_t >= 3) {
-            pushPulse(InstWriter::wait, t - m_curr_t);
+        } else if (t - currT >= 3) {
+            pushPulse(InstWriter::wait, t - currT);
         }
         pushPulse(std::forward<Func>(func), std::forward<Args>(args)...);
     }
@@ -226,12 +221,12 @@ public:
     inline void
     pulseDT(uint64_t dt, Func &&func, Args&&... args)
     {
-        uint64_t final_t = m_curr_t + dt;
+        uint64_t final_t = currT + dt;
         pushPulse(std::forward<Func>(func), std::forward<Args>(args)...);
-        if (final_t < m_curr_t) {
+        if (final_t < currT) {
             throw std::runtime_error("Pulse too short.");
         }
-        pushPulse(InstWriter::wait, final_t - m_curr_t);
+        pushPulse(InstWriter::wait, final_t - currT);
     }
     inline void
     finalPulse()

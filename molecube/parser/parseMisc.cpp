@@ -1,6 +1,6 @@
 #include "parseMisc.h"
 
-#include <nacs-pulser/commands.h>
+#include <nacs-pulser/controller.h>
 
 #include <nacs-utils/number.h>
 #include <nacs-utils/log.h>
@@ -55,27 +55,25 @@ parseParamsCGI(txtmap_t& params, cgicc::Cgicc& cgi)
 }
 
 static void
-getDeviceParams(Pulser::OldPulser &pulser, const std::string &page,
+getDeviceParams(Pulser::Controller &ctrl, const std::string &page,
                 txtmap_t &params)
 {
-    std::lock_guard<FLock> fl(g_fPulserLock);
-
     if (page == "dds") {
         char key[32];
         char val[32];
 
         for (unsigned iDDS = 0;iDDS < PULSER_NDDS;iDDS++) {
-            double f = 1e-6 * pulser.get_dds_freq_f(iDDS);
+            double f = 1e-6 * ctrl.reqSync(Pulser::DDSGetFreqF(iDDS));
             snprintf(key, 32, "freq%d", iDDS);
             snprintf(val, 32, "%.6f MHz", f);
             params[key] = val;
 
-            double A = pulser.get_dds_amp_f(iDDS);
+            double A = ctrl.reqSync(Pulser::DDSGetAmpF(iDDS));
             snprintf(key, 32, "tude%d", iDDS);
             snprintf(val, 32, "%.4f", A);
             params[key] = val;
 
-            double phase = pulser.get_dds_phase_f(iDDS);
+            double phase = ctrl.reqSync(Pulser::DDSGetPhaseF(iDDS));
             snprintf(key, 32, "phase%d", iDDS);
             snprintf(val, 32, "%.3f deg", phase);
             params[key] = val;
@@ -84,11 +82,9 @@ getDeviceParams(Pulser::OldPulser &pulser, const std::string &page,
 }
 
 static void
-setDeviceParams(Pulser::OldPulser &pulser, const std::string &page,
+setDeviceParams(Pulser::Controller &ctrl, const std::string &page,
                 const txtmap_t &params)
 {
-    std::lock_guard<FLock> fl(g_fPulserLock);
-
     if (page == "dds") {
         txtmap_t::const_iterator pos;
         char buff[32];
@@ -100,8 +96,8 @@ setDeviceParams(Pulser::OldPulser &pulser, const std::string &page,
             if (pos != params.end()) {
                 double f = 1e6 * atof(pos->second.c_str());
                 nacsLog("DDS setfreq(%d): %12.3f\n", iDDS, f);
-                pulser.add(Pulser::DDSSetFreqF(iDDS, f));
-                unsigned ftw = pulser.get_dds_freq(iDDS);
+                ctrl.reqSync(Pulser::DDSSetFreqF(iDDS, f));
+                unsigned ftw = ctrl.reqSync(Pulser::DDSGetFreq(iDDS));
                 double freq_get =
                     Pulser::DDSCvt::num2freq(ftw, PULSER_AD9914_CLK);
                 nacsLog("DDS getfreq(%d): %12.3f  (ftw = %08X)\n",
@@ -114,7 +110,7 @@ setDeviceParams(Pulser::OldPulser &pulser, const std::string &page,
             if (pos != params.end()) {
                 double amp = limit(atof(pos->second.c_str()), 1);
                 nacsLog("DDS setamp (%d): %6.3f %%\n", iDDS, amp * 100);
-                pulser.add(Pulser::DDSSetAmpF(iDDS, amp));
+                ctrl.reqSync(Pulser::DDSSetAmpF(iDDS, amp));
             }
 
             sprintf(buff, "phase%d", iDDS);
@@ -122,14 +118,14 @@ setDeviceParams(Pulser::OldPulser &pulser, const std::string &page,
             if (pos != params.end()) {
                 double phase = atof(pos->second.c_str());
                 nacsLog("DDS setphase(%d): %9.3f degrees\n", iDDS, phase);
-                pulser.set_dds_phase_f(iDDS, phase);
+                ctrl.reqSync(Pulser::DDSSetPhaseF(iDDS, phase));
             }
 
             sprintf(buff, "reset%d", iDDS);
             pos = params.find(buff);
             if (pos != params.end()) {
                 nacsLog("DDS reset/init (%d)\n", iDDS);
-                init_AD9914(pulser, iDDS, true);
+                AD9914::init(ctrl, iDDS, true);
             }
         }
     }
@@ -138,14 +134,15 @@ setDeviceParams(Pulser::OldPulser &pulser, const std::string &page,
         txtmap_t::const_iterator posHi = params.find("ttlHiMask");
         txtmap_t::const_iterator posLo = params.find("ttlLoMask");
 
-        if(posHi != params.end() && posLo != params.end()) {
+        if (posHi != params.end() && posLo != params.end()) {
             unsigned hi = 0;
             sscanf(posHi->second.c_str(), "%x", &hi);
 
             unsigned lo = 0;
             sscanf(posLo->second.c_str(), "%x", &lo);
 
-            pulser.set_ttl_mask(hi, lo);
+            ctrl.setTTLHighMask(hi);
+            ctrl.setTTLLowMask(lo);
             nacsLog("set TTL ttlHiMask=%08X  ttlLoMask=%08X\n", hi, lo);
         }
     }
@@ -166,7 +163,7 @@ stream_vect_to_JSON_array(std::ostream& os, const V& v)
 }
 
 bool
-parseQueryCGI(Pulser::OldPulser &pulser, cgicc::Cgicc &cgi,
+parseQueryCGI(Pulser::Controller &ctrl, cgicc::Cgicc &cgi,
               const verbosity &reply)
 {
     cgicc::form_iterator cmd = cgi.getElement("command");
@@ -176,8 +173,8 @@ parseQueryCGI(Pulser::OldPulser &pulser, cgicc::Cgicc &cgi,
         LockGPL lock;
         if ((**cmd) == "getTTL") {
             printJSONResponseHeader(reply);
-            unsigned lo, hi;
-            pulser.get_ttl_mask(&hi, &lo);
+            uint32_t lo = ctrl.getTTLLowMask();
+            uint32_t hi = ctrl.getTTLHighMask();
 
             char buff[64];
             sprintf(buff, "{\"lo\":%u, \"hi\":%u}", lo, hi);
@@ -223,7 +220,7 @@ parseQueryCGI(Pulser::OldPulser &pulser, cgicc::Cgicc &cgi,
                 txtmap_t params;
                 // TODO FIX absolute path
                 loadMap(params, "/srv/http/userdata/params_" + sPage);
-                getDeviceParams(pulser, sPage, params);
+                getDeviceParams(ctrl, sPage, params);
                 dumpMapHTML(params, reply);
                 return true;
             } else {
@@ -240,7 +237,7 @@ parseQueryCGI(Pulser::OldPulser &pulser, cgicc::Cgicc &cgi,
             if (sPage.length()) {
                 txtmap_t params;
                 if (parseParamsCGI(params, cgi)) {
-                    setDeviceParams(pulser, sPage, params);
+                    setDeviceParams(ctrl, sPage, params);
                     return true;
                 }
             } else {
@@ -249,7 +246,7 @@ parseQueryCGI(Pulser::OldPulser &pulser, cgicc::Cgicc &cgi,
         }
 
         if ((**cmd) == "runseq") {
-            parseSeqCGI(pulser, cgi, reply);
+            parseSeqCGI(ctrl, cgi, reply);
             return true;
         }
         return false;
@@ -265,11 +262,11 @@ getUnsignedParam(const std::string& seq, const std::string& name,
 {
     size_t pos = seq.find(name);
 
-    if(pos != std::string::npos) {
+    if (pos != std::string::npos) {
         unsigned val;
-
-        if(sscanf(seq.substr(pos).c_str()+name.length(), "%u", &val))
+        if (sscanf(seq.substr(pos).c_str() + name.length(), "%u", &val)) {
             return val;
+        }
     }
 
     return defaultVal;

@@ -1,21 +1,21 @@
 #ifndef PARSE_TXT_SEQ_H
 #define PARSE_TXT_SEQ_H
 
-#include <nacs-old-pulser/pulser.h>
-
 #include <verbosity.h>
 
 #include <istream>
 #include <cgicc/Cgicc.h>
 
 namespace NaCs {
+namespace Pulser {
+class Controller;
+}
 
 //parse URL-encoded pulse sequence in string
 // should only be used for shorter sequence (< 100 pulses)
-bool parseSeqURL(Pulser::OldPulser &pulser, std::string &seq,
+bool parseSeqURL(Pulser::Controller &ctrl, std::string &seq,
                  const verbosity &reply);
-
-bool parseSeqCGI(Pulser::OldPulser &pulser, cgicc::Cgicc &cgi,
+bool parseSeqCGI(Pulser::Controller &ctrl, cgicc::Cgicc &cgi,
                  const verbosity &reply);
 
 // parse sequence in multipart format
@@ -27,4 +27,4 @@ std::string getQuote(const char *fname, const char *divider);
 
 }
 
-#endif //PARSE_TXT_SEQ_H
+#endif
