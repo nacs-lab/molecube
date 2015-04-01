@@ -3,6 +3,18 @@
 namespace NaCs {
 namespace Pulser {
 
+static uint64_t
+combTime(uint64_t ctrl, uint32_t op)
+{
+    return (ctrl & ControlBit::MetaContentMask) << 32 | op;
+}
+
+static uint64_t
+combTime(Instruction &inst)
+{
+    return combTime(inst.ctrl, inst.op);
+}
+
 static inline __attribute__((flatten, hot)) void
 writeShortPulse(Controller *__restrict__ ctrler, CtrlState *__restrict__ state,
                 uint32_t ctrl, uint32_t op)
@@ -31,11 +43,11 @@ runDDSSetPhase(Controller *__restrict__ ctrler, CtrlState *__restrict__ state,
 
 static inline __attribute__((flatten, hot)) void
 runWaitMeta(Controller *__restrict__ ctrler, CtrlState *__restrict__ state,
-            uint32_t t_high, uint32_t t_low)
+            uint32_t ctrl, uint32_t op)
 {
     const uint32_t flags = (nacsLikely(state->timing_check) ?
                             ControlBit::TimingCheck : 0);
-    uint64_t t = uint64_t(t_high) << 32 | t_low; // time in 10ns
+    uint64_t t = combTime(ctrl, op); // time in 10ns
     // If the wait time is too short, don't do anything fancy
     if (t < 50) {
         ctrler->shortPulse(0x20000000 | uint32_t(t) | flags, 0);
@@ -75,15 +87,17 @@ runWaitMeta(Controller *__restrict__ ctrler, CtrlState *__restrict__ state,
 
 static inline __attribute__((flatten, hot)) void
 runTTLMeta(Controller *__restrict__ ctrler, CtrlState *__restrict__ state,
-           uint32_t ttl_addr, uint32_t ttl_val)
+           uint32_t ttl_ctrl, uint32_t ttl_val)
 {
-    if (ttl_addr & ControlBit::TTLAll) {
+    uint32_t ttl_addr = ttl_ctrl & ControlBit::TTLAll;
+    uint32_t ttl_time = ttl_ctrl >> 18;
+    if (ttl_addr == ControlBit::TTLAll) {
         state->curr_ttl = ttl_val;
     } else {
         state->curr_ttl = setBit(state->curr_ttl, uint8_t(ttl_addr),
                                  bool(ttl_val));
     }
-    writeShortPulse(ctrler, state, 3, state->curr_ttl);
+    writeShortPulse(ctrler, state, ttl_time, state->curr_ttl);
 }
 
 static inline __attribute__((flatten, hot)) void
@@ -94,7 +108,7 @@ runMetaInstruction(Controller *__restrict__ ctrler,
     case ControlBit::WaitMeta:
         // After removing the Meta bits, the maximum time is
         // 2^(32 + 24) * 10ns ~ 22 years. Hopefully that's enough...
-        runWaitMeta(ctrler, state, ctrl & ControlBit::MetaContentMask, op);
+        runWaitMeta(ctrler, state, ctrl, op);
         break;
     case ControlBit::DDSSetPhaseMeta:
         // Truncate ctrl to 16 bits to get phase
@@ -144,6 +158,78 @@ runInstructionList(Controller *__restrict__ ctrler,
         __builtin_prefetch(cur_inst + 2);
         runInstruction(ctrler, state, cur_inst);
     }
+}
+
+static bool
+mergeWaitWait(Instruction &prev_inst, Instruction &inst)
+{
+    prev_inst = InstWriter::wait(combTime(prev_inst) + combTime(inst));
+    return true;
+}
+
+static bool
+mergeTTLWait(Instruction &prev_inst, Instruction &inst)
+{
+    uint64_t ttl_time = (prev_inst.ctrl & ControlBit::MetaContentMask) >> 18;
+    uint64_t wait_time = combTime(inst);
+    uint64_t total_time = ttl_time + wait_time;
+    if (total_time < 64) {
+        prev_inst.ctrl = ((prev_inst.ctrl & ~(0x3f << 18)) |
+                          uint32_t(total_time) << 18);
+        return true;
+    } else if (ttl_time != 3) {
+        prev_inst.ctrl = (prev_inst.ctrl & ~(0x3f << 18)) | uint32_t(3) << 18;
+        inst = InstWriter::wait(total_time - 3);
+    }
+    return false;
+}
+
+static bool
+compatibleTTLs(Instruction &prev_inst, Instruction &inst)
+{
+    auto prev_ctrl = prev_inst.ctrl;
+    auto ctrl = inst.ctrl;
+    auto prev_addr = prev_ctrl & ControlBit::TTLAll;
+    auto addr = ctrl & ControlBit::TTLAll;
+    if (prev_addr == addr && prev_inst.op == inst.op)
+        return true;
+    if (prev_addr == ControlBit::TTLAll && addr != ControlBit::TTLAll &&
+        prev_inst.op == setBit(prev_inst.op, uint8_t(addr), bool(inst.op))) {
+        return true;
+    }
+    return false;
+}
+
+static bool
+mergeTTLTTL(Instruction &prev_inst, Instruction &inst)
+{
+    if (compatibleTTLs(prev_inst, inst)) {
+        inst = InstWriter::wait((inst.ctrl &
+                                 ControlBit::MetaContentMask) >> 18);
+        mergeTTLWait(prev_inst, inst);
+    }
+    return false;
+}
+
+NACS_EXPORT bool
+tryMergeMeta(Instruction &prev_inst, Instruction &inst)
+{
+    auto prev_ctrl = prev_inst.ctrl;
+    auto ctrl = inst.ctrl;
+    auto prev_meta = prev_ctrl & ControlBit::MetaInstMask;
+    auto meta = ctrl & ControlBit::MetaInstMask;
+    if (prev_meta == ControlBit::WaitMeta) {
+        if (meta == ControlBit::WaitMeta) {
+            return mergeWaitWait(prev_inst, inst);
+        }
+    } else if (prev_meta == ControlBit::TTLMeta) {
+        if (meta == ControlBit::WaitMeta) {
+            return mergeTTLWait(prev_inst, inst);
+        } else if (meta == ControlBit::TTLMeta) {
+            return mergeTTLTTL(prev_inst, inst);
+        }
+    }
+    return false;
 }
 
 }

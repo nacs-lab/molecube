@@ -37,7 +37,7 @@ struct ControlBit {
     static constexpr uint32_t DDSResetMeta = 0x4000000;
     static constexpr uint32_t TTLMeta = 0x5000000;
 
-    static constexpr uint32_t TTLAll = 0x800000;
+    static constexpr uint32_t TTLAll = 0x03ffff; // 18 bits
     static constexpr uint32_t MetaContentMask = ~(MetaInstMask | InstMask);
 };
 
@@ -154,21 +154,33 @@ public:
                            ControlBit::WaitMeta | uint32_t(t >> 32),
                            uint32_t(t));
     }
+    // variable time, < 640ns
+    static inline Instruction
+    ttlAllT(uint32_t val, uint8_t t, uint64_t *tp=nullptr)
+    {
+        accumTime(tp, t);
+        return Instruction(ControlBit::MetaCmd | ControlBit::TTLMeta |
+                           ControlBit::TTLAll | uint32_t(t) << 18, val);
+    }
+    // variable time, < 640ns
+    static inline Instruction
+    ttlT(uint8_t addr, bool val, uint8_t t, uint64_t *tp=nullptr)
+    {
+        accumTime(tp, t);
+        return Instruction(ControlBit::MetaCmd | ControlBit::TTLMeta |
+                           addr | uint32_t(t) << 18, val);
+    }
     // 30ns
     static inline Instruction
     ttlAll(uint32_t val, uint64_t *tp=nullptr)
     {
-        accumTime(tp, 3);
-        return Instruction(ControlBit::MetaCmd |
-                           ControlBit::TTLMeta | ControlBit::TTLAll, val);
+        return ttlAllT(val, 3, tp);
     }
     // 30ns
     static inline Instruction
     ttl(uint8_t addr, bool val, uint64_t *tp=nullptr)
     {
-        accumTime(tp, 3);
-        return Instruction(ControlBit::MetaCmd |
-                           ControlBit::TTLMeta | addr, val);
+        return ttlT(addr, val, 3, tp);
     }
     // 50ns
     static inline Instruction
@@ -190,6 +202,19 @@ runInstructionList(Controller *__restrict__ ctrler,
     runInstructionList(ctrler, state, v.data(), v.size());
 }
 
+struct BlockBuilder;
+
+bool tryMergeMeta(Instruction &prev_inst, Instruction &inst);
+
+static bool
+tryMergeInst(Instruction &prev_inst, Instruction &inst)
+{
+    if ((prev_inst.ctrl & ControlBit::InstMask) != ControlBit::MetaCmd ||
+        (inst.ctrl & ControlBit::InstMask) != ControlBit::MetaCmd)
+        return false;
+    return tryMergeMeta(prev_inst, inst);
+}
+
 struct BlockBuilder : public std::vector<Instruction> {
     unsigned lineNum;
     uint64_t currT;
@@ -203,8 +228,11 @@ public:
     inline void
     pushPulse(Func &&func, Args&&... args)
     {
-        push_back(std::forward<Func>(func)(std::forward<Args>(args)...,
-                                           &currT));
+        Instruction inst(std::forward<Func>(func)(
+                             std::forward<Args>(args)..., &currT));
+        if (size() && tryMergeInst(operator[](size() - 1), inst))
+            return;
+        push_back(std::move(inst));
     }
     template<typename Func, typename... Args>
     inline void
