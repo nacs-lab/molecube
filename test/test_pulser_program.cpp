@@ -1,29 +1,31 @@
 #include <nacs-utils/timer.h>
-#include <nacs-old-pulser/pulser.h>
-#include <nacs-old-pulser/sequence.h>
+#include <nacs-pulser/instruction.h>
 
 using namespace NaCs;
+using Inst = Pulser::InstWriter;
 
 int
 main()
 {
-    auto &pulser = Pulser::get_pulser();
-    Pulser::SequenceBuilder builder;
-    builder.enable_timing_check();
-
+    Pulser::Controller ctrl(Pulser::mapPulserAddr());
+    Pulser::BlockBuilder builder;
+    builder.pushPulse(Inst::enableTimingCheck);
     for (int i = 0;i < 10000;i++) {
-        builder.push_ttl_all((i + 1) * 5, 0);
+        builder.pushPulse(Inst::ttlAll, 0);
+        builder.pushPulse(Inst::wait, 5);
     }
-    builder.finish_ttl();
+    builder.pushPulse(Inst::disableTimingCheck);
+    builder.pushPulse(Inst::wait, 3);
 
     tic();
-    pulser.set_hold();
-    pulser.toggle_init();
-    pulser.run(builder);
+    ctrl.setHold();
+    ctrl.toggleInit();
+    Pulser::CtrlState state;
+    runInstructionList(&ctrl, &state, builder.data(), builder.size());
     printToc();
 
     // wait for pulses finished.
-    pulser.wait();
+    ctrl.waitFinish();
 
     return 0;
 }

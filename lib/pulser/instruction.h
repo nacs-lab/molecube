@@ -3,6 +3,8 @@
 
 #include "controller.h"
 
+#include <vector>
+
 namespace NaCs {
 namespace Pulser {
 
@@ -147,6 +149,44 @@ struct InstWriter {
 void runInstructionList(Controller *__restrict__ ctrler,
                         CtrlState *__restrict__ state,
                         const Instruction *__restrict__ inst, size_t n);
+
+class BlockBuilder : std::vector<Instruction> {
+    unsigned m_line_num;
+    uint64_t m_curr_t;
+public:
+    BlockBuilder()
+        : std::vector<Instruction>(),
+          m_line_num(0),
+          m_curr_t(0)
+    {
+    }
+    inline auto&
+    lineNum()
+    {
+        return m_line_num;
+    }
+    inline auto&
+    currT()
+    {
+        return m_curr_t;
+    }
+    const Instruction*
+    data() const
+    {
+        return std::vector<Instruction>::data();
+    }
+    size_t
+    size() const
+    {
+        return std::vector<Instruction>::size();
+    }
+    template<typename Func, typename... Args>
+    inline void
+    pushPulse(Func &&func, Args&&... args)
+    {
+        push_back(std::forward<Func>(func)(std::forward<Args>(args)...));
+    }
+};
 
 }
 }

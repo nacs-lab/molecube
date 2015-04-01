@@ -256,6 +256,14 @@ public:
             });
     }
     uint64_t writeRequests(uint32_t max_num, bool notify, uint32_t flags=0);
+    inline void
+    waitFinish()
+    {
+        releaseHold();
+        while (!isFinished()) {
+            std::this_thread::yield();
+        }
+    }
 private:
     uint32_t popResults();
     void dumpNotifyQueue();
