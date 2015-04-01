@@ -121,7 +121,7 @@ Controller::runReader()
  * Return: the length of the pulese written.
  */
 uint64_t
-Controller::writeRequests(uint32_t max_num, bool notify)
+Controller::writeRequests(uint32_t max_num, bool notify, uint32_t flags)
 {
     static constexpr int max_write = 15;
     int res_buff_space = resBuffSpace();
@@ -144,7 +144,7 @@ Controller::writeRequests(uint32_t max_num, bool notify)
             num_return++;
         }
         total_time += req->length;
-        shortPulse(req->ctrl, req->op);
+        shortPulse(req->ctrl | flags, req->op);
         if (!req->has_res) {
             // Notify the requester or push it to the notify queue after
             // the it has been written to the FPGA since the request is invalid

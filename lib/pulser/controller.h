@@ -255,7 +255,7 @@ public:
                 return resBuffSpace() >= space;
             });
     }
-    uint64_t writeRequests(uint32_t max_num, bool notify);
+    uint64_t writeRequests(uint32_t max_num, bool notify, uint32_t flags=0);
 private:
     uint32_t popResults();
     void dumpNotifyQueue();
