@@ -59,24 +59,43 @@ getDeviceParams(Pulser::Controller &ctrl, const std::string &page,
                 txtmap_t &params)
 {
     if (page == "dds") {
-        char key[32];
-        char val[32];
-
-        for (unsigned iDDS = 0;iDDS < PULSER_NDDS;iDDS++) {
+        // use threads before we have better ways to deal with multiple
+        // requests
+        std::thread ts[PULSER_NDDS * 3];
+        std::mutex lock;
+        auto requester = [&] (unsigned iDDS) {
+            char key[32];
+            char val[32];
             double f = 1e-6 * ctrl.reqSync(Pulser::DDSGetFreqF(iDDS));
             snprintf(key, 32, "freq%d", iDDS);
             snprintf(val, 32, "%.6f MHz", f);
-            params[key] = val;
+            {
+                std::lock_guard<std::mutex> locker(lock);
+                params[key] = val;
+            }
 
             double A = ctrl.reqSync(Pulser::DDSGetAmpF(iDDS));
             snprintf(key, 32, "tude%d", iDDS);
             snprintf(val, 32, "%.4f", A);
-            params[key] = val;
+            {
+                std::lock_guard<std::mutex> locker(lock);
+                params[key] = val;
+            }
 
             double phase = ctrl.reqSync(Pulser::DDSGetPhaseF(iDDS));
             snprintf(key, 32, "phase%d", iDDS);
             snprintf(val, 32, "%.3f deg", phase);
-            params[key] = val;
+            {
+                std::lock_guard<std::mutex> locker(lock);
+                params[key] = val;
+            }
+        };
+
+        for (unsigned iDDS = 0;iDDS < PULSER_NDDS;iDDS++) {
+            ts[iDDS] = std::thread(requester, iDDS);
+        }
+        for (unsigned iDDS = 0;iDDS < PULSER_NDDS;iDDS++) {
+            ts[iDDS].join();
         }
     }
 }
