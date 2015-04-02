@@ -55,16 +55,16 @@ runWaitMeta(Controller *__restrict__ ctrler, CtrlState *__restrict__ state,
         return;
     }
     state->wait_time = 0;
-    static constexpr uint32_t t_max = 10000; // 100us
-    static constexpr auto t_sleep = 20us;
+    static constexpr uint32_t t_max = 8000; // 80us
+    static constexpr auto t_sleep = 10us;
     while (true) {
-        // Proceed 50us each time. If no requests are written, sleep for
-        // 25us to wait for new request in order to minimize request latency
+        // Proceed 80us each time. If no requests are written, sleep for
+        // 10us to wait for new request in order to minimize request latency
         // Also unblock the queue if some requests are written.
         if (t >= t_max) {
-            static constexpr uint32_t max_requests = t_max / 512 + 1;
+            static constexpr uint32_t max_requests = t_max / 1000;
             auto t_write = uint32_t(ctrler->writeRequests(max_requests,
-                                                          false, flags));
+                                                          true, flags));
             auto t_step = t_max - t_write;
             ctrler->shortPulse(0x20000000 | t_step | flags, 0);
             if (!t_write) {

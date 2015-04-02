@@ -221,7 +221,6 @@ main(int argc, char *argv[])
         FCGX_InitRequest(&request, 0, 0);
         while (FCGX_Accept_r(&request) == 0) {
             auto request_id = getRequestId();
-            setProgramStatus("Processing request");
             nacsLog("================ Accept FastCGI request %d "
                     "================\n", request_id);
             fcgi_streambuf out_fcgi_streambuf(request.out);
@@ -242,7 +241,6 @@ main(int argc, char *argv[])
             nacsLog("================ Finish FastCGI request %d "
                     "================\n\n", request_id);
             out << std::endl;
-            setProgramStatus("Idle");
         }
     };
 

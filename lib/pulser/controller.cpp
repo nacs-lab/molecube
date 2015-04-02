@@ -120,9 +120,9 @@ Controller::popRemaining()
     // them should be kept small by the writter thread
     while (int(m_num_written - m_num_read) > 0 && !m_quit) {
         n_read += popResults();
-        dumpNotifyQueue();
         std::this_thread::yield();
     }
+    dumpNotifyQueue();
     return n_read;
 }
 
@@ -203,10 +203,13 @@ NACS_EXPORT void
 Controller::runWriter()
 {
     while (!m_quit) {
-        std::unique_lock<std::mutex> locker(m_writer_lock);
-        m_writer_cond.wait(locker, [&] {
-                return m_quit || (resBuffSpace() > 0 && m_req_queue.size());
-            });
+        {
+            std::unique_lock<std::mutex> locker(m_writer_lock);
+            m_writer_cond.wait(locker, [&] {
+                    return m_quit || (resBuffSpace() > 0 &&
+                                      m_req_queue.size());
+                });
+        }
         std::lock_guard<std::mutex> controller_locker(m_lock);
         writeRequests(32, true);
     }

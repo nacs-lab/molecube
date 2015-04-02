@@ -25,3 +25,7 @@ target_link_libraries(test-pulser_program nacs-utils nacs-pulser)
 set(test_self_SOURCES test_self.cpp)
 add_executable(test-self ${test_self_SOURCES})
 target_link_libraries(test-self nacs-utils nacs-pulser)
+
+set(test_program_request_SOURCES test_program_request.cpp)
+add_executable(test-program_request ${test_program_request_SOURCES})
+target_link_libraries(test-program_request nacs-utils nacs-pulser)

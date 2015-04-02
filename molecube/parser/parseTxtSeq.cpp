@@ -356,6 +356,7 @@ parseSeqTxt(Pulser::Controller &ctrl, unsigned reps,
     unsigned nTimingErrors = 0;
     unsigned iRep;
     char buff[64] = {'\0'};
+    Pulser::CtrlLocker locker(ctrl);
     for (iRep = 0;iRep < reps || bForever;iRep++) {
         if (bForever) {
             snprintf(buff, 64, "Running sequence %d", iRep);
@@ -366,7 +367,6 @@ parseSeqTxt(Pulser::Controller &ctrl, unsigned reps,
 
         // hold the sequnce until pulse buffer is full or
         // ctrl.waitFinish() is called
-        Pulser::CtrlLocker locker(ctrl);
         ctrl.setHold();
         ctrl.toggleInit();
         Pulser::CtrlState state;
@@ -396,6 +396,7 @@ parseSeqTxt(Pulser::Controller &ctrl, unsigned reps,
     } else {
         reply.printf("Warning: %d timing failures.\n", nTimingErrors);
     }
+    setProgramStatus("Idle");
 
     reply.printf("          Parser time: %9.3Lf ms\n",
                  (long double)parse_time * 1e-6)
