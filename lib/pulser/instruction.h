@@ -41,10 +41,23 @@ struct ControlBit {
     static constexpr uint32_t MetaContentMask = ~(MetaInstMask | InstMask);
 };
 
+static uint64_t
+combTime(uint64_t ctrl, uint32_t op)
+{
+    return (ctrl & ControlBit::MetaContentMask) << 32 | op;
+}
+
+static uint64_t
+combTime(Instruction &inst)
+{
+    return combTime(inst.ctrl, inst.op);
+}
+
 struct CtrlState {
     bool timing_check;
     uint16_t dds_phases[22];
     uint32_t curr_ttl;
+    uint64_t wait_time;
 };
 
 class InstWriter {
@@ -204,7 +217,77 @@ runInstructionList(Controller *__restrict__ ctrler,
 
 struct BlockBuilder;
 
-bool tryMergeMeta(Instruction &prev_inst, Instruction &inst);
+static inline bool
+mergeWaitWait(Instruction &prev_inst, Instruction &inst)
+{
+    prev_inst = InstWriter::wait(combTime(prev_inst) + combTime(inst));
+    return true;
+}
+
+static inline bool
+mergeTTLWait(Instruction &prev_inst, Instruction &inst)
+{
+    uint64_t ttl_time = (prev_inst.ctrl & ControlBit::MetaContentMask) >> 18;
+    uint64_t wait_time = combTime(inst);
+    uint64_t total_time = ttl_time + wait_time;
+    if (total_time < 64) {
+        prev_inst.ctrl = ((prev_inst.ctrl & ~(0x3f << 18)) |
+                          uint32_t(total_time) << 18);
+        return true;
+    } else if (ttl_time != 3) {
+        prev_inst.ctrl = (prev_inst.ctrl & ~(0x3f << 18)) | uint32_t(3) << 18;
+        inst = InstWriter::wait(total_time - 3);
+    }
+    return false;
+}
+
+static inline bool
+compatibleTTLs(Instruction &prev_inst, Instruction &inst)
+{
+    auto prev_ctrl = prev_inst.ctrl;
+    auto ctrl = inst.ctrl;
+    auto prev_addr = prev_ctrl & ControlBit::TTLAll;
+    auto addr = ctrl & ControlBit::TTLAll;
+    if (prev_addr == addr && prev_inst.op == inst.op)
+        return true;
+    if (prev_addr == ControlBit::TTLAll && addr != ControlBit::TTLAll &&
+        prev_inst.op == setBit(prev_inst.op, uint8_t(addr), bool(inst.op))) {
+        return true;
+    }
+    return false;
+}
+
+static inline bool
+mergeTTLTTL(Instruction &prev_inst, Instruction &inst)
+{
+    if (compatibleTTLs(prev_inst, inst)) {
+        inst = InstWriter::wait((inst.ctrl &
+                                 ControlBit::MetaContentMask) >> 18);
+        return mergeTTLWait(prev_inst, inst);
+    }
+    return false;
+}
+
+static inline bool
+tryMergeMeta(Instruction &prev_inst, Instruction &inst)
+{
+    auto prev_ctrl = prev_inst.ctrl;
+    auto ctrl = inst.ctrl;
+    auto prev_meta = prev_ctrl & ControlBit::MetaInstMask;
+    auto meta = ctrl & ControlBit::MetaInstMask;
+    if (prev_meta == ControlBit::TTLMeta) {
+        if (meta == ControlBit::WaitMeta) {
+            return mergeTTLWait(prev_inst, inst);
+        } else if (meta == ControlBit::TTLMeta) {
+            return mergeTTLTTL(prev_inst, inst);
+        }
+    } else if (prev_meta == ControlBit::WaitMeta) {
+        if (meta == ControlBit::WaitMeta) {
+            return mergeWaitWait(prev_inst, inst);
+        }
+    }
+    return false;
+}
 
 static bool
 tryMergeInst(Instruction &prev_inst, Instruction &inst)
@@ -230,7 +313,8 @@ public:
     {
         Instruction inst(std::forward<Func>(func)(
                              std::forward<Args>(args)..., &currT));
-        if (size() && tryMergeInst(operator[](size() - 1), inst))
+        size_t len = size();
+        if (len && tryMergeInst(data()[size() - 1], inst))
             return;
         push_back(std::move(inst));
     }

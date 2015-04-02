@@ -12,10 +12,14 @@ main()
     Pulser::Controller ctrl(Pulser::mapPulserAddr());
     Pulser::BlockBuilder builder;
     builder.pushPulse(Inst::enableTimingCheck);
+    tic();
     for (int i = 0;i < 10000000;i++) {
-        builder.pulseDT(100, Inst::ttlAll, 0);
+        builder.pulseDT(40, Inst::ttlAll, 0);
     }
+    printToc();
     builder.finalPulse();
+
+    std::cout << builder.size() << std::endl;
 
     Pulser::CtrlLocker locker(ctrl);
     ctrl.setHold();
