@@ -88,8 +88,7 @@ public:
         static inline Instruction
         setPhaseF(int i, double phase, uint64_t *tp=nullptr)
         {
-            accumTime(tp, 50);
-            return setPhase(i, DDSCvt::phase2num(phase));
+            return setPhase(i, DDSCvt::phase2num(phase), tp);
         }
         static inline Instruction
         shiftPhase(int i, uint16_t phase, uint64_t *tp=nullptr)
@@ -102,8 +101,7 @@ public:
         static inline Instruction
         shiftPhaseF(int i, double phase, uint64_t *tp=nullptr)
         {
-            accumTime(tp, 50);
-            return shiftPhase(i, DDSCvt::phase2num(phase));
+            return shiftPhase(i, DDSCvt::phase2num(phase), tp);
         }
         static inline Instruction
         setFreq(int i, uint32_t freq, uint64_t *tp=nullptr)
