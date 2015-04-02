@@ -106,7 +106,6 @@ namespace NaCs {
 
 volatile bool g_stop_curr_seq = false;
 std::vector<unsigned> active_dds; // all DDS that are available
-std::mutex GPL;
 
 static void
 handleINT(int)
@@ -217,37 +216,43 @@ main(int argc, char *argv[])
 
     setProgramStatus("Idle");
 
-    FCGX_Request request;
-    FCGX_InitRequest(&request, 0, 0);
-    while (FCGX_Accept_r(&request) == 0) {
-        auto request_id = getRequestId();
-        setProgramStatus("Processing request");
-        nacsLog("================ Accept FastCGI request %d "
-                "================\n", request_id);
-
-        // Replace stdio streambufs.
-        // Note that the default bufsize (0) will cause the use of iostream
-        // methods that require positioning (such as peek(), seek(),
-        // unget() and putback()) to fail (in favour of more efficient IO).
-        fcgi_streambuf out_fcgi_streambuf(request.out);
-        std::ostream out(&out_fcgi_streambuf);
-        FCgiIO IO(request);
-        cgicc::Cgicc cgi(&IO);
-        verbosity reply(&out);
-        try {
-            if (!parseQueryCGI(ctrl, cgi, reply)) {
-                nacsError("Couldn't understand HTTP request.\n");
+    auto processRequests = [&] () {
+        FCGX_Request request;
+        FCGX_InitRequest(&request, 0, 0);
+        while (FCGX_Accept_r(&request) == 0) {
+            auto request_id = getRequestId();
+            setProgramStatus("Processing request");
+            nacsLog("================ Accept FastCGI request %d "
+                    "================\n", request_id);
+            fcgi_streambuf out_fcgi_streambuf(request.out);
+            std::ostream out(&out_fcgi_streambuf);
+            FCgiIO IO(request);
+            cgicc::Cgicc cgi(&IO);
+            verbosity reply(&out);
+            try {
+                if (!parseQueryCGI(ctrl, cgi, reply)) {
+                    nacsError("Couldn't understand HTTP request.\n");
+                }
+            } catch (std::runtime_error e) {
+                reply.printf("Oh noes! \n   %s\n", e.what())
+                    .printf("%s", getQuote("/usr/share/molecube/quotes.frt",
+                                           "%%").c_str());
             }
-        } catch (std::runtime_error e) {
-            reply.printf("Oh noes! \n   %s\n", e.what())
-                .printf("%s", getQuote("/usr/share/molecube/quotes.frt",
-                                       "%%").c_str());
-        }
 
-        nacsLog("================ Finish FastCGI request %d "
-                "================\n\n", request_id);
-        out << std::endl;
-        setProgramStatus("Idle");
+            nacsLog("================ Finish FastCGI request %d "
+                    "================\n\n", request_id);
+            out << std::endl;
+            setProgramStatus("Idle");
+        }
+    };
+
+    static constexpr size_t numWorkers = 16;
+    std::vector<std::thread> workers;
+    for (size_t i = 0;i < numWorkers;i++) {
+        workers.emplace_back(processRequests);
+    }
+    for (auto &t: workers) {
+        t.join();
     }
 
     nacsLog("Exit, return 0\n");

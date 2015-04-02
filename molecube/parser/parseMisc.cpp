@@ -170,7 +170,6 @@ parseQueryCGI(Pulser::Controller &ctrl, cgicc::Cgicc &cgi,
     cgicc::form_iterator page = cgi.getElement("page");
     if (cmd != cgi.getElements().end()) {
         nacsLog("Command = %s\n", (**cmd).c_str());
-        LockGPL lock;
         if ((**cmd) == "getTTL") {
             printJSONResponseHeader(reply);
             uint32_t lo = ctrl.getTTLLowMask();

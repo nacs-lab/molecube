@@ -10,13 +10,6 @@ namespace NaCs {
 
 extern volatile bool g_stop_curr_seq;
 extern std::vector<unsigned> active_dds; // all DDS that are available
-// Global Pulser Lock
-extern std::mutex GPL;
-class LockGPL: std::lock_guard<std::mutex> {
-public:
-    inline LockGPL() : std::lock_guard<std::mutex>(GPL)
-    {}
-};
 
 }
 
