@@ -298,6 +298,47 @@ tryMergeInst(Instruction &prev_inst, Instruction &inst)
     return tryMergeMeta(prev_inst, inst);
 }
 
+static inline bool
+mergeTTLWaitTTL(Instruction &prev2_inst, Instruction &prev_inst,
+                Instruction &inst)
+{
+    if (compatibleTTLs(prev2_inst, inst)) {
+        inst = InstWriter::wait((inst.ctrl &
+                                 ControlBit::MetaContentMask) >> 18);
+        return mergeWaitWait(prev_inst, inst);
+    }
+    return false;
+}
+
+static inline bool
+tryMergeMeta3(Instruction &prev2_inst, Instruction &prev_inst,
+              Instruction &inst)
+{
+    auto prev2_ctrl = prev2_inst.ctrl;
+    auto prev_ctrl = prev_inst.ctrl;
+    auto ctrl = inst.ctrl;
+    auto prev2_meta = prev2_ctrl & ControlBit::MetaInstMask;
+    auto prev_meta = prev_ctrl & ControlBit::MetaInstMask;
+    auto meta = ctrl & ControlBit::MetaInstMask;
+    if (prev2_meta == ControlBit::TTLMeta &&
+        prev_meta == ControlBit::WaitMeta &&
+        meta == ControlBit::TTLMeta) {
+        return mergeTTLWaitTTL(prev2_inst, prev_inst, inst);
+    }
+    return false;
+}
+
+static bool
+tryMergeInst3(Instruction &prev2_inst, Instruction &prev_inst,
+              Instruction &inst)
+{
+    if ((prev_inst.ctrl & ControlBit::InstMask) != ControlBit::MetaCmd ||
+        (prev2_inst.ctrl & ControlBit::InstMask) != ControlBit::MetaCmd ||
+        (inst.ctrl & ControlBit::InstMask) != ControlBit::MetaCmd)
+        return false;
+    return tryMergeMeta3(prev2_inst, prev_inst, inst);
+}
+
 struct BlockBuilder : public std::vector<Instruction> {
     unsigned lineNum;
     uint64_t currT;
@@ -314,7 +355,10 @@ public:
         Instruction inst(std::forward<Func>(func)(
                              std::forward<Args>(args)..., &currT));
         size_t len = size();
-        if (len && tryMergeInst(data()[size() - 1], inst))
+        auto *ptr = data();
+        if (len && tryMergeInst(ptr[size() - 1], inst))
+            return;
+        if (len >= 2 && tryMergeInst3(ptr[size() - 2], ptr[size() - 1], inst))
             return;
         push_back(std::move(inst));
     }
