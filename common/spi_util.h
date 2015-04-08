@@ -3,6 +3,6 @@
 
 #include <nacs-xspi/xspi.h>
 
-int SPI_init(XSpi *spi, uint16_t id);
+void SPI_init(XSpi *spi, unsigned id);
 
 #endif

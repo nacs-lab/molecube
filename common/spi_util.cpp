@@ -1,20 +1,15 @@
 #include "spi_util.h"
 
 #include <nacs-utils/log.h>
-#include <nacs-xspi/xspi_l.h>
 
-#include <inttypes.h>
-
-int
-SPI_init(XSpi *spi, uint16_t id)
+void
+SPI_init(XSpi *spi, unsigned id)
 {
-    int s = XSpi_Initialize(spi, id);
-
-    if (XST_SUCCESS == s) {
-        nacsInfo("spi<%" PRIu16 "> initialized successfully\n", id);
-        nacsInfo("spi<%" PRIu16 "> base address: %p\n", id, spi->BaseAddr);
+    if (XSpi_Initialize(spi, uint16_t(id)) == XST_SUCCESS) {
+        nacsInfo("spi<%d> initialized successfully\n", id);
+        nacsInfo("spi<%d> base address: %p\n", id, spi->BaseAddr);
     } else {
-        nacsError("spi<%" PRIu16 "> failed to initialize\n", id);
+        nacsError("spi<%d> failed to initialize\n", id);
     }
 
     /*
@@ -22,7 +17,7 @@ SPI_init(XSpi *spi, uint16_t id)
      */
     XSpi_SetOptions(spi, (XSP_MASTER_OPTION | XSP_MANUAL_SSELECT_OPTION |
                           XSP_CLK_ACTIVE_LOW_OPTION));
-    s = XSpi_Start(spi);
+    XSpi_Start(spi);
 
     /*
      * Disable Global interrupt to use polled mode operation
@@ -32,6 +27,4 @@ SPI_init(XSpi *spi, uint16_t id)
     // turn off inhibit
     XSpi_SetControlReg(spi, (XSpi_GetControlReg(spi) &
                              ~XSP_CR_TRANS_INHIBIT_MASK));
-
-    return s;
 }

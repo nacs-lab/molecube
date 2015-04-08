@@ -266,10 +266,10 @@ typedef struct {
  * variable of this type for every SPI device in the system. A pointer
  * to a variable of this type is then passed to the driver API functions.
  */
-typedef struct {
+struct XSpi {
     volatile char *BaseAddr; /**< Base address of device (IPIF) */
     uint32_t SlaveSelectMask; /**< Mask that matches the number of SS bits */
-} XSpi;
+};
 
 /**
  *

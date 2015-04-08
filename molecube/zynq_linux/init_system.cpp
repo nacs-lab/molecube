@@ -43,7 +43,7 @@ init_system()
     ctrl.run(ClearTimingCheck());
 
     XSpi spis[2] = {};
-    for (uint16_t i = 0; i < 2; i++) {
+    for (unsigned i = 0; i < 2; i++) {
         nacsInfo("Initializing SPI %d.\n", i);
         SPI_init(spis + i, i);
     }
