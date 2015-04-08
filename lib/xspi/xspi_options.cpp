@@ -61,13 +61,8 @@
 *
 ******************************************************************************/
 
-/***************************** Include Files *********************************/
-
 #include "xspi.h"
 #include "xspi_i.h"
-#include <assert.h>
-
-/************************** Variable Definitions *****************************/
 
 /*
  * Create the table of options which are processed to get/set the device
@@ -79,7 +74,7 @@ typedef struct {
     uint32_t Mask;
 } OptionsMap;
 
-static OptionsMap OptionsTable[] = {
+constexpr static OptionsMap OptionsTable[] = {
     {XSP_LOOPBACK_OPTION, XSP_CR_LOOPBACK_MASK},
     {XSP_CLK_ACTIVE_LOW_OPTION, XSP_CR_CLK_POLARITY_MASK},
     {XSP_CLK_PHASE_1_OPTION, XSP_CR_CLK_PHASE_MASK},
@@ -122,28 +117,6 @@ static OptionsMap OptionsTable[] = {
 NACS_EXPORT int
 XSpi_SetOptions(XSpi *InstancePtr, uint32_t Options)
 {
-    assert(InstancePtr != nullptr);
-    assert(InstancePtr->IsReady == XSPI_IS_READY);
-
-    /*
-     * Do not allow the slave select to change while a transfer is in
-     * progress.
-     * No need to worry about a critical section here since even if the Isr
-     * changes the busy flag just after we read it, the function will return
-     * busy and the caller can retry when notified that their current
-     * transfer is done.
-     */
-    if (InstancePtr->IsBusy) {
-        return XST_DEVICE_BUSY;
-    }
-
-    /*
-     * Do not allow master option to be set if the device is slave only.
-     */
-    if ((Options & XSP_MASTER_OPTION) && (InstancePtr->SlaveOnly)) {
-        return XST_SPI_SLAVE_ONLY;
-    }
-
     uint32_t ControlReg = XSpi_GetControlReg(InstancePtr);
 
     /*
@@ -171,47 +144,4 @@ XSpi_SetOptions(XSpi *InstancePtr, uint32_t Options)
     XSpi_SetControlReg(InstancePtr, ControlReg);
 
     return XST_SUCCESS;
-}
-
-/*****************************************************************************/
-/**
-*
-* This function gets the options for the SPI device. The options control how
-* the device behaves relative to the SPI bus.
-*
-* @param	InstancePtr is a pointer to the XSpi instance to be worked on.
-*
-* @return
-*
-* Options contains the specified options to be set. This is a bit mask where a
-* 1 means to turn the option on, and a 0 means to turn the option off. One or
-* more bit values may be contained in the mask. See the bit definitions named
-* XSP_*_OPTIONS in the file xspi.h.
-*
-* @note		None.
-*
-******************************************************************************/
-uint32_t
-XSpi_GetOptions(XSpi *InstancePtr)
-{
-    assert(InstancePtr != nullptr);
-    assert(InstancePtr->IsReady == XSPI_IS_READY);
-
-    /*
-     * Get the control register to determine which options are currently
-     * set.
-     */
-    uint32_t ControlReg = XSpi_GetControlReg(InstancePtr);
-
-    /*
-     * Loop through the options table to determine which options are set.
-     */
-    uint32_t OptionsFlag = 0;
-    for (uint32_t Index = 0; Index < XSP_NUM_OPTIONS; Index++) {
-        if (ControlReg & OptionsTable[Index].Mask) {
-            OptionsFlag |= OptionsTable[Index].Option;
-        }
-    }
-
-    return OptionsFlag;
 }

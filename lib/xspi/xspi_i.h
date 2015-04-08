@@ -72,8 +72,4 @@
 
 void XSpi_Abort(XSpi *InstancePtr);
 
-/************************** Variable Definitions *****************************/
-
-extern XSpi_Config XSpi_ConfigTable[];
-
 #endif

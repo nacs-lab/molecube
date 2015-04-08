@@ -1,8 +1,5 @@
 set(nacs_xspi_SRCS
-  # xspi_stats.cpp
-  xspi_g.cpp
   xspi_sinit.cpp
-  # xspi_selftest.cpp
   xspi_options.cpp
   xspi.cpp)
 set(nacs_xspi_LINKS nacs-utils pthread)

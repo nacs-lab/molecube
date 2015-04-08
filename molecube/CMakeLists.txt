@@ -1,5 +1,3 @@
-add_definitions(-DNSPI=2)
-
 # Current directory
 include_directories(include zynq_linux)
 
@@ -18,7 +16,6 @@ set(SOURCES ${SOURCES}
   ../common/linux_file_util.cpp
   ../common/verbosity.cpp
   ../common/spi_util.cpp
-  ../common/fpga.cpp
   ../common/AD9914.cpp
   ../common/string_func.cpp)
 

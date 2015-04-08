@@ -3,100 +3,16 @@
 #include <nacs-utils/log.h>
 #include <nacs-xspi/xspi_l.h>
 
-#include <endian.h>
 #include <inttypes.h>
 
-#define DEBUG_SPI (0)
-
-unsigned SPI_Transmit16(spi_p spi, unsigned short *dataTX,
-                        unsigned short *dataRC)
-{
-    unsigned short tx2 = htobe16(*dataTX);
-    unsigned short rc2 = 0;
-
-    uint8_t* tx = (uint8_t*)(&tx2);
-    uint8_t* rc = (uint8_t*)(&rc2);
-
-    if (DEBUG_SPI)
-        printf("spi <- tx =%08x\n", (unsigned)*dataTX);
-
-    SPI_SetSlaveSelect(spi, 1);
-    int s = XSpi_Transfer(spi, tx, rc, 2);
-    SPI_SetSlaveSelect(spi, 0);
-
-    *dataRC = be16toh(rc2);
-
-    if (DEBUG_SPI)
-        printf("spi -> rc =%08x\n", (unsigned)*dataRC);
-
-    return s;
-}
-
-unsigned SPI_Transmit(spi_p spi, unsigned* dataTX, unsigned* dataRC, unsigned nBytes)
-{
-
-    uint8_t* tx = (uint8_t*)dataTX;
-    uint8_t* rc = (uint8_t*)dataRC;
-
-    if (DEBUG_SPI)
-        printf("spi <- tx =%08x\n", *dataTX);
-
-    SPI_SetSlaveSelect(spi, 1);
-    int s = XSpi_Transfer(spi, tx, rc, nBytes);
-    SPI_SetSlaveSelect(spi, 0);
-    /*
-      switch(s){
-      case XST_DEVICE_IS_STOPPED : printf("SPI failure.  XST_DEVICE_IS_STOPPED\n"); break;
-      case XST_DEVICE_BUSY : printf("SPI failure.  XST_DEVICE_BUSY\n"); break;
-      case XST_SPI_NO_SLAVE : printf("SPI failure.  XST_SPI_NO_SLAVE\n"); break;
-      }
-    */
-    if (DEBUG_SPI)
-        printf("spi -> rc =%08x\n", *dataRC);
-
-    return s;
-}
-
-//optimized copy of the Xilinx driver function
-int SPI_SetSlaveSelect(spi_p  InstancePtr, unsigned SlaveMask)
-{
-    /*
-     * A single slave is either being selected or the incoming SlaveMask is
-     * zero, which means the slave is being deselected. Setup the value to
-     * be  written to the slave select register as the inverse of the slave
-     * mask.
-     */
-
-    InstancePtr->SlaveSelectReg = ~SlaveMask;
-    XSpi_SetSlaveSelectReg(InstancePtr, InstancePtr->SlaveSelectReg);
-
-    return XST_SUCCESS;
-}
-
 int
-SPI_init(spi_p spi, uint16_t id, bool bActiveLow, char clockPhase)
+SPI_init(XSpi *spi, uint16_t id)
 {
     int s = XSpi_Initialize(spi, id);
 
-    //not sure why the driver sometimes returns XST_DEVICE_IS_STARTED on startup
-    if (XST_DEVICE_IS_STARTED == s) {
-        nacsLog("spi<%" PRIu16 "> already started. Stopping...\n", id);
-
-        //Xilinx docs say to stop device and re-initialize
-        XSpi_Stop(spi);
-        s = XSpi_Initialize(spi, id);
-    }
     if (XST_SUCCESS == s) {
         nacsInfo("spi<%" PRIu16 "> initialized successfully\n", id);
         nacsInfo("spi<%" PRIu16 "> base address: %p\n", id, spi->BaseAddr);
-
-        if (bActiveLow) {
-            nacsInfo("spi<%" PRIu16 "> active low\n", id);
-        } else {
-            nacsInfo("spi<%" PRIu16 "> active high\n", id);
-        }
-
-        nacsInfo("spi<%" PRIu16 "> clock phase = %d\n", id, (int)clockPhase);
     } else {
         nacsError("spi<%" PRIu16 "> failed to initialize\n", id);
     }
@@ -104,17 +20,8 @@ SPI_init(spi_p spi, uint16_t id, bool bActiveLow, char clockPhase)
     /*
      * Set the Spi device as a master, and toggle SSELECT manually.
      */
-    unsigned options = XSP_MASTER_OPTION | XSP_MANUAL_SSELECT_OPTION;
-
-    // unsigned options = XSP_MASTER_OPTION;
-
-    if (bActiveLow) //Clock idles high
-        options |= XSP_CLK_ACTIVE_LOW_OPTION;
-
-    if (clockPhase) //Data is valid on 2nd clock edge
-        options |= XSP_CLK_PHASE_1_OPTION;
-
-    XSpi_SetOptions(spi, options);
+    XSpi_SetOptions(spi, (XSP_MASTER_OPTION | XSP_MANUAL_SSELECT_OPTION |
+                          XSP_CLK_ACTIVE_LOW_OPTION));
     s = XSpi_Start(spi);
 
     /*
@@ -122,89 +29,9 @@ SPI_init(spi_p spi, uint16_t id, bool bActiveLow, char clockPhase)
      */
     XSpi_IntrGlobalDisable(spi);
 
-    //turn off inhibit
-    uint32_t ControlReg = XSpi_GetControlReg(spi);
-    ControlReg &= ~XSP_CR_TRANS_INHIBIT_MASK;
-    XSpi_SetControlReg(spi,  ControlReg);
-
-    // SPI_SetSlaveSelect(spi, 1);
+    // turn off inhibit
+    XSpi_SetControlReg(spi, (XSpi_GetControlReg(spi) &
+                             ~XSP_CR_TRANS_INHIBIT_MASK));
 
     return s;
-}
-
-/******************************************************************************/
-uint16_t SPI_Transfer2(spi_p InstancePtr, uint16_t tx)
-{
-    // printf("SPI_Transfer2\n");
-
-    uint16_t rcv;
-
-    /*
-     * Set the busy flag, which will be cleared when the transfer
-     * is completely done.
-     */
-    InstancePtr->IsBusy = true;
-
-
-    // TX should be empty from previous transmission
-    // transfer data to SPI transmitter
-    mem_write16(InstancePtr->BaseAddr + XSP_DTR_OFFSET - 1, tx);
-
-
-    /*
-     * Wait for the transfer to be done by polling the transmit
-     * empty status bit
-     */
-    uint32_t StatusReg;
-    do {
-        StatusReg = XSpi_GetStatusReg(InstancePtr);
-    } while ((StatusReg & XSP_SR_TX_EMPTY_MASK) == 0);
-
-
-    do {
-        rcv = mem_read16(InstancePtr->BaseAddr + XSP_DRR_OFFSET - 1);
-        StatusReg = XSpi_GetStatusReg(InstancePtr);
-    } while ((StatusReg & XSP_SR_RX_EMPTY_MASK) == 0);
-
-    InstancePtr->IsBusy = false;
-
-    return rcv;
-}
-
-uint16_t SPI_Transfer_ADS8361(spi_p  InstancePtr, unsigned tx)
-{
-    uint32_t rcv;
-
-    /*
-     * Set the busy flag, which will be cleared when the transfer
-     * is completely done.
-     */
-    InstancePtr->IsBusy = true;
-
-    //TX should be empty from previous transmission
-    //transfer data to SPI transmitter
-    mem_write32(InstancePtr->BaseAddr + XSP_DTR_OFFSET - 3, tx);
-
-    /*
-     * Wait for the transfer to be done by polling the transmit
-     * empty status bit
-     */
-    uint32_t StatusReg;
-    do {
-        StatusReg = XSpi_GetStatusReg(InstancePtr);
-    } while ((StatusReg & XSP_SR_TX_EMPTY_MASK) == 0);
-
-    do {
-        rcv = mem_read32(InstancePtr->BaseAddr + XSP_DRR_OFFSET - 3);
-        StatusReg = XSpi_GetStatusReg(InstancePtr);
-    } while ((StatusReg & XSP_SR_RX_EMPTY_MASK) == 0);
-
-    InstancePtr->IsBusy = false;
-
-    return uint16_t((rcv >> 12) + 32768);
-}
-
-void Spi_Transfer(spi_p spi, uint8_t* tx, uint8_t* rc, unsigned nBytes)
-{
-    XSpi_Transfer(spi, tx, rc, nBytes);
 }
