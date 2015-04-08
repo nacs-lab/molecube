@@ -1,9 +1,9 @@
 #include "driver.h"
+#include "xparameters.h"
 
 #include <nacs-utils/utils.h>
 #include <nacs-utils/fd_utils.h>
 #include <nacs-utils/log.h>
-#include <nacs-xspi/xparameters.h>
 
 namespace NaCs {
 namespace Pulser {

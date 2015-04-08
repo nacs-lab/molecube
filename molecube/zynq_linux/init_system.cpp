@@ -4,7 +4,6 @@
 #include <nacs-utils/number.h>
 #include <nacs-pulser/controller.h>
 
-#include "spi_util.h"
 #include "AD9914.h"
 #include "common.h"
 
@@ -41,12 +40,6 @@ init_system()
     nacsLog("Initializing pulse controller...done.\n");
 
     ctrl.run(ClearTimingCheck());
-
-    XSpi spis[2] = {};
-    for (unsigned i = 0; i < 2; i++) {
-        nacsInfo("Initializing SPI %d.\n", i);
-        SPI_init(spis + i, i);
-    }
 
     // detect active DDS
     for (unsigned j = 0;j < PULSER_MAX_NDDS;j++) {

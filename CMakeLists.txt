@@ -24,7 +24,6 @@ if(NOT CMAKE_C_COMPILER MATCHES clang)
 endif()
 
 cmake_c_fix_include_path(lib/utils nacs-utils)
-cmake_c_fix_include_path(lib/xspi nacs-xspi)
 cmake_c_fix_include_path(lib/pulser nacs-pulser)
 cmake_c_fix_include_path("${CMAKE_CURRENT_BINARY_DIR}/lib/pulser"
   nacs-pulser bin)

@@ -15,13 +15,12 @@ set(SOURCES ${SOURCES}
   ../common/CmdLineArgs.cpp
   ../common/linux_file_util.cpp
   ../common/verbosity.cpp
-  ../common/spi_util.cpp
   ../common/AD9914.cpp
   ../common/string_func.cpp)
 
 add_executable(molecube ${SOURCES})
 
 target_link_libraries(molecube rt cgicc fcgi fcgi++
-  nacs-utils nacs-xspi nacs-pulser)
+  nacs-utils nacs-pulser)
 
 install(TARGETS molecube DESTINATION "${CMAKE_INSTALL_BINDIR}")
