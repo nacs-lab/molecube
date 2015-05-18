@@ -33,3 +33,7 @@ target_link_libraries(test-program_request nacs-utils nacs-pulser)
 set(test_loopback_SOURCES test_loopback.cpp)
 add_executable(test-loopback ${test_loopback_SOURCES})
 target_link_libraries(test-loopback nacs-utils nacs-pulser)
+
+set(test_regs_SOURCES test_regs.cpp)
+add_executable(test-regs ${test_regs_SOURCES})
+target_link_libraries(test-regs nacs-utils nacs-pulser)
