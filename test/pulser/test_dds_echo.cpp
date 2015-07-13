@@ -11,15 +11,22 @@ void
 test_dds(Pulser::Controller &ctrl, int dds_id, unsigned freq_step,
          unsigned num_steps, unsigned &fails, unsigned &runs)
 {
+    unsigned tested0 = 0;
+    unsigned tested1 = 0;
     for (unsigned i = 0;i < num_steps;i++) {
         runs++;
         unsigned fword = (i + 1) * freq_step - 1;
+        tested0 = tested0 | ~fword;
+        tested1 = tested1 | fword;
         ctrl.run(Pulser::DDSSetFreq(dds_id, fword));
         unsigned read = ctrl.run(Pulser::DDSGetFreq(dds_id));
         if (read != fword) {
+            printf("expect: %04x, got: %04x\n", fword, read);
             fails++;
         }
     }
+    printf("tested0: %04x\n", tested0);
+    printf("tested1: %04x\n", tested1);
 }
 
 int
@@ -28,7 +35,7 @@ main()
     double fails[ndds] = {0.0};
     double runs[ndds] = {0.0};
     double fails2[ndds] = {0.0};
-    const constexpr int ncycle = 0x100;
+    const constexpr int ncycle = 10;
     bool dds_exists[ndds] = {};
     Pulser::Controller ctrl(Pulser::mapPulserAddr());
     Pulser::CtrlLocker locker(ctrl);
@@ -48,7 +55,7 @@ main()
                 continue;
             unsigned nfail = 0;
             unsigned nrun = 0;
-            test_dds(ctrl, dds, 0x80000, 0x800, nfail, nrun);
+            test_dds(ctrl, dds, 0x80101, 0x1600, nfail, nrun);
             fails[dds] += double(nfail) / ncycle;
             runs[dds] += double(nrun) / ncycle;
             fails2[dds] += square(double(nfail)) / ncycle;
