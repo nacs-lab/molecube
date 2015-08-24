@@ -45,11 +45,11 @@ runWaitMeta(Controller *__restrict__ ctrler, CtrlState *__restrict__ state,
     } else if (t < 10000) {
         uint32_t t32 = uint32_t(t);
         state->wait_time += t32;
-        if (state->wait_time > 8192 | t >= 1024) {
+        if (state->wait_time > 8192 || t >= 1024) {
             state->wait_time = 0;
             // Allocate 1.28us for each pulse (except the first one)
             uint32_t max_requests = (t32 - 50) / 256 + 1;
-            t32 -= ctrler->writeRequests(max_requests, false, flags);
+            t32 -= (uint32_t)ctrler->writeRequests(max_requests, false, flags);
         }
         ctrler->shortPulse(0x20000000 | t32 | flags, 0);
         return;
@@ -112,7 +112,7 @@ runMetaInstruction(Controller *__restrict__ ctrler,
     case ControlBit::DDSShiftPhaseMeta:
         // Truncate ctrl to 16 bits to get phase
         runDDSSetPhase(ctrler, state, int(op),
-                       uint16_t(ctrl) + state->dds_phases[op]);
+                       uint16_t(ctrl + state->dds_phases[op]));
         break;
     case ControlBit::TimingCheckMeta:
         state->timing_check = bool(op);

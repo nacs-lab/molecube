@@ -20,7 +20,7 @@ struct BaseCmd {
 
 template<bool has_res>
 struct SimpleCmd : BaseCmd<has_res> {
-    SimpleCmd(uint32_t ctrl, uint32_t op, uint64_t len)
+    constexpr SimpleCmd(uint32_t ctrl, uint32_t op, uint64_t len)
         : m_ctrl(ctrl), m_op(op), m_len(len)
     {}
     constexpr uint64_t
@@ -56,8 +56,8 @@ struct _isCmdType : std::false_type {};
 template<template<bool> class CmdType, typename T>
 struct _isCmdType<CmdType, T,
                   std::enable_if_t<
-                      isBaseOf<CmdType<std::decay_t<T>::has_res>,
-                               T>>> : std::true_type {
+                      isBaseOf<CmdType<true>, T> ||
+                      isBaseOf<CmdType<false>, T>>> : std::true_type {
 };
 
 template<typename T>
@@ -70,14 +70,14 @@ static constexpr bool isSimpleCmd = _isCmdType<SimpleCmd, T>::value;
 // in pulse controller timing units (DT_ns)
 // divider = 255 means disable
 struct ClockOut : SimpleCmd<false> {
-    ClockOut(uint32_t divider)
+    constexpr ClockOut(uint32_t divider)
         : SimpleCmd<false>(0x50000000, divider & 0xff, 5)
     {}
 };
 
 template<bool has_res>
 struct DDSCmd : SimpleCmd<has_res> {
-    DDSCmd(uint32_t ctrl, uint32_t op)
+    constexpr DDSCmd(uint32_t ctrl, uint32_t op)
         : SimpleCmd<has_res>(0x10000000 | ctrl, op, 50)
     {}
 };
@@ -87,7 +87,7 @@ struct DDSCmd : SimpleCmd<has_res> {
 struct DDSSetTwoBytes : DDSCmd<false> {
     // put addr in bits 15...9 (maps to DDS opcode_reg[14:9])?
     // put data in bits 15...0 (maps to DDS operand_reg[15:0])?
-    DDSSetTwoBytes(int i, uint32_t addr, uint32_t data)
+    constexpr DDSSetTwoBytes(int i, uint32_t addr, uint32_t data)
         : DDSCmd<false>(0x2 | (i << 4) | (((addr + 1) & 0x7f) << 9),
                         data & 0xffff)
     {}
@@ -96,7 +96,7 @@ struct DDSSetTwoBytes : DDSCmd<false> {
 // set bytes addr + 3 ... addr
 struct DDSSetFourBytes : DDSCmd<false> {
     // put addr in bits 15...9 (maps to DDS opcode_reg[14:9])?
-    DDSSetFourBytes(int i, uint32_t addr, uint32_t data)
+    constexpr DDSSetFourBytes(int i, uint32_t addr, uint32_t data)
         : DDSCmd<false>(0xf | (i << 4) | (((addr + 1) & 0x7f) << 9), data)
     {}
 };
@@ -104,7 +104,7 @@ struct DDSSetFourBytes : DDSCmd<false> {
 // make dummy pulses
 // if t > t_max, subdivide into shorter pulses
 struct WaitPulse : BaseCmd<false> {
-    WaitPulse(uint64_t t)
+    constexpr WaitPulse(uint64_t t)
         : m_t(t)
     {}
     constexpr uint64_t
@@ -131,7 +131,7 @@ private:
 // make timed pulses
 // if t > t_max, subdivide into shorter pulses
 struct TTLPulse : BaseCmd<false> {
-    TTLPulse(uint64_t t, uint32_t val)
+    constexpr TTLPulse(uint64_t t, uint32_t val)
         : m_t(t), m_val(val)
     {}
     constexpr uint64_t
@@ -163,76 +163,76 @@ private:
 
 // clear timing check (clear failures)
 struct ClearTimingCheck : SimpleCmd<false> {
-    ClearTimingCheck() : SimpleCmd<false>(0x30000000, 0, 5)
+    constexpr ClearTimingCheck() : SimpleCmd<false>(0x30000000, 0, 5)
     {}
 };
 
 struct LoopBack : SimpleCmd<true> {
-    LoopBack(uint32_t data) : SimpleCmd<true>(0x40000000, data, 5)
+    constexpr LoopBack(uint32_t data) : SimpleCmd<true>(0x40000000, data, 5)
     {}
 };
 
 struct DDSSetFreq : DDSCmd<false> {
-    DDSSetFreq(int i, uint32_t ftw)
+    constexpr DDSSetFreq(int i, uint32_t ftw)
         : DDSCmd<false>(i << 4, ftw)
     {}
 };
 
 struct DDSSetFreqF : DDSSetFreq {
-    DDSSetFreqF(int i, double f)
+    constexpr DDSSetFreqF(int i, double f)
         : DDSSetFreq(i, DDSCvt::freq2num(f, PULSER_AD9914_CLK))
     {}
 };
 
 struct DDSSetAmp : DDSSetTwoBytes {
-    DDSSetAmp(int i, uint32_t amp)
+    constexpr DDSSetAmp(int i, uint32_t amp)
         : DDSSetTwoBytes(i, 0x32, amp)
     {}
 };
 
 struct DDSSetAmpF : DDSSetAmp {
-    DDSSetAmpF(int i, double amp)
+    constexpr DDSSetAmpF(int i, double amp)
         : DDSSetAmp(i, DDSCvt::amp2num(amp))
     {}
 };
 
 struct DDSSetPhase : DDSSetTwoBytes {
-    DDSSetPhase(int i, uint16_t phase)
+    constexpr DDSSetPhase(int i, uint16_t phase)
         : DDSSetTwoBytes(i, 0x30, phase)
     {}
 };
 
 struct DDSSetPhaseF : DDSSetPhase {
-    DDSSetPhaseF(int i, double phase)
+    constexpr DDSSetPhaseF(int i, double phase)
         : DDSSetPhase(i, DDSCvt::phase2num(phase))
     {}
 };
 
 struct DDSReset : DDSCmd<false> {
-    DDSReset(int i)
+    constexpr DDSReset(int i)
         : DDSCmd<false>(0x4 | (i << 4), 0)
     {}
 };
 
 // reset DDS selected by bitmask mask
 struct DDSResetSel : DDSCmd<false> {
-    DDSResetSel(uint32_t mask)
+    constexpr DDSResetSel(uint32_t mask)
         : DDSCmd<false>(0x5, mask)
     {}
 };
 
 struct DDSSetSel : DDSCmd<false> {
-    DDSSetSel(uint32_t mask)
+    constexpr DDSSetSel(uint32_t mask)
         : DDSCmd<false>(0x6, mask)
     {}
 };
 
 // get byte from address on DDS i
 struct DDSGetByte : DDSCmd<true> {
-    DDSGetByte(int i, uint32_t addr)
+    constexpr DDSGetByte(int i, uint32_t addr)
         : DDSCmd<true>(0x3 | (i << 4) | (addr << 9), 0)
     {}
-    static inline uint32_t
+    static inline constexpr uint32_t
     convertRes(uint32_t res)
     {
         return (res >> 8) & 0x000000ff;
@@ -241,10 +241,10 @@ struct DDSGetByte : DDSCmd<true> {
 
 // get two bytes from address + 1 ... adress on DDS i
 struct DDSGetTwoBytes : DDSCmd<true> {
-    DDSGetTwoBytes(int i, uint32_t addr)
+    constexpr DDSGetTwoBytes(int i, uint32_t addr)
         : DDSCmd<true>(0x3 | (i << 4) | ((addr + 1) << 9), 0)
     {}
-    static inline uint32_t
+    static inline constexpr uint32_t
     convertRes(uint32_t res)
     {
         return res & 0x0000ffff;
@@ -252,20 +252,20 @@ struct DDSGetTwoBytes : DDSCmd<true> {
 };
 
 struct DDSGetFourBytes : DDSCmd<true> {
-    DDSGetFourBytes(int i, uint32_t addr)
+    constexpr DDSGetFourBytes(int i, uint32_t addr)
         : DDSCmd<true>(0xe | (i << 4) | ((addr + 1) << 9), 0)
     {}
 };
 
 struct DDSGetPhase : DDSGetTwoBytes {
-    DDSGetPhase(int i)
+    constexpr DDSGetPhase(int i)
         : DDSGetTwoBytes(i, 0x30)
     {}
 };
 
 struct DDSGetPhaseF : DDSGetPhase {
     using DDSGetPhase::DDSGetPhase;
-    static inline double
+    static inline constexpr double
     convertRes(uint32_t res)
     {
         return DDSCvt::num2phase(res);
@@ -273,14 +273,14 @@ struct DDSGetPhaseF : DDSGetPhase {
 };
 
 struct DDSGetAmp : DDSGetTwoBytes {
-    DDSGetAmp(int i)
+    constexpr DDSGetAmp(int i)
         : DDSGetTwoBytes(i, 0x32)
     {}
 };
 
 struct DDSGetAmpF : DDSGetAmp {
     using DDSGetAmp::DDSGetAmp;
-    static inline double
+    static inline constexpr double
     convertRes(uint32_t res)
     {
         return DDSCvt::num2amp(res);
