@@ -75,6 +75,44 @@ struct ClockOut : SimpleCmd<false> {
     {}
 };
 
+struct SPICmd : SimpleCmd<false> {
+private:
+    constexpr SPICmd(uint32_t opcode, uint32_t data, uint32_t t)
+        : SimpleCmd<false>(opcode | 0x60000000, data, t)
+    {}
+    static constexpr uint32_t getOpcode(uint8_t clk_div, uint8_t spi_id,
+                                        uint8_t nbytes)
+    {
+        return ((uint32_t(spi_id & 3) << 11) |
+                ((uint32_t(nbytes - 1) & 3) << 8) | clk_div);
+    }
+    static constexpr uint32_t getTime(uint8_t clk_div, uint8_t nbytes)
+    {
+        return uint32_t(nbytes * 2 + 1) * 2 * (clk_div + 1);
+    }
+public:
+    constexpr SPICmd(uint8_t clk_div, uint8_t spi_id,
+                     uint8_t nbytes, uint32_t data)
+        : SPICmd(getOpcode(clk_div, spi_id, nbytes), data,
+                 getTime(clk_div, nbytes))
+    {}
+};
+
+struct DACSetVolt : SPICmd {
+private:
+    static constexpr uint32_t getData(uint8_t dac, double volt)
+    {
+        // this is for the DAC8814 chip in SPI0
+        double scale = 65535 / 20.0;
+        double offset = 10.0;
+        return ((dac & 3) << 16) | uint32_t(((offset - volt) * scale) + 0.5);
+    }
+public:
+    constexpr DACSetVolt(uint8_t dac, double volt)
+        : SPICmd(4, 0, 3, getData(dac, volt))
+    {}
+};
+
 template<bool has_res>
 struct DDSCmd : SimpleCmd<has_res> {
     constexpr DDSCmd(uint32_t ctrl, uint32_t op)

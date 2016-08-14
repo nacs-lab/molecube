@@ -123,6 +123,22 @@ parseClockOut(Pulser::BlockBuilder &builder, std::string &arg1, uint64_t *tp)
 }
 
 static Pulser::Instruction
+parseDACSetVolt(Pulser::BlockBuilder &builder, std::string &arg1,
+                std::istream &s, uint64_t *tp)
+{
+    int chn = -1;
+    double operand = 0;
+
+    if (get_channel_and_operand(arg1, s, &chn, &operand)) {
+        if (chn > 3)
+            throw parseError(builder,
+                             "Invalid DAC (" + std::to_string(chn) + ")");
+        return Inst::dacSetVolt(uint8_t(chn), operand);
+    }
+    throw parseError(builder, "Failed to parse DAC command.");
+}
+
+static Pulser::Instruction
 parseTTL(Pulser::BlockBuilder &builder, std::string &arg1, std::istream &s,
          uint64_t *tp)
 {
@@ -170,27 +186,26 @@ parseCommand(Pulser::BlockBuilder &builder, std::string &cmd,
     if (cmd.find("TTL") != std::string::npos)
         return parseTTL(builder, arg1, s, tp);
 
-    if (cmd.find("freq") != std::string::npos) {
+    if (cmd.find("freq") != std::string::npos)
         return parseDDS(builder, arg1, s, Inst::DDS::setFreqF, tp);
-    }
 
-    if (cmd.find("amp") != std::string::npos) {
+    if (cmd.find("amp") != std::string::npos)
         return parseDDS(builder, arg1, s, Inst::DDS::setAmpF, tp);
-    }
 
-    if (cmd.find("phase") != std::string::npos) {
+    if (cmd.find("phase") != std::string::npos)
         return parseDDS(builder, arg1, s, Inst::DDS::setPhaseF, tp);
-    }
 
-    if (cmd.find("shiftp") != std::string::npos) {
+    if (cmd.find("shiftp") != std::string::npos)
         return parseDDS(builder, arg1, s, Inst::DDS::shiftPhaseF, tp);
-    }
 
     if (cmd.find("reset") != std::string::npos)
         return parseReset(builder, arg1, s, tp);
 
     if (cmd.find("CLOCK_OUT") != std::string::npos)
         return parseClockOut(builder, arg1, tp);
+
+    if (cmd.find("dac") != std::string::npos)
+        return parseDACSetVolt(builder, arg1, s, tp);
 
     throw parseError(builder, "Unknown command.");
 }

@@ -200,6 +200,13 @@ public:
         accumTime(tp, 5);
         return ClockOut(div);
     }
+    static inline Instruction
+    dacSetVolt(uint8_t dac, double volt, uint64_t *tp=nullptr)
+    {
+        DACSetVolt cmd{dac, volt};
+        accumTime(tp, cmd.length());
+        return cmd;
+    }
 };
 
 void runInstructionList(Controller *__restrict__ ctrler,
