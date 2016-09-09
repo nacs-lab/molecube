@@ -80,16 +80,13 @@ private:
     constexpr SPICmd(uint32_t opcode, uint32_t data)
         : SimpleCmd<false>(opcode | 0x60000000, data, 250)
     {}
-    static constexpr uint32_t getOpcode(uint8_t clk_div, uint8_t spi_id,
-                                        uint8_t nbytes)
+    static constexpr uint32_t getOpcode(uint8_t clk_div, uint8_t spi_id)
     {
-        return ((uint32_t(spi_id & 3) << 11) |
-                ((uint32_t(nbytes - 1) & 3) << 8) | clk_div);
+        return ((uint32_t(spi_id & 3) << 11) | clk_div);
     }
 public:
-    constexpr SPICmd(uint8_t clk_div, uint8_t spi_id,
-                     uint8_t nbytes, uint32_t data)
-        : SPICmd(getOpcode(clk_div, spi_id, nbytes), data)
+    constexpr SPICmd(uint8_t clk_div, uint8_t spi_id, uint32_t data)
+        : SPICmd(getOpcode(clk_div, spi_id), data)
     {}
 };
 
@@ -104,7 +101,7 @@ private:
     }
 public:
     constexpr DACSetVolt(uint8_t dac, double volt)
-        : SPICmd(4, 0, 3, getData(dac, volt))
+        : SPICmd(4, 0, getData(dac, volt))
     {}
 };
 
