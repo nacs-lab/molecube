@@ -77,8 +77,8 @@ struct ClockOut : SimpleCmd<false> {
 
 struct SPICmd : SimpleCmd<false> {
 private:
-    constexpr SPICmd(uint32_t opcode, uint32_t data, uint32_t t)
-        : SimpleCmd<false>(opcode | 0x60000000, data, t)
+    constexpr SPICmd(uint32_t opcode, uint32_t data)
+        : SimpleCmd<false>(opcode | 0x60000000, data, 250)
     {}
     static constexpr uint32_t getOpcode(uint8_t clk_div, uint8_t spi_id,
                                         uint8_t nbytes)
@@ -86,15 +86,10 @@ private:
         return ((uint32_t(spi_id & 3) << 11) |
                 ((uint32_t(nbytes - 1) & 3) << 8) | clk_div);
     }
-    static constexpr uint32_t getTime(uint8_t clk_div, uint8_t nbytes)
-    {
-        return uint32_t(nbytes * 2 + 1) * 2 * (clk_div + 1);
-    }
 public:
     constexpr SPICmd(uint8_t clk_div, uint8_t spi_id,
                      uint8_t nbytes, uint32_t data)
-        : SPICmd(getOpcode(clk_div, spi_id, nbytes), data,
-                 getTime(clk_div, nbytes))
+        : SPICmd(getOpcode(clk_div, spi_id, nbytes), data)
     {}
 };
 
