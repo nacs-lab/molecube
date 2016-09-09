@@ -133,7 +133,7 @@ parseDACSetVolt(Pulser::BlockBuilder &builder, std::string &arg1,
         if (chn > 3)
             throw parseError(builder,
                              "Invalid DAC (" + std::to_string(chn) + ")");
-        return Inst::dacSetVolt(uint8_t(chn), operand);
+        return Inst::dacSetVolt(uint8_t(chn), operand, tp);
     }
     throw parseError(builder, "Failed to parse DAC command.");
 }
