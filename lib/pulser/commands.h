@@ -105,7 +105,9 @@ private:
         // this is for the DAC8814 chip in SPI0
         double scale = 65535 / 20.0;
         double offset = 10.0;
-        return ((dac & 3) << 16) | uint32_t(((offset - volt) * scale) + 0.5);
+        uint32_t data0 = (((dac & 3) << 16) |
+                          uint32_t(((offset - volt) * scale) + 0.5));
+        return data0 << 8;
     }
 public:
     constexpr DACSetVolt(uint8_t dac, double volt)
