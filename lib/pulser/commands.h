@@ -101,7 +101,7 @@ private:
     }
 public:
     constexpr DACSetVolt(uint8_t dac, double volt)
-        : SPICmd(0, 0, getData(dac, volt))
+        : SPICmd(1, 0, getData(dac, volt))
     {}
 };
 
