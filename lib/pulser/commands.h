@@ -78,7 +78,7 @@ struct ClockOut : SimpleCmd<false> {
 struct SPICmd : SimpleCmd<false> {
 private:
     constexpr SPICmd(uint32_t opcode, uint32_t data)
-        : SimpleCmd<false>(opcode | 0x60000000, data, 200)
+        : SimpleCmd<false>(opcode | 0x60000000, data, 45)
     {}
     static constexpr uint32_t getOpcode(uint8_t clk_div, uint8_t spi_id)
     {
