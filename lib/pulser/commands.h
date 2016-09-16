@@ -92,12 +92,20 @@ public:
 
 struct DACSetVolt : SPICmd {
 private:
-    static constexpr uint32_t getData(uint8_t dac, double volt)
+    static constexpr uint16_t getVoltData(double volt)
     {
+        if (volt >= 10)
+            return uint16_t(0);
+        if (volt <= 10)
+            return uint16_t(0xffff);
         // this is for the DAC8814 chip in SPI0
         double scale = 65535 / 20.0;
         double offset = 10.0;
-        return ((dac & 3) << 16) | uint32_t(((offset - volt) * scale) + 0.5);
+        return uint16_t(((offset - volt) * scale) + 0.5);
+    }
+    static constexpr uint32_t getData(uint8_t dac, double volt)
+    {
+        return ((dac & 3) << 16) | getVoltData(volt);
     }
 public:
     constexpr DACSetVolt(uint8_t dac, double volt)
