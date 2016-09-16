@@ -25,7 +25,7 @@ namespace Pulser {
 static NACS_INLINE void
 mWriteReg(volatile void *base, off_t offset, uint32_t data)
 {
-    mem_write32((volatile char*)base + offset, data);
+    Mem::write<uint32_t>((volatile char*)base + offset, data);
 }
 
 /**
@@ -42,7 +42,7 @@ mWriteReg(volatile void *base, off_t offset, uint32_t data)
 static NACS_INLINE uint32_t
 mReadReg(volatile void *base, off_t offset)
 {
-    return mem_read32((volatile char*)base + offset);
+    return Mem::read<uint32_t>((volatile char*)base + offset);
 }
 
 /**
@@ -101,7 +101,7 @@ mReset(volatile void *base)
      * -- SOFT_RESET : software reset
      */
     static constexpr uint32_t soft_reset = 0x0000000a;
-    mem_write32((volatile char*)base + rst_reg_offset, soft_reset);
+    Mem::write<uint32_t>((volatile char*)base + rst_reg_offset, soft_reset);
 }
 
 }
