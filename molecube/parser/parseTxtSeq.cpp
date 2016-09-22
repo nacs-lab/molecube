@@ -414,7 +414,8 @@ static void parseBase64Txt(const std::string &seqTxt,
     seq_builder.schedule(seq, defaults, seq_cb);
 }
 
-static StrCache<Pulser::BlockBuilder> seq_cache(100000000);
+// 256MB cache
+static StrCache<Pulser::BlockBuilder> seq_cache((size_t)256e6);
 
 // parse text-encoded pulse sequence
 static bool
@@ -434,22 +435,28 @@ parseSeqTxt(Pulser::Controller &ctrl, unsigned reps,
 
     const Pulser::BlockBuilder *builder_p = seq_cache.get(seqTxt);
 
+    uint64_t parse_time;
     if (!builder_p) {
         _builder.pushPulse(Inst::enableTimingCheck);
-        if (seqTxt[0] == '=') {
+        bool is_b64 = seqTxt[0] == '=';
+        if (is_b64) {
             parseBase64Txt(seqTxt, _builder);
         }
         else {
             parsePlainTxt(seqTxt, _builder);
         }
         _builder.finalPulse();
-        builder_p = seq_cache.set(seqTxt, std::move(_builder));
+        parse_time = toc();
+        // Only cache the sequence if it takes longer than 50ms and
+        // 20% of the sequence length to parse.
+        if (is_b64 && parse_time > 50e6 && parse_time > builder_p->currT * 2)
+            builder_p = seq_cache.set(seqTxt, std::move(_builder));
         if (!builder_p) {
             builder_p = &_builder;
         }
+    } else {
+        parse_time = toc();
     }
-
-    auto parse_time = toc();
 
     reply.printf("Parsed sequence into %zu pulses.\n", builder_p->size());
 
