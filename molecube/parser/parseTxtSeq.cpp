@@ -16,6 +16,8 @@
 #include <nacs-pulser/instruction.h>
 #include <nacs-utils/log.h>
 #include <nacs-utils/timer.h>
+#include <nacs-utils/base64.h>
+#include <nacs-seq/pulser.h>
 
 #include <sstream>
 #include <string>
@@ -265,23 +267,9 @@ parseSeqCGI(Pulser::Controller &ctrl, cgicc::Cgicc &cgi, const verbosity &reply)
     return true;
 }
 
-// parse text-encoded pulse sequence
-static bool
-parseSeqTxt(Pulser::Controller &ctrl, unsigned reps,
-            const std::string &seqTxt, bool bForever, bool debugPulses,
-            const verbosity &reply)
+static void parsePlainTxt(const std::string &seqTxt,
+                          Pulser::BlockBuilder &builder)
 {
-    printPlainResponseHeader(reply);
-
-    if (debugPulses) {
-        nacsLog("Parsing pulse sequence:%s\n", seqTxt.c_str());
-    }
-
-    tic();
-
-    Pulser::BlockBuilder builder;
-    builder.pushPulse(Inst::enableTimingCheck);
-
     // first parse and load up the pulses vector
     std::stringstream ss0(seqTxt);
 
@@ -351,6 +339,105 @@ parseSeqTxt(Pulser::Controller &ctrl, unsigned reps,
             builder.pulseAbsT(new_t, parseCommand, builder, cmd, arg1, ssL);
         }
     }
+}
+
+static constexpr int start_ttl = 0;
+static constexpr int start_ttl_mask = (1 << start_ttl);
+// Hard code clock div for now
+static constexpr int clock_div = 100;
+
+static void parseBase64Txt(const std::string &seqTxt,
+                           Pulser::BlockBuilder &builder)
+{
+    const uint8_t *data = ((const uint8_t*)seqTxt.data()) + 1;
+    size_t data_len = seqTxt.size() - 1;
+    if (!Base64::validate(data, data_len))
+        throw parseError(builder, "Invalid Base64 encoding");
+    std::vector<Seq::Pulse> seq;
+    std::map<Seq::Channel,Seq::Val> defaults;
+    std::tie(seq, defaults) = Seq::PulsesBuilder::fromBase64(data, data_len);
+    Seq::PulsesBuilder seq_builder =
+        [&] (Seq::Channel chn, Seq::Val val, uint64_t t) -> uint64_t {
+        builder.pulseAbsT(t, [&] (uint64_t *tp) {
+                switch (chn.typ) {
+                case Seq::Channel::TTL:
+                    return Inst::ttlAll(val.val.i32 & ~start_ttl_mask, tp);
+                case Seq::Channel::DDS_FREQ:
+                    return Inst::DDS::setFreqF(chn.id, val.val.f64, tp);
+                case Seq::Channel::DDS_AMP:
+                    return Inst::DDS::setAmpF(chn.id, val.val.f64, tp);
+                case Seq::Channel::DAC:
+                    return Inst::dacSetVolt(uint8_t(chn.id), val.val.f64, tp);
+                default:
+                    throw parseError(builder, "Invalid Pulse.");
+                }
+            });
+        if (chn.typ == Seq::Channel::TTL)
+            return 3;
+        return 50;
+    };
+    auto seq_cb = [&] (auto &, uint64_t cur_t, Seq::Event evt) {
+        if (evt == Seq::Event::start) {
+            // wait 10us
+            cur_t += 1000;
+            builder.pulseAbsT(cur_t, [&] (uint64_t *tp) {
+                    return Inst::ttl(start_ttl, 1, tp);
+                });
+            cur_t += 100;
+            builder.pulseAbsT(cur_t, [&] (uint64_t *tp) {
+                    return Inst::ttl(start_ttl, 0, tp);
+                });
+            cur_t += 100;
+            if (clock_div > 0) {
+                builder.pulseAbsT(cur_t, [&] (uint64_t *tp) {
+                        return Inst::clockOut(clock_div, tp);
+                    });
+                cur_t += clock_div;
+            }
+        } else {
+            // This is a hack that is believed to make the NI card happy.
+            if (clock_div > 0) {
+                cur_t += 100;
+                builder.pulseAbsT(cur_t, [&] (uint64_t *tp) {
+                        return Inst::clockOut(60, tp);
+                    });
+                cur_t += 3000;
+            }
+            // Turn off the clock even when it is not used just as a
+            // place holder for the end of the sequence.
+            builder.pulseAbsT(cur_t, [&] (uint64_t *tp) {
+                    return Inst::clockOut(255, tp);
+                });
+        }
+        return cur_t;
+    };
+    seq_builder.schedule(seq, defaults, seq_cb);
+}
+
+// parse text-encoded pulse sequence
+static bool
+parseSeqTxt(Pulser::Controller &ctrl, unsigned reps,
+            const std::string &seqTxt, bool bForever, bool debugPulses,
+            const verbosity &reply)
+{
+    printPlainResponseHeader(reply);
+
+    if (debugPulses) {
+        nacsLog("Parsing pulse sequence:%s\n", seqTxt.c_str());
+    }
+
+    tic();
+
+    Pulser::BlockBuilder builder;
+    builder.pushPulse(Inst::enableTimingCheck);
+
+    if (seqTxt[0] == '=') {
+        parseBase64Txt(seqTxt, builder);
+    }
+    else {
+        parsePlainTxt(seqTxt, builder);
+    }
+
     builder.finalPulse();
 
     auto parse_time = toc();
