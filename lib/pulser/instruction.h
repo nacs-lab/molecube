@@ -398,7 +398,7 @@ public:
     inline size_t
     cacheSize() const
     {
-        return size() + sizeof(*this);
+        return size() * sizeof(Instruction) + sizeof(*this);
     }
 };
 
