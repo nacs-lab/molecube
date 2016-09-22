@@ -390,7 +390,7 @@ static void parseBase64Txt(const std::string &seqTxt,
             cur_t += 100;
             if (clock_div > 0) {
                 builder.pulseAbsT(cur_t, [&] (uint64_t *tp) {
-                        return Inst::clockOut(clock_div, tp);
+                        return Inst::clockOut(clock_div - 1, tp);
                     });
                 cur_t += clock_div;
             }
@@ -399,7 +399,7 @@ static void parseBase64Txt(const std::string &seqTxt,
             if (clock_div > 0) {
                 cur_t += 100;
                 builder.pulseAbsT(cur_t, [&] (uint64_t *tp) {
-                        return Inst::clockOut(60, tp);
+                        return Inst::clockOut(59, tp);
                     });
                 cur_t += 3000;
             }
