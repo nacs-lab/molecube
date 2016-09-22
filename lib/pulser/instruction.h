@@ -395,6 +395,11 @@ public:
         pushPulse(InstWriter::disableTimingCheck);
         pushPulse(InstWriter::wait, 3);
     }
+    inline size_t
+    cacheSize() const
+    {
+        return size() + sizeof(*this);
+    }
 };
 
 }
