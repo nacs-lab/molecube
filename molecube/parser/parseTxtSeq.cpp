@@ -414,6 +414,8 @@ static void parseBase64Txt(const std::string &seqTxt,
     seq_builder.schedule(seq, defaults, seq_cb);
 }
 
+static StrCache<Pulser::BlockBuilder> seq_cache(100000000);
+
 // parse text-encoded pulse sequence
 static bool
 parseSeqTxt(Pulser::Controller &ctrl, unsigned reps,
@@ -428,21 +430,28 @@ parseSeqTxt(Pulser::Controller &ctrl, unsigned reps,
 
     tic();
 
-    Pulser::BlockBuilder builder;
-    builder.pushPulse(Inst::enableTimingCheck);
+    Pulser::BlockBuilder _builder;
 
-    if (seqTxt[0] == '=') {
-        parseBase64Txt(seqTxt, builder);
-    }
-    else {
-        parsePlainTxt(seqTxt, builder);
-    }
+    const Pulser::BlockBuilder *builder_p = seq_cache.get(seqTxt);
 
-    builder.finalPulse();
+    if (!builder_p) {
+        _builder.pushPulse(Inst::enableTimingCheck);
+        if (seqTxt[0] == '=') {
+            parseBase64Txt(seqTxt, _builder);
+        }
+        else {
+            parsePlainTxt(seqTxt, _builder);
+        }
+        _builder.finalPulse();
+        builder_p = seq_cache.set(seqTxt, std::move(_builder));
+        if (!builder_p) {
+            builder_p = &_builder;
+        }
+    }
 
     auto parse_time = toc();
 
-    reply.printf("Parsed sequence into %zu pulses.\n", builder.size());
+    reply.printf("Parsed sequence into %zu pulses.\n", builder_p->size());
 
     if (bForever) {
         nacsLog("Start continuous run.\n");
@@ -454,7 +463,7 @@ parseSeqTxt(Pulser::Controller &ctrl, unsigned reps,
 
     // now run the pulses
     // update status string every 500 ms
-    auto seq_len_ms = (long double)builder.currT * PULSER_DT_us * 1e-3l;
+    auto seq_len_ms = (long double)builder_p->currT * PULSER_DT_us * 1e-3l;
     unsigned nTimingErrors = 0;
     unsigned iRep;
     char buff[64] = {'\0'};
@@ -472,7 +481,7 @@ parseSeqTxt(Pulser::Controller &ctrl, unsigned reps,
         ctrl.setHold();
         ctrl.toggleInit();
         Pulser::CtrlState state;
-        Pulser::runInstructionList(&ctrl, &state, builder);
+        Pulser::runInstructionList(&ctrl, &state, *builder_p);
 
         // wait for pulses finished.
         ctrl.waitFinish();
