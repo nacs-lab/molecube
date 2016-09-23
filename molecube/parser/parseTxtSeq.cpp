@@ -450,7 +450,7 @@ parseSeqTxt(Pulser::Controller &ctrl, unsigned reps,
         // Only cache the sequence if it takes longer than 50ms and
         // 20% of the sequence length to parse.
         if (is_b64 && parse_time > (uint64_t)50e6 &&
-            parse_time > builder.currT * 2)
+            parse_time > _builder.currT * 2)
             builder_p = seq_cache.set(seqTxt, std::move(_builder));
         if (!builder_p) {
             builder_p = &_builder;
