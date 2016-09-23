@@ -378,16 +378,18 @@ static void parseBase64Txt(const std::string &seqTxt,
     };
     auto seq_cb = [&] (auto &, uint64_t cur_t, Seq::Event evt) {
         if (evt == Seq::Event::start) {
-            // wait 10us
-            cur_t += 1000;
+            // wait 100us
+            cur_t += 10000;
             builder.pulseAbsT(cur_t, [&] (uint64_t *tp) {
                     return Inst::ttl(start_ttl, 1, tp);
                 });
+            // 1us
             cur_t += 100;
             builder.pulseAbsT(cur_t, [&] (uint64_t *tp) {
                     return Inst::ttl(start_ttl, 0, tp);
                 });
-            cur_t += 100;
+            // 5us
+            cur_t += 500;
             if (clock_div > 0) {
                 builder.pulseAbsT(cur_t, [&] (uint64_t *tp) {
                         return Inst::clockOut(clock_div - 1, tp);
@@ -397,11 +399,13 @@ static void parseBase64Txt(const std::string &seqTxt,
         } else {
             // This is a hack that is believed to make the NI card happy.
             if (clock_div > 0) {
+                // 1us
                 cur_t += 100;
                 builder.pulseAbsT(cur_t, [&] (uint64_t *tp) {
                         return Inst::clockOut(59, tp);
                     });
-                cur_t += 3000;
+                // 30ms
+                cur_t += 3000000;
             }
             // Turn off the clock even when it is not used just as a
             // place holder for the end of the sequence.
