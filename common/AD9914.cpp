@@ -87,7 +87,7 @@ init(Controller &ctrl, int i, bool force)
     ctrl.run(DDSSetTwoBytes(i, 0x06, 0x0080));
 
     // enable amplitude control (OSK)
-    ctrl.run(DDSSetTwoBytes(i, 0x0, 0x0108));
+    ctrl.run(DDSSetTwoBytes(i, 0x0, 0x0308));
 
     // zero-out all other memory
     for (unsigned addr = 0x10;addr <= 0x6a;addr += 2) {
