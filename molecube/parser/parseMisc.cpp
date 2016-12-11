@@ -144,7 +144,7 @@ setDeviceParams(Pulser::Controller &ctrl, const std::string &page,
             pos = params.find(buff);
             if (pos != params.end()) {
                 nacsLog("DDS reset/init (%d)\n", iDDS);
-                AD9914::init(ctrl, iDDS, true);
+                AD9914::init(ctrl, iDDS, AD9914::Force);
             }
         }
     }

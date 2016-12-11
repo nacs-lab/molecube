@@ -430,7 +430,14 @@ parseSeqTxt(Pulser::Controller &ctrl, unsigned reps,
     printPlainResponseHeader(reply);
 
     if (debugPulses) {
-        nacsLog("Parsing pulse sequence:%s\n", seqTxt.c_str());
+        nacsLog("Parsing pulse sequence: %s\n", seqTxt.c_str());
+    }
+
+    for (auto i: active_dds) {
+        if (AD9914::init(ctrl, i, AD9914::LogAction)) {
+            nacsLog("DDS %d reinit\n", i);
+            AD9914::print_registers(ctrl, i);
+        }
     }
 
     tic();

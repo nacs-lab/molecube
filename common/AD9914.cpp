@@ -37,25 +37,30 @@ print_registers(Controller &ctrl, int i)
 }
 
 // Initialize the DDS.
-//  force = true: always init
-//           false: init only if not previopusly initialized
 // return true if init was performed
 bool
-init(Controller &ctrl, int i, bool force)
+init(Controller &ctrl, int i, InitFlags flags)
 {
     const unsigned magic_bytes = 0xf00f0000;
+    bool force = flags & Force;
+    bool log_verbose = flags & LogVerbose;
+    bool log = log_verbose || (flags & LogAction);
     if (!force) {
         // Check if magic bytes have been set (profile 7, FTW) which is
         // otherwise not used.  If already set, the board has been initialized
         // and doesn't need another init.  This avoids reboot-induced glitches.
 
         uint32_t u0 = ctrl.run(DDSGetFourBytes(i, 0x64));
-        nacsLog("AD9914 board=%i  FTW7 = %08X\n", i, u0);
+        if (log_verbose)
+            nacsLog("AD9914 board=%i  FTW7 = %08X\n", i, u0);
         if (u0 == magic_bytes) {
-            nacsLog("No initialization required\n");
+            if (log_verbose)
+                nacsLog("No initialization required\n");
             return false;
         }
-        nacsLog("Initialization required\n");
+        if (log) {
+            nacsLog("Initialization required\n");
+        }
     }
 
     ctrl.run(DDSReset(i));
@@ -96,7 +101,8 @@ init(Controller &ctrl, int i, bool force)
 
     ctrl.run(DDSSetFourBytes(i, 0x64, magic_bytes));
 
-    nacsLog("Initialized AD9914 board=%i\n", i);
+    if (log)
+        nacsLog("Initialized AD9914 board=%i\n", i);
     return true;
 }
 

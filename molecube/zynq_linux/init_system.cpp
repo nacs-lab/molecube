@@ -50,7 +50,7 @@ init_system()
 
     // initialize active DDS if necessary
     for (auto i: active_dds) {
-        AD9914::init(ctrl, i, false);
+        AD9914::init(ctrl, i);
         AD9914::print_registers(ctrl, i);
     }
 
