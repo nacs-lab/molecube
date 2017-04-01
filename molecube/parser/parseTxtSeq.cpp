@@ -353,9 +353,7 @@ static void parseBase64Txt(const std::string &seqTxt,
     size_t data_len = seqTxt.size() - 1;
     if (!Base64::validate(data, data_len))
         throw parseError(builder, "Invalid Base64 encoding");
-    std::vector<Seq::Pulse> seq;
-    std::map<Seq::Channel,Seq::Val> defaults;
-    std::tie(seq, defaults) = Seq::PulsesBuilder::fromBase64(data, data_len);
+    auto seq = Seq::PulsesBuilder::fromBase64(data, data_len);
     Seq::PulsesBuilder seq_builder =
         [&] (Seq::Channel chn, Seq::Val val, uint64_t t) -> uint64_t {
         builder.pulseAbsT(t, [&] (uint64_t *tp) {
@@ -415,7 +413,7 @@ static void parseBase64Txt(const std::string &seqTxt,
         }
         return cur_t;
     };
-    seq_builder.schedule(seq, defaults, seq_cb);
+    seq_builder.schedule(seq, seq_cb);
 }
 
 // 256MB cache
