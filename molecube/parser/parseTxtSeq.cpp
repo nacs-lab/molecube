@@ -402,8 +402,8 @@ static void parseBase64Txt(const std::string &seqTxt,
             builder.pulseAbsT(cur_t, [&] (uint64_t *tp) {
                     return Inst::clockOut(59, tp);
                 });
-            // 20ms
-            cur_t += 2000000;
+            // 30ms
+            cur_t += 3000000;
             // Turn off the clock even when it is not used just as a
             // place holder for the end of the sequence.
             builder.pulseAbsT(cur_t, [&] (uint64_t *tp) {
