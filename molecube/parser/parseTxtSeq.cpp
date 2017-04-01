@@ -343,8 +343,6 @@ static void parsePlainTxt(const std::string &seqTxt,
 
 static constexpr int start_ttl = 0;
 static constexpr int start_ttl_mask = (1 << start_ttl);
-// Hard code clock div for now
-static constexpr int clock_div = 100;
 
 static void parseBase64Txt(const std::string &seqTxt,
                            Pulser::BlockBuilder &builder)
