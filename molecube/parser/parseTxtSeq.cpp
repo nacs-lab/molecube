@@ -355,7 +355,12 @@ static void parseBase64Txt(const std::string &seqTxt,
         throw parseError(builder, "Invalid Base64 encoding");
     auto seq = Seq::PulsesBuilder::fromBase64(data, data_len);
     Seq::PulsesBuilder seq_builder =
-        [&] (Seq::Channel chn, Seq::Val val, uint64_t t) -> uint64_t {
+        [&] (Seq::Channel chn, Seq::Val val, uint64_t t, uint64_t tlim) -> uint64_t {
+        uint64_t mint = 50;
+        if (chn.typ == Seq::Channel::TTL || chn.typ == Seq::Channel::CLOCK)
+            mint = 3;
+        if (t + mint > tlim)
+            return 0;
         builder.pulseAbsT(t, [&] (uint64_t *tp) {
                 switch (chn.typ) {
                 case Seq::Channel::TTL:
@@ -366,13 +371,13 @@ static void parseBase64Txt(const std::string &seqTxt,
                     return Inst::DDS::setAmpF(chn.id, val.val.f64, tp);
                 case Seq::Channel::DAC:
                     return Inst::dacSetVolt(uint8_t(chn.id), val.val.f64, tp);
+                case Seq::Channel::CLOCK:
+                    return Inst::clockOut(val.val.i32 - 1, tp);
                 default:
                     throw parseError(builder, "Invalid Pulse.");
                 }
             });
-        if (chn.typ == Seq::Channel::TTL)
-            return 3;
-        return 50;
+        return mint;
     };
     auto seq_cb = [&] (auto &, uint64_t cur_t, Seq::Event evt) {
         if (evt == Seq::Event::start) {
@@ -389,6 +394,7 @@ static void parseBase64Txt(const std::string &seqTxt,
             // 5us
             cur_t += 500;
             if (clock_div > 0) {
+                // TODO: disable this
                 builder.pulseAbsT(cur_t, [&] (uint64_t *tp) {
                         return Inst::clockOut(clock_div - 1, tp);
                     });
