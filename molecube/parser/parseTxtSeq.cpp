@@ -355,8 +355,12 @@ static void parseBase64Txt(const std::string &seqTxt,
     Seq::PulsesBuilder seq_builder =
         [&] (Seq::Channel chn, Seq::Val val, uint64_t t, uint64_t tlim) -> uint64_t {
         uint64_t mint = 50;
-        if (chn.typ == Seq::Channel::TTL || chn.typ == Seq::Channel::CLOCK)
+        if (chn.typ == Seq::Channel::TTL) {
             mint = 3;
+        }
+        else if (chn.typ == Seq::Channel::CLOCK) {
+            mint = 5;
+        }
         if (t + mint > tlim)
             return 0;
         builder.pulseAbsT(t, [&] (uint64_t *tp) {
