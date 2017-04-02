@@ -511,7 +511,8 @@ parseSeqTxt(Pulser::Controller &ctrl, unsigned reps,
             // If the sequence is short and we are only running it once,
             // reply as soon as possible.
             reply.printf("Sequence started\n");
-            FCGX_Finish_r(request);
+            // This might be causing memory issues...
+            // FCGX_Finish_r(request);
 
             ctrl.waitFinish();
             setProgramStatus("Idle");
