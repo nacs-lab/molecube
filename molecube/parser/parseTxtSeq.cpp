@@ -504,14 +504,15 @@ parseSeqTxt(Pulser::Controller &ctrl, unsigned reps,
         ctrl.setHold();
         ctrl.toggleInit();
         Pulser::CtrlState state;
+        Pulser::runInstructionList(&ctrl, &state, *builder_p);
 
         if (terminate_request) {
+            ctrl.releaseHold();
             // If the sequence is short and we are only running it once,
             // reply as soon as possible.
             reply.printf("Sequence started\n");
             FCGX_Finish_r(request);
 
-            Pulser::runInstructionList(&ctrl, &state, *builder_p);
             ctrl.waitFinish();
             setProgramStatus("Idle");
             auto run_time = toc();
@@ -526,7 +527,6 @@ parseSeqTxt(Pulser::Controller &ctrl, unsigned reps,
             return true;
         }
 
-        Pulser::runInstructionList(&ctrl, &state, *builder_p);
         // wait for pulses finished.
         ctrl.waitFinish();
 
