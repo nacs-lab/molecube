@@ -513,18 +513,17 @@ parseSeqTxt(Pulser::Controller &ctrl, unsigned reps,
             reply.printf("Sequence started\n");
             // This might be causing memory issues...
             // FCGX_Finish_r(request);
+            nacsLog("Parse time: %9.3f ms\n", (double)parse_time * 1e-6);
+            nacsLog("   Seq len: %9.3f ms\n", iRep * seq_len_ms);
 
             ctrl.waitFinish();
-            setProgramStatus("Idle");
             auto run_time = toc();
             if (!ctrl.timingOK()) {
                 ctrl.run(Pulser::ClearTimingCheck());
                 nacsLog("Warning: timing failures.\n");
             }
             setProgramStatus("Idle");
-            nacsLog("Parse time: %9.3f ms\n", (double)parse_time * 1e-6);
             nacsLog("  Exe time: %9.3f ms\n", (double)run_time * 1e-6);
-            nacsLog("   Seq len: %9.3f ms\n", iRep * seq_len_ms);
             return true;
         }
 
