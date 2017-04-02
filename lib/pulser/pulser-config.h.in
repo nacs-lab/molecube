@@ -2,8 +2,8 @@
 #define PULSER_NDDS @PULSER_NDDS@
 
 // time resolution of pulse controller in ns, us, and 1/us
-#define PULSER_DT_ns (10.0l)
-#define PULSER_DT_us (0.01l)
+#define PULSER_DT_ns (10.0)
+#define PULSER_DT_us (0.01)
 #define PULSER_DT_per_us (100)
 
 #define PULSER_ENABLE_CLK_DURATION 5

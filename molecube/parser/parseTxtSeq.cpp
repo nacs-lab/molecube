@@ -247,14 +247,13 @@ parseSeqCGI(Pulser::Controller &ctrl, cgicc::Cgicc &cgi, const verbosity &reply)
     bool debugPulses = getCheckboxParamCGI(cgi, "debugPulses", false);
     bool bForever = getCheckboxParamCGI(cgi, "forever", false);
 
-    //look for seqtext field
+    // look for seqtext field
     std::string seqTxt = getStringParamCGI(cgi, "seqtext", "");
     if (seqTxt.length() == 0) {
-        //if missing, look for attached file (multi-part)
-        nacsLog("no seqtext parameter in form, looking for seqtext file\n");
+        // if missing, look for attached file (multi-part)
         nacsLog("%d files attached\n", cgi.getFiles().size());
 
-        cgicc::file_iterator i =  cgi.getFile("seqtext");
+        cgicc::file_iterator i = cgi.getFile("seqtext");
         if (i != cgi.getFiles().end()) {
             seqTxt = i->getData();
         } else {
@@ -467,11 +466,11 @@ parseSeqTxt(Pulser::Controller &ctrl, unsigned reps,
         parse_time = toc();
     }
 
-    reply.printf("Parsed sequence into %zu pulses.\n", builder_p->size());
+    reply.printf("Parsed into %zu pulses.\n", builder_p->size());
 
     if (bForever) {
         nacsLog("Start continuous run.\n");
-    } else {
+    } else if (reps != 1) {
         nacsLog("Run %d sequences.\n", reps);
     }
 
@@ -479,7 +478,7 @@ parseSeqTxt(Pulser::Controller &ctrl, unsigned reps,
 
     // now run the pulses
     // update status string every 500 ms
-    auto seq_len_ms = (long double)builder_p->currT * PULSER_DT_us * 1e-3l;
+    auto seq_len_ms = double(builder_p->currT) * PULSER_DT_us * 1e-3;
     unsigned nTimingErrors = 0;
     unsigned iRep;
     char buff[64] = {'\0'};
@@ -487,7 +486,7 @@ parseSeqTxt(Pulser::Controller &ctrl, unsigned reps,
     for (iRep = 0;iRep < reps || bForever;iRep++) {
         if (bForever) {
             snprintf(buff, 64, "Running sequence %d", iRep);
-        } else {
+        } else if (reps != 1) {
             snprintf(buff, 64, "Running sequence %d / %d", iRep, reps);
         }
         setProgramStatus(buff);
@@ -516,20 +515,23 @@ parseSeqTxt(Pulser::Controller &ctrl, unsigned reps,
 
     auto run_time = toc();
 
-    reply.printf("Finished %d/%d pulse sequences.\n", iRep, reps);
+    if (reps == 1) {
+        reply.printf("Finished 1 pulse sequences.\n");
+    }
+    else {
+        reply.printf("Finished %d/%d pulse sequences.\n", iRep, reps);
+    }
 
-    if (nTimingErrors == 0) {
-        reply.printf("Timing OK\n");
-    } else {
+    if (nTimingErrors) {
         reply.printf("Warning: %d timing failures.\n", nTimingErrors);
+    } else if (reps != 1) {
+        reply.printf("Timing OK\n");
     }
     setProgramStatus("Idle");
 
-    reply.printf("          Parser time: %9.3Lf ms\n",
-                 (long double)parse_time * 1e-6)
-        .printf("       Execution time: %9.3Lf ms\n",
-                (long double)run_time * 1e-6)
-        .printf("Duration of sequences: %9.3Lf ms\n", iRep * seq_len_ms);
+    reply.printf("Parse time: %9.3f ms\n", (double)parse_time * 1e-6)
+        .printf("  Exe time: %9.3f ms\n", (double)run_time * 1e-6)
+        .printf("   Seq len: %9.3f ms\n", iRep * seq_len_ms);
     return true;
 }
 
