@@ -4,6 +4,8 @@
 #include <verbosity.h>
 
 #include <istream>
+#include <fcgio.h>
+#include <fcgi_config.h>
 #include <cgicc/Cgicc.h>
 
 namespace NaCs {
@@ -16,7 +18,7 @@ class Controller;
 bool parseSeqURL(Pulser::Controller &ctrl, std::string &seq,
                  const verbosity &reply);
 bool parseSeqCGI(Pulser::Controller &ctrl, cgicc::Cgicc &cgi,
-                 const verbosity &reply);
+                 const verbosity &reply, FCGX_Request *request);
 
 // parse sequence in multipart format
 // more efficient for long sequences because no decoding

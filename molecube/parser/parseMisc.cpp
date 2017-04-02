@@ -183,7 +183,7 @@ stream_vect_to_JSON_array(std::ostream& os, const V& v)
 
 bool
 parseQueryCGI(Pulser::Controller &ctrl, cgicc::Cgicc &cgi,
-              const verbosity &reply)
+              const verbosity &reply, FCGX_Request *request)
 {
     cgicc::form_iterator cmd = cgi.getElement("command");
     cgicc::form_iterator page = cgi.getElement("page");
@@ -264,7 +264,7 @@ parseQueryCGI(Pulser::Controller &ctrl, cgicc::Cgicc &cgi,
         }
 
         if ((**cmd) == "runseq") {
-            parseSeqCGI(ctrl, cgi, reply);
+            parseSeqCGI(ctrl, cgi, reply, request);
             return true;
         }
         return false;

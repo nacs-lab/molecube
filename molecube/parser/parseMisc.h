@@ -4,6 +4,8 @@
 #include <verbosity.h>
 
 #include <string>
+#include <fcgio.h>
+#include <fcgi_config.h>
 #include <cgicc/Cgicc.h>
 
 #include <ostream>
@@ -15,7 +17,7 @@ class Controller;
 
 void printPlainResponseHeader(std::ostream&);
 bool parseQueryCGI(Pulser::Controller &ctrl, cgicc::Cgicc &cgi,
-                   const verbosity &reply);
+                   const verbosity &reply, FCGX_Request *request);
 
 unsigned getUnsignedParam(const std::string &seq, const std::string &name,
                           unsigned defaultVal);

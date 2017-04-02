@@ -228,7 +228,8 @@ main(int argc, char *argv[])
             cgicc::Cgicc cgi(&IO);
             verbosity reply(&out);
             try {
-                if (!parseQueryCGI(ctrl, cgi, reply)) {
+                // May finish the requesst when no error happens
+                if (!parseQueryCGI(ctrl, cgi, reply, &request)) {
                     nacsError("Couldn't understand HTTP request.\n");
                 }
             } catch (std::runtime_error e) {

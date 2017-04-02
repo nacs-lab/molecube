@@ -44,7 +44,8 @@ using Inst = Pulser::InstWriter;
 //parse text-encoded pulse sequence
 static bool parseSeqTxt(Pulser::Controller &pulser, unsigned reps,
                         const std::string &seqTxt, bool bForever,
-                        bool debugPulses, const verbosity &reply);
+                        bool debugPulses, const verbosity &reply,
+                        FCGX_Request *request);
 
 static bool
 get_channel_and_operand(std::string &arg1, std::istream &s, int *channel,
@@ -234,14 +235,15 @@ parseSeqURL(Pulser::Controller &ctrl, std::string &seq, const verbosity &reply)
     std::string seqTxt = seq.substr(start_pos + L, end_pos - start_pos - L);
     html2txt(seqTxt, 1); //this is a slow function
 
-    parseSeqTxt(ctrl, reps, seqTxt, bForever, debugPulses, reply);
+    parseSeqTxt(ctrl, reps, seqTxt, bForever, debugPulses, reply, nullptr);
 
     return true;
 }
 
 // parse pulse sequence via CGICC
 bool
-parseSeqCGI(Pulser::Controller &ctrl, cgicc::Cgicc &cgi, const verbosity &reply)
+parseSeqCGI(Pulser::Controller &ctrl, cgicc::Cgicc &cgi, const verbosity &reply,
+            FCGX_Request *request)
 {
     unsigned reps = getUnsignedParamCGI(cgi, "reps", 1);
     bool debugPulses = getCheckboxParamCGI(cgi, "debugPulses", false);
@@ -261,7 +263,7 @@ parseSeqCGI(Pulser::Controller &ctrl, cgicc::Cgicc &cgi, const verbosity &reply)
         }
     }
 
-    parseSeqTxt(ctrl, reps, seqTxt, bForever, debugPulses, reply);
+    parseSeqTxt(ctrl, reps, seqTxt, bForever, debugPulses, reply, request);
 
     return true;
 }
@@ -421,9 +423,11 @@ static StrCache<Pulser::BlockBuilder> seq_cache((size_t)256e6);
 static bool
 parseSeqTxt(Pulser::Controller &ctrl, unsigned reps,
             const std::string &seqTxt, bool bForever, bool debugPulses,
-            const verbosity &reply)
+            const verbosity &reply, FCGX_Request *request)
 {
     printPlainResponseHeader(reply);
+    if (bForever)
+        reps = UINT_MAX;
 
     if (debugPulses) {
         nacsLog("Parsing pulse sequence: %s\n", seqTxt.c_str());
@@ -479,25 +483,50 @@ parseSeqTxt(Pulser::Controller &ctrl, unsigned reps,
     // now run the pulses
     // update status string every 500 ms
     auto seq_len_ms = double(builder_p->currT) * PULSER_DT_us * 1e-3;
+    bool terminate_request = reps == 1 && seq_len_ms <= 1000 && request;
+
     unsigned nTimingErrors = 0;
     unsigned iRep;
-    char buff[64] = {'\0'};
     Pulser::CtrlLocker locker(ctrl);
     for (iRep = 0;iRep < reps || bForever;iRep++) {
-        if (bForever) {
-            snprintf(buff, 64, "Running sequence %d", iRep);
-        } else if (reps != 1) {
-            snprintf(buff, 64, "Running sequence %d / %d", iRep, reps);
+        if (reps != 1 || seq_len_ms > 500) {
+            char buff[64] = {'\0'};
+            if (bForever) {
+                snprintf(buff, 64, "Running sequence %d", iRep);
+            } else {
+                snprintf(buff, 64, "Running sequence %d / %d", iRep, reps);
+            }
+            setProgramStatus(buff);
         }
-        setProgramStatus(buff);
 
         // hold the sequnce until pulse buffer is full or
         // ctrl.waitFinish() is called
         ctrl.setHold();
         ctrl.toggleInit();
         Pulser::CtrlState state;
-        Pulser::runInstructionList(&ctrl, &state, *builder_p);
 
+        if (terminate_request) {
+            // If the sequence is short and we are only running it once,
+            // reply as soon as possible.
+            reply.printf("Sequence started\n");
+            FCGX_Finish_r(request);
+
+            Pulser::runInstructionList(&ctrl, &state, *builder_p);
+            ctrl.waitFinish();
+            setProgramStatus("Idle");
+            auto run_time = toc();
+            if (!ctrl.timingOK()) {
+                ctrl.run(Pulser::ClearTimingCheck());
+                nacsLog("Warning: timing failures.\n");
+            }
+            setProgramStatus("Idle");
+            nacsLog("Parse time: %9.3f ms\n", (double)parse_time * 1e-6);
+            nacsLog("  Exe time: %9.3f ms\n", (double)run_time * 1e-6);
+            nacsLog("   Seq len: %9.3f ms\n", iRep * seq_len_ms);
+            return true;
+        }
+
+        Pulser::runInstructionList(&ctrl, &state, *builder_p);
         // wait for pulses finished.
         ctrl.waitFinish();
 
