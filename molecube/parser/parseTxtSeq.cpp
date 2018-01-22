@@ -447,9 +447,9 @@ parseSeqTxt(Pulser::Controller &ctrl, unsigned reps,
     const Pulser::BlockBuilder *builder_p = seq_cache.get(seqTxt);
 
     uint64_t parse_time;
+    const bool is_b64 = seqTxt[0] == '=';
     if (!builder_p) {
         _builder.pushPulse(Inst::enableTimingCheck);
-        bool is_b64 = seqTxt[0] == '=';
         if (is_b64) {
             parseBase64Txt(seqTxt, _builder);
         }
@@ -504,7 +504,12 @@ parseSeqTxt(Pulser::Controller &ctrl, unsigned reps,
         ctrl.setHold();
         ctrl.toggleInit();
         Pulser::CtrlState state;
-        Pulser::runInstructionList(&ctrl, &state, *builder_p);
+        if (is_b64) {
+            Pulser::runExpSeq(&ctrl, &state, *builder_p);
+        }
+        else {
+            Pulser::runInstructionList(&ctrl, &state, *builder_p);
+        }
 
         if (terminate_request) {
             ctrl.releaseHold();
@@ -569,8 +574,8 @@ parseSeqTxt(Pulser::Controller &ctrl, unsigned reps,
 static bool
 findNextDelim(FILE *f, const char *delim)
 {
-    int nMatch = 0;
-    int delimLen = strlen(delim);
+    size_t nMatch = 0;
+    size_t delimLen = strlen(delim);
 
     while (!feof(f)) {
         int c = fgetc(f);

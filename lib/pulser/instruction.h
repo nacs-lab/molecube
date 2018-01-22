@@ -192,6 +192,16 @@ runInstructionList(Controller *__restrict__ ctrler,
     runInstructionList(ctrler, state, v.data(), v.size());
 }
 
+void runExpSeq(Controller *__restrict__ ctrler, CtrlState *__restrict__ state,
+               const Instruction *__restrict__ inst, size_t n);
+template<typename T>
+static inline void
+runExpSeq(Controller *__restrict__ ctrler,
+                   CtrlState *__restrict__ state, T &&v)
+{
+    runExpSeq(ctrler, state, v.data(), v.size());
+}
+
 struct BlockBuilder;
 
 static inline bool
