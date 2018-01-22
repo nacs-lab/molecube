@@ -8,7 +8,7 @@
 namespace NaCs {
 namespace Pulser {
 
-NACS_EXPORT volatile void*
+NACS_EXPORT() volatile void*
 mapPulserAddr()
 {
     // Can also be determined by looking for

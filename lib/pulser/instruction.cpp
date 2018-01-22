@@ -142,7 +142,7 @@ runInstruction(Controller *__restrict__ ctrler, CtrlState *__restrict__ state,
     }
 }
 
-NACS_EXPORT __attribute__((flatten, hot)) void
+NACS_EXPORT() __attribute__((flatten, hot)) void
 runInstructionList(Controller *__restrict__ ctrler,
                    CtrlState *__restrict__ state,
                    const Instruction *__restrict__ inst, size_t n)

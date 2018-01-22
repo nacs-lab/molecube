@@ -5,7 +5,7 @@
 namespace NaCs {
 namespace Pulser {
 
-NACS_EXPORT void
+NACS_EXPORT() void
 Controller::init(bool reset)
 {
     releaseHold();
@@ -33,7 +33,7 @@ Controller::init(bool reset)
 /**
  * Wait for the request to finish.
  */
-NACS_EXPORT void
+NACS_EXPORT() void
 Controller::wait(const Request &req)
 {
     std::unique_lock<std::mutex> locker(m_cond_locks[req.cond_id]);
@@ -46,7 +46,7 @@ Controller::wait(const Request &req)
  * (Mainly) For the reader thread.
  * Set the result (and ready) of a request.
  */
-NACS_EXPORT void
+NACS_EXPORT() void
 Controller::setRes(Request &req, uint32_t res)
 {
     {
@@ -129,7 +129,7 @@ Controller::popRemaining()
 /**
  * Wait for event or timeout to thread the result buffer from FPGA
  */
-NACS_EXPORT void
+NACS_EXPORT() void
 Controller::runReader()
 {
     while (!m_quit) {
@@ -199,7 +199,7 @@ Controller::writeRequests(uint32_t max_num, bool notify, uint32_t flags)
 /**
  * Write requests
  */
-NACS_EXPORT void
+NACS_EXPORT() void
 Controller::runWriter()
 {
     while (!m_quit) {
