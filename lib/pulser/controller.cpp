@@ -161,7 +161,7 @@ Controller::writeRequests(uint32_t max_num, bool notify, uint32_t flags)
     if (num_to_write == 0)
         return 0;
     Request *reqs[max_write];
-    num_to_write = m_req_queue.pop(reqs, num_to_write);
+    num_to_write = uint32_t(m_req_queue.pop(reqs, num_to_write));
     uint64_t total_time = 0;
     uint32_t num_return = 0;
     for (uint32_t i = 0;i < num_to_write;i++) {

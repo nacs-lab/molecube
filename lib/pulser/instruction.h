@@ -253,7 +253,7 @@ tryMergeMeta(Instruction &prev_inst, Instruction &inst)
     return false;
 }
 
-static bool
+static inline bool
 tryMergeInst(Instruction &prev_inst, Instruction &inst)
 {
     if ((prev_inst.ctrl & ControlBit::InstMask) != ControlBit::MetaCmd ||
@@ -292,7 +292,7 @@ tryMergeMeta3(Instruction &prev2_inst, Instruction &prev_inst,
     return false;
 }
 
-static bool
+static inline bool
 tryMergeInst3(Instruction &prev2_inst, Instruction &prev_inst,
               Instruction &inst)
 {
