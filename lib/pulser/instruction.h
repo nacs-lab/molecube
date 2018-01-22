@@ -72,12 +72,6 @@ public:
     // all 500ns
     struct DDS {
         static inline Instruction
-        setTwoBytes(int i, uint32_t addr, uint32_t val, uint64_t *tp=nullptr)
-        {
-            accumTime(tp, 50);
-            return DDSSetTwoBytes(i, addr, val);
-        }
-        static inline Instruction
         setPhaseF(int i, double phase, uint64_t *tp=nullptr)
         {
             accumTime(tp, 50);
