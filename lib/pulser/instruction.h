@@ -78,48 +78,26 @@ public:
             return DDSSetTwoBytes(i, addr, val);
         }
         static inline Instruction
-        setPhase(int i, uint16_t phase, uint64_t *tp=nullptr)
-        {
-            accumTime(tp, 50);
-            return Instruction(ControlBit::MetaCmd |
-                               ControlBit::DDSSetPhaseMeta | phase,
-                               uint32_t(i));
-        }
-        static inline Instruction
         setPhaseF(int i, double phase, uint64_t *tp=nullptr)
         {
-            return setPhase(i, DDSCvt::phase2num(phase), tp);
-        }
-        static inline Instruction
-        shiftPhase(int i, uint16_t phase, uint64_t *tp=nullptr)
-        {
             accumTime(tp, 50);
             return Instruction(ControlBit::MetaCmd |
-                               ControlBit::DDSShiftPhaseMeta | phase,
+                               ControlBit::DDSSetPhaseMeta | DDSCvt::phase2num(phase),
                                uint32_t(i));
         }
         static inline Instruction
         shiftPhaseF(int i, double phase, uint64_t *tp=nullptr)
         {
-            return shiftPhase(i, DDSCvt::phase2num(phase), tp);
-        }
-        static inline Instruction
-        setFreq(int i, uint32_t freq, uint64_t *tp=nullptr)
-        {
             accumTime(tp, 50);
-            return DDSSetFreq(i, freq);
+            return Instruction(ControlBit::MetaCmd |
+                               ControlBit::DDSShiftPhaseMeta | DDSCvt::phase2num(phase),
+                               uint32_t(i));
         }
         static inline Instruction
         setFreqF(int i, double freq, uint64_t *tp=nullptr)
         {
             accumTime(tp, 50);
             return DDSSetFreqF(i, freq);
-        }
-        static inline Instruction
-        setAmp(int i, uint32_t amp, uint64_t *tp=nullptr)
-        {
-            accumTime(tp, 50);
-            return DDSSetAmp(i, amp);
         }
         static inline Instruction
         setAmpF(int i, double amp, uint64_t *tp=nullptr)
