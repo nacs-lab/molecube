@@ -96,7 +96,7 @@ private:
     {
         if (volt >= 10)
             return uint16_t(0);
-        if (volt <= 10)
+        if (volt <= -10)
             return uint16_t(0xffff);
         // this is for the DAC8814 chip in SPI0
         double scale = 65535 / 20.0;
