@@ -12,7 +12,6 @@ main()
 {
     Pulser::Controller ctrl(Pulser::mapPulserAddr());
     Pulser::BlockBuilder builder;
-    builder.pushPulse(Inst::enableTimingCheck);
     tic();
     for (int i = 0;i < 6;i++) {
         builder.pulseDT(100000000, Inst::DDS::setFreqF, 2, 0);

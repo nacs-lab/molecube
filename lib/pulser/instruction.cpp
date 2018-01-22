@@ -147,6 +147,7 @@ runInstructionList(Controller *__restrict__ ctrler,
                    CtrlState *__restrict__ state,
                    const Instruction *__restrict__ inst, size_t n)
 {
+    state->timing_check = true;
     for (size_t i = 0;i < n;i++) {
         auto cur_inst = inst + i;
         __builtin_prefetch(cur_inst + 2);
@@ -158,6 +159,7 @@ NACS_EXPORT() __attribute__((flatten, hot)) void
 runExpSeq(Controller *__restrict__ ctrler, CtrlState *__restrict__ state,
           const Instruction *__restrict__ inst, size_t n)
 {
+    state->timing_check = true;
     for (size_t i = 0;i < n;i++) {
         auto cur_inst = inst + i;
         __builtin_prefetch(cur_inst + 2);

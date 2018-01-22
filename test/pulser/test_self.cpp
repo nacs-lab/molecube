@@ -30,7 +30,6 @@ test_timing(Pulser::Controller &ctrl)
     ctrl.run(Pulser::TTLPulse(100, 0));
 
     Pulser::BlockBuilder builder;
-    builder.pushPulse(Inst::enableTimingCheck);
 
     for (int j = 0; j < 1000000; j++) {
         builder.pulseDT(100, Inst::ttlAll, 0);

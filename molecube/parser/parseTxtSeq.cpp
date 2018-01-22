@@ -449,7 +449,6 @@ parseSeqTxt(Pulser::Controller &ctrl, unsigned reps,
     uint64_t parse_time;
     const bool is_b64 = seqTxt[0] == '=';
     if (!builder_p) {
-        _builder.pushPulse(Inst::enableTimingCheck);
         if (is_b64) {
             parseBase64Txt(seqTxt, _builder);
         }
