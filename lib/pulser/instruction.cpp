@@ -1,4 +1,8 @@
+//
+
 #include "instruction.h"
+
+#include <nacs-seq/pulser.h>
 
 #include <iostream>
 
@@ -158,6 +162,75 @@ runExpSeq(Controller *__restrict__ ctrler, CtrlState *__restrict__ state,
         runInstruction(ctrler, state, cur_inst);
     }
     ctrler->shortPulse(0x20000000 | 3, 0);
+}
+
+NACS_EXPORT() void BlockBuilder::fromSeq(const Seq::Sequence &seq)
+{
+    using Inst = Pulser::InstWriter;
+    static constexpr int start_ttl = 0;
+    static constexpr int start_ttl_mask = (1 << start_ttl);
+
+    Seq::PulsesBuilder seq_builder =
+        [&] (Seq::Channel chn, Seq::Val val, uint64_t t, uint64_t tlim) -> uint64_t {
+        uint64_t mint = 50;
+        if (chn.typ == Seq::Channel::TTL) {
+            mint = 3;
+        }
+        else if (chn.typ == Seq::Channel::CLOCK) {
+            mint = 5;
+        }
+        if (t + mint > tlim)
+            return 0;
+        pulseAbsT(t, [&] (uint64_t *tp) {
+                switch (chn.typ) {
+                case Seq::Channel::TTL:
+                    return Inst::ttlAll(val.val.i32 & ~start_ttl_mask, tp);
+                case Seq::Channel::DDS_FREQ:
+                    return Inst::DDS::setFreqF(chn.id, val.val.f64, tp);
+                case Seq::Channel::DDS_AMP:
+                    return Inst::DDS::setAmpF(chn.id, val.val.f64, tp);
+                case Seq::Channel::DAC:
+                    return Inst::dacSetVolt(uint8_t(chn.id), val.val.f64, tp);
+                case Seq::Channel::CLOCK:
+                    return Inst::clockOut(val.val.i32 - 1, tp);
+                default:
+                    throw std::runtime_error("Invalid Pulse.");
+                }
+            });
+        return mint;
+    };
+    auto seq_cb = [&] (auto &, uint64_t cur_t, Seq::Event evt) {
+        if (evt == Seq::Event::start) {
+            // wait 100us
+            cur_t += 10000;
+            pulseAbsT(cur_t, [&] (uint64_t *tp) {
+                    return Inst::ttl(start_ttl, 1, tp);
+                });
+            // 1us
+            cur_t += 100;
+            pulseAbsT(cur_t, [&] (uint64_t *tp) {
+                    return Inst::ttl(start_ttl, 0, tp);
+                });
+            // 5us
+            cur_t += 500;
+        } else {
+            // This is a hack that is believed to make the NI card happy.
+            // 1us
+            cur_t += 100;
+            pulseAbsT(cur_t, [&] (uint64_t *tp) {
+                    return Inst::clockOut(59, tp);
+                });
+            // 30ms
+            cur_t += 3000000;
+            // Turn off the clock even when it is not used just as a
+            // place holder for the end of the sequence.
+            pulseAbsT(cur_t, [&] (uint64_t *tp) {
+                    return Inst::clockOut(255, tp);
+                });
+        }
+        return cur_t;
+    };
+    seq_builder.schedule(const_cast<Seq::Sequence&>(seq), seq_cb);
 }
 
 }

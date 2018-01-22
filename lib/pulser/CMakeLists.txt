@@ -2,7 +2,7 @@ set(nacs_pulser_SRCS
   controller.cpp
   driver.cpp
   instruction.cpp)
-set(nacs_pulser_LINKS nacs-utils pthread)
+set(nacs_pulser_LINKS nacs-utils nacs-seq pthread)
 configure_file(pulser-config.h.in pulser-config.h @ONLY)
 
 add_definitions(-Ofast)

@@ -342,9 +342,6 @@ static void parsePlainTxt(const std::string &seqTxt,
     }
 }
 
-static constexpr int start_ttl = 0;
-static constexpr int start_ttl_mask = (1 << start_ttl);
-
 /**
  * Different pulse types that we need:
  * TTL all: [#0: 4][t: 4][val: 32] (5 bytes)
@@ -370,68 +367,7 @@ static void parseBase64Txt(const std::string &seqTxt,
     size_t data_len = seqTxt.size() - 1;
     if (!Base64::validate(data, data_len))
         throw parseError(builder, "Invalid Base64 encoding");
-    auto seq = Seq::PulsesBuilder::fromBase64(data, data_len);
-    Seq::PulsesBuilder seq_builder =
-        [&] (Seq::Channel chn, Seq::Val val, uint64_t t, uint64_t tlim) -> uint64_t {
-        uint64_t mint = 50;
-        if (chn.typ == Seq::Channel::TTL) {
-            mint = 3;
-        }
-        else if (chn.typ == Seq::Channel::CLOCK) {
-            mint = 5;
-        }
-        if (t + mint > tlim)
-            return 0;
-        builder.pulseAbsT(t, [&] (uint64_t *tp) {
-                switch (chn.typ) {
-                case Seq::Channel::TTL:
-                    return Inst::ttlAll(val.val.i32 & ~start_ttl_mask, tp);
-                case Seq::Channel::DDS_FREQ:
-                    return Inst::DDS::setFreqF(chn.id, val.val.f64, tp);
-                case Seq::Channel::DDS_AMP:
-                    return Inst::DDS::setAmpF(chn.id, val.val.f64, tp);
-                case Seq::Channel::DAC:
-                    return Inst::dacSetVolt(uint8_t(chn.id), val.val.f64, tp);
-                case Seq::Channel::CLOCK:
-                    return Inst::clockOut(val.val.i32 - 1, tp);
-                default:
-                    throw parseError(builder, "Invalid Pulse.");
-                }
-            });
-        return mint;
-    };
-    auto seq_cb = [&] (auto &, uint64_t cur_t, Seq::Event evt) {
-        if (evt == Seq::Event::start) {
-            // wait 100us
-            cur_t += 10000;
-            builder.pulseAbsT(cur_t, [&] (uint64_t *tp) {
-                    return Inst::ttl(start_ttl, 1, tp);
-                });
-            // 1us
-            cur_t += 100;
-            builder.pulseAbsT(cur_t, [&] (uint64_t *tp) {
-                    return Inst::ttl(start_ttl, 0, tp);
-                });
-            // 5us
-            cur_t += 500;
-        } else {
-            // This is a hack that is believed to make the NI card happy.
-            // 1us
-            cur_t += 100;
-            builder.pulseAbsT(cur_t, [&] (uint64_t *tp) {
-                    return Inst::clockOut(59, tp);
-                });
-            // 30ms
-            cur_t += 3000000;
-            // Turn off the clock even when it is not used just as a
-            // place holder for the end of the sequence.
-            builder.pulseAbsT(cur_t, [&] (uint64_t *tp) {
-                    return Inst::clockOut(255, tp);
-                });
-        }
-        return cur_t;
-    };
-    seq_builder.schedule(seq, seq_cb);
+    builder.fromSeq(Seq::PulsesBuilder::fromBase64(data, data_len));
 }
 
 // 256MB cache

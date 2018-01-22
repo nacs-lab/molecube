@@ -6,6 +6,10 @@
 #include <vector>
 
 namespace NaCs {
+namespace Seq {
+struct Sequence;
+};
+
 namespace Pulser {
 
 struct Instruction {
@@ -353,6 +357,7 @@ public:
     {
         return size() * sizeof(Instruction) + sizeof(*this);
     }
+    void fromSeq(const Seq::Sequence &seq);
 };
 
 }
