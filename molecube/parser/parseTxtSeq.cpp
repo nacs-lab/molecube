@@ -455,7 +455,6 @@ parseSeqTxt(Pulser::Controller &ctrl, unsigned reps,
         else {
             parsePlainTxt(seqTxt, _builder);
         }
-        _builder.finalPulse();
         parse_time = toc();
         // Only cache the sequence if it takes longer than 50ms and
         // 20% of the sequence length to parse.

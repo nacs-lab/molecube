@@ -33,7 +33,6 @@ struct ControlBit {
     static constexpr uint32_t WaitMeta = 0x0;
     static constexpr uint32_t DDSSetPhaseMeta = 0x1000000;
     static constexpr uint32_t DDSShiftPhaseMeta = 0x2000000;
-    static constexpr uint32_t TimingCheckMeta = 0x3000000;
     static constexpr uint32_t DDSResetMeta = 0x4000000;
     static constexpr uint32_t TTLMeta = 0x5000000;
 
@@ -54,7 +53,6 @@ combTime(Instruction &inst)
 }
 
 struct CtrlState {
-    bool timing_check;
     uint16_t dds_phases[22];
     uint32_t curr_ttl;
     uint64_t wait_time;
@@ -107,27 +105,6 @@ public:
                                ControlBit::DDSResetMeta, uint32_t(i));
         }
     };
-    // 0ns
-    static inline Instruction
-    enableTimingCheck(uint64_t* =nullptr)
-    {
-        return Instruction(ControlBit::MetaCmd |
-                           ControlBit::TimingCheckMeta, 1);
-    }
-    // 0ns
-    static inline Instruction
-    disableTimingCheck(uint64_t* =nullptr)
-    {
-        return Instruction(ControlBit::MetaCmd |
-                           ControlBit::TimingCheckMeta, 0);
-    }
-    // 50ns
-    static inline Instruction
-    clearTimingCheck(uint64_t *tp=nullptr)
-    {
-        accumTime(tp, 50);
-        return ClearTimingCheck();
-    }
     // variable time
     static inline Instruction
     wait(uint64_t t, uint64_t *tp=nullptr)
@@ -370,12 +347,6 @@ public:
             throw std::runtime_error("Pulse too short.");
         }
         pushPulse(InstWriter::wait, final_t - currT);
-    }
-    inline void
-    finalPulse()
-    {
-        pushPulse(InstWriter::disableTimingCheck);
-        pushPulse(InstWriter::wait, 3);
     }
     inline size_t
     cacheSize() const

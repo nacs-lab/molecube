@@ -39,7 +39,6 @@ test_timing(Pulser::Controller &ctrl)
         builder.pulseDT(10000000, Inst::ttlAll, 0xffffffff);
         builder.pulseDT(10000000, Inst::ttlAll, 0);
     }
-    builder.finalPulse();
 
     ctrl.toggleInit();
     Pulser::CtrlState state;

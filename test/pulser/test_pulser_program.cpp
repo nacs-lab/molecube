@@ -16,7 +16,6 @@ main()
         builder.pulseDT(40, Inst::ttlAll, 0);
     }
     printToc();
-    builder.finalPulse();
 
     std::cout << builder.size() << std::endl;
 

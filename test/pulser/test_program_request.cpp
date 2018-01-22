@@ -17,7 +17,6 @@ main()
         builder.pulseDT(100000000, Inst::DDS::setFreqF, 2, 0);
     }
     printToc();
-    builder.finalPulse();
 
     std::cout << builder.size() << std::endl;
 

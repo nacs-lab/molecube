@@ -9,8 +9,7 @@ static inline __attribute__((flatten, hot)) void
 writeShortPulse(Controller *__restrict__ ctrler, CtrlState *__restrict__ state,
                 uint32_t ctrl, uint32_t op)
 {
-    if (nacsLikely(state->timing_check))
-        ctrl |= ControlBit::TimingCheck;
+    ctrl |= ControlBit::TimingCheck;
     ctrler->shortPulse(ctrl, op);
 }
 
@@ -35,8 +34,7 @@ static inline __attribute__((flatten, hot)) void
 runWaitMeta(Controller *__restrict__ ctrler, CtrlState *__restrict__ state,
             uint32_t ctrl, uint32_t op)
 {
-    const uint32_t flags = (nacsLikely(state->timing_check) ?
-                            ControlBit::TimingCheck : 0);
+    const uint32_t flags = ControlBit::TimingCheck;
     uint64_t t = combTime(ctrl, op); // time in 10ns
     // If the wait time is too short, don't do anything fancy
     if (t < 50) {
@@ -114,9 +112,6 @@ runMetaInstruction(Controller *__restrict__ ctrler,
         runDDSSetPhase(ctrler, state, int(op),
                        uint16_t(ctrl + state->dds_phases[op]));
         break;
-    case ControlBit::TimingCheckMeta:
-        state->timing_check = bool(op);
-        break;
     case ControlBit::DDSResetMeta:
         state->dds_phases[op] = 0;
         writeShortPulse(ctrler, state, DDSReset(int(op)));
@@ -135,10 +130,8 @@ runInstruction(Controller *__restrict__ ctrler, CtrlState *__restrict__ state,
     uint32_t op = inst->op;
     if ((ctrl & ControlBit::InstMask) == ControlBit::MetaCmd) {
         runMetaInstruction(ctrler, state, ctrl, op);
-    } else if (nacsLikely(state->timing_check)) {
-        ctrler->shortPulse(ctrl | ControlBit::TimingCheck, op);
     } else {
-        ctrler->shortPulse(ctrl & ~ControlBit::TimingCheck, op);
+        ctrler->shortPulse(ctrl | ControlBit::TimingCheck, op);
     }
 }
 
@@ -147,24 +140,24 @@ runInstructionList(Controller *__restrict__ ctrler,
                    CtrlState *__restrict__ state,
                    const Instruction *__restrict__ inst, size_t n)
 {
-    state->timing_check = true;
     for (size_t i = 0;i < n;i++) {
         auto cur_inst = inst + i;
         __builtin_prefetch(cur_inst + 2);
         runInstruction(ctrler, state, cur_inst);
     }
+    ctrler->shortPulse(0x20000000 | 3, 0);
 }
 
 NACS_EXPORT() __attribute__((flatten, hot)) void
 runExpSeq(Controller *__restrict__ ctrler, CtrlState *__restrict__ state,
           const Instruction *__restrict__ inst, size_t n)
 {
-    state->timing_check = true;
     for (size_t i = 0;i < n;i++) {
         auto cur_inst = inst + i;
         __builtin_prefetch(cur_inst + 2);
         runInstruction(ctrler, state, cur_inst);
     }
+    ctrler->shortPulse(0x20000000 | 3, 0);
 }
 
 }
