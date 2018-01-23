@@ -181,7 +181,7 @@ NACS_EXPORT() void BlockBuilder::fromSeq(const Seq::Sequence &seq)
         }
         if (t + mint > tlim)
             return 0;
-        pulseAbsT(t, [&] (uint64_t *tp) {
+        this->pulseAbsT(t, [&] (uint64_t *tp) {
                 switch (chn.typ) {
                 case Seq::Channel::TTL:
                     return Inst::ttlAll(val.val.i32 & ~start_ttl_mask, tp);
@@ -203,12 +203,12 @@ NACS_EXPORT() void BlockBuilder::fromSeq(const Seq::Sequence &seq)
         if (evt == Seq::Event::start) {
             // wait 100us
             cur_t += 10000;
-            pulseAbsT(cur_t, [&] (uint64_t *tp) {
+            this->pulseAbsT(cur_t, [&] (uint64_t *tp) {
                     return Inst::ttl(start_ttl, 1, tp);
                 });
             // 1us
             cur_t += 100;
-            pulseAbsT(cur_t, [&] (uint64_t *tp) {
+            this->pulseAbsT(cur_t, [&] (uint64_t *tp) {
                     return Inst::ttl(start_ttl, 0, tp);
                 });
             // 5us
@@ -217,14 +217,14 @@ NACS_EXPORT() void BlockBuilder::fromSeq(const Seq::Sequence &seq)
             // This is a hack that is believed to make the NI card happy.
             // 1us
             cur_t += 100;
-            pulseAbsT(cur_t, [&] (uint64_t *tp) {
+            this->pulseAbsT(cur_t, [&] (uint64_t *tp) {
                     return Inst::clockOut(59, tp);
                 });
             // 30ms
             cur_t += 3000000;
             // Turn off the clock even when it is not used just as a
             // place holder for the end of the sequence.
-            pulseAbsT(cur_t, [&] (uint64_t *tp) {
+            this->pulseAbsT(cur_t, [&] (uint64_t *tp) {
                     return Inst::clockOut(255, tp);
                 });
         }
