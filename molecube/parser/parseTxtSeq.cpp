@@ -342,24 +342,6 @@ static void parsePlainTxt(const std::string &seqTxt,
     }
 }
 
-/**
- * Different pulse types that we need:
- * TTL all: [#0: 4][t: 4][val: 32] (5 bytes)
- * TTL flip2: [#1: 4][t: 2][val1: 5][val2: 5] (2 bytes, val1 == val2 means single flip)
- * TTL flip4: [#2: 4][val: 5][val: 5][val: 5][val: 5] (3 bytes, len=3)
- * TTL flip5: [#3: 4][t: 3][val: 5][val: 5][val: 5][val: 5][val: 5] (4 bytes)
- * Wait: [#4: 4][exp: 4][t: 16] (3 bytes, len=t * 2^(3 * exp))
- * Clock: [#5: 4][#0: 4][period: 8] (2 bytes)
- * DDS Freq: [#6: 4][chn: 5][freq: 31] (5 bytes)
- * DDS det Freq: [#7: 4][chn: 5][det_freq: 7] (2 bytes)
- * DDS det Freq: [#8: 4][chn: 5][det_freq: 15] (3 bytes)
- * DDS det Freq: [#9: 4][chn: 5][det_freq: 23] (4 bytes)
- * DDS Amp: [#10: 4][#0: 3][chn: 5][amp: 12] (3 bytes)
- * DDS det Amp: [#11: 4][chn: 5][det_amp: 7] (2 bytes)
- * DAC: [#12: 4][#0: 4][chn: 8][val: 16] (4 bytes)
- * DAC det: [#13: 4][chn: 8][val: 12] (3 bytes)
- **/
-
 static void parseBase64Txt(const std::string &seqTxt,
                            Pulser::BlockBuilder &builder)
 {

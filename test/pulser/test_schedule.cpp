@@ -12,7 +12,6 @@
 #include <assert.h>
 
 using namespace NaCs;
-using Inst = Pulser::InstWriter;
 
 int main(int argc, char **argv)
 {
