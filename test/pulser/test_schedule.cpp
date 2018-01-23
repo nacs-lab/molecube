@@ -15,7 +15,7 @@ using namespace NaCs;
 
 int main(int argc, char **argv)
 {
-    assert(argc == 2);
+    assert(argc >= 2);
 
     Pulser::BlockBuilder builder;
     std::ifstream istm(argv[1]);
@@ -25,6 +25,12 @@ int main(int argc, char **argv)
     builder.fromSeq(Seq::PulsesBuilder::fromBase64((const uint8_t*)data.data(), data.size()));
     printToc();
 
+    if (argc >= 3) {
+        std::ofstream ostm(argv[2]);
+        ostm.write((const char*)&builder[0], builder.size() * sizeof(Pulser::Instruction));
+    }
+
+    std::cout << builder.size() << std::endl;
     std::cout << builder.size() * sizeof(Pulser::Instruction) << std::endl;
 
     return 0;
