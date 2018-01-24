@@ -438,12 +438,7 @@ parseSeqTxt(Pulser::Controller &ctrl, unsigned reps,
         ctrl.setHold();
         ctrl.toggleInit();
         Pulser::CtrlState state;
-        if (is_b64) {
-            Pulser::runExpSeq(&ctrl, &state, *builder_p);
-        }
-        else {
-            Pulser::runInstructionList(&ctrl, &state, *builder_p);
-        }
+        Pulser::runInstructionList(&ctrl, &state, *builder_p);
 
         if (terminate_request) {
             ctrl.releaseHold();
