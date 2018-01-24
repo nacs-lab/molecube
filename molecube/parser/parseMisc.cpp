@@ -189,6 +189,11 @@ parseQueryCGI(Pulser::Controller &ctrl, cgicc::Cgicc &cgi,
     cgicc::form_iterator page = cgi.getElement("page");
     if (cmd != cgi.getElements().end()) {
         nacsLog("Command = %s\n", (**cmd).c_str());
+        if ((**cmd) == "runseq") {
+            parseSeqCGI(ctrl, cgi, reply, request);
+            return true;
+        }
+
         if ((**cmd) == "getTTL") {
             printJSONResponseHeader(reply);
             uint32_t lo = ctrl.getTTLLowMask();
@@ -263,10 +268,6 @@ parseQueryCGI(Pulser::Controller &ctrl, cgicc::Cgicc &cgi,
             }
         }
 
-        if ((**cmd) == "runseq") {
-            parseSeqCGI(ctrl, cgi, reply, request);
-            return true;
-        }
         return false;
     } else {
         nacsLog("No Command\n");
