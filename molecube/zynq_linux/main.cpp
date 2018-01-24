@@ -1,5 +1,6 @@
 #include <nacs-utils/timer.h>
 #include <nacs-utils/log.h>
+#include <nacs-utils/zmq_utils.h>
 #include <nacs-pulser/controller.h>
 
 #include "init_system.h"
@@ -27,7 +28,8 @@
 #include <fcgio.h>
 #include <fcgi_config.h>
 #include <cgicc/CgiInput.h>
-#include <zmq.hpp>
+
+using namespace NaCs;
 
 // TR: Linker failed when FCgiIO was in a separate header (undefined ref to vtable),
 //     so I'm pasting it here.  Removed pointers to stderr and stdout streams.
@@ -155,38 +157,6 @@ getRequestId()
     return id.fetch_add(1, std::memory_order_relaxed);
 }
 
-static inline bool sock_more(zmq::socket_t &sock)
-{
-    int more = 0;
-    size_t more_size = sizeof(more);
-    sock.getsockopt(ZMQ_RCVMORE, &more, &more_size);
-    return more != 0;
-}
-
-static inline void sock_readall(zmq::socket_t &sock)
-{
-    while (sock_more(sock)) {
-        zmq::message_t msg;
-        sock.recv(&msg);
-    }
-}
-
-static inline bool match_str(const zmq::message_t &msg, const char *str)
-{
-    auto len = strlen(str);
-    if (msg.size() != len)
-        return false;
-    return memcmp(msg.data(), str, len) == 0;
-}
-
-template<typename T>
-static inline zmq::message_t bits_msg(T v)
-{
-    zmq::message_t msg(sizeof(T));
-    std::memcpy(msg.data(), &v, sizeof(T));
-    return msg;
-}
-
 }
 
 using namespace NaCs;
@@ -308,25 +278,27 @@ main(int argc, char *argv[])
                 sock.recv(&msg);
                 assert(msg.size() == 0);
 
-                sock.recv(&msg);
-                if (match_str(msg, "run_seq")) {
-                    sock.recv(&msg);
-                    if (msg.size() != 4) {
+                if (!ZMQ::recv_more(sock, msg)) {
+                    nacsLog("Empty request %d\n", request_id);
+                    send_reply(addr, ZMQ::bits_msg(uint64_t(0)));
+                    goto out;
+                }
+                else if (ZMQ::match(msg, "run_seq")) {
+                    if (!ZMQ::recv_more(sock, msg) || msg.size() != 4) {
                         // No version
-                        send_reply(addr, bits_msg(uint64_t(0)));
+                        send_reply(addr, ZMQ::bits_msg(uint64_t(0)));
                         goto out;
                     }
                     uint32_t ver;
                     memcpy(&ver, msg.data(), 4);
                     if (ver != 0) {
                         // Wrong version
-                        send_reply(addr, bits_msg(uint64_t(0)));
+                        send_reply(addr, ZMQ::bits_msg(uint64_t(0)));
                         goto out;
                     }
-                    sock.recv(&msg);
-                    if (msg.size() <= 8) {
+                    if (!ZMQ::recv_more(sock, msg) || msg.size() <= 8) {
                         // No length
-                        send_reply(addr, bits_msg(uint64_t(0)));
+                        send_reply(addr, ZMQ::bits_msg(uint64_t(0)));
                         goto out;
                     }
                     uint64_t len_ns;
@@ -336,15 +308,15 @@ main(int argc, char *argv[])
                     msg_data += 8;
                     msg_sz -= 8;
                     handleRunByteCode(ctrl, len_ns, msg_data, msg_sz, [&] {
-                            send_reply(addr, bits_msg(uint64_t(1)));
+                            send_reply(addr, ZMQ::bits_msg(uint64_t(1)));
                         });
                 }
                 else {
                     nacsLog("Unknown request %d\n", request_id);
-                    send_reply(addr, bits_msg(uint64_t(0)));
+                    send_reply(addr, ZMQ::bits_msg(uint64_t(0)));
                 }
             out:
-                sock_readall(sock);
+                ZMQ::readall(sock);
                 nacsLog("==== Finish ZMQ request %d ====\n\n", request_id);
             }
         };
