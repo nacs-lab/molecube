@@ -22,7 +22,7 @@ int main(int argc, char **argv)
     std::string data(std::istreambuf_iterator<char>(istm), {});
     assert(Base64::validate((const uint8_t*)data.data(), data.size()));
     tic();
-    builder.fromSeq(Seq::PulsesBuilder::fromBase64((const uint8_t*)data.data(), data.size()));
+    builder.fromSeq(Seq::Sequence::fromBase64((const uint8_t*)data.data(), data.size()));
     printToc();
 
     if (argc >= 3) {

@@ -349,7 +349,7 @@ static void parseBase64Txt(const std::string &seqTxt,
     size_t data_len = seqTxt.size() - 1;
     if (!Base64::validate(data, data_len))
         throw parseError(builder, "Invalid Base64 encoding");
-    builder.fromSeq(Seq::PulsesBuilder::fromBase64(data, data_len));
+    builder.fromSeq(Seq::Sequence::fromBase64(data, data_len));
 }
 
 // 256MB cache
