@@ -74,7 +74,7 @@ public:
     // all 500ns
     struct DDS {
         static inline Instruction
-        setPhaseF(int i, double phase, uint64_t *tp=nullptr)
+        setPhase(int i, double phase, uint64_t *tp=nullptr)
         {
             accumTime(tp, 50);
             return Instruction(ControlBit::MetaCmd |
@@ -82,7 +82,7 @@ public:
                                uint32_t(i));
         }
         static inline Instruction
-        shiftPhaseF(int i, double phase, uint64_t *tp=nullptr)
+        shiftPhase(int i, double phase, uint64_t *tp=nullptr)
         {
             accumTime(tp, 50);
             return Instruction(ControlBit::MetaCmd |
@@ -90,13 +90,13 @@ public:
                                uint32_t(i));
         }
         static inline Instruction
-        setFreqF(int i, double freq, uint64_t *tp=nullptr)
+        setFreq(int i, double freq, uint64_t *tp=nullptr)
         {
             accumTime(tp, 50);
             return DDSSetFreqF(i, freq);
         }
         static inline Instruction
-        setAmpF(int i, double amp, uint64_t *tp=nullptr)
+        setAmp(int i, double amp, uint64_t *tp=nullptr)
         {
             accumTime(tp, 50);
             return DDSSetAmpF(i, amp);
@@ -156,7 +156,7 @@ public:
     static inline Instruction
     dacSetVolt(uint8_t dac, double volt, uint64_t *tp=nullptr)
     {
-        DACSetVolt cmd{dac, volt};
+        DACSetVoltF cmd{dac, volt};
         accumTime(tp, cmd.length());
         return cmd;
     }

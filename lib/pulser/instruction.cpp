@@ -33,11 +33,9 @@ runDDSSetPhase(Controller *__restrict__ ctrler, CtrlState *__restrict__ state,
 }
 
 static inline __attribute__((flatten, hot)) void
-runWaitMeta(Controller *__restrict__ ctrler, CtrlState *__restrict__ state,
-            uint32_t ctrl, uint32_t op)
+runWait(Controller *__restrict__ ctrler, CtrlState *__restrict__ state, uint64_t t)
 {
     const uint32_t flags = ControlBit::TimingCheck;
-    uint64_t t = combTime(ctrl, op); // time in 10ns
     // If the wait time is too short, don't do anything fancy
     if (t < 50) {
         ctrler->shortPulse(0x20000000 | uint32_t(t) | flags, 0);
@@ -103,7 +101,7 @@ runMetaInstruction(Controller *__restrict__ ctrler,
     case ControlBit::WaitMeta:
         // After removing the Meta bits, the maximum time is
         // 2^(32 + 24) * 10ns ~ 22 years. Hopefully that's enough...
-        runWaitMeta(ctrler, state, ctrl, op);
+        runWait(ctrler, state, combTime(ctrl, op));
         break;
     case ControlBit::DDSSetPhaseMeta:
         // Truncate ctrl to 16 bits to get phase
@@ -150,6 +148,47 @@ runInstructionList(Controller *__restrict__ ctrler,
     ctrler->shortPulse(0x20000000 | 3, 0);
 }
 
+namespace {
+
+struct ByteCodeRunner {
+    void ttl(uint32_t ttl, uint64_t t)
+    {
+        state->curr_ttl = ttl;
+        if (t <= 1000) {
+            // 10us
+            checkedShortPulse(ctrler, (uint32_t)t, ttl);
+        }
+        else {
+            checkedShortPulse(ctrler, 100, ttl);
+            wait(t - 100);
+        }
+    }
+    void dds_freq(uint8_t chn, uint32_t freq)
+    {
+        checkedShortPulse(ctrler, DDSSetFreq(chn, freq));
+    }
+    void dds_amp(uint8_t chn, uint16_t amp)
+    {
+        checkedShortPulse(ctrler, DDSSetAmp(chn, amp));
+    }
+    void dac(uint8_t chn, uint16_t V)
+    {
+        checkedShortPulse(ctrler, DACSetVolt(chn, V));
+    }
+    void wait(uint64_t t)
+    {
+        runWait(ctrler, state, t);
+    }
+    void clock(uint8_t period)
+    {
+        checkedShortPulse(ctrler, ClockOut(period));
+    }
+    Controller *ctrler;
+    CtrlState *state;
+};
+
+}
+
 NACS_EXPORT() void BlockBuilder::fromSeq(const Seq::Sequence &seq)
 {
     using Inst = Pulser::InstWriter;
@@ -172,9 +211,9 @@ NACS_EXPORT() void BlockBuilder::fromSeq(const Seq::Sequence &seq)
                 case Seq::Channel::TTL:
                     return Inst::ttlAll(val.val.i32 & ~start_ttl_mask, tp);
                 case Seq::Channel::DDS_FREQ:
-                    return Inst::DDS::setFreqF(chn.id, val.val.f64, tp);
+                    return Inst::DDS::setFreq(chn.id, val.val.f64, tp);
                 case Seq::Channel::DDS_AMP:
-                    return Inst::DDS::setAmpF(chn.id, val.val.f64, tp);
+                    return Inst::DDS::setAmp(chn.id, val.val.f64, tp);
                 case Seq::Channel::DAC:
                     return Inst::dacSetVolt(uint8_t(chn.id), val.val.f64, tp);
                 case Seq::Channel::CLOCK:

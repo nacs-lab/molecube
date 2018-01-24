@@ -14,7 +14,7 @@ main()
     Pulser::BlockBuilder builder;
     tic();
     for (int i = 0;i < 6;i++) {
-        builder.pulseDT(100000000, Inst::DDS::setFreqF, 2, 0);
+        builder.pulseDT(100000000, Inst::DDS::setFreq, 2, 0);
     }
     printToc();
 

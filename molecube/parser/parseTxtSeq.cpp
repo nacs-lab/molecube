@@ -190,16 +190,16 @@ parseCommand(Pulser::BlockBuilder &builder, std::string &cmd,
         return parseTTL(builder, arg1, s, tp);
 
     if (cmd.find("freq") != std::string::npos)
-        return parseDDS(builder, arg1, s, Inst::DDS::setFreqF, tp);
+        return parseDDS(builder, arg1, s, Inst::DDS::setFreq, tp);
 
     if (cmd.find("amp") != std::string::npos)
-        return parseDDS(builder, arg1, s, Inst::DDS::setAmpF, tp);
+        return parseDDS(builder, arg1, s, Inst::DDS::setAmp, tp);
 
     if (cmd.find("phase") != std::string::npos)
-        return parseDDS(builder, arg1, s, Inst::DDS::setPhaseF, tp);
+        return parseDDS(builder, arg1, s, Inst::DDS::setPhase, tp);
 
     if (cmd.find("shiftp") != std::string::npos)
-        return parseDDS(builder, arg1, s, Inst::DDS::shiftPhaseF, tp);
+        return parseDDS(builder, arg1, s, Inst::DDS::shiftPhase, tp);
 
     if (cmd.find("reset") != std::string::npos)
         return parseReset(builder, arg1, s, tp);

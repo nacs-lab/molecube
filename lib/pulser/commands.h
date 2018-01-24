@@ -92,6 +92,18 @@ public:
 
 struct DACSetVolt : SPICmd {
 private:
+    static constexpr uint32_t getData(uint8_t dac, uint16_t V)
+    {
+        return ((dac & 3) << 16) | V;
+    }
+public:
+    constexpr DACSetVolt(uint8_t dac, uint16_t V)
+        : SPICmd(0, 0, getData(dac, V))
+    {}
+};
+
+struct DACSetVoltF : DACSetVolt {
+private:
     static constexpr uint16_t getVoltData(double volt)
     {
         if (volt >= 10)
@@ -103,13 +115,9 @@ private:
         double offset = 10.0;
         return uint16_t(((offset - volt) * scale) + 0.5);
     }
-    static constexpr uint32_t getData(uint8_t dac, double volt)
-    {
-        return ((dac & 3) << 16) | getVoltData(volt);
-    }
 public:
-    constexpr DACSetVolt(uint8_t dac, double volt)
-        : SPICmd(0, 0, getData(dac, volt))
+    constexpr DACSetVoltF(uint8_t dac, double volt)
+        : DACSetVolt(dac, getVoltData(volt))
     {}
 };
 
