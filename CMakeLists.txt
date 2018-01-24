@@ -9,6 +9,9 @@ include(PythonMacros)
 include(CMakeCMacros)
 include(GNUInstallDirs)
 
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(ZMQ REQUIRED libzmq>=4.0)
+
 set(PULSER_AD9914_CLK 3.5e9)
 set(PULSER_NDDS 22)
 
