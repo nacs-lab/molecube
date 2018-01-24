@@ -33,7 +33,7 @@ runDDSSetPhase(Controller *__restrict__ ctrler, CtrlState *__restrict__ state,
 }
 
 static inline __attribute__((flatten, hot)) void
-runWait(Controller *__restrict__ ctrler, CtrlState *__restrict__ state, uint64_t t)
+runWait(Controller *__restrict__ ctrler, uint64_t &wait_time, uint64_t t)
 {
     const uint32_t flags = ControlBit::TimingCheck;
     // If the wait time is too short, don't do anything fancy
@@ -42,9 +42,9 @@ runWait(Controller *__restrict__ ctrler, CtrlState *__restrict__ state, uint64_t
         return;
     } else if (t < 10000) {
         uint32_t t32 = uint32_t(t);
-        state->wait_time += t32;
-        if (state->wait_time > 8192 || t >= 1024) {
-            state->wait_time = 0;
+        wait_time += t32;
+        if (wait_time > 8192 || t >= 1024) {
+            wait_time = 0;
             // Allocate 1.28us for each pulse (except the first one)
             uint32_t max_requests = (t32 - 50) / 256 + 1;
             t32 -= (uint32_t)ctrler->writeRequests(max_requests, false, flags);
@@ -52,7 +52,7 @@ runWait(Controller *__restrict__ ctrler, CtrlState *__restrict__ state, uint64_t
         ctrler->shortPulse(0x20000000 | t32 | flags, 0);
         return;
     }
-    state->wait_time = 0;
+    wait_time = 0;
     static constexpr uint32_t t_max = 8000; // 80us
     static constexpr auto t_sleep = 10us;
     while (true) {
@@ -101,7 +101,7 @@ runMetaInstruction(Controller *__restrict__ ctrler,
     case ControlBit::WaitMeta:
         // After removing the Meta bits, the maximum time is
         // 2^(32 + 24) * 10ns ~ 22 years. Hopefully that's enough...
-        runWait(ctrler, state, combTime(ctrl, op));
+        runWait(ctrler, state->wait_time, combTime(ctrl, op));
         break;
     case ControlBit::DDSSetPhaseMeta:
         // Truncate ctrl to 16 bits to get phase
@@ -153,7 +153,6 @@ namespace {
 struct ByteCodeRunner {
     void ttl(uint32_t ttl, uint64_t t)
     {
-        state->curr_ttl = ttl;
         if (t <= 1000) {
             // 10us
             checkedShortPulse(ctrler, (uint32_t)t, ttl);
@@ -177,23 +176,23 @@ struct ByteCodeRunner {
     }
     void wait(uint64_t t)
     {
-        runWait(ctrler, state, t);
+        runWait(ctrler, wait_time, t);
     }
     void clock(uint8_t period)
     {
         checkedShortPulse(ctrler, ClockOut(period));
     }
     Controller *ctrler;
-    CtrlState *state;
+    uint64_t wait_time{0};
 };
 
 }
 
-NACS_EXPORT() void runByteCode(Controller *__restrict__ ctrler,
-                               CtrlState *__restrict__ state,
-                               const uint8_t *__restrict__ code, size_t code_len)
+NACS_EXPORT() __attribute__((flatten, hot))
+void runByteCode(Controller *__restrict__ ctrler,
+                 const uint8_t *__restrict__ code, size_t code_len)
 {
-    ByteCodeRunner runner{ctrler, state};
+    ByteCodeRunner runner{ctrler};
     Seq::ByteCode::ExeState exestate;
     exestate.run(runner, code, code_len);
     ctrler->shortPulse(0x20000000 | 3, 0);

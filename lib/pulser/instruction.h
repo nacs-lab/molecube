@@ -173,7 +173,7 @@ runInstructionList(Controller *__restrict__ ctrler,
     runInstructionList(ctrler, state, v.data(), v.size());
 }
 
-void runByteCode(Controller *__restrict__ ctrler, CtrlState *__restrict__ state,
+void runByteCode(Controller *__restrict__ ctrler,
                  const uint8_t *__restrict__ code, size_t code_len);
 
 struct BlockBuilder;
