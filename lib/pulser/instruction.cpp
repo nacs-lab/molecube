@@ -10,7 +10,7 @@ namespace NaCs {
 namespace Pulser {
 
 static inline __attribute__((flatten, hot)) void
-writeShortPulse(Controller *__restrict__ ctrler, uint32_t ctrl, uint32_t op)
+checkedShortPulse(Controller *__restrict__ ctrler, uint32_t ctrl, uint32_t op)
 {
     ctrl |= ControlBit::TimingCheck;
     ctrler->shortPulse(ctrl, op);
@@ -19,9 +19,9 @@ writeShortPulse(Controller *__restrict__ ctrler, uint32_t ctrl, uint32_t op)
 template<typename Cmd>
 static inline __attribute__((flatten, hot))
 std::enable_if_t<isSimpleCmd<Cmd> >
-writeShortPulse(Controller *__restrict__ ctrler, Cmd &&cmd)
+checkedShortPulse(Controller *__restrict__ ctrler, Cmd &&cmd)
 {
-    writeShortPulse(ctrler, cmd.control(), cmd.operand());
+    checkedShortPulse(ctrler, cmd.control(), cmd.operand());
 }
 
 static inline __attribute__((flatten, hot)) void
@@ -29,7 +29,7 @@ runDDSSetPhase(Controller *__restrict__ ctrler, CtrlState *__restrict__ state,
                int dds_num, uint16_t phase)
 {
     state->dds_phases[dds_num] = phase;
-    writeShortPulse(ctrler, DDSSetPhase(dds_num, phase));
+    checkedShortPulse(ctrler, DDSSetPhase(dds_num, phase));
 }
 
 static inline __attribute__((flatten, hot)) void
@@ -92,7 +92,7 @@ runTTLMeta(Controller *__restrict__ ctrler, CtrlState *__restrict__ state,
         state->curr_ttl = setBit(state->curr_ttl, uint8_t(ttl_addr),
                                  bool(ttl_val));
     }
-    writeShortPulse(ctrler, ttl_time, state->curr_ttl);
+    checkedShortPulse(ctrler, ttl_time, state->curr_ttl);
 }
 
 static inline __attribute__((flatten, hot)) void
@@ -116,7 +116,7 @@ runMetaInstruction(Controller *__restrict__ ctrler,
         break;
     case ControlBit::DDSResetMeta:
         state->dds_phases[op] = 0;
-        writeShortPulse(ctrler, DDSReset(int(op)));
+        checkedShortPulse(ctrler, DDSReset(int(op)));
         break;
     case ControlBit::TTLMeta:
         runTTLMeta(ctrler, state, ctrl & ControlBit::MetaContentMask, op);
