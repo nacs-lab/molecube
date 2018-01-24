@@ -80,8 +80,10 @@ Controller::popResults()
     // Atomic increment is not necessary since there should only be one
     // thread writing to it
     {
+        // TODO: we can probably be smarter here and reduce the use of locks.
         std::lock_guard<std::mutex> locker(m_writer_lock);
-        m_num_read = m_num_read + n_res;
+        m_num_read.store(m_num_read.load(std::memory_order_relaxed) + n_res,
+                         std::memory_order_release);
     }
     // There should be enough requests queued in the result queue
     Request *reqs[buf_size];
@@ -118,7 +120,8 @@ Controller::popRemaining()
     uint32_t n_read = 0;
     // Should be safe even in case of overflow since the difference between
     // them should be kept small by the writter thread
-    while (int(m_num_written - m_num_read) > 0 && !m_quit) {
+    while (int(m_num_written.load(std::memory_order_relaxed) -
+               m_num_read.load(std::memory_order_relaxed)) > 0 && !m_quit) {
         n_read += popResults();
         std::this_thread::yield();
     }
@@ -186,7 +189,8 @@ Controller::writeRequests(uint32_t max_num, bool notify, uint32_t flags)
         }
     }
     if (num_return) {
-        m_num_written = m_num_written + num_return;
+        m_num_written.store(m_num_written.load(std::memory_order_relaxed) + num_return,
+                            std::memory_order_relaxed);
         if (notify) {
             // If notify is on, the reader thread only need to be waken up
             // for the requests that return results.

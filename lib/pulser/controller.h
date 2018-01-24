@@ -85,7 +85,9 @@ class Controller: public Driver {
         }
         waitForResSpace(sizeof...(ResI));
         write(cmd);
-        m_num_written = m_num_written + sizeof...(ResI);
+        m_num_written.store(m_num_written.load(std::memory_order_relaxed) +
+                            uint32_t(sizeof...(ResI)),
+                            std::memory_order_relaxed);
         m_reader_cond.notify_all();
         for (auto &req: reqs) {
             wait(req);
@@ -130,7 +132,7 @@ public:
     inline uint8_t
     getCondId()
     {
-        return uint8_t(m_cond_id.fetch_add(1) & numLocksMask);
+        return uint8_t(m_cond_id.fetch_add(1, std::memory_order_relaxed) & numLocksMask);
     }
 
     // For requester
@@ -242,7 +244,8 @@ public:
     resBuffSpace()
     {
         static constexpr int max_write = 15;
-        return max_write - m_num_written + m_num_read;
+        return max_write - m_num_written.load(std::memory_order_relaxed) +
+            m_num_read.load(std::memory_order_relaxed);
     }
 
     inline void
@@ -282,8 +285,7 @@ private:
     void runWriter();
 
     /**
-     * Use atomic_uint for num_read and num_written to ensure atomic load and
-     * write (which is hopefully trivial).
+     * Use atomic_uint for num_read and num_written to ensure atomic load and write
      *
      * @m_num_read: number of results read
      * @m_num_written: number of request that returns a result written
@@ -292,8 +294,8 @@ private:
      * It is important to keep the difference between these small since the
      * the FPGA only has a finite result buffer size.
      */
-    std::atomic_uint m_num_read;
-    std::atomic_uint m_num_written;
+    std::atomic<uint32_t> m_num_read;
+    std::atomic<uint32_t> m_num_written;
 
     /**
      * @m_res_queue: queue of written requests
@@ -324,7 +326,7 @@ private:
     /**
      * m_cond_id: counter to assign condition variables.
      */
-    mutable std::atomic_uint m_cond_id;
+    mutable std::atomic<uint8_t> m_cond_id;
 
     /**
      * @m_quit: the controller is (being) destructed and the helper thread(s)
