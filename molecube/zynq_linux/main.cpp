@@ -243,7 +243,7 @@ main(int argc, char *argv[])
         }
     };
 
-    static constexpr size_t numWorkers = 16;
+    static constexpr size_t numWorkers = 8;
     std::vector<std::thread> workers;
     for (size_t i = 0;i < numWorkers;i++) {
         workers.emplace_back(processRequests);
