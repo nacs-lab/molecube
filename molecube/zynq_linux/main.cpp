@@ -82,7 +82,7 @@ public:
     size_t
     read(char *data, size_t length) override
     {
-        return FCGX_GetStr(data, length, m_request.in);
+        return FCGX_GetStr(data, (int)length, m_request.in);
     }
 
     /*!
