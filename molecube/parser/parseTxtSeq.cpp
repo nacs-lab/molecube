@@ -573,4 +573,55 @@ getQuote(const char *fname, const char *delim)
     return "";
 }
 
+void handleRunByteCode(Pulser::Controller &ctrl, uint64_t seq_len_ns,
+                       const uint8_t *code, size_t code_len,
+                       const std::function<void()> &send_reply)
+{
+    tic();
+    nacsLog("Start sequence %" PRIu64 " ns.\n", seq_len_ns);
+
+    // less than 1s
+    bool short_seq = seq_len_ns <= 1000 * 1000 * 1000;
+
+    if (!short_seq)
+        setProgramStatus("Running sequence 1 / 1");
+
+    Pulser::CtrlLocker locker(ctrl);
+    // hold the sequnce until pulse buffer is full or
+    // ctrl.waitFinish() is called
+    ctrl.setHold();
+    ctrl.toggleInit();
+    Pulser::runByteCode(&ctrl, code, code_len);
+    ctrl.releaseHold();
+
+    if (short_seq) {
+        // If the sequence is short and we are only running it once,
+        // reply as soon as possible.
+        send_reply();
+    }
+    // wait for pulses finished.
+    ctrl.waitFinish();
+    if (!short_seq)
+        send_reply();
+
+    auto run_time = toc();
+    if (!ctrl.timingOK())
+        nacsLog("Warning: timing failures.\n");
+
+    Pulser::runEpilogue(&ctrl);
+    nacsLog("Exe time: %9.3f ms\n", (double)run_time * 1e-6);
+
+    // Doing this check before this sequence will make the current sequence
+    // more likely to work. However, that increase the latency and the DDS
+    // reset only happen very infrequently so let's do it after the sequence
+    // for better efficiency.
+    for (auto i: active_dds) {
+        if (AD9914::init(ctrl, i, AD9914::LogAction)) {
+            nacsLog("DDS %d reinit\n", i);
+            AD9914::print_registers(ctrl, i);
+        }
+    }
+    setProgramStatus("Idle");
+}
+
 }

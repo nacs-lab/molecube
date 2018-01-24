@@ -27,6 +27,10 @@ bool parseSeqCGI(Pulser::Controller &ctrl, cgicc::Cgicc &cgi,
 
 std::string getQuote(const char *fname, const char *divider);
 
+void handleRunByteCode(Pulser::Controller &ctrl, uint64_t seq_len_ns,
+                       const uint8_t *code, size_t code_len,
+                       const std::function<void()> &send_reply);
+
 }
 
 #endif
