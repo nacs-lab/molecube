@@ -32,8 +32,10 @@ runDDSSetPhase(Controller *__restrict__ ctrler, CtrlState *__restrict__ state,
     checkedShortPulse(ctrler, DDSSetPhase(dds_num, phase));
 }
 
+template<typename T>
 static inline __attribute__((flatten, hot)) void
-runWait(Controller *__restrict__ ctrler, uint64_t &wait_time, uint64_t t)
+runWait(Controller *__restrict__ ctrler, uint64_t &wait_time, uint64_t t,
+        T &&release_after)
 {
     const uint32_t flags = ControlBit::TimingCheck;
     // If the wait time is too short, don't do anything fancy
@@ -69,8 +71,16 @@ runWait(Controller *__restrict__ ctrler, uint64_t &wait_time, uint64_t t)
                 std::this_thread::sleep_for(t_sleep);
             } else {
                 ctrler->releaseHold();
+                release_after = -1;
             }
             t -= t_max;
+            if (release_after == 0) {
+                ctrler->releaseHold();
+                release_after = -1;
+            }
+            else if (release_after >= 0) {
+                release_after--;
+            }
         } else {
             ctrler->shortPulse(0x20000000 | uint32_t(t) | flags, 0);
             break;
@@ -101,7 +111,7 @@ runMetaInstruction(Controller *__restrict__ ctrler,
     case ControlBit::WaitMeta:
         // After removing the Meta bits, the maximum time is
         // 2^(32 + 24) * 10ns ~ 22 years. Hopefully that's enough...
-        runWait(ctrler, state->wait_time, combTime(ctrl, op));
+        runWait(ctrler, state->wait_time, combTime(ctrl, op), -1);
         break;
     case ControlBit::DDSSetPhaseMeta:
         // Truncate ctrl to 16 bits to get phase
@@ -176,7 +186,7 @@ struct ByteCodeRunner {
     }
     void wait(uint64_t t)
     {
-        runWait(ctrler, wait_time, t);
+        runWait(ctrler, wait_time, t, release_after);
     }
     void clock(uint8_t period)
     {
@@ -184,6 +194,7 @@ struct ByteCodeRunner {
     }
     Controller *ctrler;
     uint64_t wait_time{0};
+    int release_after{30};
 };
 
 }
@@ -205,7 +216,7 @@ NACS_EXPORT() void runEpilogue(Controller *__restrict__ ctrler)
     // 1us
     checkedShortPulse(ctrler, ClockOut(59));
     // 30ms
-    runWait(ctrler, wait_time, 3000000);
+    runWait(ctrler, wait_time, 3000000, -1);
     checkedShortPulse(ctrler, ClockOut(255));
     ctrler->run(Pulser::ClearTimingCheck());
 }
