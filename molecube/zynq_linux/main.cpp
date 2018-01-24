@@ -27,6 +27,7 @@
 #include <fcgio.h>
 #include <fcgi_config.h>
 #include <cgicc/CgiInput.h>
+#include <zmq.hpp>
 
 // TR: Linker failed when FCgiIO was in a separate header (undefined ref to vtable),
 //     so I'm pasting it here.  Removed pointers to stderr and stdout streams.
@@ -142,6 +143,7 @@ printUsage()
            "If none specified, use stdout.\n");
     printf(" -s startup_file_name : "
            "If specified, run startup pulse sequence from file.\n");
+    printf(" -s zmq address to listen to.\n");
     printf(" -h or --help : Print help / usage info.\n");
     printf("\n\n");
 }
@@ -150,7 +152,39 @@ static inline int
 getRequestId()
 {
     static std::atomic<int> id(0);
-    return ++id;
+    return id.fetch_add(1, std::memory_order_relaxed);
+}
+
+static inline bool sock_more(zmq::socket_t &sock)
+{
+    int more = 0;
+    size_t more_size = sizeof(more);
+    sock.getsockopt(ZMQ_RCVMORE, &more, &more_size);
+    return more != 0;
+}
+
+static inline void sock_readall(zmq::socket_t &sock)
+{
+    while (sock_more(sock)) {
+        zmq::message_t msg;
+        sock.recv(&msg);
+    }
+}
+
+static inline bool match_str(const zmq::message_t &msg, const char *str)
+{
+    auto len = strlen(str);
+    if (msg.size() != len)
+        return false;
+    return memcmp(msg.data(), str, len) == 0;
+}
+
+template<typename T>
+static inline zmq::message_t bits_msg(T v)
+{
+    zmq::message_t msg(sizeof(T));
+    std::memcpy(msg.data(), &v, sizeof(T));
+    return msg;
 }
 
 }
@@ -216,7 +250,7 @@ main(int argc, char *argv[])
 
     setProgramStatus("Idle");
 
-    auto processRequests = [&] () {
+    auto processRequests = [&] {
         FCGX_Request request;
         FCGX_InitRequest(&request, 0, 0);
         while (FCGX_Accept_r(&request) == 0) {
@@ -247,6 +281,74 @@ main(int argc, char *argv[])
     std::vector<std::thread> workers;
     for (size_t i = 0;i < numWorkers;i++) {
         workers.emplace_back(processRequests);
+    }
+    std::string zmqaddr = cla.GetStringAfter("-z", "");
+    if (!zmqaddr.empty()) {
+        auto processZMQ = [&] {
+            zmq::context_t ctx;
+            zmq::socket_t sock(ctx, ZMQ_ROUTER);
+            sock.bind(zmqaddr);
+            zmq::message_t empty(0);
+            auto send_reply_header = [&] (zmq::message_t &addr) {
+                sock.send(addr, ZMQ_SNDMORE);
+                sock.send(empty, ZMQ_SNDMORE);
+            };
+            auto send_reply = [&] (zmq::message_t &addr, auto &&msg) {
+                send_reply_header(addr);
+                sock.send(msg);
+            };
+            while (true) {
+                zmq::message_t addr;
+                sock.recv(&addr);
+
+                auto request_id = getRequestId();
+                nacsLog("==== Accept ZMQ request %d ====\n", request_id);
+
+                zmq::message_t msg;
+                sock.recv(&msg);
+                assert(msg.size() == 0);
+
+                sock.recv(&msg);
+                if (match_str(msg, "run_seq")) {
+                    sock.recv(&msg);
+                    if (msg.size() != 4) {
+                        // No version
+                        send_reply(addr, bits_msg(uint64_t(0)));
+                        goto out;
+                    }
+                    uint32_t ver;
+                    memcpy(&ver, msg.data(), 4);
+                    if (ver != 0) {
+                        // Wrong version
+                        send_reply(addr, bits_msg(uint64_t(0)));
+                        goto out;
+                    }
+                    sock.recv(&msg);
+                    if (msg.size() <= 8) {
+                        // No length
+                        send_reply(addr, bits_msg(uint64_t(0)));
+                        goto out;
+                    }
+                    uint64_t len_ns;
+                    auto msg_data = (const uint8_t*)msg.data();
+                    auto msg_sz = msg.size();
+                    memcpy(&len_ns, msg_data, 8);
+                    msg_data += 8;
+                    msg_sz -= 8;
+                    handleRunByteCode(ctrl, len_ns, msg_data, msg_sz, [&] {
+                            send_reply(addr, bits_msg(uint64_t(1)));
+                        });
+                }
+                else {
+                    nacsLog("Unknown request %d\n", request_id);
+                    send_reply(addr, bits_msg(uint64_t(0)));
+                }
+            out:
+                sock_readall(sock);
+                nacsLog("==== Finish ZMQ request %d ====\n\n", request_id);
+            }
+        };
+        workers.emplace_back(std::move(processZMQ));
     }
     for (auto &t: workers) {
         t.join();

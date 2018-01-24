@@ -20,7 +20,8 @@ set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS)
 set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS)
 
 add_definitions(-Wall -Wextra -g -pthread -fvisibility=hidden
-  -fno-math-errno -Wconversion -Wno-sign-conversion)
+  -fno-math-errno -Wconversion -Wno-sign-conversion ${ZMQ_CFLAGS})
+include_directories(${ZMQ_INCLUDE_DIRS})
 
 cmake_c_fix_include_path(lib/pulser nacs-pulser)
 cmake_c_fix_include_path("${CMAKE_CURRENT_BINARY_DIR}/lib/pulser"

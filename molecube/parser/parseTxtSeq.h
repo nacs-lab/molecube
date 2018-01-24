@@ -7,6 +7,7 @@
 #include <fcgio.h>
 #include <fcgi_config.h>
 #include <cgicc/Cgicc.h>
+#include <functional>
 
 namespace NaCs {
 namespace Pulser {
