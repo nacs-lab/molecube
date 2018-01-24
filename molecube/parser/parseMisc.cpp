@@ -321,7 +321,7 @@ getUnsignedParamCGI(cgicc::Cgicc& cgi, const std::string& name,
     cgicc::form_iterator i = cgi.getElement(name);
 
     if (i != cgi.getElements().end()) {
-        return i->getIntegerValue(0);
+        return (unsigned)i->getIntegerValue(0);
     } else {
         return defaultVal;
     }
