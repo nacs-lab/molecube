@@ -175,6 +175,7 @@ runInstructionList(Controller *__restrict__ ctrler,
 
 void runByteCode(Controller *__restrict__ ctrler,
                  const uint8_t *__restrict__ code, size_t code_len);
+void runEpilogue(Controller *__restrict__ ctrler);
 
 struct BlockBuilder;
 
