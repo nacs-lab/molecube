@@ -189,6 +189,16 @@ struct ByteCodeRunner {
 
 }
 
+NACS_EXPORT() void runByteCode(Controller *__restrict__ ctrler,
+                               CtrlState *__restrict__ state,
+                               const uint8_t *__restrict__ code, size_t code_len)
+{
+    ByteCodeRunner runner{ctrler, state};
+    Seq::ByteCode::ExeState exestate;
+    exestate.run(runner, code, code_len);
+    ctrler->shortPulse(0x20000000 | 3, 0);
+}
+
 NACS_EXPORT() void BlockBuilder::fromSeq(const Seq::Sequence &seq)
 {
     using Inst = Pulser::InstWriter;
