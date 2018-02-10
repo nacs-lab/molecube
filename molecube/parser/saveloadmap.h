@@ -20,9 +20,6 @@ typedef std::map<std::string, std::string> txtmap_t;
 void loadMap(txtmap_t &m, const std::string &fname);
 void saveMap(const txtmap_t &m, const std::string &fname);
 
-// merge maps.  copy all entries from new to old
-void mergeMaps(txtmap_t &mOld, const txtmap_t &mNew);
-
 // dump out the map to an ostream as key = value lines after conversion to HTML
 void dumpMapHTML(const txtmap_t &m, std::ostream &os);
 
@@ -30,10 +27,5 @@ void dumpMapHTML(const txtmap_t &m, std::ostream &os);
 // dir=1 is html to text
 // dir=-1 is text to html
 void html2txt(std::string &seq, int dir);
-
-// replace all occurences of from with to (dir = 1)
-// or visa-versa (dir = -1)
-void replaceAll(std::string &str, const std::string &from,
-                const std::string &to, int dir);
 
 #endif

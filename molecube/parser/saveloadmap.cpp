@@ -16,8 +16,7 @@
 #include <iostream>
 #include <iomanip>
 
-void
-saveMap(const txtmap_t &params, const std::string &fname)
+void saveMap(const txtmap_t &params, const std::string &fname)
 {
     std::ofstream os(fname.c_str());
 
@@ -86,13 +85,6 @@ void loadMap(txtmap_t &m, const std::string &fname)
     }
 }
 
-//merge maps.  copy all entries from new to old
-void mergeMaps(txtmap_t &mOld, const txtmap_t &mNew)
-{
-    for (txtmap_t::const_iterator i = mNew.begin(); i != mNew.end(); i++)
-        mOld[ i->first ] = i->second;
-}
-
 void dumpMapHTML(const txtmap_t &m, std::ostream &os)
 {
     bool notFirst = false;
@@ -113,32 +105,6 @@ void dumpMapHTML(const txtmap_t &m, std::ostream &os)
             notFirst = true;
         }
     }
-}
-
-//replace next string in str matching from with to.  start at next
-//return next positon after replacment or string::npos if no match
-static size_t
-replace(std::string &str, const std::string &from,
-        const std::string &to, size_t next)
-{
-    size_t start_pos = str.find(from, next);
-
-    if (start_pos == std::string::npos)
-        return start_pos;
-
-    str.replace(start_pos, from.length(), to);
-    return start_pos + to.length();
-}
-
-void replaceAll(std::string &str, const std::string &from,
-                const std::string &to, int dir)
-{
-    size_t next = 0;
-
-    if(dir == 1)
-        while((next = replace(str, from, to, next)) != std::string::npos) {}
-    else
-        while((next = replace(str, to, from, next)) != std::string::npos) {}
 }
 
 //url_encode is copied from stackexchange:
