@@ -237,9 +237,7 @@ main(int argc, char *argv[])
                     nacsError("Couldn't understand HTTP request.\n");
                 }
             } catch (std::runtime_error e) {
-                reply.printf("Oh noes! \n   %s\n", e.what())
-                    .printf("%s", getQuote("/usr/share/molecube/quotes.frt",
-                                           "%%").c_str());
+                reply.printf("Oh noes! \n   %s\n", e.what());
             }
 
             nacsLog("==== Finish FastCGI request %d ====\n\n", request_id);
