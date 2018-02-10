@@ -12,7 +12,7 @@
 
 #include <verbosity.h>
 #include <CmdLineArgs.h>
-#include <common.h>
+#include "molecube.h"
 
 #include <stdexcept>
 #include <fstream>

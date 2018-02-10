@@ -5,7 +5,7 @@
 #include <nacs-pulser/controller.h>
 
 #include "AD9914.h"
-#include "common.h"
+#include "molecube.h"
 
 #include <sys/resource.h>
 #include <errno.h>

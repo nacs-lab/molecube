@@ -11,7 +11,7 @@
 #include "parseTxtSeq.h"
 #include "saveloadmap.h"
 #include "AD9914.h"
-#include "common.h"
+#include "molecube.h"
 
 namespace NaCs {
 

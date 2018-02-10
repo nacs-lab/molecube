@@ -32,7 +32,7 @@
 #include "saveloadmap.h"
 #include "linux_file_util.h"
 
-#include <common.h>
+#include "molecube.h"
 
 // keep track of "current" TTL state and elapsed time
 // "current" refers to parsing the pulse sequence (not generating it)
