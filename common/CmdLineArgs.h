@@ -1,8 +1,7 @@
 #pragma once
 
 #include <vector>
-
-#include "string_func.h"
+#include <string>
 
 /*
   a class to ease command line parsing
@@ -35,19 +34,6 @@ public:
 
     //return the index of matching string s after index iAfter, or -1 on failure.
     int FindString(const std::string& s, int iAfter=0) const;
-
-    //return the value after s.
-    template<class T> T GetValAfter(const std::string& s, const std::string& sDefault="") const
-    {
-        std::string sVal;
-
-        if(sDefault.length() > 0)
-            sVal = GetStringAfter(s, sDefault);
-        else
-            sVal = GetStringAfter(s);
-
-        return from_string<T>(sVal);
-    }
 
     //return the string after string s, or sDefault if s is not found
     std::string GetStringAfter(const std::string& s) const;

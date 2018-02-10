@@ -26,7 +26,6 @@
 #include <random>
 
 #include "AD9914.h"
-#include "string_func.h"
 
 #include "parseMisc.h"
 #include "saveloadmap.h"

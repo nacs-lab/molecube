@@ -15,8 +15,7 @@ set(SOURCES ${SOURCES}
   ../common/CmdLineArgs.cpp
   ../common/linux_file_util.cpp
   ../common/verbosity.cpp
-  ../common/AD9914.cpp
-  ../common/string_func.cpp)
+  ../common/AD9914.cpp)
 
 add_executable(molecube ${SOURCES})
 
