@@ -33,9 +33,6 @@
 
 #include "molecube.h"
 
-// keep track of "current" TTL state and elapsed time
-// "current" refers to parsing the pulse sequence (not generating it)
-
 namespace NaCs {
 
 using Inst = Pulser::InstWriter;

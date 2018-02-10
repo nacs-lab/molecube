@@ -3,9 +3,7 @@
 
 #include "verbosity.h"
 
-#include <istream>
 #include <fcgio.h>
-#include <fcgi_config.h>
 #include <cgicc/Cgicc.h>
 #include <functional>
 

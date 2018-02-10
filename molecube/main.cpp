@@ -27,7 +27,6 @@
 #include <fcntl.h>
 
 #include <fcgio.h>
-#include <fcgi_config.h>
 #include <cgicc/CgiInput.h>
 
 using namespace NaCs;

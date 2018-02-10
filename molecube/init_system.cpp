@@ -1,7 +1,8 @@
+//
+
 #include "init_system.h"
 
 #include <nacs-utils/log.h>
-#include <nacs-utils/number.h>
 #include <nacs-pulser/controller.h>
 
 #include "AD9914.h"
@@ -9,9 +10,6 @@
 
 #include <sys/resource.h>
 #include <errno.h>
-#include <inttypes.h>
-
-#include <mutex>
 
 namespace NaCs {
 

@@ -1,9 +1,10 @@
 #include "linux_file_util.h"
 
-#include <sys/file.h>
-#include <unistd.h>
 #include <stdio.h>
-#include <string.h>
+#include <sys/file.h>
+#include <sys/types.h>
+#include <unistd.h>
+
 #include <mutex>
 
 /* Generic functions to write values to and read them from file.

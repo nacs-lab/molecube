@@ -13,8 +13,7 @@
 
 */
 
-class CmdLineArgs
-{
+class CmdLineArgs {
 public:
     //constructor for argc/argv style command line
     CmdLineArgs(int argc, char* argv[]);

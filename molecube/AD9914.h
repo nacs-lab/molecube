@@ -1,8 +1,6 @@
 #ifndef AD9914_H
 #define AD9914_H
 
-#include <stdio.h>
-
 namespace NaCs {
 namespace Pulser {
 class Controller;
