@@ -44,8 +44,7 @@ using Inst = Pulser::InstWriter;
 //parse text-encoded pulse sequence
 static bool parseSeqTxt(Pulser::Controller &pulser, unsigned reps,
                         const std::string &seqTxt, bool bForever,
-                        bool debugPulses, const verbosity &reply,
-                        FCGX_Request *request);
+                        const verbosity &reply, FCGX_Request *request);
 
 static bool
 get_channel_and_operand(std::string &arg1, std::istream &s, int *channel,
@@ -218,7 +217,6 @@ bool
 parseSeqURL(Pulser::Controller &ctrl, std::string &seq, const verbosity &reply)
 {
     unsigned reps = getUnsignedParam(seq, "reps=", 1);
-    bool debugPulses = getCheckboxParam(seq, "debugPulses=", false);
     bool bForever = getCheckboxParam(seq, "forever=", false);
 
     size_t start_pos = seq.find("seqtext=");
@@ -235,7 +233,7 @@ parseSeqURL(Pulser::Controller &ctrl, std::string &seq, const verbosity &reply)
     std::string seqTxt = seq.substr(start_pos + L, end_pos - start_pos - L);
     html2txt(seqTxt, 1); //this is a slow function
 
-    parseSeqTxt(ctrl, reps, seqTxt, bForever, debugPulses, reply, nullptr);
+    parseSeqTxt(ctrl, reps, seqTxt, bForever, reply, nullptr);
 
     return true;
 }
@@ -246,7 +244,6 @@ parseSeqCGI(Pulser::Controller &ctrl, cgicc::Cgicc &cgi, const verbosity &reply,
             FCGX_Request *request)
 {
     unsigned reps = getUnsignedParamCGI(cgi, "reps", 1);
-    bool debugPulses = getCheckboxParamCGI(cgi, "debugPulses", false);
     bool bForever = getCheckboxParamCGI(cgi, "forever", false);
 
     // look for seqtext field
@@ -263,7 +260,7 @@ parseSeqCGI(Pulser::Controller &ctrl, cgicc::Cgicc &cgi, const verbosity &reply,
         }
     }
 
-    parseSeqTxt(ctrl, reps, seqTxt, bForever, debugPulses, reply, request);
+    parseSeqTxt(ctrl, reps, seqTxt, bForever, reply, request);
 
     return true;
 }
@@ -358,16 +355,14 @@ static StrCache<Pulser::BlockBuilder> seq_cache((size_t)256e6);
 // parse text-encoded pulse sequence
 static bool
 parseSeqTxt(Pulser::Controller &ctrl, unsigned reps,
-            const std::string &seqTxt, bool bForever, bool debugPulses,
+            const std::string &seqTxt, bool bForever,
             const verbosity &reply, FCGX_Request *request)
 {
     printPlainResponseHeader(reply);
     if (bForever)
         reps = UINT_MAX;
 
-    if (debugPulses) {
-        nacsLog("Parsing pulse sequence: %s\n", seqTxt.c_str());
-    }
+    nacsLog("Parsing pulse sequence: %s\n", seqTxt.c_str());
 
     for (auto i: active_dds) {
         if (AD9914::init(ctrl, i, AD9914::LogAction)) {
