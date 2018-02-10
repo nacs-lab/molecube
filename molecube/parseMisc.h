@@ -1,8 +1,6 @@
 #ifndef PARSE_MISC_H
 #define PARSE_MISC_H
 
-#include "verbosity.h"
-
 #include <string>
 #include <fcgio.h>
 #include <cgicc/Cgicc.h>
@@ -16,7 +14,7 @@ class Controller;
 
 void printPlainResponseHeader(std::ostream&);
 bool parseQueryCGI(Pulser::Controller &ctrl, cgicc::Cgicc &cgi,
-                   const verbosity &reply, FCGX_Request *request);
+                   std::ostream &reply, FCGX_Request *request);
 
 unsigned getUnsignedParam(const std::string &seq, const std::string &name,
                           unsigned defaultVal);

@@ -40,7 +40,7 @@ using Inst = Pulser::InstWriter;
 //parse text-encoded pulse sequence
 static bool parseSeqTxt(Pulser::Controller &pulser, unsigned reps,
                         const std::string &seqTxt, bool bForever,
-                        const verbosity &reply, FCGX_Request *request);
+                        std::ostream &reply, FCGX_Request *request);
 
 static bool
 get_channel_and_operand(std::string &arg1, std::istream &s, int *channel,
@@ -209,8 +209,7 @@ parseCommand(Pulser::BlockBuilder &builder, std::string &cmd,
 }
 
 //parse URL-encoded pulse sequence
-bool
-parseSeqURL(Pulser::Controller &ctrl, std::string &seq, const verbosity &reply)
+bool parseSeqURL(Pulser::Controller &ctrl, std::string &seq, std::ostream &reply)
 {
     unsigned reps = getUnsignedParam(seq, "reps=", 1);
     bool bForever = getCheckboxParam(seq, "forever=", false);
@@ -235,9 +234,8 @@ parseSeqURL(Pulser::Controller &ctrl, std::string &seq, const verbosity &reply)
 }
 
 // parse pulse sequence via CGICC
-bool
-parseSeqCGI(Pulser::Controller &ctrl, cgicc::Cgicc &cgi, const verbosity &reply,
-            FCGX_Request *request)
+bool parseSeqCGI(Pulser::Controller &ctrl, cgicc::Cgicc &cgi, std::ostream &reply,
+                 FCGX_Request *request)
 {
     unsigned reps = getUnsignedParamCGI(cgi, "reps", 1);
     bool bForever = getCheckboxParamCGI(cgi, "forever", false);
@@ -352,7 +350,7 @@ static StrCache<Pulser::BlockBuilder> seq_cache((size_t)256e6);
 static bool
 parseSeqTxt(Pulser::Controller &ctrl, unsigned reps,
             const std::string &seqTxt, bool bForever,
-            const verbosity &reply, FCGX_Request *request)
+            std::ostream &reply, FCGX_Request *request)
 {
     printPlainResponseHeader(reply);
     if (bForever)
@@ -395,7 +393,7 @@ parseSeqTxt(Pulser::Controller &ctrl, unsigned reps,
         parse_time = toc();
     }
 
-    reply.printf("Parsed into %zu pulses.\n", builder_p->size());
+    reply << "Parsed into " << builder_p->size() << " pulses." << std::endl;
 
     if (bForever) {
         nacsLog("Start continuous run.\n");
@@ -435,7 +433,7 @@ parseSeqTxt(Pulser::Controller &ctrl, unsigned reps,
             ctrl.releaseHold();
             // If the sequence is short and we are only running it once,
             // reply as soon as possible.
-            reply.printf("Sequence started\n");
+            reply << "Sequence started" << std::endl;
             // This might be causing memory issues...
             // FCGX_Finish_r(request);
             nacsLog("Parse time: %9.3f ms\n", (double)parse_time * 1e-6);
@@ -461,7 +459,7 @@ parseSeqTxt(Pulser::Controller &ctrl, unsigned reps,
         }
 
         if (g_stop_curr_seq) {
-            reply.printf("Received stop pulse sequences signal.\n");
+            reply << "Received stop pulse sequences signal." << std::endl;
             g_stop_curr_seq = false;
             break;
         }
@@ -470,22 +468,22 @@ parseSeqTxt(Pulser::Controller &ctrl, unsigned reps,
     auto run_time = toc();
 
     if (reps == 1) {
-        reply.printf("Finished 1 pulse sequences.\n");
+        reply << "Finished 1 pulse sequences." << std::endl;
     }
     else {
-        reply.printf("Finished %d/%d pulse sequences.\n", iRep, reps);
+        reply << "Finished " << iRep << "/" << reps << " pulse sequences." << std::endl;
     }
 
     if (nTimingErrors) {
-        reply.printf("Warning: %d timing failures.\n", nTimingErrors);
+        reply << "Warning: " << nTimingErrors << " timing failures." << std::endl;
     } else if (reps != 1) {
-        reply.printf("Timing OK\n");
+        reply << "Timing OK" << std::endl;
     }
     setProgramStatus("Idle");
 
-    reply.printf("Parse time: %9.3f ms\n", (double)parse_time * 1e-6)
-        .printf("  Exe time: %9.3f ms\n", (double)run_time * 1e-6)
-        .printf("   Seq len: %9.3f ms\n", iRep * seq_len_ms);
+    reply << "Parse time: " << (double)parse_time * 1e-6 << " ms" << std::endl
+          << "  Exe time: " << (double)run_time * 1e-6 << " ms" << std::endl
+          << "   Seq len: " << iRep * seq_len_ms << " ms" << std::endl;
     return true;
 }
 

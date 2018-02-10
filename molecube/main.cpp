@@ -7,7 +7,6 @@
 #include "parseTxtSeq.h"
 #include "parseMisc.h"
 
-#include "verbosity.h"
 #include "CmdLineArgs.h"
 
 #include <nacs-utils/timer.h>
@@ -207,7 +206,7 @@ main(int argc, char *argv[])
             }
 
             try {
-                parseSeqURL(ctrl, sStartupSeq, verbosity(&std::cout));
+                parseSeqURL(ctrl, sStartupSeq, std::cout);
             } catch (std::runtime_error e) {
                 nacsError("Startup sequence error:   %s\n", e.what());
             }
@@ -230,14 +229,13 @@ main(int argc, char *argv[])
             std::ostream out(&out_fcgi_streambuf);
             FCgiIO IO(request);
             cgicc::Cgicc cgi(&IO);
-            verbosity reply(&out);
             try {
                 // May finish the requesst when no error happens
-                if (!parseQueryCGI(ctrl, cgi, reply, &request)) {
+                if (!parseQueryCGI(ctrl, cgi, out, &request)) {
                     nacsError("Couldn't understand HTTP request.\n");
                 }
             } catch (std::runtime_error e) {
-                reply.printf("Oh noes! \n   %s\n", e.what());
+                out << "Oh noes! \n   " << e.what() << std::endl;
             }
 
             nacsLog("==== Finish FastCGI request %d ====\n\n", request_id);

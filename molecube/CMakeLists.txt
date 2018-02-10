@@ -8,7 +8,6 @@ set(SOURCES
   main.cpp
   CmdLineArgs.cpp
   linux_file_util.cpp
-  verbosity.cpp
   AD9914.cpp)
 
 add_executable(molecube ${SOURCES})
