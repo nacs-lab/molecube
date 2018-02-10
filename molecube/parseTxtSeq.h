@@ -1,7 +1,7 @@
 #ifndef PARSE_TXT_SEQ_H
 #define PARSE_TXT_SEQ_H
 
-#include <verbosity.h>
+#include "verbosity.h"
 
 #include <istream>
 #include <fcgio.h>

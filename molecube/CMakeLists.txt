@@ -1,21 +1,15 @@
-# Current directory
-include_directories(include zynq_linux)
+#
 
 set(SOURCES
-  parser/parseMisc.cpp
-  parser/parseTxtSeq.cpp
-  parser/saveloadmap.cpp
-  zynq_linux/init_system.cpp
-  zynq_linux/main.cpp)
-
-# Common
-include_directories(../common)
-
-set(SOURCES ${SOURCES}
-  ../common/CmdLineArgs.cpp
-  ../common/linux_file_util.cpp
-  ../common/verbosity.cpp
-  ../common/AD9914.cpp)
+  parseMisc.cpp
+  parseTxtSeq.cpp
+  saveloadmap.cpp
+  init_system.cpp
+  main.cpp
+  CmdLineArgs.cpp
+  linux_file_util.cpp
+  verbosity.cpp
+  AD9914.cpp)
 
 add_executable(molecube ${SOURCES})
 

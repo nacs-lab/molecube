@@ -1,18 +1,19 @@
+//
+
+#include "molecube.h"
+
+#include "init_system.h"
+#include "linux_file_util.h"
+#include "parseTxtSeq.h"
+#include "parseMisc.h"
+
+#include "verbosity.h"
+#include "CmdLineArgs.h"
+
 #include <nacs-utils/timer.h>
 #include <nacs-utils/log.h>
 #include <nacs-utils/zmq_utils.h>
 #include <nacs-pulser/controller.h>
-
-#include "init_system.h"
-
-#include "linux_file_util.h"
-
-#include "../parser/parseTxtSeq.h"
-#include "../parser/parseMisc.h"
-
-#include <verbosity.h>
-#include <CmdLineArgs.h>
-#include "molecube.h"
 
 #include <stdexcept>
 #include <fstream>
