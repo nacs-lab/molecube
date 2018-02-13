@@ -15,20 +15,17 @@
 
 namespace NaCs {
 
-void
-printPlainResponseHeader(std::ostream &out)
+void printPlainResponseHeader(std::ostream &out)
 {
     out << "Content-type: text/plain; charset=UTF-8\r\n\r\n";
 }
 
-static void
-printJSONResponseHeader(std::ostream &out)
+static void printJSONResponseHeader(std::ostream &out)
 {
     out << "Content-type: application/json; charset=UTF-8\r\n\r\n";
 }
 
-static void
-removeNonAlphaNum(std::string &s)
+static void removeNonAlphaNum(std::string &s)
 {
     size_t i = 0;
 
@@ -181,15 +178,14 @@ stream_vect_to_JSON_array(std::ostream& os, const V& v)
     os << "]";
 }
 
-bool parseQueryCGI(Pulser::Controller &ctrl, cgicc::Cgicc &cgi,
-                   std::ostream &reply, FCGX_Request *request)
+bool parseQueryCGI(Pulser::Controller &ctrl, cgicc::Cgicc &cgi, std::ostream &reply)
 {
     cgicc::form_iterator cmd = cgi.getElement("command");
     cgicc::form_iterator page = cgi.getElement("page");
     if (cmd != cgi.getElements().end()) {
         nacsLog("Command = %s\n", (**cmd).c_str());
         if ((**cmd) == "runseq") {
-            parseSeqCGI(ctrl, cgi, reply, request);
+            parseSeqCGI(ctrl, cgi, reply);
             return true;
         }
 
@@ -274,36 +270,8 @@ bool parseQueryCGI(Pulser::Controller &ctrl, cgicc::Cgicc &cgi,
     }
 }
 
-unsigned
-getUnsignedParam(const std::string& seq, const std::string& name,
-                 unsigned defaultVal)
-{
-    size_t pos = seq.find(name);
-
-    if (pos != std::string::npos) {
-        unsigned val;
-        if (sscanf(seq.substr(pos).c_str() + name.length(), "%u", &val)) {
-            return val;
-        }
-    }
-
-    return defaultVal;
-}
-
-bool
-getCheckboxParam(const std::string& seq, const std::string& name,
-                 bool defaultVal)
-{
-    size_t pos = seq.find(name+"on");
-    if (pos != std::string::npos) {
-        return true;
-    }
-    return defaultVal;
-}
-
-bool
-getCheckboxParamCGI(cgicc::Cgicc& cgi, const std::string& name,
-                    bool defaultVal)
+bool getCheckboxParamCGI(cgicc::Cgicc& cgi, const std::string& name,
+                         bool defaultVal)
 {
     cgicc::form_iterator i = cgi.getElement(name);
 
@@ -314,9 +282,8 @@ getCheckboxParamCGI(cgicc::Cgicc& cgi, const std::string& name,
     }
 }
 
-unsigned
-getUnsignedParamCGI(cgicc::Cgicc& cgi, const std::string& name,
-                    unsigned defaultVal)
+unsigned getUnsignedParamCGI(cgicc::Cgicc& cgi, const std::string& name,
+                             unsigned defaultVal)
 {
     cgicc::form_iterator i = cgi.getElement(name);
 
@@ -327,9 +294,8 @@ getUnsignedParamCGI(cgicc::Cgicc& cgi, const std::string& name,
     }
 }
 
-std::string
-getStringParamCGI(cgicc::Cgicc& cgi, const std::string& name,
-                  const std::string& defaultVal)
+std::string getStringParamCGI(cgicc::Cgicc& cgi, const std::string& name,
+                              const std::string& defaultVal)
 {
     cgicc::form_iterator i = cgi.getElement(name);
 

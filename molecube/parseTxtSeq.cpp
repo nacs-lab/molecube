@@ -38,9 +38,8 @@ namespace NaCs {
 using Inst = Pulser::InstWriter;
 
 //parse text-encoded pulse sequence
-static bool parseSeqTxt(Pulser::Controller &pulser, unsigned reps,
-                        const std::string &seqTxt, bool bForever,
-                        std::ostream &reply, FCGX_Request *request);
+static bool parseSeqTxt(Pulser::Controller &pulser, unsigned reps, const std::string &seqTxt,
+                        bool bForever, std::ostream &reply);
 
 static bool
 get_channel_and_operand(std::string &arg1, std::istream &s, int *channel,
@@ -208,12 +207,10 @@ parseCommand(Pulser::BlockBuilder &builder, std::string &cmd,
     throw parseError(builder, "Unknown command.");
 }
 
-//parse URL-encoded pulse sequence
+// parse URL-encoded pulse sequence
+// Only used for startup
 bool parseSeqURL(Pulser::Controller &ctrl, std::string &seq, std::ostream &reply)
 {
-    unsigned reps = getUnsignedParam(seq, "reps=", 1);
-    bool bForever = getCheckboxParam(seq, "forever=", false);
-
     size_t start_pos = seq.find("seqtext=");
     size_t L = std::string("seqtext=").length();
 
@@ -228,14 +225,13 @@ bool parseSeqURL(Pulser::Controller &ctrl, std::string &seq, std::ostream &reply
     std::string seqTxt = seq.substr(start_pos + L, end_pos - start_pos - L);
     html2txt(seqTxt, 1); //this is a slow function
 
-    parseSeqTxt(ctrl, reps, seqTxt, bForever, reply, nullptr);
+    parseSeqTxt(ctrl, 1, seqTxt, false, reply);
 
     return true;
 }
 
 // parse pulse sequence via CGICC
-bool parseSeqCGI(Pulser::Controller &ctrl, cgicc::Cgicc &cgi, std::ostream &reply,
-                 FCGX_Request *request)
+bool parseSeqCGI(Pulser::Controller &ctrl, cgicc::Cgicc &cgi, std::ostream &reply)
 {
     unsigned reps = getUnsignedParamCGI(cgi, "reps", 1);
     bool bForever = getCheckboxParamCGI(cgi, "forever", false);
@@ -254,7 +250,7 @@ bool parseSeqCGI(Pulser::Controller &ctrl, cgicc::Cgicc &cgi, std::ostream &repl
         }
     }
 
-    parseSeqTxt(ctrl, reps, seqTxt, bForever, reply, request);
+    parseSeqTxt(ctrl, reps, seqTxt, bForever, reply);
 
     return true;
 }
@@ -334,10 +330,8 @@ static void parsePlainTxt(const std::string &seqTxt,
 }
 
 // parse text-encoded pulse sequence
-static bool
-parseSeqTxt(Pulser::Controller &ctrl, unsigned reps,
-            const std::string &seqTxt, bool bForever,
-            std::ostream &reply, FCGX_Request *request)
+static bool parseSeqTxt(Pulser::Controller &ctrl, unsigned reps, const std::string &seqTxt,
+                        bool bForever, std::ostream &reply)
 {
     printPlainResponseHeader(reply);
     if (bForever)
@@ -373,7 +367,6 @@ parseSeqTxt(Pulser::Controller &ctrl, unsigned reps,
     // now run the pulses
     // update status string every 500 ms
     auto seq_len_ms = double(builder.currT) * PULSER_DT_us * 1e-3;
-    bool terminate_request = reps == 1 && seq_len_ms <= 1000 && request;
 
     unsigned nTimingErrors = 0;
     unsigned iRep;
@@ -395,27 +388,6 @@ parseSeqTxt(Pulser::Controller &ctrl, unsigned reps,
         ctrl.toggleInit();
         Pulser::CtrlState state;
         Pulser::runInstructionList(&ctrl, &state, builder);
-
-        if (terminate_request) {
-            ctrl.releaseHold();
-            // If the sequence is short and we are only running it once,
-            // reply as soon as possible.
-            reply << "Sequence started" << std::endl;
-            // This might be causing memory issues...
-            // FCGX_Finish_r(request);
-            nacsLog("Parse time: %9.3f ms\n", (double)parse_time * 1e-6);
-            nacsLog("   Seq len: %9.3f ms\n", iRep * seq_len_ms);
-
-            ctrl.waitFinish();
-            auto run_time = toc();
-            if (!ctrl.timingOK()) {
-                ctrl.run(Pulser::ClearTimingCheck());
-                nacsLog("Warning: timing failures.\n");
-            }
-            setProgramStatus("Idle");
-            nacsLog("  Exe time: %9.3f ms\n", (double)run_time * 1e-6);
-            return true;
-        }
 
         // wait for pulses finished.
         ctrl.waitFinish();
