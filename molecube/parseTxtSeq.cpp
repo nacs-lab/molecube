@@ -356,7 +356,7 @@ parseSeqTxt(Pulser::Controller &ctrl, unsigned reps,
     if (bForever)
         reps = UINT_MAX;
 
-    nacsLog("Parsing pulse sequence: %s\n", seqTxt.c_str());
+    nacsLog("Parsing pulse sequence\n");
 
     for (auto i: active_dds) {
         if (AD9914::init(ctrl, i, AD9914::LogAction)) {
