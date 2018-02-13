@@ -489,7 +489,8 @@ parseSeqTxt(Pulser::Controller &ctrl, unsigned reps,
 
 void handleRunByteCode(Pulser::Controller &ctrl, uint64_t seq_len_ns,
                        const uint8_t *code, size_t code_len,
-                       const std::function<void()> &send_reply)
+                       const std::function<void()> &send_reply,
+                       uint32_t ttl_mask)
 {
     tic();
     nacsLog("Start sequence %" PRIu64 " ns.\n", seq_len_ns);
@@ -505,7 +506,7 @@ void handleRunByteCode(Pulser::Controller &ctrl, uint64_t seq_len_ns,
     // ctrl.waitFinish() is called
     ctrl.setHold();
     ctrl.toggleInit();
-    Pulser::runByteCode(&ctrl, code, code_len);
+    Pulser::runByteCode(&ctrl, code, code_len, ttl_mask);
     ctrl.releaseHold();
 
     if (short_seq) {

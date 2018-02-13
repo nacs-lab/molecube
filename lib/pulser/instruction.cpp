@@ -163,6 +163,7 @@ namespace {
 struct ByteCodeRunner {
     void ttl(uint32_t ttl, uint64_t t)
     {
+        ttl = ttl | preserve_ttl;
         if (t <= 1000) {
             // 10us
             checkedShortPulse(ctrler, (uint32_t)t, ttl);
@@ -193,6 +194,7 @@ struct ByteCodeRunner {
         checkedShortPulse(ctrler, ClockOut(period));
     }
     Controller *ctrler;
+    uint32_t preserve_ttl;
     uint64_t wait_time{0};
     int release_after{30};
 };
@@ -201,9 +203,12 @@ struct ByteCodeRunner {
 
 NACS_EXPORT() __attribute__((flatten, hot))
 void runByteCode(Controller *__restrict__ ctrler,
-                 const uint8_t *__restrict__ code, size_t code_len)
+                 const uint8_t *__restrict__ code, size_t code_len, uint32_t ttl_mask)
 {
-    ByteCodeRunner runner{ctrler};
+    uint32_t preserve_ttl = 0;
+    if (~ttl_mask != 0)
+        preserve_ttl = (~ttl_mask) & ctrler->getCurTTL();
+    ByteCodeRunner runner{ctrler, preserve_ttl};
     Seq::ByteCode::ExeState exestate;
     exestate.run(runner, code, code_len);
     ctrler->shortPulse(0x20000000 | 3, 0);

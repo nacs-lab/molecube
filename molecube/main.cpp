@@ -285,15 +285,23 @@ main(int argc, char *argv[])
                         send_reply(addr, ZMQ::bits_msg(uint64_t(0)));
                         goto out;
                     }
+                    uint32_t ttl_mask = 0;
                     uint32_t ver;
                     memcpy(&ver, msg.data(), 4);
-                    if (ver != 0) {
+                    size_t min_len;
+                    if (ver == 0) {
+                        min_len = 8;
+                    }
+                    else if (ver == 1) {
+                        min_len = 12;
+                    }
+                    else {
                         // Wrong version
                         send_reply(addr, ZMQ::bits_msg(uint64_t(0)));
                         goto out;
                     }
-                    if (!ZMQ::recv_more(sock, msg) || msg.size() <= 8) {
-                        // No length
+                    if (!ZMQ::recv_more(sock, msg) || msg.size() <= min_len) {
+                        // Not long enough
                         send_reply(addr, ZMQ::bits_msg(uint64_t(0)));
                         goto out;
                     }
@@ -303,9 +311,14 @@ main(int argc, char *argv[])
                     memcpy(&len_ns, msg_data, 8);
                     msg_data += 8;
                     msg_sz -= 8;
+                    if (ver >= 1) {
+                        memcpy(&ttl_mask, msg_data, 4);
+                        msg_data += 4;
+                        msg_sz -= 4;
+                    }
                     handleRunByteCode(ctrl, len_ns, msg_data, msg_sz, [&] {
                             send_reply(addr, ZMQ::bits_msg(uint64_t(1)));
-                        });
+                        }, ttl_mask);
                 }
                 else {
                     nacsLog("Unknown request %d\n", request_id);

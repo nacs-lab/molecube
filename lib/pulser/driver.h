@@ -67,6 +67,11 @@ public:
     {
         return !(readReg(2) & 0x1);
     }
+    inline uint32_t
+    getCurTTL() const
+    {
+        return readReg(4);
+    }
 
     // Write
     inline void
