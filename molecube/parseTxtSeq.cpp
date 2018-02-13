@@ -406,12 +406,7 @@ static bool parseSeqTxt(Pulser::Controller &ctrl, unsigned reps, const std::stri
 
     auto run_time = toc();
 
-    if (reps == 1) {
-        reply << "Finished 1 pulse sequences." << std::endl;
-    }
-    else {
-        reply << "Finished " << iRep << "/" << reps << " pulse sequences." << std::endl;
-    }
+    reply << "Finished " << iRep << "/" << reps << " pulse sequences." << std::endl;
 
     if (nTimingErrors) {
         reply << "Warning: " << nTimingErrors << " timing failures." << std::endl;
