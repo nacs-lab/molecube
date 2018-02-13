@@ -44,18 +44,6 @@ struct ControlBit {
     static constexpr uint32_t MetaContentMask = ~(MetaInstMask | InstMask);
 };
 
-static uint64_t
-combTime(uint64_t ctrl, uint32_t op)
-{
-    return (ctrl & ControlBit::MetaContentMask) << 32 | op;
-}
-
-static uint64_t
-combTime(Instruction &inst)
-{
-    return combTime(inst.ctrl, inst.op);
-}
-
 struct CtrlState {
     uint16_t dds_phases[22];
     uint32_t curr_ttl;
@@ -178,130 +166,6 @@ void runByteCode(Controller *__restrict__ ctrler,
                  uint32_t ttl_mask);
 void runEpilogue(Controller *__restrict__ ctrler);
 
-struct BlockBuilder;
-
-static inline bool
-mergeWaitWait(Instruction &prev_inst, Instruction &inst)
-{
-    prev_inst = InstWriter::wait(combTime(prev_inst) + combTime(inst));
-    return true;
-}
-
-static inline bool
-mergeTTLWait(Instruction &prev_inst, Instruction &inst)
-{
-    uint64_t ttl_time = (prev_inst.ctrl & ControlBit::MetaContentMask) >> 18;
-    uint64_t wait_time = combTime(inst);
-    uint64_t total_time = ttl_time + wait_time;
-    if (total_time < 64) {
-        prev_inst.ctrl = ((prev_inst.ctrl & ~(0x3f << 18)) |
-                          uint32_t(total_time) << 18);
-        return true;
-    } else if (ttl_time != 3) {
-        prev_inst.ctrl = (prev_inst.ctrl & ~(0x3f << 18)) | uint32_t(3) << 18;
-        inst = InstWriter::wait(total_time - 3);
-    }
-    return false;
-}
-
-static inline bool
-compatibleTTLs(Instruction &prev_inst, Instruction &inst)
-{
-    auto prev_ctrl = prev_inst.ctrl;
-    auto ctrl = inst.ctrl;
-    auto prev_addr = prev_ctrl & ControlBit::TTLAll;
-    auto addr = ctrl & ControlBit::TTLAll;
-    if (prev_addr == addr && prev_inst.op == inst.op)
-        return true;
-    if (prev_addr == ControlBit::TTLAll && addr != ControlBit::TTLAll &&
-        prev_inst.op == setBit(prev_inst.op, uint8_t(addr), bool(inst.op))) {
-        return true;
-    }
-    return false;
-}
-
-static inline bool
-mergeTTLTTL(Instruction &prev_inst, Instruction &inst)
-{
-    if (compatibleTTLs(prev_inst, inst)) {
-        inst = InstWriter::wait((inst.ctrl &
-                                 ControlBit::MetaContentMask) >> 18);
-        return mergeTTLWait(prev_inst, inst);
-    }
-    return false;
-}
-
-static inline bool
-tryMergeMeta(Instruction &prev_inst, Instruction &inst)
-{
-    auto prev_ctrl = prev_inst.ctrl;
-    auto ctrl = inst.ctrl;
-    auto prev_meta = prev_ctrl & ControlBit::MetaInstMask;
-    auto meta = ctrl & ControlBit::MetaInstMask;
-    if (prev_meta == ControlBit::TTLMeta) {
-        if (meta == ControlBit::WaitMeta) {
-            return mergeTTLWait(prev_inst, inst);
-        } else if (meta == ControlBit::TTLMeta) {
-            return mergeTTLTTL(prev_inst, inst);
-        }
-    } else if (prev_meta == ControlBit::WaitMeta) {
-        if (meta == ControlBit::WaitMeta) {
-            return mergeWaitWait(prev_inst, inst);
-        }
-    }
-    return false;
-}
-
-static inline bool
-tryMergeInst(Instruction &prev_inst, Instruction &inst)
-{
-    if ((prev_inst.ctrl & ControlBit::InstMask) != ControlBit::MetaCmd ||
-        (inst.ctrl & ControlBit::InstMask) != ControlBit::MetaCmd)
-        return false;
-    return tryMergeMeta(prev_inst, inst);
-}
-
-static inline bool
-mergeTTLWaitTTL(Instruction &prev2_inst, Instruction &prev_inst,
-                Instruction &inst)
-{
-    if (compatibleTTLs(prev2_inst, inst)) {
-        inst = InstWriter::wait((inst.ctrl &
-                                 ControlBit::MetaContentMask) >> 18);
-        return mergeWaitWait(prev_inst, inst);
-    }
-    return false;
-}
-
-static inline bool
-tryMergeMeta3(Instruction &prev2_inst, Instruction &prev_inst,
-              Instruction &inst)
-{
-    auto prev2_ctrl = prev2_inst.ctrl;
-    auto prev_ctrl = prev_inst.ctrl;
-    auto ctrl = inst.ctrl;
-    auto prev2_meta = prev2_ctrl & ControlBit::MetaInstMask;
-    auto prev_meta = prev_ctrl & ControlBit::MetaInstMask;
-    auto meta = ctrl & ControlBit::MetaInstMask;
-    if (prev2_meta == ControlBit::TTLMeta &&
-        prev_meta == ControlBit::WaitMeta &&
-        meta == ControlBit::TTLMeta) {
-        return mergeTTLWaitTTL(prev2_inst, prev_inst, inst);
-    }
-    return false;
-}
-
-static inline bool
-tryMergeInst3(Instruction &prev2_inst, Instruction &prev_inst,
-              Instruction &inst)
-{
-    if ((prev_inst.ctrl & ControlBit::InstMask) != ControlBit::MetaCmd ||
-        (prev2_inst.ctrl & ControlBit::InstMask) != ControlBit::MetaCmd ||
-        (inst.ctrl & ControlBit::InstMask) != ControlBit::MetaCmd)
-        return false;
-    return tryMergeMeta3(prev2_inst, prev_inst, inst);
-}
-
 struct BlockBuilder : public std::vector<Instruction> {
     unsigned lineNum;
     uint64_t currT;
@@ -317,12 +181,6 @@ public:
     {
         Instruction inst(std::forward<Func>(func)(
                              std::forward<Args>(args)..., &currT));
-        size_t len = size();
-        auto *ptr = data();
-        if (len && tryMergeInst(ptr[size() - 1], inst))
-            return;
-        if (len >= 2 && tryMergeInst3(ptr[size() - 2], ptr[size() - 1], inst))
-            return;
         push_back(std::move(inst));
     }
     template<typename Func, typename... Args>
@@ -352,7 +210,6 @@ public:
     {
         return size() * sizeof(Instruction) + sizeof(*this);
     }
-    void fromSeq(const Seq::Sequence &seq);
 };
 
 }

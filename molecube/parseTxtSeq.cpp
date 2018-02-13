@@ -333,19 +333,6 @@ static void parsePlainTxt(const std::string &seqTxt,
     }
 }
 
-static void parseBase64Txt(const std::string &seqTxt,
-                           Pulser::BlockBuilder &builder)
-{
-    const uint8_t *data = ((const uint8_t*)seqTxt.data()) + 1;
-    size_t data_len = seqTxt.size() - 1;
-    if (!Base64::validate(data, data_len))
-        throw parseError(builder, "Invalid Base64 encoding");
-    builder.fromSeq(Seq::Sequence::fromBase64(data, data_len));
-}
-
-// 256MB cache
-static StrCache<Pulser::BlockBuilder> seq_cache((size_t)256e6);
-
 // parse text-encoded pulse sequence
 static bool
 parseSeqTxt(Pulser::Controller &ctrl, unsigned reps,
@@ -367,33 +354,13 @@ parseSeqTxt(Pulser::Controller &ctrl, unsigned reps,
 
     tic();
 
-    Pulser::BlockBuilder _builder;
-
-    const Pulser::BlockBuilder *builder_p = seq_cache.get(seqTxt);
+    Pulser::BlockBuilder builder;
 
     uint64_t parse_time;
-    const bool is_b64 = seqTxt[0] == '=';
-    if (!builder_p) {
-        if (is_b64) {
-            parseBase64Txt(seqTxt, _builder);
-        }
-        else {
-            parsePlainTxt(seqTxt, _builder);
-        }
-        parse_time = toc();
-        // Only cache the sequence if it takes longer than 50ms and
-        // 20% of the sequence length to parse.
-        if (is_b64 && parse_time > (uint64_t)50e6 &&
-            parse_time > _builder.currT * 2)
-            builder_p = seq_cache.set(seqTxt, std::move(_builder));
-        if (!builder_p) {
-            builder_p = &_builder;
-        }
-    } else {
-        parse_time = toc();
-    }
+    parsePlainTxt(seqTxt, builder);
+    parse_time = toc();
 
-    reply << "Parsed into " << builder_p->size() << " pulses." << std::endl;
+    reply << "Parsed into " << builder.size() << " pulses." << std::endl;
 
     if (bForever) {
         nacsLog("Start continuous run.\n");
@@ -405,7 +372,7 @@ parseSeqTxt(Pulser::Controller &ctrl, unsigned reps,
 
     // now run the pulses
     // update status string every 500 ms
-    auto seq_len_ms = double(builder_p->currT) * PULSER_DT_us * 1e-3;
+    auto seq_len_ms = double(builder.currT) * PULSER_DT_us * 1e-3;
     bool terminate_request = reps == 1 && seq_len_ms <= 1000 && request;
 
     unsigned nTimingErrors = 0;
@@ -427,7 +394,7 @@ parseSeqTxt(Pulser::Controller &ctrl, unsigned reps,
         ctrl.setHold();
         ctrl.toggleInit();
         Pulser::CtrlState state;
-        Pulser::runInstructionList(&ctrl, &state, *builder_p);
+        Pulser::runInstructionList(&ctrl, &state, builder);
 
         if (terminate_request) {
             ctrl.releaseHold();

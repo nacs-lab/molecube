@@ -37,7 +37,3 @@ target_link_libraries(test-loopback nacs-utils nacs-pulser)
 set(test_regs_SOURCES test_regs.cpp)
 add_executable(test-regs ${test_regs_SOURCES})
 target_link_libraries(test-regs nacs-utils nacs-pulser)
-
-set(test_schedule_SOURCES test_schedule.cpp)
-add_executable(test-schedule ${test_schedule_SOURCES})
-target_link_libraries(test-schedule nacs-utils nacs-seq nacs-pulser)
