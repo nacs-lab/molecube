@@ -79,31 +79,6 @@ mReadSlaveReg(volatile void *base, int n)
     return mReadReg(base, slvRegOffset(n));
 }
 
-/**
- * Software Reset Space Register Offsets
- * -- RST : software reset register
- */
-static constexpr uint32_t soft_rst_space_offset = 0x100;
-static constexpr uint32_t rst_reg_offset = soft_rst_space_offset + 0x0;
-
-/**
- *
- * Reset PULSE_CONTROLLER via software.
- *
- * @param base is the base address of the PULSE_CONTROLLER device.
- *
- */
-static NACS_INLINE void
-mReset(volatile void *base)
-{
-    /**
-     * Software Reset Masks
-     * -- SOFT_RESET : software reset
-     */
-    static constexpr uint32_t soft_reset = 0x0000000a;
-    Mem::write<uint32_t>((volatile char*)base + rst_reg_offset, soft_reset);
-}
-
 }
 }
 
