@@ -2,7 +2,7 @@
 
 #include "instruction.h"
 
-#include <nacs-seq/pulser.h>
+#include <nacs-seq/bytecode.h>
 
 #include <iostream>
 
