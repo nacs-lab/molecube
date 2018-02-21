@@ -16,7 +16,6 @@
 #include <nacs-pulser/instruction.h>
 #include <nacs-utils/log.h>
 #include <nacs-utils/timer.h>
-#include <nacs-utils/base64.h>
 #include <nacs-seq/seq.h>
 
 #include <sstream>
