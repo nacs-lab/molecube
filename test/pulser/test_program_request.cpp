@@ -12,11 +12,11 @@ main()
 {
     Pulser::Controller ctrl(Pulser::mapPulserAddr());
     Pulser::BlockBuilder builder;
-    tic();
+    Timer timer;
     for (int i = 0;i < 6;i++) {
         builder.pulseDT(100000000, Inst::DDS::setFreq, 2, 0);
     }
-    printToc();
+    timer.print();
 
     std::cout << builder.size() << std::endl;
 
@@ -39,11 +39,11 @@ main()
         ctrl.toggleInit();
         Pulser::CtrlState state;
 
-        tic();
+        timer.restart();
         runInstructionList(&ctrl, &state, builder);
         // wait for pulses finished.
         ctrl.waitFinish();
-        printToc();
+        timer.print();
         std::cout << "TimingOK: " << ctrl.timingOK() << std::endl;
     }
 

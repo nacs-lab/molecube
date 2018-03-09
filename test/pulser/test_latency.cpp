@@ -14,7 +14,7 @@ double
 test_dds(Pulser::Controller &ctrl, unsigned nrun)
 {
     ctrl.releaseHold();
-    tic();
+    Timer timer;
     for (unsigned i = 0;i < nrun;i++) {
         ctrl.run(Pulser::DDSSetFreq(0, 0));
     }
@@ -22,7 +22,7 @@ test_dds(Pulser::Controller &ctrl, unsigned nrun)
         while (!ctrl.isFinished()) {
         }
     }
-    auto time = toc();
+    auto time = timer.elapsed();
     if (!wait) {
         while (!ctrl.isFinished()) {
         }

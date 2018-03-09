@@ -12,11 +12,11 @@ static inline void
 test_short_pulse(Pulser::Controller &ctrl, uint32_t t)
 {
     ctrl.releaseHold();
-    tic();
+    Timer timer;
     ctrl.shortPulse(0x20000000 | t, 0);
     while (!ctrl.isFinished()) {
     }
-    auto time = toc();
+    auto time = timer.elapsed();
     std::cout << "Average time per run for t = 0x" << std::hex << t
               << ": " << double(time) / 1e6 << " ms"
               << std::endl;

@@ -345,13 +345,13 @@ static bool parseSeqTxt(Pulser::Controller &ctrl, unsigned reps, const std::stri
         }
     }
 
-    tic();
+    Timer timer;
 
     Pulser::BlockBuilder builder;
 
     uint64_t parse_time;
     parsePlainTxt(seqTxt, builder);
-    parse_time = toc();
+    parse_time = timer.elapsed();
 
     reply << "Parsed into " << builder.size() << " pulses." << std::endl;
 
@@ -361,7 +361,7 @@ static bool parseSeqTxt(Pulser::Controller &ctrl, unsigned reps, const std::stri
         nacsLog("Run %d sequences.\n", reps);
     }
 
-    tic();
+    timer.restart();
 
     // now run the pulses
     // update status string every 500 ms
@@ -403,7 +403,7 @@ static bool parseSeqTxt(Pulser::Controller &ctrl, unsigned reps, const std::stri
         }
     }
 
-    auto run_time = toc();
+    auto run_time = timer.elapsed();
 
     reply << "Finished " << iRep << "/" << reps << " pulse sequences." << std::endl;
 
@@ -425,7 +425,7 @@ void handleRunByteCode(Pulser::Controller &ctrl, uint64_t seq_len_ns,
                        const std::function<void()> &send_reply,
                        uint32_t ttl_mask)
 {
-    tic();
+    Timer timer;
     nacsLog("Start sequence %" PRIu64 " ns.\n", seq_len_ns);
 
     // less than 1s
@@ -452,7 +452,7 @@ void handleRunByteCode(Pulser::Controller &ctrl, uint64_t seq_len_ns,
     if (!short_seq)
         send_reply();
 
-    auto run_time = toc();
+    auto run_time = timer.elapsed();
     if (!ctrl.timingOK())
         nacsLog("Warning: timing failures.\n");
 
