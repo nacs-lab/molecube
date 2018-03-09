@@ -10,7 +10,7 @@ include(CMakeCMacros)
 include(GNUInstallDirs)
 
 find_package(PkgConfig REQUIRED)
-pkg_check_modules(ZMQ REQUIRED libzmq>=4.0)
+pkg_check_modules(MDEPS REQUIRED nacs-utils>=7.0 nacs-seq libzmq>=4.0)
 
 set(PULSER_AD9914_CLK 3.5e9)
 set(PULSER_NDDS 22)
@@ -20,8 +20,8 @@ set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS)
 set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS)
 
 add_definitions(-Wall -Wextra -g -pthread -fvisibility=hidden
-  -fno-math-errno -Wconversion -Wno-sign-conversion ${ZMQ_CFLAGS})
-include_directories(${ZMQ_INCLUDE_DIRS})
+  -fno-math-errno -Wconversion -Wno-sign-conversion ${MDEPS_CFLAGS})
+include_directories(${MDEPS_INCLUDE_DIRS})
 
 cmake_c_fix_include_path(lib/pulser nacs-pulser)
 cmake_c_fix_include_path("${CMAKE_CURRENT_BINARY_DIR}/lib/pulser"

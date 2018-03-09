@@ -13,11 +13,10 @@ set(SOURCES
 add_executable(molecube ${SOURCES})
 
 set_target_properties(molecube PROPERTIES
-  LINK_FLAGS "-Wl,--as-needed ${ZMQ_LDFLAGS_OTHER}")
+  LINK_FLAGS "-Wl,--as-needed ${MDEPS_LDFLAGS_OTHER}")
 
 target_link_libraries(molecube rt cgicc fcgi fcgi++
-  nacs-utils nacs-pulser nacs-seq
-  ${ZMQ_LIBRARIES}
-  )
+  ${MDEPS_LIBRARIES}
+  nacs-pulser)
 
 install(TARGETS molecube DESTINATION "${CMAKE_INSTALL_BINDIR}")
