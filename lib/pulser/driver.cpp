@@ -18,7 +18,7 @@ mapPulserAddr()
     static auto map_addr = [] {
         nacsInfo("Initializing pulse controller\n");
         auto addr = mapFile("/dev/mem", phy_addr, 4096);
-        if (nacsUnlikely(!addr)) {
+        if (unlikely(!addr)) {
             nacsError("Can't map the memory to user space.\n");
             exit(1);
         }
