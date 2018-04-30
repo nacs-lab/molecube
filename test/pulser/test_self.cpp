@@ -1,3 +1,9 @@
+//
+
+#ifdef NDEBUG
+#  undef NDEBUG
+#endif
+
 #include <nacs-utils/timer.h>
 #include <nacs-pulser/instruction.h>
 
