@@ -39,10 +39,12 @@ runWait(Controller *__restrict__ ctrler, uint64_t &wait_time, uint64_t t,
 {
     const uint32_t flags = ControlBit::TimingCheck;
     // If the wait time is too short, don't do anything fancy
+    static constexpr uint32_t t_max = 8000; // 80us
+    static constexpr auto t_sleep = 10us;
     if (t < 50) {
         ctrler->shortPulse(0x20000000 | uint32_t(t) | flags, 0);
         return;
-    } else if (t < 10000) {
+    } else if (t < t_max * 2) {
         uint32_t t32 = uint32_t(t);
         wait_time += t32;
         if (wait_time > 8192 || t >= 1024) {
@@ -50,18 +52,20 @@ runWait(Controller *__restrict__ ctrler, uint64_t &wait_time, uint64_t t,
             // Allocate 1.28us for each pulse (except the first one)
             uint32_t max_requests = (t32 - 50) / 256 + 1;
             t32 -= (uint32_t)ctrler->writeRequests(max_requests, false, flags);
+            if (release_after) {
+                ctrler->releaseHold();
+                release_after = false;
+            }
         }
         ctrler->shortPulse(0x20000000 | t32 | flags, 0);
         return;
     }
     wait_time = 0;
-    static constexpr uint32_t t_max = 8000; // 80us
-    static constexpr auto t_sleep = 10us;
     while (true) {
         // Proceed 80us each time. If no requests are written, sleep for
         // 10us to wait for new request in order to minimize request latency
         // Also unblock the queue if some requests are written.
-        if (t >= t_max) {
+        if (t >= 2 * t_max) {
             static constexpr uint32_t max_requests = t_max / 1000;
             auto t_write = uint32_t(ctrler->writeRequests(max_requests,
                                                           true, flags));
@@ -69,18 +73,12 @@ runWait(Controller *__restrict__ ctrler, uint64_t &wait_time, uint64_t t,
             ctrler->shortPulse(0x20000000 | t_step | flags, 0);
             if (!t_write) {
                 std::this_thread::sleep_for(t_sleep);
-            } else {
+            }
+            else if (release_after) {
                 ctrler->releaseHold();
-                release_after = -1;
+                release_after = false;
             }
             t -= t_max;
-            if (release_after == 0) {
-                ctrler->releaseHold();
-                release_after = -1;
-            }
-            else if (release_after >= 0) {
-                release_after--;
-            }
         } else {
             ctrler->shortPulse(0x20000000 | uint32_t(t) | flags, 0);
             break;
@@ -117,7 +115,7 @@ runMetaInstruction(Controller *__restrict__ ctrler,
     case ControlBit::WaitMeta:
         // After removing the Meta bits, the maximum time is
         // 2^(32 + 24) * 10ns ~ 22 years. Hopefully that's enough...
-        runWait(ctrler, state->wait_time, combTime(ctrl, op), -1);
+        runWait(ctrler, state->wait_time, combTime(ctrl, op), false);
         break;
     case ControlBit::DDSSetPhaseMeta:
         // Truncate ctrl to 16 bits to get phase
@@ -202,7 +200,7 @@ struct ByteCodeRunner {
     Controller *ctrler;
     uint32_t preserve_ttl;
     uint64_t wait_time{0};
-    int release_after{30};
+    bool release_after{true};
 };
 
 }
@@ -227,7 +225,7 @@ NACS_EXPORT() void runEpilogue(Controller *__restrict__ ctrler)
     // 1us
     checkedShortPulse(ctrler, ClockOut(59));
     // 30ms
-    runWait(ctrler, wait_time, 3000000, -1);
+    runWait(ctrler, wait_time, 3000000, false);
     checkedShortPulse(ctrler, ClockOut(255));
     ctrler->run(Pulser::ClearTimingCheck());
 }
