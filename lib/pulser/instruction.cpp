@@ -222,10 +222,9 @@ NACS_EXPORT() void runEpilogue(Controller *__restrict__ ctrler)
 {
     uint64_t wait_time = 0;
     // This is a hack that is believed to make the NI card happy.
-    // 1us
-    checkedShortPulse(ctrler, ClockOut(59));
-    // 30ms
-    runWait(ctrler, wait_time, 3000000, false);
+    checkedShortPulse(ctrler, ClockOut(9));
+    // 10ms
+    runWait(ctrler, wait_time, 1000000, false);
     checkedShortPulse(ctrler, ClockOut(255));
     ctrler->run(Pulser::ClearTimingCheck());
 }
