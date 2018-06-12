@@ -89,6 +89,7 @@ Controller::popResults()
     Request *reqs[buf_size];
     auto num_pop = m_res_queue.pop(reqs, n_res);
     assert(num_pop == n_res);
+    (void)num_pop;
     m_writer_cond.notify_all();
     for (uint32_t i = 0;i < n_res;i++) {
         setRes(*reqs[i], results[i]);
