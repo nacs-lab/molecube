@@ -17,7 +17,7 @@
  *************************************************************************/
 
 #include <nacs-utils/timer.h>
-#include <nacs-utils/container.h>
+#include "../../lib/pulser/controller.h"
 
 #include <mutex>
 #include <atomic>
@@ -108,7 +108,7 @@ template<typename Lock, size_t init_size=256>
 static inline void
 test_fifo()
 {
-    FIFO<size_t, Lock> fifo(init_size);
+    Pulser::FIFO<size_t, Lock> fifo(init_size);
     assert(fifo.size() == 0);
     assert(fifo.capacity() == init_size);
     assert(fifo.spaceLeft() == init_size);
