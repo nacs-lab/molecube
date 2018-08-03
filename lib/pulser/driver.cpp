@@ -15,6 +15,7 @@ mapPulserAddr()
     // /proc/device-tree/amba@0/pulse-controller@73000000
     // with propery device tree file.
     static constexpr auto phy_addr = XPAR_PULSE_CONTROLLER_0_BASEADDR;
+    static_assert(sizeof(off_t) == 8, "");
     static auto map_addr = [] {
         nacsInfo("Initializing pulse controller\n");
         auto addr = mapFile("/dev/mem", phy_addr, 4096);
