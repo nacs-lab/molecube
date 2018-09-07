@@ -207,7 +207,7 @@ main(int argc, char *argv[])
 
             try {
                 parseSeqURL(ctrl, sStartupSeq, std::cout);
-            } catch (std::runtime_error e) {
+            } catch (const std::runtime_error &e) {
                 nacsError("Startup sequence error:   %s\n", e.what());
             }
         } else {
@@ -234,7 +234,7 @@ main(int argc, char *argv[])
                 if (!parseQueryCGI(ctrl, cgi, out)) {
                     nacsError("Couldn't understand HTTP request.\n");
                 }
-            } catch (std::runtime_error e) {
+            } catch (const std::runtime_error &e) {
                 out << "Oh noes! \n   " << e.what() << std::endl;
             }
 
