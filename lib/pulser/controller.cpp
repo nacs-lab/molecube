@@ -6,7 +6,7 @@ namespace NaCs {
 namespace Pulser {
 
 NACS_EXPORT() void
-Controller::init(bool reset)
+Controller::init()
 {
     releaseHold();
     FILE *log_f = nacsGetLog();
@@ -21,13 +21,6 @@ Controller::init(bool reset)
         }
     }
     fprintf(log_f, "\n");
-
-    if (reset) {
-        nacsInfo("PULSER_init... reset DDS\n");
-        for (unsigned i = 0;i < PULSER_NDDS;i++) {
-            run(DDSReset(i));
-        }
-    }
 }
 
 /**

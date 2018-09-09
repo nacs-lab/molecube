@@ -283,7 +283,7 @@ public:
         m_reader_thread.join();
         m_writer_thread.join();
     }
-    void init(bool reset=false);
+    void init();
 
     // For creating requests
     inline uint8_t

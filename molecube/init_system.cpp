@@ -34,7 +34,7 @@ init_system()
 
     static Controller ctrl(mapPulserAddr());
     CtrlLocker locker(ctrl);
-    ctrl.init(false);
+    ctrl.init();
     nacsLog("Initializing pulse controller...done.\n");
 
     ctrl.run(ClearTimingCheck());
