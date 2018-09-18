@@ -17,10 +17,10 @@ mapPulserAddr()
     static constexpr auto phy_addr = XPAR_PULSE_CONTROLLER_0_BASEADDR;
     static_assert(sizeof(off_t) == 8, "");
     static auto map_addr = [] {
-        nacsInfo("Initializing pulse controller\n");
+        Log::info("Initializing pulse controller\n");
         auto addr = mapFile("/dev/mem", phy_addr, 4096);
         if (unlikely(!addr)) {
-            nacsError("Can't map the memory to user space.\n");
+            Log::error("Can't map the memory to user space.\n");
             exit(1);
         }
         return addr;

@@ -17,9 +17,9 @@ print_registers(Controller &ctrl, int i)
 {
     static constexpr bool nonZeroOnly = true;
 
-    nacsLog("*******************************\n");
+    Log::log("*******************************\n");
     if (nonZeroOnly) {
-        nacsLog("***only show non-zero values***\n");
+        Log::log("***only show non-zero values***\n");
     }
 
     for (unsigned addr = 0;addr + 3 <= 0x7F;addr += 4) {
@@ -28,11 +28,11 @@ print_registers(Controller &ctrl, int i)
         uint32_t u = ((u2 & 0xffff) << 16 ) | (u0 & 0xffff);
 
         if (u || !nonZeroOnly) {
-            nacsLog("AD9914 board = %i, addr = 0x%02X...%02X = %08X\n",
+            Log::log("AD9914 board = %i, addr = 0x%02X...%02X = %08X\n",
                     i, addr + 3, addr, u);
         }
     }
-    nacsLog("*******************************\n");
+    Log::log("*******************************\n");
 }
 
 // Initialize the DDS.
@@ -51,14 +51,14 @@ init(Controller &ctrl, int i, InitFlags flags)
 
         uint32_t u0 = ctrl.run(DDSGetFourBytes(i, 0x64));
         if (log_verbose)
-            nacsLog("AD9914 board=%i  FTW7 = %08X\n", i, u0);
+            Log::log("AD9914 board=%i  FTW7 = %08X\n", i, u0);
         if (u0 == magic_bytes) {
             if (log_verbose)
-                nacsLog("No initialization required\n");
+                Log::log("No initialization required\n");
             return false;
         }
         if (log) {
-            nacsLog("Initialization required\n");
+            Log::log("Initialization required\n");
         }
     }
 
@@ -101,7 +101,7 @@ init(Controller &ctrl, int i, InitFlags flags)
     ctrl.run(DDSSetFourBytes(i, 0x64, magic_bytes));
 
     if (log)
-        nacsLog("Initialized AD9914 board=%i\n", i);
+        Log::log("Initialized AD9914 board=%i\n", i);
     return true;
 }
 

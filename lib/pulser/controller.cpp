@@ -9,7 +9,7 @@ NACS_EXPORT() void
 Controller::init()
 {
     releaseHold();
-    FILE *log_f = nacsGetLog();
+    FILE *log_f = Log::getLog();
     fprintf(log_f, "PULSE_CONTROLLER registers:\n");
     for (unsigned i = 0;i < 31;i++) {
         if (i % 4 == 0) {

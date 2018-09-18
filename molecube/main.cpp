@@ -178,12 +178,12 @@ main(int argc, char *argv[])
 
     std::string sLogFileName = cla.GetStringAfter("-l", "stdout");
     if (sLogFileName == "stdout") {
-        nacsSetLog(stdout);
+        Log::setLog(stdout);
     } else {
-        nacsSetLog(fopen(sLogFileName.c_str(), "a"));
+        Log::setLog(fopen(sLogFileName.c_str(), "a"));
     }
 
-    printHeader(nacsGetLog());
+    printHeader(Log::getLog());
 
     setProgramStatus("Initializing");
 
@@ -193,7 +193,7 @@ main(int argc, char *argv[])
     // run startup sequence
     std::string fnameStartup = cla.GetStringAfter("-s", "");
     if (fnameStartup.length()) {
-        nacsLog("Read startup sequence from: %s\n", fnameStartup.c_str());
+        Log::log("Read startup sequence from: %s\n", fnameStartup.c_str());
         std::ifstream ifs(fnameStartup);
 
         if (ifs.is_open()) {
@@ -208,14 +208,14 @@ main(int argc, char *argv[])
             try {
                 parseSeqURL(ctrl, sStartupSeq, std::cout);
             } catch (const std::runtime_error &e) {
-                nacsError("Startup sequence error:   %s\n", e.what());
+                Log::error("Startup sequence error:   %s\n", e.what());
             }
         } else {
-            nacsError("Could not open file.\n");
+            Log::error("Could not open file.\n");
         }
     }
 
-    nacsInfo("Waiting for network connections...\n\n");
+    Log::info("Waiting for network connections...\n\n");
 
     setProgramStatus("Idle");
 
@@ -224,7 +224,7 @@ main(int argc, char *argv[])
         FCGX_InitRequest(&request, 0, 0);
         while (FCGX_Accept_r(&request) == 0) {
             auto request_id = getRequestId();
-            nacsLog("==== Accept FastCGI request %d ====\n", request_id);
+            Log::log("==== Accept FastCGI request %d ====\n", request_id);
             fcgi_streambuf out_fcgi_streambuf(request.out);
             std::ostream out(&out_fcgi_streambuf);
             FCgiIO IO(request);
@@ -232,13 +232,13 @@ main(int argc, char *argv[])
             try {
                 // May finish the requesst when no error happens
                 if (!parseQueryCGI(ctrl, cgi, out)) {
-                    nacsError("Couldn't understand HTTP request.\n");
+                    Log::error("Couldn't understand HTTP request.\n");
                 }
             } catch (const std::runtime_error &e) {
                 out << "Oh noes! \n   " << e.what() << std::endl;
             }
 
-            nacsLog("==== Finish FastCGI request %d ====\n\n", request_id);
+            Log::log("==== Finish FastCGI request %d ====\n\n", request_id);
             out << std::endl;
         }
     };
@@ -268,14 +268,14 @@ main(int argc, char *argv[])
                 sock.recv(&addr);
 
                 auto request_id = getRequestId();
-                nacsLog("==== Accept ZMQ request %d ====\n", request_id);
+                Log::log("==== Accept ZMQ request %d ====\n", request_id);
 
                 zmq::message_t msg;
                 sock.recv(&msg);
                 assert(msg.size() == 0);
 
                 if (!ZMQ::recv_more(sock, msg)) {
-                    nacsLog("Empty request %d\n", request_id);
+                    Log::log("Empty request %d\n", request_id);
                     send_reply(addr, ZMQ::bits_msg(uint64_t(0)));
                     goto out;
                 }
@@ -321,12 +321,12 @@ main(int argc, char *argv[])
                         }, ttl_mask);
                 }
                 else {
-                    nacsLog("Unknown request %d\n", request_id);
+                    Log::log("Unknown request %d\n", request_id);
                     send_reply(addr, ZMQ::bits_msg(uint64_t(0)));
                 }
             out:
                 ZMQ::readall(sock);
-                nacsLog("==== Finish ZMQ request %d ====\n\n", request_id);
+                Log::log("==== Finish ZMQ request %d ====\n\n", request_id);
             }
         };
         workers.emplace_back(std::move(processZMQ));
@@ -335,7 +335,7 @@ main(int argc, char *argv[])
         t.join();
     }
 
-    nacsLog("Exit, return 0\n");
+    Log::log("Exit, return 0\n");
     setProgramStatus("Finished / Quit");
     return 0;
 }

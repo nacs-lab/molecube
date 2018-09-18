@@ -63,9 +63,9 @@ void loadMap(txtmap_t &m, const std::string &fname)
     std::ifstream is(fname.c_str());
 
     if (!is.good()) {
-        nacsError("failed to open parameters file: %s\n", fname.c_str());
+        NaCs::Log::error("failed to open parameters file: %s\n", fname.c_str());
     } else {
-        nacsLog("opened parameters file: %s\n", fname.c_str());
+        NaCs::Log::log("opened parameters file: %s\n", fname.c_str());
     }
 
     //loop through the file

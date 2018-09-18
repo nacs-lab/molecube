@@ -18,8 +18,8 @@ using namespace Pulser;
 Controller&
 init_system()
 {
-    nacsInfo("Processor clock frequency: %9.3f MHz\n", 1e-6 * CPU_FREQ_HZ);
-    nacsLog("NDDS = %d  (REF_CLK = %u MHz)   NSPI = %d\n",
+    Log::info("Processor clock frequency: %9.3f MHz\n", 1e-6 * CPU_FREQ_HZ);
+    Log::log("NDDS = %d  (REF_CLK = %u MHz)   NSPI = %d\n",
             PULSER_NDDS, (unsigned)(PULSER_AD9914_CLK * 1e-6), 2);
 
     // set priority
@@ -27,15 +27,15 @@ init_system()
     const int nice = -20;
     int ret = setpriority(PRIO_PROCESS, 0, nice);
     if (ret == 0) {
-        nacsInfo("Set priority to %d.  SUCCESS\n", nice);
+        Log::info("Set priority to %d.  SUCCESS\n", nice);
     } else {
-        nacsError("Set priority to %d.  FAILURE  ERRNO=%d\n", nice, errno);
+        Log::error("Set priority to %d.  FAILURE  ERRNO=%d\n", nice, errno);
     }
 
     static Controller ctrl(mapPulserAddr());
     CtrlLocker locker(ctrl);
     ctrl.init();
-    nacsLog("Initializing pulse controller...done.\n");
+    Log::log("Initializing pulse controller...done.\n");
 
     ctrl.run(ClearTimingCheck());
 

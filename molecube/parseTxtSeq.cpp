@@ -239,7 +239,7 @@ bool parseSeqCGI(Pulser::Controller &ctrl, cgicc::Cgicc &cgi, std::ostream &repl
     std::string seqTxt = getStringParamCGI(cgi, "seqtext", "");
     if (seqTxt.length() == 0) {
         // if missing, look for attached file (multi-part)
-        nacsLog("%d files attached\n", cgi.getFiles().size());
+        Log::log("%zd files attached\n", cgi.getFiles().size());
 
         cgicc::file_iterator i = cgi.getFile("seqtext");
         if (i != cgi.getFiles().end()) {
@@ -336,11 +336,11 @@ static bool parseSeqTxt(Pulser::Controller &ctrl, unsigned reps, const std::stri
     if (bForever)
         reps = UINT_MAX;
 
-    nacsLog("Parsing pulse sequence\n");
+    Log::log("Parsing pulse sequence\n");
 
     for (auto i: active_dds) {
         if (AD9914::init(ctrl, i, AD9914::LogAction)) {
-            nacsLog("DDS %d reinit\n", i);
+            Log::log("DDS %d reinit\n", i);
             AD9914::print_registers(ctrl, i);
         }
     }
@@ -356,9 +356,9 @@ static bool parseSeqTxt(Pulser::Controller &ctrl, unsigned reps, const std::stri
     reply << "Parsed into " << builder.size() << " pulses." << std::endl;
 
     if (bForever) {
-        nacsLog("Start continuous run.\n");
+        Log::log("Start continuous run.\n");
     } else if (reps != 1) {
-        nacsLog("Run %d sequences.\n", reps);
+        Log::log("Run %d sequences.\n", reps);
     }
 
     timer.restart();
@@ -426,7 +426,7 @@ void handleRunByteCode(Pulser::Controller &ctrl, uint64_t seq_len_ns,
                        uint32_t ttl_mask)
 {
     Timer timer;
-    nacsLog("Start sequence %" PRIu64 " ns.\n", seq_len_ns);
+    Log::log("Start sequence %" PRIu64 " ns.\n", seq_len_ns);
 
     // less than 1s
     bool short_seq = seq_len_ns <= 1000 * 1000 * 1000;
@@ -454,10 +454,10 @@ void handleRunByteCode(Pulser::Controller &ctrl, uint64_t seq_len_ns,
 
     auto run_time = timer.elapsed();
     if (!ctrl.timingOK())
-        nacsLog("Warning: timing failures.\n");
+        Log::log("Warning: timing failures.\n");
 
     Pulser::runEpilogue(&ctrl);
-    nacsLog("Exe time: %9.3f ms\n", (double)run_time * 1e-6);
+    Log::log("Exe time: %9.3f ms\n", (double)run_time * 1e-6);
 
     // Doing this check before this sequence will make the current sequence
     // more likely to work. However, that increase the latency and the DDS
@@ -465,7 +465,7 @@ void handleRunByteCode(Pulser::Controller &ctrl, uint64_t seq_len_ns,
     // for better efficiency.
     for (auto i: active_dds) {
         if (AD9914::init(ctrl, i, AD9914::LogAction)) {
-            nacsLog("DDS %d reinit\n", i);
+            Log::log("DDS %d reinit\n", i);
             AD9914::print_registers(ctrl, i);
         }
     }

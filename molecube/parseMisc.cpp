@@ -111,12 +111,12 @@ setDeviceParams(Pulser::Controller &ctrl, const std::string &page,
             pos = params.find(buff);
             if (pos != params.end()) {
                 double f = 1e6 * atof(pos->second.c_str());
-                nacsLog("DDS setfreq(%d): %12.3f\n", iDDS, f);
+                Log::log("DDS setfreq(%d): %12.3f\n", iDDS, f);
                 ctrl.reqSync(Pulser::DDSSetFreqF(iDDS, f));
                 unsigned ftw = ctrl.reqSync(Pulser::DDSGetFreq(iDDS));
                 double freq_get =
                     Pulser::DDSCvt::num2freq(ftw, PULSER_AD9914_CLK);
-                nacsLog("DDS getfreq(%d): %12.3f  (ftw = %08X)\n",
+                Log::log("DDS getfreq(%d): %12.3f  (ftw = %08X)\n",
                         iDDS, freq_get, ftw);
             }
 
@@ -125,7 +125,7 @@ setDeviceParams(Pulser::Controller &ctrl, const std::string &page,
             pos = params.find(buff);
             if (pos != params.end()) {
                 double amp = limit(atof(pos->second.c_str()), 1);
-                nacsLog("DDS setamp (%d): %6.3f %%\n", iDDS, amp * 100);
+                Log::log("DDS setamp (%d): %6.3f %%\n", iDDS, amp * 100);
                 ctrl.reqSync(Pulser::DDSSetAmpF(iDDS, amp));
             }
 
@@ -133,14 +133,14 @@ setDeviceParams(Pulser::Controller &ctrl, const std::string &page,
             pos = params.find(buff);
             if (pos != params.end()) {
                 double phase = atof(pos->second.c_str());
-                nacsLog("DDS setphase(%d): %9.3f degrees\n", iDDS, phase);
+                Log::log("DDS setphase(%d): %9.3f degrees\n", iDDS, phase);
                 ctrl.reqSync(Pulser::DDSSetPhaseF(iDDS, phase));
             }
 
             sprintf(buff, "reset%d", iDDS);
             pos = params.find(buff);
             if (pos != params.end()) {
-                nacsLog("DDS reset/init (%d)\n", iDDS);
+                Log::log("DDS reset/init (%d)\n", iDDS);
                 AD9914::init(ctrl, iDDS, AD9914::Force);
             }
         }
@@ -159,7 +159,7 @@ setDeviceParams(Pulser::Controller &ctrl, const std::string &page,
 
             ctrl.setTTLHighMask(hi);
             ctrl.setTTLLowMask(lo);
-            nacsLog("set TTL ttlHiMask=%08X  ttlLoMask=%08X\n", hi, lo);
+            Log::log("set TTL ttlHiMask=%08X  ttlLoMask=%08X\n", hi, lo);
         }
     }
 }
@@ -183,7 +183,7 @@ bool parseQueryCGI(Pulser::Controller &ctrl, cgicc::Cgicc &cgi, std::ostream &re
     cgicc::form_iterator cmd = cgi.getElement("command");
     cgicc::form_iterator page = cgi.getElement("page");
     if (cmd != cgi.getElements().end()) {
-        nacsLog("Command = %s\n", (**cmd).c_str());
+        Log::log("Command = %s\n", (**cmd).c_str());
         if ((**cmd) == "runseq") {
             parseSeqCGI(ctrl, cgi, reply);
             return true;
@@ -198,7 +198,7 @@ bool parseQueryCGI(Pulser::Controller &ctrl, cgicc::Cgicc &cgi, std::ostream &re
             sprintf(buff, "{\"lo\":%u, \"hi\":%u}", lo, hi);
             reply << buff;
 
-            nacsLog("%s\n", buff);
+            Log::log("%s\n", buff);
             return true;
         }
 
@@ -265,7 +265,7 @@ bool parseQueryCGI(Pulser::Controller &ctrl, cgicc::Cgicc &cgi, std::ostream &re
 
         return false;
     } else {
-        nacsLog("No Command\n");
+        Log::log("No Command\n");
         return false;
     }
 }
