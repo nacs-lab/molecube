@@ -3,6 +3,8 @@
 
 #include "controller.h"
 
+#include <nacs-seq/seq.h>
+
 #include <vector>
 
 namespace NaCs {
@@ -64,7 +66,7 @@ public:
         static inline Instruction
         setPhase(int i, double phase, uint64_t *tp=nullptr)
         {
-            accumTime(tp, 50);
+            accumTime(tp, Seq::PulseTime::DDSPhase);
             return Instruction(ControlBit::MetaCmd |
                                ControlBit::DDSSetPhaseMeta | DDSCvt::phase2num(phase),
                                uint32_t(i));
@@ -72,7 +74,7 @@ public:
         static inline Instruction
         shiftPhase(int i, double phase, uint64_t *tp=nullptr)
         {
-            accumTime(tp, 50);
+            accumTime(tp, Seq::PulseTime::DDSPhase);
             return Instruction(ControlBit::MetaCmd |
                                ControlBit::DDSShiftPhaseMeta | DDSCvt::phase2num(phase),
                                uint32_t(i));
@@ -80,19 +82,19 @@ public:
         static inline Instruction
         setFreq(int i, double freq, uint64_t *tp=nullptr)
         {
-            accumTime(tp, 50);
+            accumTime(tp, Seq::PulseTime::DDSFreq);
             return DDSSetFreqF(i, freq);
         }
         static inline Instruction
         setAmp(int i, double amp, uint64_t *tp=nullptr)
         {
-            accumTime(tp, 50);
+            accumTime(tp, Seq::PulseTime::DDSAmp);
             return DDSSetAmpF(i, amp);
         }
         static inline Instruction
         reset(int i, uint64_t *tp=nullptr)
         {
-            accumTime(tp, 50);
+            accumTime(tp, Seq::PulseTime::DDSReset);
             return Instruction(ControlBit::MetaCmd |
                                ControlBit::DDSResetMeta, uint32_t(i));
         }
@@ -126,13 +128,13 @@ public:
     static inline Instruction
     ttlAll(uint32_t val, uint64_t *tp=nullptr)
     {
-        return ttlAllT(val, 3, tp);
+        return ttlAllT(val, Seq::PulseTime::Min, tp);
     }
     // 30ns
     static inline Instruction
     ttl(uint8_t addr, bool val, uint64_t *tp=nullptr)
     {
-        return ttlT(addr, val, 3, tp);
+        return ttlT(addr, val, Seq::PulseTime::Min, tp);
     }
     // 50ns
     static inline Instruction
@@ -189,7 +191,7 @@ public:
     {
         if (t < currT) {
             throw std::runtime_error("Going back in time.");
-        } else if (t - currT >= 3) {
+        } else if (t - currT >= Seq::PulseTime::Min) {
             pushPulse(InstWriter::wait, t - currT);
         }
         pushPulse(std::forward<Func>(func), std::forward<Args>(args)...);

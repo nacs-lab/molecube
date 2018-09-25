@@ -40,7 +40,7 @@ init_system()
     ctrl.run(ClearTimingCheck());
 
     // detect active DDS
-    for (unsigned j = 0;j < PULSER_MAX_NDDS;j++) {
+    for (unsigned j = 0;j < PULSER_NDDS;j++) {
         if (ctrl.run(DDSExists(j))) {
             active_dds.push_back(j);
         }

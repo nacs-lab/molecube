@@ -26,7 +26,7 @@ using namespace std::literals;
 /**
  * Each request should be writing two 32-bit words to the FIFO (slave reg 31)
  * and should last for no more than 500ns, the precise length of the pulse
- * is stored in `length` (< 50) in unit of FPGA clock (10ns)
+ * is stored in `length` (< `Seq::PulseTime::_DDS`) in unit of FPGA clock (10ns)
  */
 struct Request {
     bool ready: 1;

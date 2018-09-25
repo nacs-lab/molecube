@@ -41,7 +41,7 @@ runWait(Controller *__restrict__ ctrler, uint64_t &wait_time, uint64_t t,
     // If the wait time is too short, don't do anything fancy
     static constexpr uint32_t t_max = 8000; // 80us
     static constexpr auto t_sleep = 10us;
-    if (t < 50) {
+    if (t < Seq::PulseTime::_DDS) {
         ctrler->shortPulse(0x20000000 | uint32_t(t) | flags, 0);
         return;
     } else if (t < t_max * 2) {
@@ -50,7 +50,7 @@ runWait(Controller *__restrict__ ctrler, uint64_t &wait_time, uint64_t t,
         if (wait_time > 8192 || t >= 1024) {
             wait_time = 0;
             // Allocate 1.28us for each pulse (except the first one)
-            uint32_t max_requests = (t32 - 50) / 256 + 1;
+            uint32_t max_requests = (t32 - Seq::PulseTime::_DDS) / 256 + 1;
             t32 -= (uint32_t)ctrler->writeRequests(max_requests, false, flags);
             if (release_after) {
                 ctrler->releaseHold();
@@ -159,7 +159,7 @@ runInstructionList(Controller *__restrict__ ctrler,
         __builtin_prefetch(cur_inst + 2);
         runInstruction(ctrler, state, cur_inst);
     }
-    ctrler->shortPulse(0x20000000 | 3, 0);
+    ctrler->shortPulse(0x20000000 | Seq::PulseTime::Min, 0);
 }
 
 namespace {
@@ -215,7 +215,7 @@ void runByteCode(Controller *__restrict__ ctrler,
     ByteCodeRunner runner{ctrler, preserve_ttl};
     Seq::ByteCode::ExeState exestate;
     exestate.run(runner, code, code_len);
-    ctrler->shortPulse(0x20000000 | 3, 0);
+    ctrler->shortPulse(0x20000000 | Seq::PulseTime::Min, 0);
 }
 
 NACS_EXPORT() void runEpilogue(Controller *__restrict__ ctrler)

@@ -4,6 +4,7 @@
 #include "converter.h"
 #include <nacs-pulser/pulser-config.h>
 #include <nacs-utils/number.h>
+#include <nacs-seq/seq.h>
 
 namespace NaCs {
 namespace Pulser {
@@ -124,7 +125,7 @@ public:
 template<bool has_res>
 struct DDSCmd : SimpleCmd<has_res> {
     constexpr DDSCmd(uint32_t ctrl, uint32_t op)
-        : SimpleCmd<has_res>(0x10000000 | ctrl, op, 50)
+        : SimpleCmd<has_res>(0x10000000 | ctrl, op, Seq::PulseTime::_DDS)
     {}
 };
 
