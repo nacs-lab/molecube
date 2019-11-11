@@ -279,6 +279,11 @@ main(int argc, char *argv[])
                     send_reply(addr, ZMQ::bits_msg(uint64_t(0)));
                     goto out;
                 }
+                else if (ZMQ::match(msg, "has_override")) {
+                    uint32_t lo = ctrl.getTTLLowMask();
+                    uint32_t hi = ctrl.getTTLHighMask();
+                    send_reply(addr, ZMQ::bits_msg(uint32_t(lo | hi)));
+                }
                 else if (ZMQ::match(msg, "run_seq")) {
                     if (!ZMQ::recv_more(sock, msg) || msg.size() != 4) {
                         // No version
