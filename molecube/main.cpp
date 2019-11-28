@@ -256,22 +256,22 @@ main(int argc, char *argv[])
             sock.bind(zmqaddr);
             zmq::message_t empty(0);
             auto send_reply_header = [&] (zmq::message_t &addr) {
-                sock.send(addr, ZMQ_SNDMORE);
-                sock.send(empty, ZMQ_SNDMORE);
+                ZMQ::send_more(sock, addr);
+                ZMQ::send_more(sock, empty);
             };
             auto send_reply = [&] (zmq::message_t &addr, auto &&msg) {
                 send_reply_header(addr);
-                sock.send(msg);
+                ZMQ::send(sock, msg);
             };
             while (true) {
                 zmq::message_t addr;
-                sock.recv(&addr);
+                ZMQ::recv(sock, addr);
 
                 auto request_id = getRequestId();
                 Log::log("==== Accept ZMQ request %d ====\n", request_id);
 
                 zmq::message_t msg;
-                sock.recv(&msg);
+                ZMQ::recv(sock, msg);
                 assert(msg.size() == 0);
 
                 if (!ZMQ::recv_more(sock, msg)) {
