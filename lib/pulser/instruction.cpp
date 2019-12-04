@@ -2,6 +2,8 @@
 
 #include "instruction.h"
 
+#include <nacs-utils/timer.h>
+
 #include <nacs-seq/bytecode.h>
 
 #include <iostream>
@@ -165,54 +167,140 @@ runInstructionList(Controller *__restrict__ ctrler,
 namespace {
 
 struct ByteCodeRunner {
+    ByteCodeRunner(Controller *ctrler, uint32_t preserve_ttl, bool short_seq)
+        : ctrler(ctrler),
+          preserve_ttl(preserve_ttl),
+          short_seq(short_seq)
+    {
+    }
     void ttl(uint32_t ttl, uint64_t t)
     {
         ttl = ttl | preserve_ttl;
         if (t <= 1000) {
             // 10us
+            m_t += t;
             checkedShortPulse(ctrler, (uint32_t)t, ttl);
         }
         else {
+            m_t += 100;
             checkedShortPulse(ctrler, 100, ttl);
             wait(t - 100);
         }
     }
     void dds_freq(uint8_t chn, uint32_t freq)
     {
+        m_t += Seq::PulseTime::DDSFreq;
         checkedShortPulse(ctrler, DDSSetFreq(chn, freq));
     }
     void dds_amp(uint8_t chn, uint16_t amp)
     {
+        m_t += Seq::PulseTime::DDSAmp;
         checkedShortPulse(ctrler, DDSSetAmp(chn, amp));
     }
     void dac(uint8_t chn, uint16_t V)
     {
+        m_t += Seq::PulseTime::DAC;
         checkedShortPulse(ctrler, DACSetVolt(chn, V));
-    }
-    void wait(uint64_t t)
-    {
-        runWait(ctrler, wait_time, t, release_after);
     }
     void clock(uint8_t period)
     {
+        m_t += Seq::PulseTime::Clock;
         checkedShortPulse(ctrler, ClockOut(period));
     }
+    void wait(uint64_t t)
+    {
+        constexpr static uint32_t max_wait_t = (1 << 24) - 1;
+        auto short_wait = [&] (uint32_t t) {
+            ctrler->shortPulse(0x20000000 | t | ControlBit::TimingCheck, 0);
+        };
+        auto output_wait = [&] (uint64_t t) {
+            m_t += t;
+            while (t > max_wait_t + 100) {
+                t -= max_wait_t;
+                short_wait(max_wait_t);
+            }
+            if (t > max_wait_t) {
+                auto t0 = t / 2;
+                short_wait(uint32_t(t0));
+                short_wait(uint32_t(t - t0));
+            }
+            else if (t > 0) {
+                short_wait(uint32_t(t));
+            }
+        };
+        if (!short_seq) {
+            // The sequence is short enough that we can let the web page wait.
+            output_wait(t);
+            return;
+        }
+        if (t < 2000) {
+            // If the wait time is too short, don't do anything fancy
+            m_t += t;
+            short_wait(uint32_t(t));
+            return;
+        }
+        while (true) {
+            // Now we always make sure that the sequence time is at least 0.5s ahead of
+            // the real time.
+            auto tnow = getCoarseTime();
+            // Current sequence time in real time.
+            auto seq_rt = m_start_t + m_t * 10;
+            // We need to output to this time before processing commands.
+            auto thresh_rt = tnow + m_min_t;
+            if (seq_rt < thresh_rt) {
+                auto min_seqt = max((seq_rt - thresh_rt) / 10, 10000);
+                if (t <= min_seqt + 3000) {
+                    output_wait(t);
+                    return;
+                }
+                output_wait(min_seqt);
+                t -= min_seqt;
+                continue;
+            }
+            if (unlikely(!m_released)) {
+                m_released = true;
+                assert(t >= 2000);
+                m_t += 1000;
+                output_wait(1000);
+                t -= 1000;
+                ctrler->releaseHold();
+            }
+            // We have time to do something else
+            uint32_t max_requests = t >= 7000 ? 8 : uint32_t(t / 1000 + 1);
+            uint32_t stept = (uint32_t)ctrler->writeRequests(max_requests, false,
+                                                             ControlBit::TimingCheck);
+            if (stept > 0) {
+                m_t += stept;
+                t -= stept;
+            } else {
+                // Didn't find much to do. Sleep for a while
+                using namespace std::literals;
+                std::this_thread::sleep_for(1ms);
+            }
+        }
+    }
+
+private:
     Controller *ctrler;
-    uint32_t preserve_ttl;
-    uint64_t wait_time{0};
-    bool release_after{true};
+    const uint32_t preserve_ttl;
+    const bool short_seq;
+    bool m_released{false};
+    uint64_t m_t{0};
+    const uint64_t m_start_t{getCoarseTime()};
+    // Minimum time we stay ahead of the sequence.
+    const uint64_t m_min_t{max(getCoarseRes() * 20, 500000000)}; // 0.5s
 };
 
 }
 
 NACS_EXPORT() __attribute__((flatten, hot))
-void runByteCode(Controller *__restrict__ ctrler,
-                 const uint8_t *__restrict__ code, size_t code_len, uint32_t ttl_mask)
+void runByteCode(Controller *__restrict__ ctrler, const uint8_t *__restrict__ code,
+                 size_t code_len, uint32_t ttl_mask, bool short_seq)
 {
     uint32_t preserve_ttl = 0;
     if (~ttl_mask != 0)
         preserve_ttl = (~ttl_mask) & ctrler->getCurTTL();
-    ByteCodeRunner runner{ctrler, preserve_ttl};
+    ByteCodeRunner runner{ctrler, preserve_ttl, short_seq};
     Seq::ByteCode::ExeState exestate;
     exestate.run(runner, code, code_len);
     ctrler->shortPulse(0x20000000 | Seq::PulseTime::Min, 0);

@@ -439,7 +439,7 @@ void handleRunByteCode(Pulser::Controller &ctrl, uint64_t seq_len_ns,
     // ctrl.waitFinish() is called
     ctrl.setHold();
     ctrl.toggleInit();
-    Pulser::runByteCode(&ctrl, code, code_len, ttl_mask);
+    Pulser::runByteCode(&ctrl, code, code_len, ttl_mask, short_seq);
     ctrl.releaseHold();
 
     if (short_seq) {

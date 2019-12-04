@@ -165,7 +165,7 @@ runInstructionList(Controller *__restrict__ ctrler,
 
 void runByteCode(Controller *__restrict__ ctrler,
                  const uint8_t *__restrict__ code, size_t code_len,
-                 uint32_t ttl_mask);
+                 uint32_t ttl_mask, bool short_seq);
 void runEpilogue(Controller *__restrict__ ctrler);
 
 struct BlockBuilder : public std::vector<Instruction> {
