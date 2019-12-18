@@ -255,25 +255,17 @@ main(int argc, char *argv[])
             zmq::socket_t sock(ctx, ZMQ_ROUTER);
             sock.bind(zmqaddr);
             zmq::message_t empty(0);
-            auto send_reply_header = [&] (zmq::message_t &addr) {
-                ZMQ::send_more(sock, addr);
-                ZMQ::send_more(sock, empty);
-            };
-            auto send_reply = [&] (zmq::message_t &addr, auto &&msg) {
-                send_reply_header(addr);
+            auto send_reply = [&] (auto &addr, auto &&msg) {
+                ZMQ::send_addr(sock, addr, empty);
                 ZMQ::send(sock, msg);
             };
             while (true) {
-                zmq::message_t addr;
-                ZMQ::recv(sock, addr);
+                auto addr = ZMQ::recv_addr(sock);
 
                 auto request_id = getRequestId();
                 Log::log("==== Accept ZMQ request %d ====\n", request_id);
 
                 zmq::message_t msg;
-                ZMQ::recv(sock, msg);
-                assert(msg.size() == 0);
-
                 if (!ZMQ::recv_more(sock, msg)) {
                     Log::log("Empty request %d\n", request_id);
                     send_reply(addr, ZMQ::bits_msg(uint64_t(0)));

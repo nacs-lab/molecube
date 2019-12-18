@@ -10,7 +10,7 @@ include(CMakeCMacros)
 include(GNUInstallDirs)
 
 find_package(PkgConfig REQUIRED)
-pkg_check_modules(MDEPS REQUIRED nacs-utils>=10.0 nacs-seq libzmq>=4.0)
+pkg_check_modules(MDEPS REQUIRED nacs-utils>=10.1 nacs-seq libzmq>=4.0)
 
 set(PULSER_AD9914_CLK 3.5e9)
 set(PULSER_NDDS 22)
